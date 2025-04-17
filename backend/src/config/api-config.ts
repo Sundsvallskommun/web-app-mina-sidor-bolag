@@ -4,23 +4,6 @@ export const APIS = [
     name: 'businessengagements',
     version: '3.0',
   },
-  /** MyRepresentatives api currently disabled */
-  // {
-  //   name: 'myrepresentatives',
-  //   version: '3.0',
-  // },
-  {
-    name: 'case-data',
-    version: '11.1',
-  },
-  {
-    name: 'supportmanagement',
-    version: '10.1',
-  },
-  {
-    name: 'casestatus',
-    version: '4.0',
-  },
   {
     name: 'contactsettings',
     version: '2.0',
@@ -30,8 +13,8 @@ export const APIS = [
     version: '3.0',
   },
   {
-    name: 'messaging',
-    version: '6.1',
+    name: 'disturbances',
+    version: '5.0',
   },
   {
     name: 'invoices',
