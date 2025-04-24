@@ -24,16 +24,16 @@ export const invoicesLabels = [
 ];
 
 export const statusMapInvoices = {
-  PAID: { label: 'Betald', color: 'info' },
-  PAID_TOO_MUCH: { label: 'För mycket betalt', color: 'info' },
+  PAID: { label: 'Betald', color: 'success' },
+  PAID_TOO_MUCH: { label: 'För mycket betalt', color: 'success' },
 
   CREDITED: { label: 'Krediterad', color: 'neutral' },
   WRITTEN_OFF: { label: 'Avskriven', color: 'neutral' },
   UNKNOWN: { label: 'Okänd', color: 'neutral' },
   VOID: { label: 'Makulerad', color: 'neutral' },
 
-  UNPAID: { label: 'Ej betald', color: 'warning' },
-  SENT: { label: 'Ej betald', color: 'warning' },
+  UNPAID: { label: 'Obetald', color: 'warning' },
+  SENT: { label: 'Obetald', color: 'warning' },
   PARTIALLY_PAID: { label: 'Delvis betald', color: 'warning' },
 
   REMINDER: { label: 'Påminnelse', color: 'error' },
