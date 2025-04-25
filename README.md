@@ -25,7 +25,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 1. Klona ner repot.
 
 ```
-git clone git@github.com:Sundsvallskommun/web-app-business-center.git
+git clone git@github.com:Sundsvallskommun/web-app-mina-sidor-bolag.git
 ```
 
 2. Installera dependencies för både `backend` och `frontend`
@@ -42,7 +42,7 @@ yarn install
 
 ```
 cd frontend
-cp .env-example .env
+cp .env.example .env
 ```
 
 Redigera `.env` för behov, för utveckling bör exempelvärdet fungera.
