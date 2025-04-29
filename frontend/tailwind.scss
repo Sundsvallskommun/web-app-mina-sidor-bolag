@@ -102,4 +102,12 @@ body {
       }
     }
   }
+
+  .msi-pink {
+    @apply bg-[#FAE9E7]
+  }
+
+  .msi-red {
+    @apply text-[#600724]
+  }
 }
