@@ -1,3 +1,4 @@
+import { IInvoice } from "@interfaces/invoice";
 import { Pagination, Table } from "@sk-web-gui/react";
 import { ReactNode } from "react";
 
@@ -10,9 +11,11 @@ export interface ManualTableColumn {
   renderColumn?: (value: string | number, item) => ReactNode;
 }
 
+type RowTypeUnion = IInvoice;
+
 interface ManualTableProps {
-    className: string;
-    rows: [];
+    className?: string;
+    rows: RowTypeUnion[];
     columns: ManualTableColumn[];
     pageCount: number;
     activePage: number;
@@ -30,7 +33,7 @@ export const ManualTable = ({ columns, rows, pageCount, activePage, onPageChange
                     return (
                     <Table.HeaderColumn key={`header-${headerIndex}`} scope="row" sticky={sticky} className={className}>
                         <span className='sk-table-sortbutton' data-sronly={screenReaderOnly}>
-                        { label }
+                            { label }
                         </span>
                     </Table.HeaderColumn>
                     );
@@ -50,7 +53,7 @@ export const ManualTable = ({ columns, rows, pageCount, activePage, onPageChange
 
                             return (
                             <Table.Column key={`col${colIndex}`} scope="row" sticky={sticky} className={className}>
-                                { render(value, invoice) }
+                                { render(value as unknown as (string | number), invoice) }
                             </Table.Column>
                             );
                         })}
@@ -58,16 +61,15 @@ export const ManualTable = ({ columns, rows, pageCount, activePage, onPageChange
                     );
                 })}
             </Table.Body>
-            <Table.Footer>
-                <div className="sk-table-bottom-section-spacer"></div>
-                <div className="sk-table-paginationwrapper">
-                    { pageCount > 1 ? 
-                    ( <Pagination className="sk-table-pagination" pagesBefore={2} pagesAfter={2} pages={pageCount} activePage={activePage} changePage={(page) => onPageChange?.(page)} fitContainer/>
-                    ): undefined
-                }
-                </div>
-                <div className="sk-table-bottom-section-spacer"></div>
-            </Table.Footer>
+            { pageCount > 1 ? (
+                <Table.Footer>
+                    <div className="sk-table-bottom-section-spacer"></div>
+                    <div className="sk-table-paginationwrapper">
+                        <Pagination className="sk-table-pagination" pagesBefore={1} pagesAfter={1} pages={pageCount} activePage={activePage} changePage={(page) => onPageChange?.(page)} showConstantPages fitContainer/>
+                    </div>
+                    <div className="sk-table-bottom-section-spacer"></div>
+                </Table.Footer>
+            ): undefined }
         </Table>
     );
 };

@@ -44,8 +44,9 @@ export class InvoicesController {
         limit,
       };
       const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
-      const { invoices } = res.data;
+      const { invoices, _meta } = res.data;
       data.invoices = invoices;
+      data._meta = _meta;
 
       return { data, message: 'success' };
     }

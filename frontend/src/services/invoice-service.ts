@@ -4,14 +4,14 @@ import {
   InvoicePdfData,
   InvoiceStatus,
   InvoicesData,
-  InvoicesResponse,
-  InvoicesResponseData,
 } from '@interfaces/invoice';
 import { apiService, ApiResponse } from './api-service';
+import { Invoice, InvoicesResponse } from '@data-contracts/invoices/data-contracts';
 
 export const emptyInvoicesList: InvoicesData = {
   invoices: [],
   labels: [],
+  totalCount: 0,
 };
 
 export const invoicesLabels = [
@@ -40,7 +40,13 @@ export const statusMapInvoices = {
   DEBT_COLLECTION: { label: 'Förfallen', color: 'error' },
 };
 
-export const mapStatus = (s: InvoiceStatus) => {
+export const mapStatus = (s?: InvoiceStatus) => {
+  if (s === undefined)
+    return {
+      code: 'UNKNOWN' as InvoiceStatus,
+      color: statusMapInvoices['UNKNOWN'].color,
+      label: statusMapInvoices['UNKNOWN'].label,
+    };
   return Object.keys(statusMapInvoices).includes(s as unknown as string)
     ? { code: s, color: statusMapInvoices[s].color, label: statusMapInvoices[s].label }
     : {
@@ -51,15 +57,12 @@ export const mapStatus = (s: InvoiceStatus) => {
 };
 
 export const handleInvoiceResponse: (data: InvoicesResponse) => IInvoice[] = (data) =>
-  data.invoices.map((n: InvoicesResponseData) => ({
-    invoiceNumber: n.invoiceNumber,
-    dueDate: n.dueDate,
-    invoiceDescription: n.invoiceDescription,
-    totalAmount: n.totalAmount,
-    pdfAvailable: n.pdfAvailable,
+  data.invoices ?
+  data.invoices.map((n: Invoice) => ({
+    ...n,
     invoiceStatus: mapStatus(n.invoiceStatus),
-    ocrNumber: n.ocrNumber,
-  }));
+  })) :
+  [];
 
 // export const getInvoices: () => Promise<InvoicesData> = () =>
 //   apiService
@@ -70,6 +73,7 @@ export const handleInvoiceResponse: (data: InvoicesResponse) => IInvoice[] = (da
 export const invoicesHandler = (data: InvoicesResponse): InvoicesData => ({
   invoices: handleInvoiceResponse(data),
   labels: invoicesLabels,
+  totalCount: data._meta?.totalRecords ?? 0,
 });
 
 export const notPaidInvoices = ['UNPAID', 'SENT', 'PARTIALLY_PAID', 'REMINDER', 'DEBT_COLLECTION'];

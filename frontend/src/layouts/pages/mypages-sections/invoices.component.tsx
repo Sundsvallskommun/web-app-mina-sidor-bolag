@@ -2,57 +2,12 @@
 
 import { FormControl, FormLabel, Select, Spinner } from '@sk-web-gui/react';
 import { InvoicesTable } from './invoices/invoices-table.component';
-import { InvoicesData, InvoicesResponse } from '@interfaces/invoice';
-import {
-  emptyInvoicesList,
-  invoicesHandler,
-} from '@services/invoice-service';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useApi } from '@services/api-service';
+import { InvoiceStatus } from '@data-contracts/invoices/data-contracts';
 
 export default function Invoices() {
-  const [facilityId, setFacilityId] = useState<string[] | undefined>();
-
-  const unpaidInvoicesSearchParams = new URLSearchParams({});
-  unpaidInvoicesSearchParams.append('invoiceStatus', 'SENT');
-  if (facilityId?.length)
-    unpaidInvoicesSearchParams.append('facilityId', facilityId.toString());
-
-  const allInvoicesSearchParams = new URLSearchParams({});
-  allInvoicesSearchParams.append('limit', '25');
-  allInvoicesSearchParams.append('page', '1');
-  if (facilityId?.length)
-    allInvoicesSearchParams.append('facilityId', facilityId.toString());
-
-  const {
-    data: unpaidInvoices = emptyInvoicesList,
-    isLoading: unpaidIsLoading,
-    isFetching: unpaidIsFetching,
-    refetch: refetchUnpaid,
-  } = useApi<InvoicesResponse, Error, InvoicesData>({
-    queryKey: ['/invoices', unpaidInvoicesSearchParams.toString()],
-    url: `/invoices?${unpaidInvoicesSearchParams.toString()}`,
-    queryOptions: {
-      enabled: false,
-    },
-    method: 'get',
-    dataHandler: invoicesHandler,
-  });
-
-  const {
-    data: invoices = emptyInvoicesList,
-    isLoading: invoicesIsLoading,
-    isFetching: invoicesIsFetching,
-    refetch: refetchInvoices,
-  } = useApi<InvoicesResponse, Error, InvoicesData>({
-    queryKey: ['/invoices', allInvoicesSearchParams.toString()],
-    url: `/invoices?${allInvoicesSearchParams.toString()}`,
-    queryOptions: {
-      enabled: false,
-    },
-    method: 'get',
-    dataHandler: invoicesHandler,
-  });
+  const [facilityIds, setFacilityIds] = useState<string[] | undefined>();
 
   const {
     data: addresses = [],
@@ -62,19 +17,14 @@ export default function Invoices() {
     method: 'get',
   });
 
-  const handleOnSelectValue = (value: string) => {
+  const handleOnSelectAddress = (value: string) => {
     if (!value) {
-      setFacilityId([]);
+      setFacilityIds([]);
       return;
     }
     const facilityIds = JSON.parse(value);
-    setFacilityId(facilityIds);
+    setFacilityIds(facilityIds);
   };
-
-  useEffect(() => {
-    refetchUnpaid();
-    refetchInvoices();
-  }, [facilityId, refetchInvoices, refetchUnpaid]);
 
   return (
     <div className="flex flex-col gap-[6.4rem]">
@@ -87,7 +37,7 @@ export default function Invoices() {
           (
             <FormControl className="w-full mt-24">
               <FormLabel>Välj fakturor per adress</FormLabel>                                
-              <Select title="address" size="sm" onSelectValue={handleOnSelectValue}>
+              <Select title="address" size="sm" onSelectValue={handleOnSelectAddress}>
                 <Select.Option key="all" value="">
                   Välj adress
                 </Select.Option>
@@ -101,31 +51,21 @@ export default function Invoices() {
               </Select>
             </FormControl>
           ): (
-            <Spinner className="mt-24" aria-label="Hämtar addresser"></Spinner>
+            <p>Laddar adresser</p>
           )
         }
       </div>
-
-      { (!invoicesIsLoading && !unpaidIsLoading && !addressesIsLoading) ?
-          invoices.invoices.length > 0 ?
-            (
-              <>
-                <InvoicesTable
-                  data={unpaidInvoices}
-                  heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
-                  isFetchingData={unpaidIsFetching}
-                />
-                <InvoicesTable
-                  data={invoices}
-                  heading={<h2 className="text-h3">Alla fakturor</h2>}
-                  isFetchingData={invoicesIsFetching}
-                />
-              </>
-            ): (
-              <p>Du har inga fakturor än, men så fort det finns något att behandla kan du se det här.</p>
-            )
-        : undefined
-      }
+      <InvoicesTable
+        heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
+        pageSize={12}
+        facilityIds={facilityIds}
+        statusFilter={'SENT' as InvoiceStatus}
+      />
+      <InvoicesTable
+        heading={<h2 className="text-h3">Alla fakturor</h2>}
+        pageSize={12}
+        facilityIds={facilityIds}
+      />
     </div>
   );
 }

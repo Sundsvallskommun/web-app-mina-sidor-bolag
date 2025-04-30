@@ -1,34 +1,131 @@
 import { CardList } from '@components/cards/cards.component';
 import { TableWrapper } from '@components/table-wrapper/table-wrapper.component';
 import { IInvoice, InvoicesData } from '@interfaces/invoice';
-import { AutoTable, AutoTableHeader, Label, useThemeQueries } from '@sk-web-gui/react';
-import { useRef, useState } from 'react';
+import { Label, useThemeQueries } from '@sk-web-gui/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
 import { InvoiceTableCard } from './invoices-table-card.component';
+import { ManualTable, ManualTableColumn } from '@components/manual-table/manual-table.component';
+import { InvoicesResponse, InvoiceStatus } from '@data-contracts/invoices/data-contracts';
+import { useApi } from '@services/api-service';
+import { emptyInvoicesList, invoicesHandler } from '@services/invoice-service';
 
-export const InvoicesTable: React.FC<{
-  data?: InvoicesData;
-  heading: React.ReactNode;
-  isFetchingData: boolean;
-}> = (props) => {
-  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>();
-  const ref = useRef<null | HTMLDivElement>(null);
+interface InvoiceTableContentProps {
+  columns: ManualTableColumn[],
+  rows: IInvoice[],
+  isFetching: boolean;
+  totalCount: number;
+  pageSize: number;
+  activePage: number;
+  onPageChange: (page: number) => void;
+}
+
+const InvoiceTableContent = ({columns, rows, isFetching, totalCount, pageSize, activePage, onPageChange}: InvoiceTableContentProps) => {
   const { isMinDesktop } = useThemeQueries();
 
-  const headers: Array<AutoTableHeader | string> = [
+  if (isFetching && !rows.length)
+    return <p>Laddar fakturor</p>;
+
+  if (!isFetching && !rows.length)
+    return <p>Inga fakturor</p>;
+
+  const pageCount = Math.ceil(totalCount / pageSize);
+
+  return (
+    <div>
+      {isMinDesktop ? (
+        <ManualTable
+          pageCount={pageCount}
+          activePage={activePage}            
+          columns={columns}
+          rows={rows}
+          onPageChange={onPageChange}
+        />
+      ) : (
+        <CardList
+          data={rows}
+          Card={InvoiceTableCard}
+          amountDisplayed={9999}
+          showAmountString={false}
+        />
+      )}
+    </div>
+  );
+};
+
+const getOrgName = (orgNumber: string) => {
+  switch (orgNumber) {
+    case '5564786647':
+      return 'Sundsvall Energi';
+    case '5565027223':
+      return 'Sundsvall Elnät';
+    default: 
+      return 'Okänt';
+  }
+};
+
+export const InvoicesTable: React.FC<{
+  heading: React.ReactNode;
+  pageSize: number;
+  facilityIds?: string[];
+  statusFilter?: InvoiceStatus;
+}> = ({heading, pageSize, facilityIds, statusFilter}) => {
+  const [pendingDocuments, setPendingDocuments] = useState<{ [key: string]: boolean }>();
+  const [activePage, setActivePage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [rows, setRows] = useState<IInvoice[]>([]);
+  const ref = useRef<null | HTMLDivElement>(null);
+
+  const searchParams = new URLSearchParams({});
+  searchParams.append('limit', pageSize.toString());
+  searchParams.append('page', activePage.toString());
+  if (facilityIds?.length)
+    searchParams.append('facilityId', facilityIds.toString());
+  if (statusFilter)
+    searchParams.append('invoiceStatus', statusFilter.toString());
+
+  const {
+    data= emptyInvoicesList,
+    isFetching,
+    refetch,
+  } = useApi<InvoicesResponse, Error, InvoicesData>({
+    queryKey: ['/invoices', searchParams.toString()],
+    url: `/invoices?${searchParams.toString()}`,
+    method: 'get',
+    queryOptions: {
+      enabled: false,
+    },
+    dataHandler: invoicesHandler,
+  });
+
+  useEffect(() => {
+    if (data.invoices.length) {
+      setTotalCount(data.totalCount);
+      setRows(data.invoices);
+    }
+  }, [setRows, setTotalCount, data]);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch, activePage, facilityIds, statusFilter]);
+
+  const columns: ManualTableColumn[] = useMemo(() => [
     {
-      label: 'Namn',
+      label: 'Leverantör',
       sticky: true,
       property: 'invoiceDescription',
-      screenReaderOnly: false,
-      isColumnSortable: true,
-      renderColumn: (value) => <div className="text-left text-small font-bold">{value}</div>,
+      className: 'max-w-[160px]',
+      renderColumn: (value, item) => (
+        <div className="text-left text-small">
+          <span className="font-bold">{getOrgName(item.organizationNumber)}</span><br/>
+          <span>{value}</span>
+        </div>
+      ),
     },
     {
       label: 'Status',
-      sticky: false,
       property: 'invoiceStatus.label',
-      screenReaderOnly: false,
+      className: 'max-w-[140px]',
       renderColumn: (value, item) => (
         <div className="text-left">
           <Label rounded inverted={item.invoiceStatus?.color !== 'neutral'} color={item.invoiceStatus?.color}>
@@ -36,87 +133,55 @@ export const InvoicesTable: React.FC<{
           </Label>
         </div>
       ),
-      isColumnSortable: true,
+    },
+    {
+      label: 'Fakturadatum',
+      property: 'invoiceDate',
+      className: 'max-w-[120px]',
     },
     {
       label: 'Förfallodatum',
-      sticky: false,
       property: 'dueDate',
-      screenReaderOnly: false,
-      isColumnSortable: true,
-      renderColumn: (value) => <div className="text-left">{value}</div>,
+      className: 'max-w-[120px]',
     },
     {
       label: 'Belopp',
       sticky: false,
       property: 'totalAmount',
+      className: 'max-w-[100px]',
       screenReaderOnly: false,
-      isColumnSortable: true,
       renderColumn: (value) => <div className="text-left">{`${value} kr`}</div>,
     },
     {
-      label: 'OCR-nummer',
-      sticky: false,
+      label: 'Fakturanummer',
       property: 'ocrNumber',
-      screenReaderOnly: false,
-      isColumnSortable: true,
-      renderColumn: (value) => <div className="text-left">{value}</div>,
+      className: 'max-w-[146px]',
+    },
+    {
+      label: 'Adress',
+      property: 'invoiceAddress.street',
+      className: 'max-w-[146px]',
     },
     {
       label: 'Hämta faktura',
-      sticky: false,
       property: 'dueDate',
+      className: 'max-w-[146px]',
       screenReaderOnly: true,
       renderColumn: (value, item: IInvoice) => (
         <div className="text-left">
-          <GetPdfButton isLoading={isLoading} setIsLoading={setIsLoading} item={item} />
+          <GetPdfButton isLoading={pendingDocuments} setIsLoading={setPendingDocuments} item={item} />
         </div>
       ),
-      isColumnSortable: false,
     },
-  ];
-
-  const Table = () => {
-    return (
-      <>
-        {props.data && props.data?.invoices?.length === 0 && !props.isFetchingData ? (
-          <p>Inga fakturor</p>
-        ) : props.data && props.data?.invoices?.length > 0 ? (
-          <></>
-        ) : (
-          props.isFetchingData && <p>Laddar fakturor</p>
-        )}
-        {props.data && props.data?.invoices?.length > 0 && (
-          <div>
-            {isMinDesktop ? (
-              <AutoTable
-                className="[&_table]:table-fixed"
-                tableSortable={false}
-                wrappingBorder
-                pageSize={9999}
-                footer={false}
-                background={false}
-                autodata={props.data?.invoices}
-                autoheaders={headers}
-              />
-            ) : (
-              <CardList
-                data={props.data?.invoices}
-                Card={InvoiceTableCard}
-                amountDisplayed={9999}
-                showAmountString={false}
-              />
-            )}
-          </div>
-        )}
-      </>
-    );
-  };
+  ], [getOrgName, pendingDocuments, setPendingDocuments]);
 
   return (
     <div ref={ref}>
-      <TableWrapper header={props.heading}>
-        <Table />
+      <TableWrapper header={heading}>
+        <InvoiceTableContent
+          {...{columns, rows, isFetching, totalCount, pageSize, activePage}}
+          onPageChange={(page) => setActivePage(page)}
+        />
       </TableWrapper>
     </div>
   );
