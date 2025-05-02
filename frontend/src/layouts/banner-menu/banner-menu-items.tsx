@@ -20,6 +20,12 @@ export const useBannerMenuItems = () => {
     >
       Ärenden
     </NextLink>,
+    <NextLink key={`banner-menu-item-2`} className="w-full flex items-center justify-center" href={`${myPagesRoute}/#`}>
+      Avtal
+    </NextLink>,
+    <NextLink key={`banner-menu-item-2`} className="w-full flex items-center justify-center" href={`${myPagesRoute}/#`}>
+      Statistik
+    </NextLink>,
     <NextLink
       key={`banner-menu-item-2`}
       className="w-full flex items-center justify-center"
