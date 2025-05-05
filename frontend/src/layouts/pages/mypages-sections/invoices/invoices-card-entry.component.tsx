@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
 
-export const InvoiceTableCard: React.FC<{ item: IInvoice }> = ({ item }) => {
+export const InvoicesCardEntry: React.FC<{ item: IInvoice }> = ({ item }) => {
   const [open, setOpen] = useState(false);
   return (
     <Card>
