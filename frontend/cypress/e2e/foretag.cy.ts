@@ -27,7 +27,7 @@ describe('Företag', () => {
   });
   it('should render Fakturor when clicked', () => {
     cy.contains('[role="menuitem"]', 'Fakturor').click();
-    cy.wait('@getInvoices').then(() => {
+    cy.wait(['@getInvoices', '@getAddresses']).then(() => {
       cy.url().should('include', '/foretag/fakturor');
       testInvoices(RepresentingMode.BUSINESS);
     });

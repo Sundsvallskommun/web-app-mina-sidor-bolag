@@ -6,6 +6,7 @@ import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements'
 import { getCases } from 'cypress/fixtures/getCases';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
 import { getInvoices } from 'cypress/fixtures/getInvoices';
+import { getFacilityAddresses } from 'cypress/fixtures/getFacilityAddresses';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { getMe } from '../fixtures/getMe';
 
@@ -25,7 +26,8 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
   interceptRepresentingMode(representingMode);
   cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
   cy.intercept('GET', '**/api/cases', getCases(representingMode)).as(`getCases`);
-  cy.intercept('GET', '**/api/invoices', getInvoices(representingMode)).as('getInvoices');
+  cy.intercept('GET', '**/api/addresses', getFacilityAddresses(representingMode)).as('getAddresses');
+  cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
 };
 
