@@ -24,13 +24,15 @@ export const BannerMenu: React.FC = () => {
       : representingEntity?.PRIVATE?.name;
 
   return (
-    <div className="w-full msi-pink">
+    <div className="w-full bg-error-background-100">
       <div className="max-w-content mx-auto relative overflow-hidden">
         <div className="max-w-main-content z-10 relative mx-auto pl-20 lg:pl-0 pt-[6rem] pl- flex flex-col items-start">
           <span className="text-dark-secondary text-h3 font-header">Mina sidor</span>
           <span
             data-cy="representingLabel"
-            className={cx('text-display-3-sm msi-red lg:text-display-2-md xs:mb-32 lg:mb-48')}
+            className={cx(
+              'text-display-3-sm text-inverted-error-background-100 lg:text-display-2-md xs:mb-32 lg:mb-48'
+            )}
           >
             {representingLabel}
           </span>
