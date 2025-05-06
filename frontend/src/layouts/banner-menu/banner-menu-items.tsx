@@ -20,7 +20,11 @@ export const useBannerMenuItems = () => {
     >
       Ärenden
     </NextLink>,
-    <NextLink key={`banner-menu-item-2`} className="w-full flex items-center justify-center" href={`${myPagesRoute}/#`}>
+    <NextLink
+      key={`banner-menu-item-2`}
+      className="w-full flex items-center justify-center"
+      href={`${myPagesRoute}/avtal`}
+    >
       Avtal
     </NextLink>,
     <NextLink key={`banner-menu-item-2`} className="w-full flex items-center justify-center" href={`${myPagesRoute}/#`}>
