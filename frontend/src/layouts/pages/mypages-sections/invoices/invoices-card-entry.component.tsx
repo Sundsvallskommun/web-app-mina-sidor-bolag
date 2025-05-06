@@ -4,9 +4,8 @@ import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
-import { getOrganizationName } from '@utils/organizations';
 
-export const InvoicesCardEntry: React.FC<{ item: IInvoice }> = ({ item }) => {
+export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvoice }> = ({ organizationName, item }) => {
   const [open, setOpen] = useState(false);
   return (
     <Card>
@@ -14,7 +13,7 @@ export const InvoicesCardEntry: React.FC<{ item: IInvoice }> = ({ item }) => {
         <div className="flex flex-col gap-[1.6rem]">
           <div>
             <div className="flex flex-row">
-              <h3 className="font-bold text-label-large line-height-[2.6rem]">{getOrganizationName(item.organizationNumber!)}</h3>
+              <h3 className="font-bold text-label-large line-height-[2.6rem]">{organizationName}</h3>
               <Label
                 rounded
                 inverted={item.invoiceStatus?.color !== 'neutral'}

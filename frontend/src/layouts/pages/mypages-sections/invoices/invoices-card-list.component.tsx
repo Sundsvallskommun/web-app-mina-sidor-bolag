@@ -1,10 +1,11 @@
 import { IInvoice, InvoicesData } from "@interfaces/invoice";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { InvoicesResponse, InvoiceStatus } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
 import { InvoicesCardEntry } from "./invoices-card-entry.component";
 import { Button } from "@sk-web-gui/react";
+import { User } from "@interfaces/user";
 
 interface InvoiceTableContentProps {
     pageSize: number;
@@ -13,12 +14,9 @@ interface InvoiceTableContentProps {
 }
 
 export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceTableContentProps) => {
-    const [rows, setRows] = useState<IInvoice[]>([]);
     const [activePage, setActivePage] = useState<number>(1);
+    const [rows, setRows] = useState<IInvoice[]>([]);
     const previousRows = useRef<IInvoice[]>([]);
-    const previousFacilityIds = useRef<string[] | undefined>(undefined);
-    const previousStatusFilter = useRef<string | undefined>(undefined);
-    const fetchedOnce = useRef<boolean>(false);
     const totalCount = useRef<number>(0);
 
     const searchParams = new URLSearchParams({});
@@ -31,7 +29,7 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
 
     const {
         data= emptyInvoicesList,
-        isFetching,
+        isFetched,
         refetch,
     } = useApi<InvoicesResponse, Error, InvoicesData>({
         queryKey: ['/invoices', searchParams.toString()],
@@ -43,52 +41,40 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
         dataHandler: invoicesHandler,
     });
 
-    const loadAppend = () => {
-        setActivePage(activePage + 1);
-        setTimeout(() => {
-            refetch();
-        }, 50);
-    };
+    const {
+        data: userData,
+    } = useApi<User>({ url: '/me', method: 'get' });
 
     useEffect(() => {
-        if (isFetching)
-            return;
-
-        if (data.invoices.length > 0) {
-            const ocrNumbers = previousRows.current.map(row => row.ocrNumber);
-            const nonDupes = data.invoices.filter(invoice => !ocrNumbers.includes(invoice.ocrNumber));
-            const newRows = [...previousRows.current, ...nonDupes];
-            previousRows.current = newRows;
-            setRows(newRows);
-        }
-        totalCount.current = data.totalCount;
-    }, [setRows, isFetching]);
+        refetch();
+    }, [refetch, activePage]);
 
     useEffect(() => {
-        const facilitiesChanged = facilityIds !== previousFacilityIds.current;
-        previousFacilityIds.current = facilityIds ? [...facilityIds] : undefined;
-        const statusFilterChanged = statusFilter !== previousStatusFilter.current;
-        previousStatusFilter.current = statusFilter;
-
-        if (!facilitiesChanged && !statusFilterChanged && fetchedOnce.current)
-            return;
-        
-        if (!fetchedOnce.current)
-            fetchedOnce.current = true;
-
         previousRows.current = [];
         setActivePage(1);
-        setTimeout(() => {
-            refetch();
-        }, 50);
+        refetch();
     }, [refetch, setActivePage, facilityIds, statusFilter]);
+
+    useEffect(() => {
+        if (!isFetched)
+            return;
+
+        const totalRows = [...previousRows.current, ...data.invoices];
+        previousRows.current = totalRows;
+        totalCount.current = data.totalCount;
+        setRows(totalRows);
+    }, [setRows, isFetched, data]);
+
+    const getOrganizationName = useMemo(() => (organizationNumber: string): string => {
+        return userData?.relations.find(relation => relation.organizationNumber === organizationNumber)?.organizationName ?? 'Okänd';
+    }, [userData]);
 
     const canFetch = rows.length < totalCount.current;
 
-    if (isFetching && !rows.length)
+    if (!isFetched && !rows.length)
         return <p>Laddar fakturor</p>;
 
-    if (!isFetching && !rows.length)
+    if (isFetched && !rows.length)
         return <p>Inga fakturor</p>;
 
     return (
@@ -96,13 +82,13 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
             <div className="flex flex-col gap-[1.6rem]">
                 { rows.map((invoice, index) => {
                     return (
-                        <InvoicesCardEntry key={index} item={invoice}/>
+                        <InvoicesCardEntry key={index} organizationName={getOrganizationName(invoice.organizationNumber!)} item={invoice}/>
                     );
                 })}
             </div>
             <span className="text-base text-center text-secondary mt-[2.4rem]">{`Visar ${rows.length} av ${totalCount.current}`}</span>
             { canFetch ? (
-                <Button className="m-auto mt-[1.2rem]" variant="secondary" size="lg" onClick={loadAppend} loading={isFetching}>
+                <Button className="m-auto mt-[1.2rem]" variant="secondary" size="lg" onClick={() => setActivePage(activePage + 1)} loading={!isFetched}>
                     Ladda mer
                 </Button>
             ): undefined }

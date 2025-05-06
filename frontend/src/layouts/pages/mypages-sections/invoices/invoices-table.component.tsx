@@ -1,12 +1,12 @@
 import { ManualTable, ManualTableColumn } from "@components/manual-table/manual-table.component";
 import { IInvoice, InvoicesData } from "@interfaces/invoice";
 import { Label } from "@sk-web-gui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GetPdfButton } from "./get-pdf-button.component";
 import { InvoicesResponse, InvoiceStatus } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
-import { getOrganizationName } from "@utils/organizations";
+import { User } from "@interfaces/user";
 
 interface InvoiceTableContentProps {
     pageSize: number;
@@ -17,8 +17,8 @@ interface InvoiceTableContentProps {
 export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTableContentProps) => {
     const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
     const [activePage, setActivePage] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
     const [rows, setRows] = useState<IInvoice[]>([]);
+    const totalCount = useRef<number>(0);
 
     const searchParams = new URLSearchParams({});
     searchParams.append('limit', pageSize.toString());
@@ -30,7 +30,7 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTabl
 
     const {
         data= emptyInvoicesList,
-        isFetching,
+        isFetched,
         refetch,
     } = useApi<InvoicesResponse, Error, InvoicesData>({
         queryKey: ['/invoices', searchParams.toString()],
@@ -42,16 +42,30 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTabl
         dataHandler: invoicesHandler,
     });
 
-    useEffect(() => {
-        refetch();
-    }, [refetch, activePage, facilityIds, statusFilter]);
+    const {
+        data: userData,
+    } = useApi<User>({ url: '/me', method: 'get' });
 
     useEffect(() => {
-        if (data.invoices.length) {
-            setTotalCount(data.totalCount);
-            setRows(data.invoices);
-        }
-    }, [setRows, setTotalCount, data]);
+        setActivePage(1);
+        refetch();
+    }, [refetch, setActivePage, facilityIds, statusFilter]);
+
+    useEffect(() => {
+        refetch();
+    }, [refetch, activePage]);
+
+    useEffect(() => {
+        if (!isFetched)
+            return;
+
+        totalCount.current = data.totalCount;
+        setRows(data.invoices);
+    }, [setRows, isFetched, data]);
+
+    const getOrganizationName = useMemo(() => (organizationNumber: string): string => {
+        return userData?.relations.find(relation => relation.organizationNumber === organizationNumber)?.organizationName ?? 'Okänd';
+    }, [userData]);
 
     const columns: ManualTableColumn[] = useMemo(() => [
         {
@@ -117,15 +131,15 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTabl
                 </div>
             ),
         },
-    ], [pdfIsLoading, setPdfIsLoading]);
+    ], [pdfIsLoading, setPdfIsLoading, getOrganizationName]);
 
-    if (isFetching && !rows.length)
+    if (!isFetched && !rows.length)
         return <p>Laddar fakturor</p>;
 
-    if (!isFetching && !rows.length)
+    if (isFetched && !rows.length)
         return <p>Inga fakturor</p>;
 
-    const pageCount = Math.ceil(totalCount / pageSize);
+    const pageCount = Math.ceil(totalCount.current / pageSize);
 
     return (
         <ManualTable
