@@ -1,6 +1,8 @@
 import { User } from '@interfaces/users.interface';
 import { Request } from 'express';
 import { RepresentingEntity } from './representing.interface';
+import { FacilityAddress } from './facility-address.interface';
+import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { CaseStatusResponse } from '@/data-contracts/casestatus/data-contracts';
 
 export interface DataStoredInToken {
@@ -22,5 +24,7 @@ export interface RequestWithUser extends Request {
         [key: string]: CaseStatusResponse[];
       };
     };
+    relations?: CustomerRelation[];
+    addresses?: FacilityAddress[];
   };
 }

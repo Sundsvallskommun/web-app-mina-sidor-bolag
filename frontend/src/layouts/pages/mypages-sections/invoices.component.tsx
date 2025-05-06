@@ -5,17 +5,15 @@ import { InvoicesList } from './invoices/invoices-list.component';
 import { useState } from 'react';
 import { useApi } from '@services/api-service';
 import { InvoiceStatus } from '@data-contracts/invoices/data-contracts';
+import { User } from '@interfaces/user';
 
 export default function Invoices() {
   const [facilityIds, setFacilityIds] = useState<string[] | undefined>();
 
   const {
-    data: addresses = [],
-    isLoading: addressesIsLoading,
-  } = useApi<{address: string; facilityIds: string[]}[]>({
-    url: '/addresses',
-    method: 'get',
-  });
+    data: userData,
+    isLoading: userDataIsLoading,
+  } = useApi<User>({ url: '/me', method: 'get' });
 
   const handleOnSelectAddress = (value: string) => {
     if (!value) {
@@ -33,7 +31,7 @@ export default function Invoices() {
           <h1>Dina fakturor</h1>
         </div>
       </div> 
-      { !addressesIsLoading ?
+      { !userDataIsLoading ?
         (
           <FormControl className="w-full desktop:w-fit">
             <FormLabel>Visa fakturor per adress</FormLabel>                                
@@ -42,7 +40,7 @@ export default function Invoices() {
                 Välj adress
               </Select.Option>
               {
-                addresses.map(({address, facilityIds}, index) => (
+                userData?.addresses.map(({address, facilityIds}, index) => (
                   <Select.Option key={`${index}`} value={JSON.stringify(facilityIds)}>
                     { address }
                   </Select.Option>

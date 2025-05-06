@@ -25,7 +25,7 @@ describe('Privat', () => {
   });
   it('should render Fakturor when clicked', () => {
     cy.contains('[role="menuitem"]', 'Fakturor').click();
-    cy.wait(['@getInvoices', '@getAddresses']).then(() => {
+    cy.wait(['@getUser', '@getInvoices']).then(() => {
       cy.url().should('include', '/privat/fakturor');
       testInvoices(RepresentingMode.PRIVATE);
     });
