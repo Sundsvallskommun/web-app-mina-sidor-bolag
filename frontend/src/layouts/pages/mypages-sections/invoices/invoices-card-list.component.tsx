@@ -89,7 +89,7 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
             <span className="text-base text-center text-secondary mt-[2.4rem]">{`Visar ${rows.length} av ${totalCount.current}`}</span>
             { canFetch ? (
                 <Button className="m-auto mt-[1.2rem]" variant="secondary" size="lg" onClick={() => setActivePage(activePage + 1)} loading={!isFetched}>
-                    Ladda mer
+                    Visa fler
                 </Button>
             ): undefined }
         </div>

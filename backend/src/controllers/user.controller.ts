@@ -64,30 +64,55 @@ export class UserController {
     }
 
     if (!req.cache.relations) {
-      const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
-      const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
-      req.cache.relations = relationsRes?.data?.customerRelations ?? [];
+      try {
+        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
+        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
+        const relations = relationsRes.data?.customerRelations ?? [];
+        req.cache.relations = relations.map(relation => ({
+          ...relation,
+          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+        }));
+      } catch (error) {
+        // Handle 404 as empty
+        if (error.status === 404) {
+          req.cache.relations = [];
+        }
+        else {
+          throw new HttpException(500, 'Could not fetch customer relations');
+        }
+      }
     }
 
     if (!req.cache.addresses) {
+      const relations = req.cache?.relations ?? [];
       const addressDictionary: {[key: string]: string[]} = {};
-      for (const {organizationNumber} of req.cache.relations) {
-        const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
-        const installedBaseParams = {
-          partyId: req.user.partyId,
-        };
-        const installedBaseRes = await this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req);
-        const customer = installedBaseRes.data.installedBaseCustomers[0];
-
-        for (const installation of customer.items) {
-          const {address: { street }, facilityId} = installation;
-          const addressKey = street; //.replace(' Solcellsanläggning', '');
-
-          if (!addressDictionary[addressKey])
-            addressDictionary[addressKey] = [];
-
-          if (!addressDictionary[addressKey].includes(facilityId))
-            addressDictionary[addressKey].push(facilityId);
+      for (const {organizationNumber} of relations) {
+        try {
+          const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
+          const installedBaseParams = {
+            partyId: req.user.partyId,
+          };
+          const installedBaseRes = await this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req);
+          const customer = installedBaseRes.data.installedBaseCustomers[0];
+  
+          for (const installation of customer.items) {
+            const {address: { street }, facilityId} = installation;
+            const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
+  
+            if (!addressDictionary[addressKey])
+              addressDictionary[addressKey] = [];
+  
+            if (!addressDictionary[addressKey].includes(facilityId))
+              addressDictionary[addressKey].push(facilityId);
+          }
+        } catch(error) {
+          // Handle 404 as empty
+          if (error.status === 404) {
+            //
+          }
+          else {
+            throw new HttpException(500, 'Could not fetch installedbases');
+          }
         }
       }
       req.cache.addresses = Object.entries(addressDictionary).map(([k, v]) => ({address: k, facilityIds: v}));
