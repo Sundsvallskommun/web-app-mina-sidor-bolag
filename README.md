@@ -13,7 +13,6 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Invoices            |     8.0 |
 | SimulatorServer     |     2.0 |
 | Customer            |     4.0 |
-| Agreenebt           |     4.0 |
 | Installedbase       |     3.0 |
 
 ## Utveckling

@@ -21,9 +21,9 @@ export interface Problem {
 }
 
 export interface StatusType {
+  reasonPhrase?: string;
   /** @format int32 */
   statusCode?: number;
-  reasonPhrase?: string;
 }
 
 export interface ConstraintViolationProblem {
@@ -133,7 +133,10 @@ export interface CustomerDetailsRequest {
   /** The sort order direction */
   sortDirection?: Direction;
   partyId?: string[];
-  /** Organization id for customer engagements */
+  /**
+   * Organization id for customer engagements
+   * @minLength 1
+   */
   customerEngagementOrgId: string;
   /**
    * Earliest date and time for when to search for change from. Format is yyyy-MM-dd'T'HH:mm:ss.SSSXXX

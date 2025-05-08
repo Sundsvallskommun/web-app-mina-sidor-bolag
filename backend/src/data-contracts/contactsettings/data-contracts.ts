@@ -15,9 +15,9 @@ export interface Problem {
   /** @format uri */
   type?: string;
   parameters?: Record<string, object>;
-  status?: StatusType;
   title?: string;
   detail?: string;
+  status?: StatusType;
 }
 
 export interface StatusType {
@@ -86,9 +86,9 @@ export interface ThrowableProblem {
   /** @format uri */
   type?: string;
   parameters?: Record<string, object>;
-  status?: StatusType;
   title?: string;
   detail?: string;
+  status?: StatusType;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -118,11 +118,13 @@ export interface ContactChannel {
   contactMethod: ContactMethod;
   /**
    * Alias for the destination
+   * @minLength 1
    * @example "Private phone"
    */
   alias: string;
   /**
    * Point of destination
+   * @minLength 1
    * @example "+46701234567"
    */
   destination: string;
@@ -173,8 +175,11 @@ export interface DelegateCreateRequest {
    * @example "4a758ca4-6df5-43f4-a7ce-612f51f9da09"
    */
   agentId: string;
-  /** Filters used by this delegate */
-  filters: Filter[];
+  /**
+   * Filters used by this delegate
+   * @minItems 1
+   */
+  filters?: Filter[];
 }
 
 /** Filter model */
@@ -210,6 +215,7 @@ export interface Filter {
    * The filter rules.
    * If more than one rule exists, there will be an implicit AND-condition between the rules.
    * I.e. all rules must evaluate to true in order to pass the filter.
+   * @minItems 1
    */
   rules: Rule[];
 }
@@ -252,6 +258,7 @@ export enum Operator {
 export interface Rule {
   /**
    * The attribute name to apply the filter rule on
+   * @minLength 1
    * @example "facilityId"
    */
   attributeName: string;
@@ -259,6 +266,7 @@ export interface Rule {
   operator: Operator;
   /**
    * The attribute value to apply the filter rule on
+   * @minLength 1
    * @example "12345678"
    */
   attributeValue: string;

@@ -1,5 +1,5 @@
 import { IInvoice } from "@interfaces/invoice";
-import { Pagination, Table } from "@sk-web-gui/react";
+import { cx, Pagination, Table } from "@sk-web-gui/react";
 import { ReactNode } from "react";
 
 export interface ManualTableColumn {
@@ -28,10 +28,10 @@ export const ManualTable = ({ columns, rows, pageCount, activePage, onPageChange
 
     return (
         <Table {...rest} background wrappingBorder>
-            <Table.Header>
+            <Table.Header className="bg-background-content border-divider border-b-1">
                 { columns.map(({label, sticky, className, screenReaderOnly}, headerIndex) => {
                     return (
-                    <Table.HeaderColumn key={`header-${headerIndex}`} scope="row" sticky={sticky} className={className}>
+                    <Table.HeaderColumn key={`header-${headerIndex}`} scope="row" sticky={sticky} className={cx('bg-background-content', className)}>
                         <span className='sk-table-sortbutton' data-sronly={screenReaderOnly}>
                             { label }
                         </span>

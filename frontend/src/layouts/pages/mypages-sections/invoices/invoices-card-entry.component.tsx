@@ -55,7 +55,7 @@ export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvo
             </div>
           ): undefined }
 
-          <div className="border-b-2 color-gray"></div>
+          <div className="border-b-1 border-divider"></div>
 
           <Button
             className="w-full border-0 hover:bg-transparent"
