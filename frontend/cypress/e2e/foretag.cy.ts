@@ -1,5 +1,5 @@
 import { RepresentingMode } from '@interfaces/app';
-import { testCases, testContactSettings, testInvoices } from 'cypress/e2e/utils';
+import { testContactSettings, testInvoices } from 'cypress/e2e/utils';
 import { getBusinessRepresentFromEngagements, getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { setIntercepts } from 'cypress/support/e2e';
 
@@ -16,13 +16,6 @@ describe('Företag', () => {
     cy.contains('[role="menuitem"]', 'Översikt').should('exist');
     cy.wait('@getCases').then(() => {
       cy.url().should('include', '/foretag/oversikt');
-    });
-  });
-  it('should render Ärenden when clicked', () => {
-    cy.contains('[role="menuitem"]', 'Ärenden').click();
-    cy.wait('@getCases').then(() => {
-      cy.url().should('include', '/foretag/arenden');
-      testCases(RepresentingMode.BUSINESS);
     });
   });
   it('should render Fakturor when clicked', () => {

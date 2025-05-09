@@ -1,6 +1,5 @@
 import App from '@/app';
 import { BusinessEngagementController } from '@controllers/business-engagement.controller';
-import { CaseController } from '@controllers/case.controller';
 import { FeedbackController } from '@controllers/feedback.controller';
 import { IndexController } from '@controllers/index.controller';
 import { NotificationsController } from '@controllers/notifications.controller';
@@ -15,7 +14,6 @@ validateEnv();
 
 const app = new App([
   IndexController,
-  CaseController,
   BusinessEngagementController,
   RepresentingController,
   UserController,

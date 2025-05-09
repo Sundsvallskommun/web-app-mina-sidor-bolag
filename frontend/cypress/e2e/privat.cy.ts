@@ -1,5 +1,5 @@
 import { RepresentingMode } from '@interfaces/app';
-import { testCases, testContactSettings, testInvoices } from 'cypress/e2e/utils';
+import { testContactSettings, testInvoices } from 'cypress/e2e/utils';
 import { setIntercepts } from 'cypress/support/e2e';
 
 describe('Privat', () => {
@@ -14,13 +14,6 @@ describe('Privat', () => {
   it('should render /privat/oversikt as default page', () => {
     cy.wait('@getCases').then(() => {
       cy.url().should('include', '/privat/oversikt');
-    });
-  });
-  it('should render Ärenden when clicked', () => {
-    cy.contains('[role="menuitem"]', 'Ärenden').click();
-    cy.wait('@getCases').then(() => {
-      cy.url().should('include', '/privat/arenden');
-      testCases(RepresentingMode.PRIVATE);
     });
   });
   it('should render Fakturor when clicked', () => {
