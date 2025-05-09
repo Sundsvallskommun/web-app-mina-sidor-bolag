@@ -7,6 +7,8 @@ const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
     feedbackLifespan: res.data.userSettings.feedbackLifespan,
     readNotificationsClearedDate: res.data.userSettings.readNotificationsClearedDate,
   },
+  relations: res.data.relations,
+  addresses: res.data.addresses,
 });
 
 export const getMe: () => Promise<User> = () => {

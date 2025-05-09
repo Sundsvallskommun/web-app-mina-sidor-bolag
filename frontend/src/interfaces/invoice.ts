@@ -1,18 +1,14 @@
+import { Invoice } from '@data-contracts/invoices/data-contracts';
 import { ApiResponseMeta } from './service';
 
-export interface IInvoice {
-  invoiceNumber: string;
-  dueDate: string;
-  invoiceDescription: string;
-  totalAmount: number;
-  pdfAvailable: boolean;
+export interface IInvoice extends Omit<Invoice, 'invoiceStatus'> {
   invoiceStatus: { code: InvoiceStatus; color: string; label: string };
-  ocrNumber: string;
 }
 
 export interface InvoicesData {
   invoices: IInvoice[];
   labels: { label: string; screenReaderOnly: boolean; sortable: boolean }[];
+  totalCount: number;
 }
 
 export interface InvoicesResponse {

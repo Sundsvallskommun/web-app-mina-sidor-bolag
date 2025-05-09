@@ -14,46 +14,47 @@ const emptyInvoice = {
   invoices: [],
   _meta: undefined,
 };
+
 @Controller()
 export class InvoicesController {
   private apiService = new ApiService();
   private apiBase = getApiBase('invoices');
 
   @Get('/invoices')
-  @OpenAPI({ summary: 'Return a list of invoices for current represented organization' })
+  @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
     const { representing } = req?.session;
+    const { facilityId, invoiceStatus, page, limit } = req.query;
 
-    if (!getRepresentingPartyId(representing)) {
+    const partyId = getRepresentingPartyId(representing);
+    if (!partyId) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const invoiceDateFrom = new Date();
-    invoiceDateFrom.setMonth(invoiceDateFrom.getMonth() - 12); // 12 months back
-
-    const params = {
-      partyId: getRepresentingPartyId(representing),
-      organizationNumber: 2120002411, // Issuer, municipality
-      invoiceDateFrom: invoiceDateFrom.toISOString().split('T')[0],
-      // page: 1, // default
-      // limit: 100, // default
-    };
+    const data = Object.assign({}, emptyInvoice);
 
     try {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/PUBLIC_ADMINISTRATION`;
+      const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
+      const params = {
+        partyId,
+        facilityId,
+        invoiceStatus,
+        page,
+        limit,
+      };
       const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
+      const { invoices, _meta } = res.data;
+      data.invoices = invoices;
+      data._meta = _meta;
 
-      if (res.data && Array.isArray(res.data?.invoices) && res.data.invoices.length < 1) {
-        return { data: emptyInvoice, message: 'success' };
-      }
-
-      return { data: res.data, message: 'success' };
-    } catch (error) {
+      return { data, message: 'success' };
+    }
+    catch (error) {
       if (error.status === 404) {
-        return { data: emptyInvoice, message: '404 from api, Assumed empty array' };
+        return { data, message: '404 from api, Assumed empty array' };
       } else {
-        return { data: emptyInvoice, message: 'error' };
+        return { data, message: 'error' };
       }
     }
   }

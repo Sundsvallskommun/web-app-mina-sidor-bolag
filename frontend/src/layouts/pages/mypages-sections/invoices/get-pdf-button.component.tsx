@@ -51,12 +51,12 @@ export const GetPdfButton: React.FC<{
       aria-label={`Hämta faktura ${item.invoiceDescription}`}
       size={isMinDesktop ? 'sm' : 'lg'}
       variant="secondary"
-      loading={isLoading?.[item.invoiceNumber]}
+      loading={isLoading?.[item.invoiceNumber!]}
       loadingText="Hämtar"
-      onClick={() => getPdf(item.invoiceNumber)}
+      onClick={() => getPdf(item.invoiceNumber!)}
       rightIcon={<Icon icon={<ArrowDownToLine />} />}
     >
-      Hämta faktura
+      Hämta pdf
     </Button>
   );
 };

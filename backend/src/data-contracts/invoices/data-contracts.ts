@@ -76,7 +76,7 @@ export interface InvoicesParameters {
    * @minItems 1
    * @uniqueItems true
    */
-  partyId: string[];
+  partyId?: string[];
   facilityId?: string[];
   /**
    * Invoice number

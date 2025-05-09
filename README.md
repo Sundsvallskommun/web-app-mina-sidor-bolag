@@ -12,6 +12,8 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Disturbances        |     5.0 |
 | Invoices            |     8.0 |
 | SimulatorServer     |     2.0 |
+| Customer            |     4.0 |
+| Installedbase       |     3.0 |
 
 ## Utveckling
 

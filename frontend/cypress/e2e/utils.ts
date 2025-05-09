@@ -146,7 +146,7 @@ export const testCases = (representingMode: RepresentingMode = representingModeD
 };
 
 export const testPaidInvoices = (representingMode: RepresentingMode = representingModeDefault) => {
-  cy.contains('h1, h2', /^betalda/i)
+  cy.contains('h2', /^Ohanterade fakturor/i)
     .next('div')
     .contains('th', 'Status')
     .parents('table')
@@ -159,8 +159,8 @@ export const testPaidInvoices = (representingMode: RepresentingMode = representi
     });
 };
 
-export const testNotPaidInvoices = (representingMode: RepresentingMode = representingModeDefault) => {
-  cy.contains('h1, h2', /obetalda/i)
+export const testAllInvoices = (representingMode: RepresentingMode = representingModeDefault) => {
+  cy.contains('h2', /Alla fakturor/i)
     .next('div')
     .contains('th', 'Status')
     .parents('table')
@@ -173,24 +173,11 @@ export const testNotPaidInvoices = (representingMode: RepresentingMode = represe
     });
 };
 
-export const testOtherInvoices = (representingMode: RepresentingMode = representingModeDefault) => {
-  cy.contains('h1, h2', /övriga/i)
-    .next('div')
-    .contains('th', 'Status')
-    .parents('table')
-    .find('tbody')
-    .within(() => {
-      otherInvoices.map((key) => {
-        cy.contains(statusMapInvoices[key].label).should('exist');
-        cy.contains(RepresentingMode[representingMode]).should('exist');
-      });
-    });
-};
-
-export const testPaidInvoicesMobile = () => {
+// NOTE: Outdated, needs updating if used
+export const testAllInvoicesMobile = () => {
   cy.viewport('iphone-5');
 
-  cy.contains('h1, h2', /^betalda/i)
+  cy.contains('h2', /^betalda/i)
     .next()
     .contains('*', /Visar \d+ av \d+/)
     .should('not.exist');
@@ -215,12 +202,12 @@ export const testPaidInvoicesMobile = () => {
 
 export const testPaidInvoicesPdf = () => {
   cy.intercept('GET', '**/api/invoicepdf/999', getPdf).as('getPdf');
-  cy.contains('h1, h2', /^betalda/i)
+  cy.contains('h2', /^Ohanterade fakturor/i)
     .next('div')
     .contains('th', 'Status')
     .parents('table')
     .find('tbody tr:nth-child(1)')
-    .contains('button', 'Hämta faktura')
+    .contains('button', 'Hämta pdf')
     .click();
   cy.wait('@getPdf').then((interception) => {
     expect(interception.response?.statusCode).to.eq(200);

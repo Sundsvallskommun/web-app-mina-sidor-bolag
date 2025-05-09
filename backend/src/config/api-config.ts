@@ -20,6 +20,14 @@ export const APIS = [
     name: 'invoices',
     version: '8.0',
   },
+  {
+    name: 'customer',
+    version: '4.0',
+  },
+  {
+    name: 'installedbase',
+    version: '3.0',
+  },
 ] as const;
 
 export const getApiBase = (name: string) => {
