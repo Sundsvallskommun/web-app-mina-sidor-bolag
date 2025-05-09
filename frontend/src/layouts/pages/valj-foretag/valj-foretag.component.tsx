@@ -71,25 +71,21 @@ export default function ValjForetag() {
           </div>
         </main>
       ) : (
-        <EntryLayout
-          title="Välj företag"
-          logoClasses="hidden medium-device:block"
-          className="!py-0 !medium-device:py-40 !px-0"
-        >
-          <div className="w-full max-w-[73.8rem]">
-            <CardElevated className="py-24 lg:py-40 px-14 lg:px-80">
+        <EntryLayout title="Välj företag" className="lg:py-80 py-40 px-16">
+          <div className="w-full max-w-[73.8rem] pt-16">
+            <CardElevated className="py-40 px-14 lg:px-80">
               <Main>
                 <div>
-                  <h1 className="text-h1-small lg:text-h2-lg">Välj företaget du vill företräda</h1>
+                  <h1 className="text-center text-h1-small lg:text-h2-lg">Välj organisationen du vill företräda</h1>
                 </div>
-                <div className="break-words lg:my-56">
+                <div className="break-words">
                   {engagements?.length === 0 ? (
                     <div className="p-4 gap-2 grid grid-cols-2 bg-gray-lighter">
-                      <div className="row-header-name">Inga företag hittades</div>
+                      <div className="row-header-name">Inga organisationer hittades</div>
                     </div>
                   ) : (
-                    <Table background className={cx('mt-40', !isMinDesktop && '[&_.sk-table-thead]:sr-only')}>
-                      <Table.Header>
+                    <Table background className={cx('mt-24 mb-24', !isMinDesktop && '[&_.sk-table-thead]:sr-only')}>
+                      <Table.Header className="bg-background-content border-black border-b-1">
                         {isMinDesktop ? (
                           <>
                             <Table.HeaderColumn className="sr-only">Välj</Table.HeaderColumn>
@@ -161,17 +157,12 @@ export default function ValjForetag() {
                       </Table.Footer>
                     </Table>
                   )}
-                  <p className="pt-12 pb-12">
-                    *Genom att klicka på Fortsätt godkänner du att Sundsvalls kommun hämtar uppgifter om ditt företag
-                    från Bolagsverket.
-                  </p>
                 </div>
                 <div className="flex justify-end">
                   <Button
                     data-cy="representingEntityButton"
                     loading={engagementsIsLoading}
                     loadingText={'Hämtar bolagsengagemang'}
-                    color="vattjom"
                     disabled={!choosen}
                     onClick={() => onContinue()}
                     rightIcon={<Icon icon={<ArrowRight />} />}
