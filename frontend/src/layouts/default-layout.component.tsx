@@ -3,9 +3,10 @@
 import { Header, useThemeQueries } from '@sk-web-gui/react';
 import { Layout } from './layout.component';
 import { SiteMenu } from './site-menu/site-menu.component';
-import NextLink from 'next/link';
 import { MobileMenu } from './mobile-menu/mobile-menu.component';
 import { appName } from '@utils/app-name';
+import React from 'react';
+import { Logotypes } from '@components/logotypes/logotypes.component';
 
 export const DefaultLayout = ({ children }) => {
   const { isMinDesktop } = useThemeQueries();
@@ -15,9 +16,8 @@ export const DefaultLayout = ({ children }) => {
       <Header
         wrapperClasses="py-16 [&_.sk-header-mobilemenu]:md:block [&_.sk-header-mobilemenu]:desktop:hidden"
         title={appName()}
-        subtitle="Sundsvalls Kommun"
-        LogoLinkWrapperComponent={<NextLink href={'/'} legacyBehavior passHref />}
         mobileMenu={<MobileMenu />}
+        logo={<Logotypes customerEngagements={[]} height={50} width={100} />}
       >
         {isMinDesktop && <SiteMenu />}
       </Header>
