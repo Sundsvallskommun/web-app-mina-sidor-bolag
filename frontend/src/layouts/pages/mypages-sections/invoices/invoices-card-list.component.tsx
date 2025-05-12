@@ -1,19 +1,20 @@
 import { IInvoice, InvoicesData } from "@interfaces/invoice";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { InvoicesResponse, InvoiceStatus } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
 import { InvoicesCardEntry } from "./invoices-card-entry.component";
-import { Button } from "@sk-web-gui/react";
+import { Button, Spinner } from "@sk-web-gui/react";
 import { User } from "@interfaces/user";
 
 interface InvoiceTableContentProps {
     pageSize: number;
-    facilityIds?: string[],
-    statusFilter?: InvoiceStatus | InvoiceStatus[],
+    facilityIds?: string[];
+    statusFilter?: InvoiceStatus | InvoiceStatus[];
+    emptyComponent?: ReactNode;
 }
 
-export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceTableContentProps) => {
+export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComponent}: InvoiceTableContentProps) => {
     const [activePage, setActivePage] = useState<number>(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
     const previousRows = useRef<IInvoice[]>([]);
@@ -69,13 +70,23 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
         return userData?.relations.find(relation => relation.organizationNumber === organizationNumber)?.organizationName ?? 'Okänd';
     }, [userData]);
 
-    const canFetch = rows.length < totalCount.current;
+    if (isFetched && !rows.length)
+        return emptyComponent
+            ? emptyComponent
+            : (
+                <p className="w-full p-[1.6rem]">
+                    Inga fakturor
+                </p>    
+            );
 
     if (!isFetched && !rows.length)
-        return <p>Laddar fakturor</p>;
+        return (
+            <div className="w-full flex justify-center p-[1.6rem]">
+                <Spinner aria-label="Hämtar fakturor" />
+            </div>
+        );
 
-    if (isFetched && !rows.length)
-        return <p>Inga fakturor</p>;
+    const canFetch = rows.length < totalCount.current;
 
     return (
         <div className="flex flex-col">

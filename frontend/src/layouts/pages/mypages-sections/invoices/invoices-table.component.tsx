@@ -1,7 +1,7 @@
 import { ManualTable, ManualTableColumn } from "@components/manual-table/manual-table.component";
 import { IInvoice, InvoicesData } from "@interfaces/invoice";
-import { Label } from "@sk-web-gui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Label, Spinner } from "@sk-web-gui/react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { GetPdfButton } from "./get-pdf-button.component";
 import { InvoicesResponse, InvoiceStatus } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
@@ -10,11 +10,12 @@ import { User } from "@interfaces/user";
 
 interface InvoiceTableContentProps {
     pageSize: number;
-    facilityIds?: string[],
-    statusFilter?: InvoiceStatus | InvoiceStatus[],
+    facilityIds?: string[];
+    statusFilter?: InvoiceStatus | InvoiceStatus[];
+    emptyComponent?: ReactNode;
 }
 
-export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTableContentProps) => {
+export const InvoicesTable = ({pageSize, facilityIds, statusFilter, emptyComponent}: InvoiceTableContentProps) => {
     const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
     const [activePage, setActivePage] = useState(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
@@ -133,11 +134,21 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTabl
         },
     ], [pdfIsLoading, setPdfIsLoading, getOrganizationName]);
 
-    if (!isFetched && !rows.length)
-        return <p>Laddar fakturor</p>;
-
     if (isFetched && !rows.length)
-        return <p>Inga fakturor</p>;
+        return emptyComponent
+            ? emptyComponent
+            : (
+                <p className="w-full p-[1.6rem]">
+                    Inga fakturor
+                </p>    
+            );
+
+    if (!isFetched && !rows.length)
+        return (
+            <div className="w-full flex justify-center p-[1.6rem]">
+                <Spinner aria-label="Hämtar fakturor" />
+            </div>
+        );
 
     const pageCount = Math.ceil(totalCount.current / pageSize);
 
