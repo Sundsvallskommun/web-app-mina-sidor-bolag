@@ -74,7 +74,7 @@ export default function Invoices() {
               heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
               pageSize={pageSize}
               facilityIds={facilityIds}
-              statusFilter={'SENT' as InvoiceStatus}
+              statusFilter={['SENT', 'PARTIALLY_PAID', 'DEBT_COLLECTION', 'REMINDER'] as InvoiceStatus[]}
             />
             <InvoicesList
               heading={<h2 className="text-h3">Alla fakturor</h2>}

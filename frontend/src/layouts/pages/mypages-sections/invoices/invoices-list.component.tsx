@@ -9,7 +9,7 @@ export const InvoicesList: React.FC<{
   heading: React.ReactNode;
   pageSize: number;
   facilityIds?: string[];
-  statusFilter?: InvoiceStatus;
+  statusFilter?: InvoiceStatus | InvoiceStatus[];
 }> = ({heading, pageSize, facilityIds, statusFilter}) => {
   const ref = useRef<null | HTMLDivElement>(null);
   const { isMinDesktop } = useThemeQueries();

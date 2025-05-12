@@ -33,13 +33,15 @@ export class InvoicesController {
     }
 
     const data = Object.assign({}, emptyInvoice);
+    const invoiceStatusArray = invoiceStatus ? invoiceStatus.toString().split(',') : [];
+    const filterInQuery = invoiceStatusArray.length === 1;
 
     try {
       const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
       const params = {
         partyId,
         facilityId,
-        invoiceStatus,
+        invoiceStatus: filterInQuery ? invoiceStatus : undefined,
         page,
         limit,
       };
@@ -47,6 +49,13 @@ export class InvoicesController {
       const { invoices, _meta } = res.data;
       data.invoices = invoices;
       data._meta = _meta;
+
+      // TODO: Remove when multiple status filters are supported in API
+      if (!filterInQuery && invoiceStatusArray.length) {
+        data.invoices = data.invoices.filter(v => invoiceStatusArray.includes(v.invoiceStatus));
+        data._meta.count = data.invoices.length;
+        data._meta.totalRecords = data.invoices.length;
+      }
 
       return { data, message: 'success' };
     }

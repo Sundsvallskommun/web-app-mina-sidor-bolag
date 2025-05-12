@@ -11,7 +11,7 @@ import { User } from "@interfaces/user";
 interface InvoiceTableContentProps {
     pageSize: number;
     facilityIds?: string[],
-    statusFilter?: InvoiceStatus,
+    statusFilter?: InvoiceStatus | InvoiceStatus[],
 }
 
 export const InvoicesTable = ({pageSize, facilityIds, statusFilter}: InvoiceTableContentProps) => {
