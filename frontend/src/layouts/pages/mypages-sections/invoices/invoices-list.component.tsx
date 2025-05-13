@@ -11,7 +11,8 @@ export const InvoicesList: React.FC<{
   facilityIds?: string[];
   statusFilter?: InvoiceStatus | InvoiceStatus[];
   emptyComponent?: ReactNode;
-}> = ({heading, pageSize, facilityIds, statusFilter, emptyComponent}) => {
+  dueDays?: number;
+}> = ({heading, pageSize, facilityIds, statusFilter, emptyComponent, dueDays}) => {
   const ref = useRef<null | HTMLDivElement>(null);
   const { isMinDesktop } = useThemeQueries();
 
@@ -19,9 +20,9 @@ export const InvoicesList: React.FC<{
     <div ref={ref}>
       <TableWrapper header={heading}>
         { isMinDesktop ? (
-          <InvoicesTable {...{pageSize, facilityIds, statusFilter, emptyComponent}} />
+          <InvoicesTable {...{pageSize, facilityIds, statusFilter, emptyComponent, dueDays}} />
         ) : (  
-          <InvoicesCardList {...{pageSize, facilityIds, statusFilter, emptyComponent}} />
+          <InvoicesCardList {...{pageSize, facilityIds, statusFilter, emptyComponent, dueDays}} />
         )}
       </TableWrapper>
     </div>

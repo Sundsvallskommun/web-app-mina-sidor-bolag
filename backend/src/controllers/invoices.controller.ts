@@ -20,12 +20,13 @@ export class InvoicesController {
   private apiService = new ApiService();
   private apiBase = getApiBase('invoices');
 
+  // TODO: Remove itterative logic once API supports passing multiple status filters
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
     const { representing } = req?.session;
-    const { facilityId, invoiceStatus, page, limit } = req.query;
+    const { facilityId, invoiceStatus: invoiceStatuses, page, limit, dueDateFrom, dueDateTo } = req.query;
 
     const partyId = getRepresentingPartyId(representing);
     if (!partyId) {
@@ -33,39 +34,58 @@ export class InvoicesController {
     }
 
     const data = Object.assign({}, emptyInvoice);
-    const invoiceStatusArray = invoiceStatus ? invoiceStatus.toString().split(',') : [];
-    const filterInQuery = invoiceStatusArray.length === 1;
+    const invoiceStatusArray = invoiceStatuses?.toString()?.split(',') ?? undefined;
+    const itteratorArray = invoiceStatusArray ?? [undefined];
 
-    try {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
-      const params = {
-        partyId,
-        facilityId,
-        invoiceStatus: filterInQuery ? invoiceStatus : undefined,
-        page,
-        limit,
-      };
-      const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
-      const { invoices, _meta } = res.data;
-      data.invoices = invoices;
-      data._meta = _meta;
+    let totalInvoices = [];
+    let totalRecords = 0;
+    let meta;
+    for (const invoiceStatus of itteratorArray) {
+      try {
+        const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
+        const params = {
+          partyId,
+          facilityId,
+          invoiceStatus,
+          page,
+          limit,
+          dueDateFrom,
+          dueDateTo,
+        };
+        const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
+        const { invoices, _meta } = res.data;
+        console.log('found ' + invoices.length + ' entries for status ' + invoiceStatus);
 
-      // TODO: Remove when multiple status filters are supported in API
-      if (!filterInQuery && invoiceStatusArray.length) {
-        data.invoices = data.invoices.filter(v => invoiceStatusArray.includes(v.invoiceStatus));
-        data._meta.count = data.invoices.length;
-        data._meta.totalRecords = data.invoices.length;
+        totalInvoices.push(...invoices);
+        totalRecords += _meta.totalRecords;
+        meta = _meta;
       }
-
-      return { data, message: 'success' };
-    }
-    catch (error) {
-      if (error.status === 404) {
-        return { data, message: '404 from api, Assumed empty array' };
-      } else {
-        return { data, message: 'error' };
+      catch (error) {
+        // Handle 404 as empty
+        if (error.status === 404) {
+          //
+        }
+        else {
+          throw new HttpException(500, 'Could not fetch invoices');
+        }
       }
     }
+
+    if (invoiceStatusArray?.length) {
+      data.invoices = totalInvoices
+        .sort((a, b) => Math.sign(new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()))
+        .splice(0, parseInt(`${limit}`));
+      data._meta = meta;
+      data._meta.count = data.invoices.length;
+      data._meta.totalRecords = totalRecords;
+      data._meta.totalPages = Math.ceil(totalRecords / data.invoices.length);
+    }
+    else {
+      data.invoices = totalInvoices;
+      data._meta = meta;
+    }
+
+    return { data, message: 'success' };
   }
 
   @Get('/invoicepdf/:id')

@@ -12,9 +12,10 @@ interface InvoiceTableContentProps {
     facilityIds?: string[];
     statusFilter?: InvoiceStatus | InvoiceStatus[];
     emptyComponent?: ReactNode;
+    dueDays?: number;
 }
 
-export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComponent}: InvoiceTableContentProps) => {
+export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComponent, dueDays}: InvoiceTableContentProps) => {
     const [activePage, setActivePage] = useState<number>(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
     const previousRows = useRef<IInvoice[]>([]);
@@ -27,6 +28,12 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComp
         searchParams.append('facilityId', facilityIds.toString());
     if (statusFilter)
         searchParams.append('invoiceStatus', statusFilter.toString());
+    if (dueDays) {
+        searchParams.append('dueDateFrom', new Date().toLocaleDateString());
+        const aDay = 60 * 60 * 24 * 1000;
+        const newTime = new Date().getTime() + aDay * dueDays;
+        searchParams.append('dueDateTo', new Date(newTime).toLocaleDateString());
+    }
 
     const {
         data= emptyInvoicesList,

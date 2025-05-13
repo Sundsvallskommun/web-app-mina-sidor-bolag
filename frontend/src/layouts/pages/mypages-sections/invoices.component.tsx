@@ -50,9 +50,17 @@ export default function Invoices() {
       <div className="flex flex-col gap-[6.4rem]">
         <InvoicesList
           heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
-          pageSize={32}
+          pageSize={24}
           facilityIds={facilityIds}
-          statusFilter={['PARTIALLY_PAID', 'DEBT_COLLECTION', 'REMINDER'] as InvoiceStatus[]}
+          statusFilter={[
+            'SENT' as InvoiceStatus,
+            'DEBT_COLLECTION' as InvoiceStatus,
+            'REMINDER' as InvoiceStatus,
+            // NOTE: Doesn't return the correct entries yet
+            // 'PARTIALLY_PAID' as InvoiceStatus, //NOTE: Doesn't return the correct entries yet
+          ]}
+          // NOTE: Can't properly be used with current test data as it resides in 2024
+          // dueDays={7}
         />
         <InvoicesList
           heading={<h2 className="text-h3">Alla fakturor</h2>}
