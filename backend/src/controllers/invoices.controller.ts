@@ -54,7 +54,6 @@ export class InvoicesController {
         };
         const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
         const { invoices, _meta } = res.data;
-        console.log('found ' + invoices.length + ' entries for status ' + invoiceStatus);
 
         totalInvoices.push(...invoices);
         totalRecords += _meta.totalRecords;

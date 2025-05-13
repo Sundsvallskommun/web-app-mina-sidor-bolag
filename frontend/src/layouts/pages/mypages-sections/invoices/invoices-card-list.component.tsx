@@ -80,15 +80,11 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComp
     if (isFetched && !rows.length)
         return emptyComponent
             ? emptyComponent
-            : (
-                <p className="w-full p-[1.6rem]">
-                    Inga fakturor
-                </p>    
-            );
+            : <p>Inga fakturor</p>;
 
     if (!isFetched && !rows.length)
         return (
-            <div className="w-full flex justify-center p-[1.6rem]">
+            <div className="w-full flex justify-center p-md">
                 <Spinner aria-label="Hämtar fakturor" />
             </div>
         );
@@ -97,14 +93,14 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComp
 
     return (
         <div className="flex flex-col">
-            <div className="flex flex-col gap-[1.6rem]">
+            <div className="flex flex-col gap-md">
                 { rows.map((invoice, index) => {
                     return (
                         <InvoicesCardEntry key={index} organizationName={getOrganizationName(invoice.organizationNumber!)} item={invoice}/>
                     );
                 })}
             </div>
-            <span className="text-base text-center text-secondary mt-[2.4rem]">{`Visar ${rows.length} av ${totalCount.current}`}</span>
+            <span className="text-small text-center text-secondary mt-lg">{`Visar ${rows.length} av ${totalCount.current}`}</span>
             { canFetch ? (
                 <Button className="m-auto mt-[1.2rem]" variant="secondary" size="lg" onClick={() => setActivePage(activePage + 1)} loading={!isFetched}>
                     Visa fler

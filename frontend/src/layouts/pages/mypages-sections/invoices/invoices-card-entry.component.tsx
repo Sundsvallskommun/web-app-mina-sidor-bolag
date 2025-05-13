@@ -9,8 +9,8 @@ export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvo
   const [open, setOpen] = useState(false);
   return (
     <Card>
-      <Card.Body className="w-full p-[1.6rem]">
-        <div className="flex flex-col gap-[1.6rem]">
+      <Card.Body className="w-full p-md">
+        <div className="flex flex-col gap-md">
           <div>
             <div className="flex flex-row">
               <h3 className="font-bold text-label-large line-height-[2.6rem]">{organizationName}</h3>
@@ -50,7 +50,7 @@ export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvo
           </div>
           
           { open ? (
-            <div className="flex flex-col mb-[0.8rem]">
+            <div className="flex flex-col mb-sm">
               <GetPdfButton item={item} />
             </div>
           ): undefined }

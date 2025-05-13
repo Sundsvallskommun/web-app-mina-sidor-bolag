@@ -144,15 +144,11 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter, emptyCompone
     if (isFetched && !rows.length)
         return emptyComponent
             ? emptyComponent
-            : (
-                <p className="w-full p-[1.6rem]">
-                    Inga fakturor
-                </p>    
-            );
+            : <p>Inga fakturor</p>;
 
     if (!isFetched && !rows.length)
         return (
-            <div className="w-full flex justify-center p-[1.6rem]">
+            <div className="w-full flex justify-center p-md">
                 <Spinner aria-label="Hämtar fakturor" />
             </div>
         );

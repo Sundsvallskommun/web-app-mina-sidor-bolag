@@ -57,7 +57,7 @@ export default function Invoices() {
             'DEBT_COLLECTION' as InvoiceStatus,
             'REMINDER' as InvoiceStatus,
             // NOTE: Doesn't return the correct entries yet
-            // 'PARTIALLY_PAID' as InvoiceStatus, //NOTE: Doesn't return the correct entries yet
+            // 'PARTIALLY_PAID' as InvoiceStatus,
           ]}
           // NOTE: Can't properly be used with current test data as it resides in 2024
           // dueDays={7}
