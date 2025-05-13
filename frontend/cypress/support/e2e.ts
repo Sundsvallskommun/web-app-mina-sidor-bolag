@@ -3,7 +3,6 @@ import '@cypress/code-coverage/support';
 import { RepresentingMode } from '@interfaces/app';
 import { CookieConsentUtils } from '@sk-web-gui/react';
 import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements';
-import { getCases } from 'cypress/fixtures/getCases';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
 import { getInvoices } from 'cypress/fixtures/getInvoices';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
@@ -24,7 +23,6 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
   cy.intercept('GET', '**/api/me', getMe).as('getUser');
   interceptRepresentingMode(representingMode);
   cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
-  cy.intercept('GET', '**/api/cases', getCases(representingMode)).as(`getCases`);
   cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
 };

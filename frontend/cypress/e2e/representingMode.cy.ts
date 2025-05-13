@@ -1,5 +1,5 @@
 import { RepresentingMode } from '@interfaces/app';
-import { testCases, testContactSettings, testInvoices } from 'cypress/e2e/utils';
+import { testContactSettings, testInvoices } from 'cypress/e2e/utils';
 import { getMe } from 'cypress/fixtures/getMe';
 import { getPrivateRepresentFromGetMe, getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { setIntercepts } from 'cypress/support/e2e';
@@ -66,23 +66,6 @@ describe('Ändra representationsläge (privat/företag)', () => {
       // RepresentingSwitchButton
       cy.contains('[role="menuitem"]', 'Företag').click();
       cy.url().should('include', '/foretag/oversikt');
-    });
-  });
-  it('should render /privat/arenden then /foretag/arenden', () => {
-    cy.contains('[role="menuitem"]', 'Ärenden').click();
-    cy.url().should('include', '/privat/arenden');
-    cy.wait(['@getCases', '@getRepresenting']).then(() => {
-      testCases(RepresentingMode.PRIVATE);
-
-      setIntercepts(RepresentingMode.BUSINESS);
-
-      // RepresentingSwitchButton
-      cy.contains('[role="menuitem"]', 'Företag').click();
-
-      cy.url().should('include', '/foretag/arenden');
-      cy.wait(['@getCases', '@getRepresenting']).then(() => {
-        testCases(RepresentingMode.BUSINESS);
-      });
     });
   });
   it('should render /privat/fakturor then /foretag/fakturor', () => {
