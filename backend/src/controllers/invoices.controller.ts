@@ -59,15 +59,19 @@ export class InvoicesController {
     }
   }
 
-  @Get('/invoicepdf/:id')
+  @Get('/invoicepdf/:organizationNumber/:id')
   @OpenAPI({ summary: 'Return the base64 encoded pdf by invoice id' })
   @UseBefore(authMiddleware)
-  async getInvoicePdf(@Req() req: RequestWithUser, @Param('id') id: string): Promise<ApiResponse<PdfInvoice>> {
+  async getInvoicePdf(
+    @Req() req: RequestWithUser,
+    @Param('organizationNumber') organizationNumber: string,
+    @Param('id') id: string,
+  ): Promise<ApiResponse<PdfInvoice>> {
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/PUBLIC_ADMINISTRATION/${MUNICIPALITY_ORG_NR}/${id}/pdf`;
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf`;
     const res = await this.apiService.get<PdfInvoice>({ url }, req);
 
     return { data: res.data, message: 'success' };

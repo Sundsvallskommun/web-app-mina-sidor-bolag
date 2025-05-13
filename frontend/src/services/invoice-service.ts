@@ -97,9 +97,9 @@ export const getOtherInvoices: (invoicesData: InvoicesData) => InvoicesData = (i
   invoices: invoicesData?.invoices.filter((x) => otherInvoices.includes(x.invoiceStatus.code)),
 });
 
-export const getInvoicePdf: (invoiceNumber: string) => Promise<InvoicePdfData> = (invoiceNumber) =>
+export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) => Promise<InvoicePdfData> = (organizationNumber, invoiceNumber) =>
   apiService
-    .get<ApiResponse<InvoicePdf>>(`invoicepdf/${invoiceNumber}`)
+    .get<ApiResponse<InvoicePdf>>(`invoicepdf/${organizationNumber}/${invoiceNumber}`)
     .then((res) => ({ pdf: res.data.data }))
     .catch(
       (e) => ({ pdf: { fileName: '', file: '' }, error: e.response?.status ?? 'UNKNOWN ERROR' }) as InvoicePdfData
