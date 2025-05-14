@@ -43,8 +43,10 @@ export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode 
   useEffect(() => {
     if (!representingIsLoading && !representingIsFetching) {
       if (representingError && representingMode === RepresentingMode.BUSINESS) {
+        const ignorePattern = /\/?foretag\/valj-foretag\/?/g;
+        const nonRepeatLocation = window.location.pathname.replace(ignorePattern, '');
         router.push(
-          `${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/valj-foretag?path=${window.location.pathname}`
+          `${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/valj-foretag?path=${nonRepeatLocation}`
         );
       }
     }
