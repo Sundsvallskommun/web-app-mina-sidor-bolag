@@ -3,7 +3,7 @@ import { IInvoice, InvoicesData } from "@interfaces/invoice";
 import { Label, Spinner } from "@sk-web-gui/react";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { GetPdfButton } from "./get-pdf-button.component";
-import { InvoicesResponse, InvoiceStatus } from "@data-contracts/invoices/data-contracts";
+import { InvoicesResponse } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
 import { User } from "@interfaces/user";
@@ -11,12 +11,11 @@ import { User } from "@interfaces/user";
 interface InvoiceTableContentProps {
     pageSize: number;
     facilityIds?: string[];
-    statusFilter?: InvoiceStatus | InvoiceStatus[];
     emptyComponent?: ReactNode;
-    dueDays?: number;
+    onlyPending?: boolean;
 }
 
-export const InvoicesTable = ({pageSize, facilityIds, statusFilter, emptyComponent, dueDays}: InvoiceTableContentProps) => {
+export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPending}: InvoiceTableContentProps) => {
     const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
     const [activePage, setActivePage] = useState(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
@@ -27,22 +26,15 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter, emptyCompone
     searchParams.append('page', activePage.toString());
     if (facilityIds?.length)
         searchParams.append('facilityId', facilityIds.toString());
-    if (statusFilter)
-        searchParams.append('invoiceStatus', statusFilter.toString());
-    if (dueDays) {
-        searchParams.append('dueDateFrom', new Date().toLocaleDateString());
-        const aDay = 60 * 60 * 24 * 1000;
-        const newTime = new Date().getTime() + aDay * dueDays;
-        searchParams.append('dueDateTo', new Date(newTime).toLocaleDateString());
-    }
 
+    const base = onlyPending ? '/invoices/pending' : '/invoices';
     const {
         data= emptyInvoicesList,
         isFetched,
         refetch,
     } = useApi<InvoicesResponse, Error, InvoicesData>({
-        queryKey: ['/invoices', searchParams.toString()],
-        url: `/invoices?${searchParams.toString()}`,
+        queryKey: [base, searchParams.toString()],
+        url: `${base}?${searchParams.toString()}`,
         method: 'get',
         queryOptions: {
             enabled: false,
@@ -57,7 +49,7 @@ export const InvoicesTable = ({pageSize, facilityIds, statusFilter, emptyCompone
     useEffect(() => {
         setActivePage(1);
         refetch();
-    }, [refetch, setActivePage, facilityIds, statusFilter]);
+    }, [refetch, setActivePage, facilityIds]);
 
     useEffect(() => {
         refetch();
