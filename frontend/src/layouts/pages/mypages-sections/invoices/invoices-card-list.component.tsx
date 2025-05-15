@@ -1,19 +1,21 @@
 import { IInvoice, InvoicesData } from "@interfaces/invoice";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { InvoicesResponse, InvoiceStatus } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
 import { InvoicesCardEntry } from "./invoices-card-entry.component";
-import { Button } from "@sk-web-gui/react";
+import { Button, Spinner } from "@sk-web-gui/react";
 import { User } from "@interfaces/user";
 
 interface InvoiceTableContentProps {
     pageSize: number;
-    facilityIds?: string[],
-    statusFilter?: InvoiceStatus,
+    facilityIds?: string[];
+    statusFilter?: InvoiceStatus | InvoiceStatus[];
+    emptyComponent?: ReactNode;
+    dueDays?: number;
 }
 
-export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceTableContentProps) => {
+export const InvoicesCardList = ({pageSize, facilityIds, statusFilter, emptyComponent, dueDays}: InvoiceTableContentProps) => {
     const [activePage, setActivePage] = useState<number>(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
     const previousRows = useRef<IInvoice[]>([]);
@@ -26,6 +28,12 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
         searchParams.append('facilityId', facilityIds.toString());
     if (statusFilter)
         searchParams.append('invoiceStatus', statusFilter.toString());
+    if (dueDays) {
+        searchParams.append('dueDateFrom', new Date().toLocaleDateString());
+        const aDay = 60 * 60 * 24 * 1000;
+        const newTime = new Date().getTime() + aDay * dueDays;
+        searchParams.append('dueDateTo', new Date(newTime).toLocaleDateString());
+    }
 
     const {
         data= emptyInvoicesList,
@@ -69,24 +77,30 @@ export const InvoicesCardList = ({pageSize, facilityIds, statusFilter}: InvoiceT
         return userData?.relations.find(relation => relation.organizationNumber === organizationNumber)?.organizationName ?? 'Okänd';
     }, [userData]);
 
-    const canFetch = rows.length < totalCount.current;
+    if (isFetched && !rows.length)
+        return emptyComponent
+            ? emptyComponent
+            : <p>Inga fakturor</p>;
 
     if (!isFetched && !rows.length)
-        return <p>Laddar fakturor</p>;
+        return (
+            <div className="w-full flex justify-center p-md">
+                <Spinner aria-label="Hämtar fakturor" />
+            </div>
+        );
 
-    if (isFetched && !rows.length)
-        return <p>Inga fakturor</p>;
+    const canFetch = rows.length < totalCount.current;
 
     return (
         <div className="flex flex-col">
-            <div className="flex flex-col gap-[1.6rem]">
+            <div className="flex flex-col gap-md">
                 { rows.map((invoice, index) => {
                     return (
                         <InvoicesCardEntry key={index} organizationName={getOrganizationName(invoice.organizationNumber!)} item={invoice}/>
                     );
                 })}
             </div>
-            <span className="text-base text-center text-secondary mt-[2.4rem]">{`Visar ${rows.length} av ${totalCount.current}`}</span>
+            <span className="text-small text-center text-secondary mt-lg">{`Visar ${rows.length} av ${totalCount.current}`}</span>
             { canFetch ? (
                 <Button className="m-auto mt-[1.2rem]" variant="secondary" size="lg" onClick={() => setActivePage(activePage + 1)} loading={!isFetched}>
                     Visa fler

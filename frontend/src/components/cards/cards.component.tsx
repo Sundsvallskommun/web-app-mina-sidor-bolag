@@ -23,7 +23,7 @@ export const CardList: React.FC<{
   }, [data, _amountDisplayed]);
 
   return (
-    <section className="flex flex-col justify-center gap-y-[1.6rem]">
+    <section className="flex flex-col justify-center gap-y-md">
       {dataShown.map((item, index) => (
         <article key={`${index}`}>
           <Card item={item} />
