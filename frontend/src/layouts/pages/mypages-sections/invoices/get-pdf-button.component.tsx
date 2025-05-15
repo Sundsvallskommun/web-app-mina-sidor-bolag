@@ -11,7 +11,7 @@ export const GetPdfButton: React.FC<{
   const message = useSnackbar();
   const { isMinDesktop } = useThemeQueries();
 
-  const getPdf = (invoiceNumber: string) => {
+  const getPdf = (organizationNumber: string, invoiceNumber: string) => {
     if (setIsLoading) {
       setIsLoading((old) => {
         const newObj = { ...old };
@@ -19,7 +19,7 @@ export const GetPdfButton: React.FC<{
         return newObj;
       });
     }
-    getInvoicePdf(invoiceNumber)
+    getInvoicePdf(organizationNumber, invoiceNumber)
       .then((d) => {
         if (typeof d.error === 'undefined') {
           const uri = `data:application/pdf;base64,${d.pdf.file}`;
@@ -53,7 +53,7 @@ export const GetPdfButton: React.FC<{
       variant="secondary"
       loading={isLoading?.[item.invoiceNumber!]}
       loadingText="Hämtar"
-      onClick={() => getPdf(item.invoiceNumber!)}
+      onClick={() => getPdf(item.organizationNumber!, item.invoiceNumber!)}
       rightIcon={<Icon icon={<ArrowDownToLine />} />}
     >
       Hämta pdf
