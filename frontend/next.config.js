@@ -28,7 +28,7 @@ module.exports = withBundleAnalyzer({
     remotePatterns: [{ hostname: process.env.DOMAIN_NAME || 'localhost' }],
     formats: ['image/avif', 'image/webp'],
   },
-  basePath: process.env.BASE_PATH,
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   sassOptions: {
     functions: {
       'env($variable)': (variable) => {
