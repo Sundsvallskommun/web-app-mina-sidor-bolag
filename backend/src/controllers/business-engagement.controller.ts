@@ -1,6 +1,11 @@
-import { MUNICIPALITY_ID } from '@/config';
+import { MOCK_ORGANIZATION_ID, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { BusinessEngagementsResponse, BusinessInformation, Engagement } from '@/data-contracts/businessengagements/data-contracts';
+import {
+  BusinessEngagementsResponse,
+  BusinessEngagementsResponseStatusEnum,
+  BusinessInformation,
+  Engagement,
+} from '@/data-contracts/businessengagements/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { ApiResponse } from '@/interfaces/service';
@@ -8,6 +13,7 @@ import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, QueryParam, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
+import { ENVIRONMENT } from '@config';
 
 interface InformationResponse {
   information: {
@@ -42,7 +48,24 @@ export class BusinessEngagementController {
       serviceName: 'Mina Sidor',
     };
 
-    const res = await this.apiService.get<BusinessEngagementsResponse>({ url, params }, req);
+    let res: { data: BusinessEngagementsResponse };
+    if (ENVIRONMENT === 'TEST' && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER && MOCK_ORGANIZATION_ID) {
+      res = {
+        data: {
+          engagements: [
+            {
+              organizationName: MOCK_ORGANIZATION_NAME,
+              organizationNumber: MOCK_ORGANIZATION_NUMBER,
+              organizationId: MOCK_ORGANIZATION_ID,
+            },
+          ],
+          statusDescriptions: {},
+          status: BusinessEngagementsResponseStatusEnum.OK,
+        },
+      };
+    } else {
+      res = await this.apiService.get<BusinessEngagementsResponse>({ url, params }, req);
+    }
 
     if (!res.data?.engagements) {
       throw new HttpException(404, 'Not Found');
