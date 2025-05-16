@@ -4,7 +4,6 @@ import { FormControl, FormLabel, Select } from '@sk-web-gui/react';
 import { InvoicesList } from './invoices/invoices-list.component';
 import { useState } from 'react';
 import { useApi } from '@services/api-service';
-import { InvoiceStatus } from '@data-contracts/invoices/data-contracts';
 import { User } from '@interfaces/user';
 
 export default function Invoices() {
@@ -52,15 +51,7 @@ export default function Invoices() {
           heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
           pageSize={24}
           facilityIds={facilityIds}
-          statusFilter={[
-            'SENT' as InvoiceStatus,
-            'DEBT_COLLECTION' as InvoiceStatus,
-            'REMINDER' as InvoiceStatus,
-            // NOTE: Doesn't return the correct entries yet
-            // 'PARTIALLY_PAID' as InvoiceStatus,
-          ]}
-          // NOTE: Can't properly be used with current test data as it resides in 2024
-          // dueDays={7}
+          onlyPending
         />
         <InvoicesList
           heading={<h2 className="text-h3">Alla fakturor</h2>}
