@@ -86,7 +86,7 @@ export const Announcements = () => {
         {mockData.map((announcement, index) => {
           return (
             <Card key={index} href={announcement.url} target="_blank" className="md:mb-0 mb-24" useHoverEffect>
-              <Card.Image src="/placeholder_1.png" />
+              <Card.Image src={`${process.env.NEXT_PUBLIC_BASE_PATH}/placeholder_1.png`} />
 
               <Card.Body>
                 <Card.Header>
