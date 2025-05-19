@@ -1,6 +1,5 @@
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { User } from '@/interfaces/users.interface';
 import { logger } from '@/utils/logger';
 import { apiURL } from '@/utils/util';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
@@ -13,7 +12,7 @@ class ApiResponse<T> {
 }
 
 interface ApiRequest extends Omit<Partial<RequestWithUser>, 'session'> {
-  session: Omit<Partial<Request['session']>, 'user'> & { user?: Pick<User, 'username'> };
+  session: Omit<Partial<Request['session']>, 'user'>;
 }
 
 class ApiService {

@@ -3,7 +3,8 @@ import { User } from './users.interface';
 
 export interface Profile extends SamlProfile {
   citizenIdentifier: string;
-  givenName: string;
+  givenName?: string;
+  firstName?: string;
   surname: string;
   username: string;
   attributes: { [key: string]: any };
