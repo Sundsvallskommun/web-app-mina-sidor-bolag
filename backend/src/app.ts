@@ -86,11 +86,11 @@ const samlStrategy = new Strategy(
       });
     }
 
-    const { firstName: givenName, surname, citizenIdentifier } = profile;
+    const { firstName: givenName, surname: Surname, citizenIdentifier } = profile;
 
     logger.info(`SAML profile: ${JSON.stringify(profile)}`);
 
-    if (!givenName || !surname || !citizenIdentifier) {
+    if (!givenName || !Surname || !citizenIdentifier) {
       return done({
         name: 'SAML_MISSING_ATTRIBUTES',
         message: 'Missing profile attributes',
@@ -114,9 +114,9 @@ const samlStrategy = new Strategy(
       const findUser: User = {
         partyId: personId,
         personNumber: personNumber,
-        name: `${givenName} ${surname}`,
+        name: `${givenName} ${Surname}`,
         givenName: givenName,
-        surname: surname,
+        surname: Surname,
       };
 
       const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
