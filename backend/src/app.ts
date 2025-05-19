@@ -90,6 +90,10 @@ const samlStrategy = new Strategy(
 
     logger.info(`SAML profile: ${JSON.stringify(profile)}`);
 
+    logger.info(`givenName: ${givenName}`);
+    logger.info(`Surname: ${Surname}`);
+    logger.info(`citizenIdentifier: ${citizenIdentifier}`);
+
     if (!givenName || !Surname || !citizenIdentifier) {
       return done({
         name: 'SAML_MISSING_ATTRIBUTES',
