@@ -24,14 +24,14 @@ export const EntryLayout: React.FC<{
           <div className="flex justify-self-center gap-24">
             <Image
               className={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
-              src="/sundsvall-elnat.webp"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/sundsvall-elnat.webp`}
               alt={'Sundsvall elnäts logotyp'}
               width={100}
               height={50}
             />
             <Image
               className={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
-              src="/sundsvall-energi.png"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/sundsvall-energi.png`}
               alt={'Sundsvall energis logotyp'}
               width={100}
               height={50}

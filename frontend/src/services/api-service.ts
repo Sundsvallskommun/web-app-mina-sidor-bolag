@@ -22,7 +22,7 @@ export interface ApiResponse<T> {
 
 export const handleError = (error) => {
   if (error?.response?.status === 401 && !window?.location.pathname.includes('login')) {
-    window.location.href = `/login?path=${window.location.pathname}&failMessage=${error.response.data.message}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_BASE_PATH}/login?path=${window.location.pathname}&failMessage=${error.response.data.message}`;
   }
 };
 

@@ -1,14 +1,14 @@
 import EmptyLayout from '@layouts/empty-layout.component';
 import { Button, Link } from '@sk-web-gui/react';
 import { useRouter } from 'next/navigation';
-import { appURL } from '../../../utils/app-url';
+import { fullAppURL } from '../../../utils/app-url';
 
 export const NoRepresent: React.FC = ({}) => {
   const router = useRouter();
 
   const onLogout = () => {
     // NOTE: send user to logout with SSO
-    router.push(`${process.env.NEXT_PUBLIC_API_URL}/saml/logout?successRedirect=${`${appURL()}/login?loggedout`}`); // eslint-disable-next-line react-hooks/exhaustive-deps
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/saml/logout?successRedirect=${`${fullAppURL()}/login?loggedout`}`); // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   return (

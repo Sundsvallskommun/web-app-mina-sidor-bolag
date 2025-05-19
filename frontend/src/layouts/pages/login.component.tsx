@@ -26,7 +26,7 @@ function Login() {
   const onLogin = useCallback(
     (representingMode: RepresentingMode) => {
       // NOTE: send user to login with SSO
-      const path = searchParams?.get('path') || '';
+      const path = searchParams?.get('path') || process.env.NEXT_PUBLIC_BASE_PATH || '';
       const myPagesAdjustedPathname =
         getAdjustedPathname(path, representingMode) || getRepresentingModeRoute(representingMode);
       router.push(
@@ -38,6 +38,13 @@ function Login() {
   );
 
   useEffect(() => {
+    const path = searchParams?.get('path') || process.env.NEXT_PUBLIC_BASE_PATH || '';
+    const myPagesAdjustedPathname =
+      getAdjustedPathname(path, RepresentingMode.PRIVATE) || getRepresentingModeRoute(RepresentingMode.PRIVATE);
+
+    console.log('getAdjustedPathname', getAdjustedPathname(path, RepresentingMode.PRIVATE));
+    console.log('getRepresentingModeRoute', getRepresentingModeRoute(RepresentingMode.PRIVATE));
+    console.log('myPagesAdjustedPathname', myPagesAdjustedPathname);
     if (isLoggedOut) {
       //
     } else {
