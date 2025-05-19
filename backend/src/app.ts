@@ -87,6 +87,8 @@ const samlStrategy = new Strategy(
     }
     const { givenName, surname, citizenIdentifier, username } = profile;
 
+    logger.info('SAML profile', profile);
+
     if (!givenName || !surname || !citizenIdentifier || !username) {
       return done({
         name: 'SAML_MISSING_ATTRIBUTES',
