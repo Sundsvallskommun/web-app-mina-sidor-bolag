@@ -71,12 +71,12 @@ export default function ValjForetag() {
           </div>
         </main>
       ) : (
-        <EntryLayout title="Välj företag" className="lg:py-80 py-40 px-16">
-          <div className="w-full max-w-[73.8rem] pt-16">
-            <CardElevated className="py-40 px-14 lg:px-80">
+        <EntryLayout title="Välj företag" className="py-40 desktop:py-80 px-16">
+          <div className="w-full max-w-[64rem]">
+            <CardElevated className="pb-40 pt-32 desktop:pt-40 px-0 desktop:px-80">
               <Main>
                 <div>
-                  <h1 className="text-center text-h1-small lg:text-h2-lg">Välj organisationen du vill företräda</h1>
+                  <h1 className="text-h2-sm desktop:text-h2-lg mb-24 desktop:mb-32">Välj organisationen du vill företräda</h1>
                 </div>
                 <div className="break-words">
                   {engagements?.length === 0 ? (
@@ -84,13 +84,13 @@ export default function ValjForetag() {
                       <div className="row-header-name">Inga organisationer hittades</div>
                     </div>
                   ) : (
-                    <Table background className={cx('mt-24 mb-24', !isMinDesktop && '[&_.sk-table-thead]:sr-only')}>
+                    <Table background wrappingBorder className={cx('mb-40 desktop:mb-24', !isMinDesktop && '[&_.sk-table-thead]:sr-only')}>
                       <Table.Header className="bg-background-content border-black border-b-1">
                         {isMinDesktop ? (
                           <>
                             <Table.HeaderColumn className="sr-only">Välj</Table.HeaderColumn>
-                            <Table.HeaderColumn>Namn</Table.HeaderColumn>
-                            <Table.HeaderColumn>Organisationsnummer</Table.HeaderColumn>
+                            <Table.HeaderColumn className="w-[210px]">Namn</Table.HeaderColumn>
+                            <Table.HeaderColumn className="max-w-[210px]">Organisationsnummer</Table.HeaderColumn>
                           </>
                         ) : (
                           <Table.HeaderColumn>Välj organisation</Table.HeaderColumn>
@@ -113,11 +113,11 @@ export default function ValjForetag() {
                                     aria-label={`${e.organizationName}, välj organisation`}
                                   />
                                 </Table.Column>
-                                <Table.Column>
+                                <Table.Column className="w-[210px]">
                                   <span className="font-bold">{e.organizationName}</span>
                                   {e.isRepresentative ? <span className="ml-[.5em]">(ombud)</span> : null}
                                 </Table.Column>
-                                <Table.Column>{e.organizationNumber}</Table.Column>
+                                <Table.Column className="max-w-[210px]">{e.organizationNumber}</Table.Column>
                               </>
                             ) : (
                               <Table.Column>
@@ -160,6 +160,7 @@ export default function ValjForetag() {
                 </div>
                 <div className="flex justify-end">
                   <Button
+                    className="flex-grow desktop:flex-none"
                     data-cy="representingEntityButton"
                     loading={engagementsIsLoading}
                     loadingText={'Hämtar bolagsengagemang'}
