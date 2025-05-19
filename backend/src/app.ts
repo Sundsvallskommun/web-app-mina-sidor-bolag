@@ -86,15 +86,15 @@ const samlStrategy = new Strategy(
       });
     }
 
-    const { firstName: givenName, surname: Surname, citizenIdentifier } = profile;
+    const { firstName, Surname, citizenIdentifier } = profile;
 
     logger.info(`SAML profile: ${JSON.stringify(profile)}`);
 
-    logger.info(`givenName: ${givenName}`);
+    logger.info(`firstName: ${firstName}`);
     logger.info(`Surname: ${Surname}`);
     logger.info(`citizenIdentifier: ${citizenIdentifier}`);
 
-    if (!givenName || !Surname || !citizenIdentifier) {
+    if (!firstName || !Surname || !citizenIdentifier) {
       return done({
         name: 'SAML_MISSING_ATTRIBUTES',
         message: 'Missing profile attributes',
@@ -118,8 +118,8 @@ const samlStrategy = new Strategy(
       const findUser: User = {
         partyId: personId,
         personNumber: personNumber,
-        name: `${givenName} ${Surname}`,
-        givenName: givenName,
+        name: `${firstName} ${Surname}`,
+        givenName: firstName,
         surname: Surname,
       };
 
