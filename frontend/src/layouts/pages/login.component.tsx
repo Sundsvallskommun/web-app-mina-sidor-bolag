@@ -30,7 +30,7 @@ function Login() {
       const myPagesAdjustedPathname =
         getAdjustedPathname(path, representingMode) || getRepresentingModeRoute(representingMode);
       router.push(
-        `${process.env.NEXT_PUBLIC_API_URL}/saml/login?successRedirect=${`${appURL()}${myPagesAdjustedPathname}&representingMode=${representingMode}`}`
+        `${process.env.NEXT_PUBLIC_API_URL}/saml/login?successRedirect=${`${appURL(true)}${myPagesAdjustedPathname}&representingMode=${representingMode}`}`
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -53,7 +53,7 @@ export function AppWrapper({ children }) {
     const routeRepresentingMode = getRepresentingMode(pathname);
     if (routeRepresentingMode !== null && routeRepresentingMode !== newMode) {
       const pathname = newRepresentingModePathname(newMode);
-      router.push(`${appURL()}${pathname}`);
+      router.push(`${appURL(false)}${pathname}`);
     }
   };
 
