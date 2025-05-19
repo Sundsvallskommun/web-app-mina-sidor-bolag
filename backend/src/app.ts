@@ -87,7 +87,7 @@ const samlStrategy = new Strategy(
     }
     const { givenName, surname, citizenIdentifier, username } = profile;
 
-    logger.info('SAML profile', JSON.stringify(profile));
+    logger.info(`SAML profile: ${JSON.stringify(profile)}`);
 
     if (!givenName || !surname || !citizenIdentifier || !username) {
       return done({
