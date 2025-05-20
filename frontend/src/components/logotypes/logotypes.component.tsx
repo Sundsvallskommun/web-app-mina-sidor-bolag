@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import React from 'react';
-import NextLink from 'next/link';
 
 interface LogotypeProps {
   customerEngagements: string[];
@@ -13,13 +12,8 @@ export const Logotypes = (props: LogotypeProps) => {
 
   return (
     <div className="flex gap-24">
-      <NextLink href="https://sundsvallelnat.se/" target="_blank">
-        <Image src="/sundsvall-elnat.webp" alt={'Sundsvall elnäts logotyp'} width={width} height={height} />
-      </NextLink>
-
-      <NextLink href="https://sundsvallenergi.se/" target="_blank">
-        <Image src="/sundsvall-energi.png" alt={'Sundsvall energis logotyp'} width={width} height={height} />
-      </NextLink>
+      <Image src="/sundsvall-elnat.webp" alt={'Sundsvall elnäts logotyp'} width={width} height={height} />
+      <Image src="/sundsvall-energi.png" alt={'Sundsvall energis logotyp'} width={width} height={height} />
     </div>
   );
 };
