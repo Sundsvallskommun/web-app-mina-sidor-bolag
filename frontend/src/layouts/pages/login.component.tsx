@@ -65,42 +65,68 @@ function Login() {
       <div className="w-full max-w-[64rem]">
         <CardElevated>
           <Main>
-            <CenterDiv className="py-32">
-              <h1 className="text-center text-h2-sm lg:text-h2-lg mb-0 pb-32 lg:px-62 px-20">
-                Välkommen till våra gemensamma Mina sidor
-              </h1>
+            <CenterDiv className="px-0 desktop:px-80 pt-32 pb-40 desktop:pb-56 gap-40">
+              { isLoggedOut ? (
+                <>
+                  <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">
+                    Du är nu utloggad
+                  </h1>
 
-              <p className="text-center lg:px-72 px:20 pb-24">
-                Logga in och ta del av våra samlade tjänster från Sundsvall Energi och Sundsvall Elnät
-              </p>
+                  <div className="flex flex-col">
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={() => router.push('/login')}
+                    >
+                      Logga in igen
+                    </Button>
+                  </div>
+                </>
+              ): (
+                <>
+                  <div className="flex flex-col w-full">
+                    <h1 className="text-center text-h2-sm desktop:text-h2-lg mb-0 pb-12">
+                      Välkommen till våra gemensamma Mina sidor
+                    </h1>
 
-              <p className="text-center text-label-large pb-16">Logga in som</p>
+                    <p className="text-center text-secondary m-0">
+                      Logga in och ta del av våra samlade tjänster från Sundsvall Energi och Sundsvall Elnät
+                    </p>
+                  </div>
 
-              <div className="flex flex-col desktop:flex-row gap-24 w-full desktop:w-fit pb-8">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  rightIcon={<Icon icon={<ArrowRight />} />}
-                  onClick={() => onLogin(RepresentingMode.PRIVATE)}
-                >
-                  Privatperson
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  rightIcon={<Icon icon={<ArrowRight />} />}
-                  onClick={() => onLogin(RepresentingMode.BUSINESS)}
-                >
-                  Organisation
-                </Button>
-                {errorMessage && <FormErrorMessage className="mt-lg">{errorMessage}</FormErrorMessage>}
-              </div>
+                  <div className="flex flex-col w-full">
+                    <p className="text-center text-label-large m-0 pb-16">Logga in som</p>
+
+                    <div className="flex flex-col desktop:flex-row gap-24 w-full">
+                      <Button
+                        className="flex-grow"
+                        variant="secondary"
+                        size="lg"
+                        rightIcon={<Icon icon={<ArrowRight />} />}
+                        onClick={() => onLogin(RepresentingMode.PRIVATE)}
+                      >
+                        Privatperson
+                      </Button>
+                      <Button
+                        className="flex-grow"
+                        variant="secondary"
+                        size="lg"
+                        rightIcon={<Icon icon={<ArrowRight />} />}
+                        onClick={() => onLogin(RepresentingMode.BUSINESS)}
+                      >
+                        Organisation
+                      </Button>
+                      {errorMessage && <FormErrorMessage className="mt-lg">{errorMessage}</FormErrorMessage>}
+                    </div>
+                  </div>
+                </>
+              )}
             </CenterDiv>
           </Main>
         </CardElevated>
-        <div className="mt-48 text-left">
-          <h2 className="text-h3-md">Problem att logga in?</h2>
-          <p>
+        <div className="mt-32 text-left desktop:mt-48">
+          <h2 className="text-h3-md pb-8">Problem att logga in?</h2>
+          <p className="m-0">
             Vi använder oss av BankID för en trygg och säker inloggning. BankID är en e-legitimation som du använder
             till att styrka din identitet på Internet, t.ex. på banken, hos Försäkringskassan eller CSN.
           </p>
