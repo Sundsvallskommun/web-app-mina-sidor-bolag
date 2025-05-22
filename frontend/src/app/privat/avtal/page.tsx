@@ -1,6 +1,6 @@
 import { PagesLayout } from '@layouts/pages-layout.component';
 import { appName } from '@utils/app-name';
-import Agreements from '@layouts/pages/mypages-sections/agreements.component';
+import PagedAgreements from '@layouts/pages/mypages-sections/agreements.component';
 
 export async function generateMetadata() {
   return {
@@ -11,7 +11,7 @@ export async function generateMetadata() {
 export default function Avtal() {
   return (
     <PagesLayout>
-      <Agreements />
+      <PagedAgreements />
     </PagesLayout>
   );
 }

@@ -1,5 +1,6 @@
-import { CustomerRelation } from "@data-contracts/customer/data-contracts";
-import { FacilityAddress } from "./facility-address";
+import { CustomerRelation } from '@data-contracts/customer/data-contracts';
+import { FacilityAddress } from './facility-address';
+import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 
 export enum FeedbackLifespan {
   'untilRemoved' = 'untilRemoved',
@@ -21,4 +22,5 @@ export interface User {
   };
   relations: CustomerRelation[];
   addresses: FacilityAddress[];
+  facilities: InstalledBaseItem[];
 }

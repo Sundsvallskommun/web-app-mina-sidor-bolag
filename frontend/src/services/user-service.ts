@@ -9,6 +9,7 @@ const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
   },
   relations: res.data.relations,
   addresses: res.data.addresses,
+  facilities: res.data.facilities,
 });
 
 export const getMe: () => Promise<User> = () => {

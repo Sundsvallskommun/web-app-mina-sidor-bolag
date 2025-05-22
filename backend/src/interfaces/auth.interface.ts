@@ -4,6 +4,7 @@ import { RepresentingEntity } from './representing.interface';
 import { FacilityAddress } from './facility-address.interface';
 import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { CaseStatusResponse } from '@/data-contracts/casestatus/data-contracts';
+import { InstalledBaseItem } from '@/data-contracts/installedbase/data-contracts';
 
 export interface DataStoredInToken {
   id: number;
@@ -26,5 +27,6 @@ export interface RequestWithUser extends Request {
     };
     relations?: CustomerRelation[];
     addresses?: FacilityAddress[];
+    facilities?: InstalledBaseItem[];
   };
 }

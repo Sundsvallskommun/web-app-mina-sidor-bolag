@@ -10,13 +10,14 @@ import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
-import { InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
+import { InstalledBaseItem, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 interface UserData {
   name: string;
   userSettings: any;
   relations?: CustomerRelation[];
   addresses?: FacilityAddress[];
+  facilities?: InstalledBaseItem[];
 }
 
 export class PatchUserSettingsDto {
@@ -76,8 +77,7 @@ export class UserController {
         // Handle 404 as empty
         if (error.status === 404) {
           req.cache.relations = [];
-        }
-        else {
+        } else {
           throw new HttpException(500, 'Could not fetch customer relations');
         }
       }
@@ -85,8 +85,9 @@ export class UserController {
 
     if (!req.cache.addresses) {
       const relations = req.cache?.relations ?? [];
-      const addressDictionary: {[key: string]: string[]} = {};
-      for (const {organizationNumber} of relations) {
+      const facilities = req.cache?.facilities ?? [];
+      const addressDictionary: { [key: string]: string[] } = {};
+      for (const { organizationNumber } of relations) {
         try {
           const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
           const installedBaseParams = {
@@ -94,31 +95,34 @@ export class UserController {
           };
           const installedBaseRes = await this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req);
           const customer = installedBaseRes.data.installedBaseCustomers[0];
-  
+          facilities.push(...customer.items);
+
           for (const installation of customer.items) {
-            const {address: { street }, facilityId} = installation;
+            const {
+              address: { street },
+              facilityId,
+            } = installation;
             const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
-  
-            if (!addressDictionary[addressKey])
-              addressDictionary[addressKey] = [];
-  
-            if (!addressDictionary[addressKey].includes(facilityId))
-              addressDictionary[addressKey].push(facilityId);
+
+            if (!addressDictionary[addressKey]) addressDictionary[addressKey] = [];
+
+            if (!addressDictionary[addressKey].includes(facilityId)) addressDictionary[addressKey].push(facilityId);
           }
-        } catch(error) {
+        } catch (error) {
           // Handle 404 as empty
           if (error.status === 404) {
             //
-          }
-          else {
+          } else {
             throw new HttpException(500, 'Could not fetch installedbases');
           }
         }
       }
-      req.cache.addresses = Object.entries(addressDictionary).map(([k, v]) => ({address: k, facilityIds: v}));
+      req.cache.addresses = Object.entries(addressDictionary).map(([k, v]) => ({ address: k, facilityIds: v }));
+      req.cache.facilities = facilities;
     }
 
     const relations = req.cache.relations;
+    const facilities = req.cache.facilities;
     const addresses = req.cache.addresses;
 
     const userData: UserData = {
@@ -126,6 +130,7 @@ export class UserController {
       name,
       relations,
       addresses,
+      facilities,
     };
 
     return response.send({ data: userData, message: 'success' });

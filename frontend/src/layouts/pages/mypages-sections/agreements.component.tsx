@@ -2,83 +2,48 @@
 
 import { SearchField } from '@sk-web-gui/react';
 import { AgreementListItem } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/agreement-list-item.component';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useApi } from '@services/api-service';
+import { getCategoryAsNumber, pagedAgreementsHandler } from '@services/agreement-service';
+import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
 
-export const mockData = [
-  {
-    id: 0,
-    facility: 'Kummelgatan 16',
-    agreements: [
-      {
-        id: 0,
-        agreementType: 'Produktionsavtal',
-        facilityId: '735999109515160509',
-        area: 'SUV',
-        type: 'Säkringsabonnemang',
-      },
-      {
-        id: 1,
-        agreementType: 'Elhandelsavtal',
-        facilityId: '735999109515160509',
-        area: 'SUV',
-        type: 'Rörligt pris +2,40 öre/kWh',
-      },
-    ],
-  },
-  {
-    id: 1,
-    facility: 'Storgatan 1',
-    agreements: [
-      {
-        id: 0,
-        agreementType: 'Produktionsavtal',
-        facilityId: '735999109515160502',
-        area: 'SUV',
-        type: 'Säkringsabonnemang',
-      },
-      {
-        id: 1,
-        agreementType: 'Elhandelsavtal',
-        facilityId: '735999109515160502',
-        area: 'SUV',
-        type: 'Rörligt pris +2,40 öre/kWh',
-      },
-    ],
-  },
-];
+export default function PagedAgreements() {
+  const { data: agreements, isLoading: agreementsIsLoading } = useApi({
+    url: `/paged/agreements`,
+    method: 'get',
+    dataHandler: pagedAgreementsHandler,
+  });
 
-export default function Agreements() {
+  const [data, setData] = useState(agreements);
   const [term, setTerm] = useState<string>('');
-  const [data, setData] = useState(mockData);
 
-  const handleSearch = (query: string) => {
-    const newData = data.filter((facility) => facility.facility.toLowerCase() === query.toLowerCase());
-    setData(newData);
-  };
+  useEffect(() => {
+    setData(agreements);
+  }, [agreements]);
 
   const onChangeHandler = (event: React.BaseSyntheticEvent) => {
     setTerm(event.target.value);
 
-    const newData = data.filter((facility) => facility.facility.toLowerCase().includes(term.toLowerCase()));
-    setData(newData);
-
-    if (!term.length || term === ' ' || term === '') {
-      setData(mockData);
+    if (agreements && term.length > 1) {
+      const filteredData = Object.entries(agreements).filter(([key]) => key.toLowerCase().includes(term.toLowerCase()));
+      setData(filteredData?.length > 0 ? (Object.fromEntries(filteredData) as AgreementData) : undefined);
+    } else {
+      setData(agreements);
     }
   };
 
   const onResetHandler = () => {
-    setData(mockData);
+    setData(agreements);
   };
 
-  if (mockData.length < 1) {
+  if (!agreementsIsLoading && agreements && Object.keys(agreements).length < 1) {
     return (
       <div>
         <h1>Dina avtal</h1>
         <p>Du har inga avtal än, men så fort det finns avtal kan du se dem här.</p>
       </div>
     );
-  } else {
+  } else if (data) {
     return (
       <div>
         <h1>Dina avtal</h1>
@@ -87,27 +52,27 @@ export default function Agreements() {
           className="my-40 max-w-[520px]"
           size="md"
           value={term}
-          onSearch={handleSearch}
           onChange={onChangeHandler}
           onReset={onResetHandler}
           showSearchButton={false}
           placeholder="Sök efter anläggning"
         />
 
-        {data.map((facility, facilityIndex) => {
+        {Object.entries(data).map(([key, value]: [string, RefinedAgreement[]], index) => {
           return (
-            <div key={`facility-${facilityIndex}`} className="pb-64">
-              <h3 className="text-h3-lg pb-24">{facility.facility}</h3>
-
-              {facility.agreements.map((agreement, index) => {
+            <div className="pb-64" key={`site-${index}`}>
+              <h3 className="text-h3-lg pb-24">{key ? key : 'Okänd adress'}</h3>
+              {value.map((val, index) => {
                 return (
                   <AgreementListItem
                     key={`agreement-${index}`}
-                    agreementSlug={`${agreement.facilityId}-${agreement.id}`}
-                    agreementType={agreement.agreementType}
-                    facilityId={agreement.facilityId}
-                    area={agreement.area}
-                    type={agreement.type}
+                    agreementSlug={`${getCategoryAsNumber(val.category.code)}/${val.facilityId}`}
+                    category={val.category}
+                    facilityId={val.facilityId}
+                    area={val.netAreaId}
+                    description={val.description}
+                    production={val.production}
+                    active={val.active}
                   />
                 );
               })}
