@@ -26,8 +26,8 @@ export default function PagedAgreements() {
 
     if (agreements && event.target.value.length > 1) {
       const filteredData: AgreementData = {};
-      for (const adress in agreements) {
-        filteredData[adress] = agreements[adress].filter((agreement) => {
+      for (const address in agreements) {
+        filteredData[address] = agreements[address].filter((agreement) => {
           return JSON.stringify(agreement).toLocaleLowerCase().includes(event.target.value.toLocaleLowerCase());
         });
       }
@@ -63,27 +63,31 @@ export default function PagedAgreements() {
           placeholder="Sök efter anläggning"
         />
 
-        {Object.entries(data).map(([adress, agreements]: [string, RefinedAgreement[]], index) => {
+        {Object.entries(data).map(([address, agreements]: [string, RefinedAgreement[]], index) => {
           return (
-            <div className="pb-64" key={`site-${index}`}>
-              <h3 className="text-h3-lg pb-24">{adress ? adress : 'Okänd adress'}</h3>
-              {agreements.map((val, index) => {
-                return (
-                  <AgreementListItem
-                    key={`agreement-${index}`}
-                    agreementSlug={`${getCategoryAsNumber(val.category.code)}/${val.facilityId}`}
-                    category={val.category}
-                    facilityId={val.facilityId}
-                    area={val.netAreaId}
-                    description={val.description}
-                    production={val.production}
-                    active={val.active}
-                  />
-                );
-              })}
-            </div>
+            agreements.length !== 0 && (
+              <div className="pb-64" key={`site-${index}`}>
+                <h3 className="text-h3-lg pb-24">{address ? address : 'Okänd adress'}</h3>
+                {agreements.map((val, index) => {
+                  return (
+                    <AgreementListItem
+                      key={`agreement-${index}`}
+                      agreementSlug={`${getCategoryAsNumber(val.category.code)}/${val.facilityId}`}
+                      category={val.category}
+                      facilityId={val.facilityId}
+                      area={val.netAreaId}
+                      description={val.description}
+                      production={val.production}
+                      active={val.active}
+                    />
+                  );
+                })}
+              </div>
+            )
           );
         })}
+
+        {Object.values(data).flat().length === 0 && <p>Inga avtal matchar din sökning</p>}
       </div>
     );
   }
