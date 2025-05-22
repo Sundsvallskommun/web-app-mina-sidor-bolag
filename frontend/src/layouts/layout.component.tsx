@@ -2,9 +2,10 @@
 
 import AlertBannerWrapper from '@components/alert-banner/alert-banner-wrapper.component';
 import { useLocalStorageValue } from '@react-hookz/web';
-import { CookieConsent, Footer, Link, Logo } from '@sk-web-gui/react';
+import { CookieConsent, Footer, Link } from '@sk-web-gui/react';
 import Head from 'next/head';
 import NextLink from 'next/link';
+import { Logotypes } from '@components/logotypes/logotypes.component';
 
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
@@ -49,9 +50,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         <Footer className="bg-background-200">
           <Footer.Content>
             <Footer.LogoWrapper>
-              <a target="_blank" href={'https://sundsvall.se'}>
-                <Logo aria-label="Sundsvalls kommun logotyp" />
-              </a>
+              <Logotypes customerEngagements={[]} height={50} width={100} />
             </Footer.LogoWrapper>
             <Footer.ListWrapper className="desktop:ml-80 gap-x-80 [&_.sk-footer-list-item]:w-full">
               <Footer.List>
