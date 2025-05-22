@@ -25,8 +25,13 @@ export default function PagedAgreements() {
     setTerm(event.target.value);
 
     if (agreements && term.length > 1) {
-      const filteredData = Object.entries(agreements).filter(([key]) => key.toLowerCase().includes(term.toLowerCase()));
-      setData(filteredData?.length > 0 ? (Object.fromEntries(filteredData) as AgreementData) : undefined);
+      const filteredData: AgreementData = {};
+      for (const adress in agreements) {
+        filteredData[adress] = agreements[adress].filter((agreement) => {
+          return JSON.stringify(agreement).toLocaleLowerCase().includes(event.target.value.toLocaleLowerCase());
+        });
+      }
+      setData(filteredData);
     } else {
       setData(agreements);
     }
@@ -58,11 +63,11 @@ export default function PagedAgreements() {
           placeholder="Sök efter anläggning"
         />
 
-        {Object.entries(data).map(([key, value]: [string, RefinedAgreement[]], index) => {
+        {Object.entries(data).map(([adress, agreements]: [string, RefinedAgreement[]], index) => {
           return (
             <div className="pb-64" key={`site-${index}`}>
-              <h3 className="text-h3-lg pb-24">{key ? key : 'Okänd adress'}</h3>
-              {value.map((val, index) => {
+              <h3 className="text-h3-lg pb-24">{adress ? adress : 'Okänd adress'}</h3>
+              {agreements.map((val, index) => {
                 return (
                   <AgreementListItem
                     key={`agreement-${index}`}
