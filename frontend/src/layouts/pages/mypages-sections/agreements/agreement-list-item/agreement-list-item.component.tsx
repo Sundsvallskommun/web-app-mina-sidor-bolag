@@ -1,46 +1,65 @@
 'use client';
 
-import { Button, Icon, Link } from '@sk-web-gui/react';
-import { ChevronRight, UtilityPole } from 'lucide-react';
+import { Label, Button } from '@sk-web-gui/react';
+import { ChevronRight } from 'lucide-react';
+import { PaddedListIcon } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/padded-list-icon/padded-list-icon.component';
+import { useRouter } from 'next/navigation';
 
 interface AgreementListItemProps {
   agreementSlug: string;
-  agreementType: string;
+  category: { label: string; color: string; icon: string };
   facilityId: string;
   area: string;
-  type: string;
+  description: string;
+  production: boolean | null;
+  active: boolean;
 }
 
 export const AgreementListItem = (props: AgreementListItemProps) => {
-  const { agreementSlug, agreementType, facilityId, area, type } = props;
+  const { agreementSlug, category, facilityId, area, description, production, active } = props;
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`./avtal/${agreementSlug}`);
+  };
 
   return (
-    <div className="flex mb-16 bg-background-content shadow-50 py-16 px-20 rounded-cards justify-between">
+    <div
+      onClick={() => handleClick()}
+      className="flex mb-16 bg-background-content shadow-50 py-16 px-20 rounded-cards justify-between hover:bg-background-200 hover:cursor-pointer"
+    >
       <div className="flex lg:items-center justify-between">
-        <div className="bg-warning-background-200 flex justify-center items-center w-52 h-52 rounded-button mr-16">
-          <Icon icon={<UtilityPole />} size={30} />
-        </div>
+        <PaddedListIcon color={category.color} iconName={category.icon} />
 
         <div>
-          <p className="text-large font-bold">{agreementType}</p>
+          <p className="md:text-large font-bold">
+            {category.label}
+            {production ? ' produktion ' : null} avtal
+          </p>
+
+          {!active ? (
+            <Label className="md:hidden visible my-10 md:mr-64 mr-16" color="error" inverted rounded>
+              Frånkopplad
+            </Label>
+          ) : null}
 
           <div className="lg:flex items-center text-small">
             <strong className="pr-6">Anläggnings-ID</strong> <p className="lg:pb-0 pb-16 pr-24">{facilityId}</p>
             <strong className="pr-6">Nätområde</strong> <p className="lg:pb-0 pb-16 pr-24">{area}</p>
-            <strong className="pr-6">Typ</strong> <p className="pr-24">{type}</p>
+            <strong className="pr-6">Typ</strong> <p className="pr-24">{description}</p>
           </div>
         </div>
       </div>
 
-      <Link className="flex lg:items-center" href={`./avtal/${agreementSlug}`}>
-        <Button
-          iconButton
-          variant="tertiary"
-          size="lg"
-          showBackground={false}
-          rightIcon={<Icon icon={<ChevronRight />} />}
-        />
-      </Link>
+      <div className="md:flex block md:items-center md:mt-0 mt-8">
+        {!active ? (
+          <Label className="mr-64 md:flex hidden" color="error" inverted rounded>
+            Frånkopplad
+          </Label>
+        ) : null}
+
+        <Button size="lg" variant="tertiary" iconButton rightIcon={<ChevronRight />} showBackground={false} />
+      </div>
     </div>
   );
 };

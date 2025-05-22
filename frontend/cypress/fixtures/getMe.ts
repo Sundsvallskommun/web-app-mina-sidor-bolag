@@ -24,19 +24,15 @@ export const getMe: ApiResponse<User> = {
     ],
     addresses: [
       {
-          address: 'Kummelgatan 16',
-          facilityIds: [
-              '735999109151605013',
-              '9151605012',
-          ],
+        address: 'Kummelgatan 16',
+        facilityIds: ['735999109151605013', '9151605012'],
       },
       {
-          address: 'Kummelgatan 16 Solcellsanläggning',
-          facilityIds: [
-              '735999109515160509',
-          ],
+        address: 'Kummelgatan 16 Solcellsanläggning',
+        facilityIds: ['735999109515160509'],
       },
     ],
+    facilities: [],
   },
   message: 'success',
 };

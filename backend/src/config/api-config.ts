@@ -28,6 +28,10 @@ export const APIS = [
     name: 'installedbase',
     version: '3.0',
   },
+  {
+    name: 'agreement',
+    version: '4.1',
+  },
 ] as const;
 
 export const getApiBase = (name: string) => {

@@ -1,0 +1,47 @@
+import { MUNICIPALITY_ID } from '@/config';
+import { getApiBase } from '@/config/api-config';
+import { HttpException } from '@/exceptions/HttpException';
+import { RequestWithUser } from '@/interfaces/auth.interface';
+import { ApiResponse } from '@/interfaces/service';
+import ApiService from '@/services/api.service';
+import authMiddleware from '@middlewares/auth.middleware';
+import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
+import { OpenAPI } from 'routing-controllers-openapi';
+import { Agreement, AgreementResponse, Category, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
+
+@Controller()
+export class AgreementController {
+  private apiService = new ApiService();
+  private apiBase = getApiBase('agreement');
+
+  @Get('/paged/agreements')
+  @OpenAPI({ summary: 'Get agreements by party id' })
+  @UseBefore(authMiddleware)
+  async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
+    const { partyId } = req?.user;
+
+    if (!partyId) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
+    const params = {};
+
+    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req);
+    return { data: res.data.agreements, message: 'success' };
+  }
+
+  @Get('/agreement/:category/:facilityId')
+  @OpenAPI({ summary: 'Get agreements by category and facility id' })
+  @UseBefore(authMiddleware)
+  async getAgreement(
+    @Req() req: RequestWithUser,
+    @Param('category') category: Category,
+    @Param('facilityId') facilityId: string,
+  ): Promise<ApiResponse<Agreement[]>> {
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/agreements/${category}/${facilityId}`;
+
+    const res = await this.apiService.get<AgreementResponse>({ url }, req);
+    return { data: res.data.agreementParties[0].agreements, message: 'success' };
+  }
+}
