@@ -49,6 +49,5 @@ export interface RefinedAgreement extends Omit<Agreement, 'category'> {
 }
 
 export interface AgreementData {
-  siteAddress: string;
-  agreement: RefinedAgreement[];
+  [siteAddress: string]: RefinedAgreement[];
 }
