@@ -113,15 +113,15 @@ export const Announcements = () => {
           return (
             <div
               key={`anouncement-${index}`}
-              className="bg-background-content shadow-50 rounded-cards max-w-[106rem] min-h-[30rem] flex flex-col md:flex-row md:min-w-[56rem]"
+              className="bg-background-content shadow-50 rounded-cards max-w-[106rem] min-h-[30rem] flex flex-col sm:flex-row sm:min-w-[36rem]"
             >
               <Image
                 src={announcement.image}
                 alt={announcement.imageAlt}
-                className="rounded-t-cards md:rounded-r-0 md:rounded-l-cards object-cover grow w-full max-h-[60vw] md:w-[32rem] md:max-w-[35vw]"
+                className="rounded-t-cards sm:rounded-r-0 sm:rounded-l-cards object-cover grow w-full md:max-h-[60vw] sm:w-[32rem] sm:max-w-[35vw]"
               />
               <div className="p-24 flex flex-col gap-16">
-                <h2 className="text-h3">{announcement.title}</h2>
+                <h2 className="text-h3-md">{announcement.title}</h2>
                 <p>{announcement.text}</p>
                 {announcement.url && (
                   <Link external className="font-bold text-dark underline" href={announcement.url}>
