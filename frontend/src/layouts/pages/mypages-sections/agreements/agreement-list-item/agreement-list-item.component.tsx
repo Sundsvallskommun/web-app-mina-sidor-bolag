@@ -1,6 +1,6 @@
 'use client';
 
-import { Icon, Label } from '@sk-web-gui/react';
+import { Label, Button } from '@sk-web-gui/react';
 import { ChevronRight } from 'lucide-react';
 import { PaddedListIcon } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/padded-list-icon/padded-list-icon.component';
 import { useRouter } from 'next/navigation';
@@ -58,7 +58,7 @@ export const AgreementListItem = (props: AgreementListItemProps) => {
           </Label>
         ) : null}
 
-        <Icon icon={<ChevronRight />} />
+        <Button size="lg" variant="tertiary" iconButton rightIcon={<ChevronRight />} showBackground={false} />
       </div>
     </div>
   );
