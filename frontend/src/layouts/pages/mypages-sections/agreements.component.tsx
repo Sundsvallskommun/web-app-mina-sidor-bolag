@@ -24,7 +24,7 @@ export default function PagedAgreements() {
   const onChangeHandler = (event: React.BaseSyntheticEvent) => {
     setTerm(event.target.value);
 
-    if (agreements && term.length > 1) {
+    if (agreements && event.target.value.length > 1) {
       const filteredData: AgreementData = {};
       for (const adress in agreements) {
         filteredData[adress] = agreements[adress].filter((agreement) => {
