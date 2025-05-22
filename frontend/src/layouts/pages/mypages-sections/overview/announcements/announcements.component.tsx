@@ -1,8 +1,17 @@
 'use client';
 
-import { Card } from '@sk-web-gui/react';
+import { Image, Link } from '@sk-web-gui/react';
 
-export const mockData = [
+export const puffs: {
+  id: number;
+  title: string;
+  text: string;
+  urlTitle: string;
+  url: string;
+  groups: string[];
+  image?: string;
+  imageAlt?: string;
+}[] = [
   {
     id: 0,
     title: 'Vi skickar våra fakturor digitalt via Kivra',
@@ -10,14 +19,18 @@ export const mockData = [
     urlTitle: 'Läs mer om Kivra',
     url: 'https://kivra.se/sv/privat',
     groups: ['CUSTOMER_SV_ENERGI'],
+    image: '/viskickarvarafakturor.jpg',
+    imageAlt: 'Vi skickar våra fakturor digitalt via Kivra',
   },
   {
     id: 1,
     title: 'Avbrottsersättning och skadestånd',
     text: 'När ett sammanhängande avbrott sker, och varar längre än 12 timmar, har du som kund rätt till ersättning.',
     urlTitle: 'Läs mer om avbrottsersättning',
-    url: 'https://sundsvallelnat.se',
+    url: 'https://sundsvallelnat.se/stromavbrott/avbrottsersattning-och-skadestand/',
     groups: ['CUSTOMER_SV_EL'],
+    image: '/avbrottsersattning.png',
+    imageAlt: 'Avbrottsersättning och skadestånd',
   },
   {
     id: 2,
@@ -26,14 +39,18 @@ export const mockData = [
     urlTitle: 'Läs mer',
     url: 'https://sundsvallenergi.se/kundservice/fakturor',
     groups: ['CUSTOMER_SV_ENERGI'],
+    image: '/hardufragor.jpg',
+    imageAlt: 'Har du frågor om din elhandelsfaktura?',
   },
   {
     id: 3,
     title: 'Kontakta oss',
     text: 'Behöver du komma i kontakt med oss? Fyll i formuläret och ange vad du önskar ha hjälp med, så återkommer vi till dig inom tre arbetsdagar. Är ditt ärende mer brådskande ber vi dig istället att ringa in till oss.',
-    urlTitle: '',
-    url: '',
+    urlTitle: 'Skicka in ditt ärende här',
+    url: 'https://minasidor.stadsbacken.se/oversikt/flow/225',
     groups: ['CUSTOMER_SV_EL', 'CUSTOMER_SV_ENERGI', 'COMPANY', 'PERSON'],
+    image: '/kontaktaoss.jpg',
+    imageAlt: 'Kontakta oss',
   },
   {
     id: 4,
@@ -42,6 +59,8 @@ export const mockData = [
     urlTitle: '',
     url: '',
     groups: ['CUSTOMER_SV_EL', 'CUSTOMER_SV_ENERGI', 'PERSON'],
+    image: '/dagsattflytta.jpg',
+    imageAlt: 'Dags att flytta? Vi hjälper dig!',
   },
   {
     id: 5,
@@ -50,6 +69,8 @@ export const mockData = [
     urlTitle: '',
     url: '',
     groups: ['CUSTOMER_SV_EL'],
+    image: '/driftavbrottsavisering.jpg',
+    imageAlt: 'Vill du registrera dig för driftavbrottsavisering?',
   },
   {
     id: 6,
@@ -58,6 +79,8 @@ export const mockData = [
     urlTitle: '',
     url: '',
     groups: ['COMPANY'],
+    image: '/fjarrkyla.jpg',
+    imageAlt: 'Fjärrkyla',
   },
   {
     id: 7,
@@ -66,37 +89,47 @@ export const mockData = [
     urlTitle: '',
     url: '',
     groups: ['COMPANY'],
+    image: '/laddning.jpg',
+    imageAlt: 'Laddtjänster för företag och brf',
   },
   {
     id: 8,
     title: 'Ladda din elbil snabbt och smidigt',
     text: 'En laddbox ger dig snabbare och säkrare laddning. I vårt sortiment av produkter för laddning i hemmet erbjuder vi laddboxar och installationstjänst i samarbete mellan Sundsvall Energi och Mer.',
-    urlTitle: '',
-    url: '',
+    urlTitle: 'Läs mer',
+    url: 'https://sundsvallenergi.se/laddboxar-for-hemmet/',
     groups: ['CUSTOMER_SV_ENERGI'],
+    image: '/laddning.jpg',
+    imageAlt: 'Ladda din elbil snabbt och smidigt',
   },
 ];
 
 export const Announcements = () => {
   return (
     <section className="pt-80">
-      <h3>Aktuellt</h3>
-
-      <div className="grid lg:grid-cols-3 md:gap-24 md:grid-cols-2 pt-32 grid-cols-1">
-        {mockData.map((announcement, index) => {
+      <h3>Nyheter</h3>
+      <div className="flex flex-col gap-24 my-24">
+        {puffs.map((announcement, index) => {
           return (
-            <Card key={index} href={announcement.url} target="_blank" className="md:mb-0 mb-24" useHoverEffect>
-              <Card.Image src="/placeholder_1.png" />
-
-              <Card.Body>
-                <Card.Header>
-                  <h2>{announcement.title}</h2>
-                </Card.Header>
-                <Card.Text>
-                  <p>{announcement.text}</p>
-                </Card.Text>
-              </Card.Body>
-            </Card>
+            <div
+              key={`anouncement-${index}`}
+              className="bg-background-content shadow-50 rounded-cards max-w-[106rem] min-h-[30rem] flex flex-col md:flex-row md:min-w-[56rem]"
+            >
+              <Image
+                src={announcement.image}
+                alt={announcement.imageAlt}
+                className="rounded-t-cards md:rounded-r-0 md:rounded-l-cards object-cover grow w-full max-h-[60vw] md:w-[32rem] md:max-w-[35vw]"
+              />
+              <div className="p-24 flex flex-col gap-16">
+                <h2 className="text-h3">{announcement.title}</h2>
+                <p>{announcement.text}</p>
+                {announcement.url && (
+                  <Link external className="font-bold text-dark underline" href={announcement.url}>
+                    {announcement.urlTitle}
+                  </Link>
+                )}
+              </div>
+            </div>
           );
         })}
       </div>
