@@ -8,6 +8,7 @@ import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Agreement, AgreementResponse, Category, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
+import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 
 @Controller()
 export class AgreementController {
@@ -18,7 +19,8 @@ export class AgreementController {
   @OpenAPI({ summary: 'Get agreements by party id' })
   @UseBefore(authMiddleware)
   async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
-    const { partyId } = req?.user;
+    const { representing } = req?.session;
+    const partyId = getRepresentingPartyId(representing);
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
