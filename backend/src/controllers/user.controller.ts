@@ -62,9 +62,7 @@ export class UserController {
       delete userSettings.userId;
     }
 
-    if (!req.session.cache) {
-      req.session.cache = {};
-    }
+    req.session.cache ??= {};
 
     if (!req.session.cache.relations) {
       try {
@@ -164,9 +162,7 @@ export class UserController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    if (!req.session.cache) {
-      req.session.cache = {};
-    }
+    req.session.cache ??= {};
 
     if (!req.session.cache.relations) {
       try {
