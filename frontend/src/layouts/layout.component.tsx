@@ -50,7 +50,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         <Footer className="bg-background-200">
           <Footer.Content>
             <Footer.LogoWrapper>
-              <Logotypes customerEngagements={[]} height={50} width={100} />
+              <Logotypes height={50} width={100} />
             </Footer.LogoWrapper>
             <Footer.ListWrapper className="desktop:ml-80 gap-x-80 [&_.sk-footer-list-item]:w-full">
               <Footer.List>
@@ -73,25 +73,34 @@ export function Layout({ title, children }: { title: string; children: React.Rea
               </Footer.List>
               <Footer.List>
                 <Footer.ListItem>
-                  <label>Besök oss</label>
+                  <label>Om bolagen</label>
                 </Footer.ListItem>
-                <Footer.ListItem className="w-full">
-                  <span>Sundsvalls kommun</span>
-                </Footer.ListItem>
-                <Footer.ListItem className="w-full">
-                  <span>Norrmalmsgatan 4, 851 85 Sundsvall</span>
-                </Footer.ListItem>
-                <Footer.ListItem className="w-full">
-                  <span>
-                    Kommunhuset:{' '}
-                    <Link
-                      className="text-body"
-                      href="https://sundsvall.se/kommun-och-politik/kommunfakta/kommunhuset---oppettider-och-karta"
-                      external
-                    >
-                      Öppettider och karta
+                <Footer.ListItem>
+                  <NextLink passHref legacyBehavior href={'https://sundsvallenergi.se/om-oss'}>
+                    <Link external variant="tertiary">
+                      Om Sundsvall Energi
                     </Link>
-                  </span>
+                  </NextLink>
+                </Footer.ListItem>
+                <Footer.ListItem>
+                  <NextLink passHref legacyBehavior href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}>
+                    <Link external variant="tertiary">
+                      Om Sundsvall Elnät
+                    </Link>
+                  </NextLink>
+                </Footer.ListItem>
+                <Footer.ListItem>
+                  <NextLink
+                    passHref
+                    legacyBehavior
+                    href={
+                      'https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab'
+                    }
+                  >
+                    <Link external variant="tertiary">
+                      Om Stadsbacken
+                    </Link>
+                  </NextLink>
                 </Footer.ListItem>
               </Footer.List>
               <Footer.List>
@@ -117,12 +126,21 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                   <NextLink
                     passHref
                     legacyBehavior
-                    href={
-                      'https://sundsvall.se/kommun-och-politik/overklaga-beslut-rattssakerhet/behandling-av-personuppgifter'
-                    }
+                    href={'https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy'}
                   >
                     <Link variant="tertiary" external>
-                      Personuppgifter
+                      Personuppgifter Sundsvall Energi
+                    </Link>
+                  </NextLink>
+                </Footer.ListItem>
+                <Footer.ListItem>
+                  <NextLink
+                    passHref
+                    legacyBehavior
+                    href={'https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter'}
+                  >
+                    <Link variant="tertiary" external>
+                      Personuppgifter Sundsvall Elnät
                     </Link>
                   </NextLink>
                 </Footer.ListItem>
