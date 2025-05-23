@@ -31,6 +31,28 @@ export class UserController {
   private customerApiBase = getApiBase('customer');
   private installedBaseApiBase = getApiBase('installedbase');
 
+  cacheRelations = async (req: RequestWithUser) => {
+    if (!req.session.cache.relations) {
+      try {
+        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
+        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
+        const relations = relationsRes.data?.customerRelations ?? [];
+        req.session.cache.relations = relations.map(relation => ({
+          ...relation,
+          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+        }));
+      } catch (error) {
+        // Handle 404 as empty
+        if (error.status === 404) {
+          req.session.cache.relations = [];
+          req.cache.relations = [];
+        } else {
+          throw new HttpException(500, 'Could not fetch customer relations');
+        }
+      }
+    }
+  };
+
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
   @UseBefore(authMiddleware)
@@ -64,24 +86,7 @@ export class UserController {
 
     req.session.cache ??= {};
 
-    if (!req.session.cache.relations) {
-      try {
-        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
-        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
-        const relations = relationsRes.data?.customerRelations ?? [];
-        req.session.cache.relations = relations.map(relation => ({
-          ...relation,
-          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        }));
-      } catch (error) {
-        // Handle 404 as empty
-        if (error.status === 404) {
-          req.session.cache.relations = [];
-        } else {
-          throw new HttpException(500, 'Could not fetch customer relations');
-        }
-      }
-    }
+    await this.cacheRelations(req);
 
     if (!req.session.cache.addresses) {
       const relations = req.session.cache?.relations ?? [];
@@ -164,29 +169,7 @@ export class UserController {
 
     req.session.cache ??= {};
 
-    if (!req.session.cache.relations) {
-      try {
-        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
-        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
-        const relations = relationsRes.data?.customerRelations ?? [];
-        req.session.cache.relations = relations.map(relation => ({
-          ...relation,
-          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        }));
-        req.cache.relations = relations.map(relation => ({
-          ...relation,
-          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        }));
-      } catch (error) {
-        // Handle 404 as empty
-        if (error.status === 404) {
-          req.session.cache.relations = [];
-          req.cache.relations = [];
-        } else {
-          throw new HttpException(500, 'Could not fetch customer relations');
-        }
-      }
-    }
+    await this.cacheRelations(req);
 
     const relations = req.session.cache.relations;
 
