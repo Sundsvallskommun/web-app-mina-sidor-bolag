@@ -12,7 +12,7 @@ export const Logotypes = (props: LogotypeProps) => {
   const { width, height } = props;
 
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
-  const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber || '') || [], [relations]);
+  const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
 
   return (
     <div className="flex gap-24">
