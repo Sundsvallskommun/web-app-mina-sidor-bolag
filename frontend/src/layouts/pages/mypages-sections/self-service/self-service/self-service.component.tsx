@@ -8,7 +8,10 @@ import { useMemo } from 'react';
 
 export default function SelfService() {
   const { data } = useApi<User>({ url: '/me', method: 'get' });
-  const facilityTypes = useMemo(() => new Set(data?.facilities?.map((f) => f.type ?? '')) ?? [], [data]);
+  const facilityTypes = useMemo(() => {
+    if (!data?.facilities) return new Set();
+    return new Set(data.facilities.map((f) => f.type ?? ''));
+  }, [data]);
   return (
     <div>
       <h1 className="pb-40">Självservice</h1>
