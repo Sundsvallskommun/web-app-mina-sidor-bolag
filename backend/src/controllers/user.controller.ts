@@ -119,7 +119,7 @@ export class UserController {
         .then(results => {
           customerItems = results
             .filter(r => r.status === 'fulfilled')
-            .map(r => r.value)
+            .map((r: PromiseFulfilledResult<any>) => r.value)
             .flat();
         })
         .catch(error => {

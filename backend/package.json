@@ -12,6 +12,7 @@
     "generate:contracts": "cross-env NODE_ENV=development ts-node ./src/swagger-typescript-api.ts",
     "build": "tsc && tsc-alias",
     "build:swc": "swc src -d dist --source-maps --copy-files",
+    "type-check": "tsc --pretty --noEmit",
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
