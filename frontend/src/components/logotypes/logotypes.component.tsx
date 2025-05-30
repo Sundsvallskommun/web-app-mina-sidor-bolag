@@ -1,6 +1,6 @@
 import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { useApi } from '@services/api-service';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { LogoGroup } from './logo-group.component';
 
 interface LogotypeProps {

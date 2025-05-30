@@ -1,6 +1,7 @@
 'use client';
 
 import { ColorSchemeMode, cx, useGui } from '@sk-web-gui/react';
+import { safeOrganizations } from '@utils/app-organiztions';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
@@ -21,7 +22,7 @@ export const LogoGroup: React.FC<LogoGroupProps> = (props) => {
 
   return (
     <div className={cx('flex gap-24', wrapperClasses)}>
-      {organizations?.map((org) => (
+      {safeOrganizations(organizations)?.map((org) => (
         <Image
           src={`/logotypes/${org}-${mode}mode.svg`}
           alt={t(`organization:${org}.logo_alt`)}
