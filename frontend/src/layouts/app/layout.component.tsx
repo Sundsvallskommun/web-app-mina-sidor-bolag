@@ -38,7 +38,7 @@ dayjs.updateLocale('se', {
 interface MyAppLayoutProps {
   children?: React.ReactNode;
   locale: string;
-  namespaces: string[];
+  namespaces: readonly string[];
 }
 
 export default function MyAppLayout({ children, locale, namespaces }: MyAppLayoutProps) {
