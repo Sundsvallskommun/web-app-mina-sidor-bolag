@@ -27,7 +27,7 @@ export const PaddedListIcon = (props: PaddedListIconProps) => {
 
   return color === 'warning' ? (
     <div
-      className={`bg-warning-background-200 flex justify-center items-center lg:w-52 lg:h-52 md:h-48 md:w-48 h-32 w-32 md:p-0 p-4 rounded-button mr-16`}
+      className={`bg-brand-secondary flex justify-center items-center lg:w-52 lg:h-52 md:h-48 md:w-48 h-32 w-32 md:p-0 p-4 rounded-button mr-16`}
     >
       <Icon icon={setIcon(iconName)} size={30} />
     </div>
