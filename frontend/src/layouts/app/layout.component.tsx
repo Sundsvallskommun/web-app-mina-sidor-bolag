@@ -5,13 +5,13 @@ import { ConfirmationDialogContextProvider, GuiProvider, extendTheme, toRGB } fr
 import { MatomoWrapper } from '@utils/matomo-wrapper';
 import dayjs from 'dayjs';
 import 'dayjs/locale/se';
-import { i18n as i18nType } from 'i18next';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import utc from 'dayjs/plugin/utc';
+import { i18n as i18nType } from 'i18next';
+import { useEffect, useState } from 'react';
+import initLocalization from 'src/app/i18n';
 import '../../../tailwind.scss';
 import { LoginGuard } from './login-guard';
-import { useState, useEffect } from 'react';
-import initLocalization from 'src/app/i18n';
 
 dayjs.extend(utc);
 dayjs.locale('se');
@@ -38,10 +38,10 @@ dayjs.updateLocale('se', {
 interface MyAppLayoutProps {
   children?: React.ReactNode;
   locale: string;
-  namespaces: readonly string[];
+  namespaces: string[];
 }
 
-export default function MyAppLayout({ children, locale, namespaces }: MyAppLayoutProps) {
+export const MyAppLayout: React.FC<MyAppLayoutProps> = ({ children, locale, namespaces }) => {
   const [i18n, seti18n] = useState<i18nType | null>(null);
 
   useEffect(() => {
@@ -85,4 +85,6 @@ export default function MyAppLayout({ children, locale, namespaces }: MyAppLayou
       </body>
     </html>
   );
-}
+};
+
+export default MyAppLayout;
