@@ -23,6 +23,13 @@ module.exports = {
       backgroundImage: {
         'hero-logo': "url('/svg/S_logo.svg')",
       },
+      colors: {
+        brand: {
+          DEFAULT: 'var(--sk-colors-brand-primary)',
+          primary: 'var(--sk-colors-brand-primary)',
+          secondary: 'var(--sk-colors-brand-secondary)',
+        },
+      },
     },
   },
   presets: [preset()],

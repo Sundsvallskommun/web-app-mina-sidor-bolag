@@ -17,7 +17,7 @@ export const DefaultLayout = ({ children }) => {
         wrapperClasses="py-16 [&_.sk-header-mobilemenu]:md:block [&_.sk-header-mobilemenu]:desktop:hidden"
         title={appName()}
         mobileMenu={<MobileMenu />}
-        logo={<Logotypes customerEngagements={[]} height={50} width={100} />}
+        logo={<Logotypes height={50} width={100} />}
       >
         {isMinDesktop && <SiteMenu />}
       </Header>
