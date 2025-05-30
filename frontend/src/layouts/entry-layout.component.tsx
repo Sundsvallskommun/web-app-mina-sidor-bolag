@@ -5,7 +5,7 @@ import { cx } from '@sk-web-gui/react';
 import { appName } from '@utils/app-name';
 import React from 'react';
 import EmptyLayout from './empty-layout.component';
-import { appOrganiztions } from '@utils/app-organiztions';
+import { appOrganizations } from '@utils/app-organizations';
 
 export const EntryLayout: React.FC<{
   title: string;
@@ -25,7 +25,7 @@ export const EntryLayout: React.FC<{
           <LogoGroup
             wrapperClasses="justify-self-center"
             logoClasses={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
-            organizations={appOrganiztions}
+            organizations={appOrganizations}
             width={100}
             height={50}
           />

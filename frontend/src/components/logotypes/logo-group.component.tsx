@@ -1,7 +1,7 @@
 'use client';
 
 import { ColorSchemeMode, cx, useGui } from '@sk-web-gui/react';
-import { safeOrganizations } from '@utils/app-organiztions';
+import { safeOrganizations } from '@utils/app-organizations';
 import Image from 'next/image';
 import { useTranslation } from 'react-i18next';
 
