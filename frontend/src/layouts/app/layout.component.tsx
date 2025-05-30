@@ -1,7 +1,7 @@
 'use client';
 
 import { AppWrapper } from '@contexts/app.context';
-import { ConfirmationDialogContextProvider, GuiProvider, defaultTheme } from '@sk-web-gui/react';
+import { ConfirmationDialogContextProvider, GuiProvider, extendTheme, toRGB } from '@sk-web-gui/react';
 import { MatomoWrapper } from '@utils/matomo-wrapper';
 import dayjs from 'dayjs';
 import 'dayjs/locale/se';
@@ -33,10 +33,30 @@ dayjs.updateLocale('se', {
 });
 
 export default function MyAppLayout({ children }) {
+  const theme = extendTheme({
+    colorSchemes: {
+      light: {
+        colors: {
+          brand: {
+            primary: `rgb(${toRGB('#FAE9E7')?.join(',')})`,
+            secondary: `rgb(${toRGB('#FFF0D9')?.join(',')})`,
+          },
+        },
+      },
+      dark: {
+        colors: {
+          brand: {
+            primary: `rgb(${toRGB('#2F2E2E')?.join(',')})`,
+            secondary: `rgb(${toRGB('#B39029')?.join(',')})`,
+          },
+        },
+      },
+    },
+  });
   return (
     <html lang="se">
       <body>
-        <GuiProvider theme={defaultTheme}>
+        <GuiProvider theme={theme}>
           <ConfirmationDialogContextProvider>
             <AppWrapper>
               <LoginGuard>
