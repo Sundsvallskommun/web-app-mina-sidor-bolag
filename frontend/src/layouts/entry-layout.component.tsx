@@ -1,8 +1,8 @@
 'use client';
 
+import { LogoGroup } from '@components/logotypes/logo-group.component';
 import { cx } from '@sk-web-gui/react';
 import { appName } from '@utils/app-name';
-import Image from 'next/image';
 import React from 'react';
 import EmptyLayout from './empty-layout.component';
 
@@ -21,22 +21,13 @@ export const EntryLayout: React.FC<{
           </div>
         </div>
         <div className={cx('relative items-center justify-center px-20 py-40 lg:py-80 lg:px-40', className)}>
-          <div className="flex justify-self-center gap-24">
-            <Image
-              className={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
-              src="/sundsvall-elnat.webp"
-              alt={'Sundsvall elnäts logotyp'}
-              width={100}
-              height={50}
-            />
-            <Image
-              className={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
-              src="/sundsvall-energi.png"
-              alt={'Sundsvall energis logotyp'}
-              width={100}
-              height={50}
-            />
-          </div>
+          <LogoGroup
+            wrapperClasses="justify-self-center"
+            logoClasses={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
+            organizations={['5564786647', '5565027223']}
+            width={100}
+            height={50}
+          />
           <div className="justify-self-center">{children}</div>
         </div>
       </div>
