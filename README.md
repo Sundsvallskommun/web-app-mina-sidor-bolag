@@ -5,7 +5,7 @@
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
 | API                 | Version |
-|---------------------|--------:|
+| ------------------- | ------: |
 | BusinessEngagements |     3.0 |
 | ContactSettings     |     2.0 |
 | Citizen             |     3.0 |
@@ -72,6 +72,12 @@ cd backend
 yarn prisma:generate
 yarn prisma:migrate
 ```
+
+### Hantera organisationer
+
+För att lägga till en organisation måste du ange dess id i listan i `frontend/src/utils/app-organizations.ts`.  
+Sen måste en logotyp i format svg för lightmode och darkmode placeras i `frontend/public/logotypes` med filnamn `<orgnummer>-lightmode.svg` respektive `<orgnummer>-darkmode.svg`.  
+Alt-text för logotyperna läggs i `frontend/locales/<lang>/organization.json`
 
 ## Git Hooks
 
