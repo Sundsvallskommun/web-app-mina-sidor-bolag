@@ -6,9 +6,15 @@ import { CookieConsent, Footer, Link } from '@sk-web-gui/react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { Logotypes } from '@components/logotypes/logotypes.component';
+import { CustomerRelation } from '@data-contracts/customer/data-contracts';
+import { useApi } from '@services/api-service';
+import { useMemo } from 'react';
 
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
+
+  const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
+  const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
 
   const cookieConsentHandler = (cookies) => {
     if (cookies.some((opt) => opt.cookieName === 'stats')) {
@@ -75,20 +81,24 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 <Footer.ListItem>
                   <label>Om bolagen</label>
                 </Footer.ListItem>
-                <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'https://sundsvallenergi.se/om-oss'}>
-                    <Link external variant="tertiary">
-                      Om Sundsvall Energi
-                    </Link>
-                  </NextLink>
-                </Footer.ListItem>
-                <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}>
-                    <Link external variant="tertiary">
-                      Om Sundsvall Elnät
-                    </Link>
-                  </NextLink>
-                </Footer.ListItem>
+                {customerEngagements.includes('5564786647') && (
+                  <Footer.ListItem>
+                    <NextLink passHref legacyBehavior href={'https://sundsvallenergi.se/om-oss'}>
+                      <Link external variant="tertiary">
+                        Om Sundsvall Energi
+                      </Link>
+                    </NextLink>
+                  </Footer.ListItem>
+                )}
+                {customerEngagements.includes('5565027223') && (
+                  <Footer.ListItem>
+                    <NextLink passHref legacyBehavior href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}>
+                      <Link external variant="tertiary">
+                        Om Sundsvall Elnät
+                      </Link>
+                    </NextLink>
+                  </Footer.ListItem>
+                )}
                 <Footer.ListItem>
                   <NextLink
                     passHref
@@ -122,28 +132,32 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                     <Link variant="tertiary">Tillgänglighet</Link>
                   </NextLink>
                 </Footer.ListItem>
-                <Footer.ListItem>
-                  <NextLink
-                    passHref
-                    legacyBehavior
-                    href={'https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy'}
-                  >
-                    <Link variant="tertiary" external>
-                      Personuppgifter Sundsvall Energi
-                    </Link>
-                  </NextLink>
-                </Footer.ListItem>
-                <Footer.ListItem>
-                  <NextLink
-                    passHref
-                    legacyBehavior
-                    href={'https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter'}
-                  >
-                    <Link variant="tertiary" external>
-                      Personuppgifter Sundsvall Elnät
-                    </Link>
-                  </NextLink>
-                </Footer.ListItem>
+                {customerEngagements.includes('5564786647') && (
+                  <Footer.ListItem>
+                    <NextLink
+                      passHref
+                      legacyBehavior
+                      href={'https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy'}
+                    >
+                      <Link variant="tertiary" external>
+                        Personuppgifter Sundsvall Energi
+                      </Link>
+                    </NextLink>
+                  </Footer.ListItem>
+                )}
+                {customerEngagements.includes('5565027223') && (
+                  <Footer.ListItem>
+                    <NextLink
+                      passHref
+                      legacyBehavior
+                      href={'https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter'}
+                    >
+                      <Link variant="tertiary" external>
+                        Personuppgifter Sundsvall Elnät
+                      </Link>
+                    </NextLink>
+                  </Footer.ListItem>
+                )}
               </Footer.List>
             </Footer.ListWrapper>
           </Footer.Content>

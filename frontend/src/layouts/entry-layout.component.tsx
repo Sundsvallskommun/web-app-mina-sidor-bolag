@@ -2,9 +2,9 @@
 
 import { cx } from '@sk-web-gui/react';
 import { appName } from '@utils/app-name';
-import EmptyLayout from './empty-layout.component';
 import Image from 'next/image';
 import React from 'react';
+import EmptyLayout from './empty-layout.component';
 
 export const EntryLayout: React.FC<{
   title: string;
@@ -15,7 +15,7 @@ export const EntryLayout: React.FC<{
   return (
     <EmptyLayout title={`${appName()} - ${title}`}>
       <div className="relative">
-        <div className="absolute w-full bg-error-background-100">
+        <div className="absolute w-full bg-brand-primary">
           <div className="h-[26.4rem] max-w-[80rem] mx-auto relative overflow-hidden">
             <div className="hidden lg:block -mt-[4rem] -ml-34 absolute w-[36rem]"></div>
           </div>
@@ -37,7 +37,6 @@ export const EntryLayout: React.FC<{
               height={50}
             />
           </div>
-
           <div className="justify-self-center">{children}</div>
         </div>
       </div>

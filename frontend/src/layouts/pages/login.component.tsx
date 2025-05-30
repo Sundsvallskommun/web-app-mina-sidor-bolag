@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, FormErrorMessage, Icon } from '@sk-web-gui/react';
+import { Button, FormErrorMessage, Icon, Link } from '@sk-web-gui/react';
 import { ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
@@ -68,9 +68,15 @@ function Login() {
             <CenterDiv className="px-0 desktop:px-80 pt-32 pb-40 desktop:pb-56 gap-40">
               { isLoggedOut ? (
                 <>
-                  <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">
-                    Du är nu utloggad
-                  </h1>
+                  <div className="flex flex-col w-full gap-12">
+                    <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">
+                      Du är nu utloggad
+                    </h1>
+
+                    <p className="text-center text-secondary m-0">
+                      Tack för besöket! Du kan alltid läsa mer hos <Link href="https://sundsvallenergi.se/" external>Sundsvall Energi</Link> eller <Link href="https://sundsvallelnat.se/" external>Sundsvall Elnät</Link>
+                    </p>
+                  </div>
 
                   <div className="flex flex-col">
                     <Button
@@ -84,8 +90,8 @@ function Login() {
                 </>
               ): (
                 <>
-                  <div className="flex flex-col w-full">
-                    <h1 className="text-center text-h2-sm desktop:text-h2-lg mb-0 pb-12">
+                  <div className="flex flex-col w-full gap-12">
+                    <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">
                       Välkommen till våra gemensamma Mina sidor
                     </h1>
 
@@ -94,8 +100,8 @@ function Login() {
                     </p>
                   </div>
 
-                  <div className="flex flex-col w-full">
-                    <p className="text-center text-label-large m-0 pb-16">Logga in som</p>
+                  <div className="flex flex-col w-full gap-16">
+                    <p className="text-center text-label-large m-0">Logga in som</p>
 
                     <div className="flex flex-col desktop:flex-row gap-24 w-full">
                       <Button
@@ -124,13 +130,6 @@ function Login() {
             </CenterDiv>
           </Main>
         </CardElevated>
-        <div className="mt-32 text-left desktop:mt-48">
-          <h2 className="text-h3-md pb-8">Problem att logga in?</h2>
-          <p className="m-0">
-            Vi använder oss av BankID för en trygg och säker inloggning. BankID är en e-legitimation som du använder
-            till att styrka din identitet på Internet, t.ex. på banken, hos Försäkringskassan eller CSN.
-          </p>
-        </div>
       </div>
     </EntryLayout>
   );
