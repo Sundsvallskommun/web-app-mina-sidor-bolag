@@ -12,6 +12,8 @@ import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { InstalledBaseItem, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
+import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+
 interface UserData {
   name: string;
   userSettings: any;
@@ -36,6 +38,7 @@ export class UserController {
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name } = req.user;
+    const { representing } = req?.session;
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
@@ -91,7 +94,7 @@ export class UserController {
         try {
           const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
           const installedBaseParams = {
-            partyId: req.user.partyId,
+            partyId: getRepresentingPartyId(representing),
           };
           const installedBaseRes = await this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req);
           const customer = installedBaseRes.data.installedBaseCustomers[0];

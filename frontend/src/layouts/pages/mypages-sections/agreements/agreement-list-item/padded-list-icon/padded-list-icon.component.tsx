@@ -14,7 +14,7 @@ export const PaddedListIcon = (props: PaddedListIconProps) => {
       case 'utility':
         return <UtilityPole />;
       case 'waves':
-        return <WavesIcon />;
+        return <WavesIcon className="rotate-90" />;
       case 'lightbulb':
         return <Lightbulb />;
       case 'trash':
