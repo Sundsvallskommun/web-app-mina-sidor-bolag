@@ -1,13 +1,23 @@
+'use client';
+
 import { selfServices } from '@layouts/pages/mypages-sections/self-service/self-service/self-services';
 import { ExternalLinkCard } from '@layouts/pages/mypages-sections/self-service/external-link-card/external-link-card.component';
+import { User } from '@interfaces/user';
+import { useApi } from '@services/api-service';
+import { useMemo } from 'react';
 
 export default function SelfService() {
+  const { data } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const facilityTypes = useMemo(() => {
+    if (!data?.facilities) return new Set();
+    return new Set(data.facilities.map((f) => f.type ?? ''));
+  }, [data]);
   return (
     <div>
       <h1 className="pb-40">Självservice</h1>
 
       {selfServices.map((service, index) => {
-        return (
+        return typeof service.category === 'undefined' || facilityTypes.has(service.category) ? (
           <div key={`service-category-${index}`} className="lg:pb-64 pb-24">
             <h3 className="pb-24">
               {service.name} ({service.services.length})
@@ -15,18 +25,11 @@ export default function SelfService() {
 
             <div className="lg:grid lg:grid-cols-2 lg:gap-24">
               {service.services.map((service, index) => {
-                return (
-                  <ExternalLinkCard
-                    key={`external-link-card-${index}`}
-                    title={service.title}
-                    description={service.description}
-                    url={service.url}
-                  />
-                );
+                return <ExternalLinkCard key={`external-link-card-${index}`} {...service} />;
               })}
             </div>
           </div>
-        );
+        ) : null;
       })}
     </div>
   );

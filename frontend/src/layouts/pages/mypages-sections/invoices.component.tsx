@@ -9,9 +9,7 @@ import { User } from '@interfaces/user';
 export default function Invoices() {
   const [facilityIds, setFacilityIds] = useState<string[] | undefined>();
 
-  const {
-    data: userData,
-  } = useApi<User>({ url: '/me', method: 'get' });
+  const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   const handleOnSelectAddress = (value: string) => {
     if (!value) {

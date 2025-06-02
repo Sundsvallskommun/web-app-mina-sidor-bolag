@@ -33,6 +33,28 @@ export class UserController {
   private customerApiBase = getApiBase('customer');
   private installedBaseApiBase = getApiBase('installedbase');
 
+  cacheRelations = async (req: RequestWithUser) => {
+    if (!req.session.cache.relations) {
+      try {
+        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
+        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
+        const relations = relationsRes.data?.customerRelations ?? [];
+        req.session.cache.relations = relations.map(relation => ({
+          ...relation,
+          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+        }));
+      } catch (error) {
+        // Handle 404 as empty
+        if (error.status === 404) {
+          req.session.cache.relations = [];
+          req.cache.relations = [];
+        } else {
+          throw new HttpException(500, 'Could not fetch customer relations');
+        }
+      }
+    }
+  };
+
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
   @UseBefore(authMiddleware)
@@ -60,73 +82,74 @@ export class UserController {
       });
     }
 
-    userSettings && delete userSettings.id;
-    userSettings && delete userSettings.userId;
-
-    if (!req.cache) {
-      req.cache = {};
+    if (userSettings) {
+      delete userSettings.id;
+      delete userSettings.userId;
     }
 
-    if (!req.cache.relations) {
-      try {
-        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
-        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
-        const relations = relationsRes.data?.customerRelations ?? [];
-        req.cache.relations = relations.map(relation => ({
-          ...relation,
-          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        }));
-      } catch (error) {
-        // Handle 404 as empty
-        if (error.status === 404) {
-          req.cache.relations = [];
-        } else {
-          throw new HttpException(500, 'Could not fetch customer relations');
-        }
-      }
-    }
+    req.session.cache ??= {};
 
-    if (!req.cache.addresses) {
-      const relations = req.cache?.relations ?? [];
-      const facilities = req.cache?.facilities ?? [];
+    await this.cacheRelations(req);
+
+    if (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses) {
+      req.session.cache.partyId = getRepresentingPartyId(representing);
+      const relations = req.session.cache?.relations ?? [];
+      const facilities = [];
       const addressDictionary: { [key: string]: string[] } = {};
+      let customerItems = [];
+      const installedBasePromises = [];
       for (const { organizationNumber } of relations) {
         try {
           const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
           const installedBaseParams = {
             partyId: getRepresentingPartyId(representing),
           };
-          const installedBaseRes = await this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req);
-          const customer = installedBaseRes.data.installedBaseCustomers[0];
-          facilities.push(...customer.items);
-
-          for (const installation of customer.items) {
-            const {
-              address: { street },
-              facilityId,
-            } = installation;
-            const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
-
-            if (!addressDictionary[addressKey]) addressDictionary[addressKey] = [];
-
-            if (!addressDictionary[addressKey].includes(facilityId)) addressDictionary[addressKey].push(facilityId);
-          }
+          const thisPromise = this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req).then(res => {
+            const installedBaseRes: InstalledBaseResponse = res.data;
+            const customer = installedBaseRes.installedBaseCustomers[0];
+            return customer.items;
+          });
+          installedBasePromises.push(thisPromise);
         } catch (error) {
           // Handle 404 as empty
           if (error.status === 404) {
-            //
+            installedBasePromises.push(Promise.resolve([]));
           } else {
             throw new HttpException(500, 'Could not fetch installedbases');
           }
         }
       }
-      req.cache.addresses = Object.entries(addressDictionary).map(([k, v]) => ({ address: k, facilityIds: v }));
-      req.cache.facilities = facilities;
+      await Promise.allSettled(installedBasePromises)
+        .then(results => {
+          customerItems = results
+            .filter(r => r.status === 'fulfilled')
+            .map((r: PromiseFulfilledResult<any>) => r.value)
+            .flat();
+        })
+        .catch(error => {
+          console.log('Error in installed base promises', error);
+          customerItems = [];
+        });
+
+      facilities.push(...customerItems);
+      for (const installation of customerItems) {
+        const {
+          address: { street },
+          facilityId,
+        } = installation;
+        const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
+
+        if (!addressDictionary[addressKey]) addressDictionary[addressKey] = [];
+
+        if (!addressDictionary[addressKey].includes(facilityId)) addressDictionary[addressKey].push(facilityId);
+      }
+      req.session.cache.addresses = Object.entries(addressDictionary).map(([k, v]) => ({ address: k, facilityIds: v }));
+      req.session.cache.facilities = facilities;
     }
 
-    const relations = req.cache.relations;
-    const facilities = req.cache.facilities;
-    const addresses = req.cache.addresses;
+    const relations = req.session.cache.relations;
+    const facilities = req.session.cache.facilities;
+    const addresses = req.session.cache.addresses;
 
     const userData: UserData = {
       userSettings,
@@ -135,8 +158,26 @@ export class UserController {
       addresses,
       facilities,
     };
-
     return response.send({ data: userData, message: 'success' });
+  }
+
+  @Get('/myrelations')
+  @OpenAPI({ summary: 'Return current users relations' })
+  @UseBefore(authMiddleware)
+  async getUserRelations(@Req() req: RequestWithUser, @Res() response: any): Promise<CustomerRelation[]> {
+    const { name } = req.user;
+
+    if (!name) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    req.session.cache ??= {};
+
+    await this.cacheRelations(req);
+
+    const relations = req.session.cache.relations;
+
+    return response.send({ data: relations, message: 'success' });
   }
 
   @Patch('/settings')
@@ -153,7 +194,9 @@ export class UserController {
       data: userData,
     });
 
-    newSettings && delete newSettings.id;
-    newSettings && delete newSettings.userId;
+    if (newSettings) {
+      delete newSettings.id;
+      delete newSettings.userId;
+    }
   }
 }
