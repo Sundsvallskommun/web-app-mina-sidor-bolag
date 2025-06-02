@@ -91,9 +91,10 @@ export class UserController {
 
     await this.cacheRelations(req);
 
-    if (!req.session.cache.addresses) {
+    if (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses) {
+      req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations ?? [];
-      const facilities = req.session.cache?.facilities ?? [];
+      const facilities = [];
       const addressDictionary: { [key: string]: string[] } = {};
       let customerItems = [];
       const installedBasePromises = [];
