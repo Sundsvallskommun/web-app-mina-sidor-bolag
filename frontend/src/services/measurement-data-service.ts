@@ -6,7 +6,7 @@ export const handleMeasurementDataByMonthResponse: (data: Data) => number = (dat
       (measurement) => measurement.measurementType === 'Energy' || measurement.measurementType === 'energy'
     ) ?? [];
 
-  const sum = measurementSeries[0].measurementPoints
+  const sum = measurementSeries?.[0]?.measurementPoints
     ? measurementSeries[0]?.measurementPoints.reduce((accumulator, currentValue) => {
         if (currentValue.value) return accumulator + currentValue?.value;
       }, 0)

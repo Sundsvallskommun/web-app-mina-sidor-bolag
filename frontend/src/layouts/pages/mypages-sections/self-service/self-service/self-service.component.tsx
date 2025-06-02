@@ -7,7 +7,7 @@ import { useApi } from '@services/api-service';
 import { useMemo } from 'react';
 
 export default function SelfService() {
-  const { data } = useApi<User>({ url: '/me', method: 'get' });
+  const { data } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const facilityTypes = useMemo(() => {
     if (!data?.facilities) return new Set();
     return new Set(data.facilities.map((f) => f.type ?? ''));

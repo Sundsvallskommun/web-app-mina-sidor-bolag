@@ -26,6 +26,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
   const { data: user } = useApi<User>({
     method: 'get',
     url: '/me',
+    queryKey: ['user'],
   });
 
   useEffect(() => {

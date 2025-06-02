@@ -13,7 +13,11 @@ export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode 
   const pathname = usePathname();
   const router = useRouter();
   const { representingMode } = useAppContext();
-  const { error: userError, isFetching: userIsFetching } = useApi<User>({ url: '/me', method: 'get' });
+  const { error: userError, isFetching: userIsFetching } = useApi<User>({
+    url: '/me',
+    method: 'get',
+    queryKey: ['user'],
+  });
   const {
     error: representingError,
     isLoading: representingIsLoading,

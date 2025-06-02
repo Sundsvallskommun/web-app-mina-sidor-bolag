@@ -41,9 +41,7 @@ export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPen
         dataHandler: invoicesHandler,
     });
 
-    const {
-        data: userData,
-    } = useApi<User>({ url: '/me', method: 'get' });
+    const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
     useEffect(() => {
         refetch();

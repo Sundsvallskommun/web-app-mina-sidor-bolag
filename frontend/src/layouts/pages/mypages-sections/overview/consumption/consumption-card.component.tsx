@@ -45,16 +45,18 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
     return params.toString();
   };
 
-  const { data: currentYear, isLoading: isCurrentLoading } = useApi({
+  const { data: currentYear, isFetching: isCurrentFetching } = useApi({
     url: `/measurementdata?${getParams(true)}`,
     method: 'get',
     dataHandler: measurementDataByMonthHandler,
+    queryKey: ['currentYear', facility.facilityId, getParams(true)],
   });
 
-  const { data: previousYear, isLoading: isPreviousLoading } = useApi({
+  const { data: previousYear, isFetching: isPreviousFetching } = useApi({
     url: `/measurementdata?${getParams(false)}`,
     method: 'get',
     dataHandler: measurementDataByMonthHandler,
+    queryKey: ['previousYear', facility.facilityId, getParams(false)],
   });
 
   const yearDifference = () => {
@@ -102,7 +104,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
           <p className="text-large">{facility.type}</p>
         </div>
 
-        {isCurrentLoading || isPreviousLoading ? (
+        {isCurrentFetching || isPreviousFetching ? (
           <Spinner className="mx-auto py-42" />
         ) : (
           <div>

@@ -10,9 +10,10 @@ import { getRepresentingMode } from '@utils/representingModeRoute';
 import dayjs from 'dayjs';
 
 export const Consumption = () => {
-  const { data: user, isLoading: isLoading } = useApi<User>({
+  const { data: user, isFetching: isUserFetching } = useApi<User>({
     url: '/me',
     method: 'get',
+    queryKey: ['user'],
   });
 
   const [address, setAddress] = useState<string>();
@@ -24,13 +25,15 @@ export const Consumption = () => {
   }, [user]);
 
   useEffect(() => {
-    setFacilities(
-      user?.facilities.filter(
-        (facility) =>
-          (facility.type === 'El' || facility.type === 'Fjärrvärme') && facility?.address?.street === address
-      )
-    );
-  }, [address, representingMode, user]);
+    if (!isUserFetching) {
+      setFacilities(
+        user?.facilities.filter(
+          (facility) =>
+            (facility.type === 'El' || facility.type === 'Fjärrvärme') && facility?.address?.street === address
+        )
+      );
+    }
+  }, [address]);
 
   return (
     <section className="pb-80 visible">
@@ -38,8 +41,7 @@ export const Consumption = () => {
       <p className="text-large mb-32">
         Visar din förbrukning och produktion för {dayjs().format('MMMM YYYY').toLowerCase()}.
       </p>
-
-      {!isLoading && user && facilities ? (
+      {!isUserFetching && user && facilities ? (
         <div>
           {user.addresses.length > 1 && (
             <div className="sm:flex sm:flex-row items-center pb-24 gap-16 block">
