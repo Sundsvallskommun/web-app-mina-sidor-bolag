@@ -2,7 +2,7 @@
 
 import { Accordion, Link } from '@sk-web-gui/react';
 
-export const FAQ = () => {
+export const Faq = () => {
   return (
     <div className="mt-80">
       <h2 className="text-h2-lg">Vanliga frågor och svar om din förbrukning</h2>

@@ -3,7 +3,7 @@ import ElectricityConsumption from '@layouts/pages/mypages-sections/statistics/c
 import { Divider } from '@sk-web-gui/react';
 import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
 
-export default function Charts({}) {
+export default function Charts() {
   return (
     <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
       <ElectricityConsumption />

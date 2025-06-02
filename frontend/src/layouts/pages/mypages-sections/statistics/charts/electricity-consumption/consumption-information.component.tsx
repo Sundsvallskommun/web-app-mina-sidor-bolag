@@ -2,7 +2,7 @@ import React from 'react';
 import { Icon } from '@sk-web-gui/react';
 import { BarChart, ChartNoAxesCombined, TrendingUp } from 'lucide-react';
 
-export default function ConsumptionInformation({}) {
+export default function ConsumptionInformation() {
   return (
     <div>
       <div className="lg:flex lg:justify-between block pt-56">
