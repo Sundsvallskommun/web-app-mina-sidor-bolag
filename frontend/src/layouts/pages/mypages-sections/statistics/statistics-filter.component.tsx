@@ -32,8 +32,8 @@ export const StatisticsFilter = () => {
         <div className="block w-full">
           <FormLabel>Adress</FormLabel>
           <Select {...register('address')} className="w-full mt-8">
-            {user.addresses.map((address, index: number) => (
-              <Select.Option key={`address-${index}`}>{address.address ?? 'Okänd adress'}</Select.Option>
+            {user.addresses.map((address) => (
+              <Select.Option key={address.address}>{address.address ?? 'Okänd adress'}</Select.Option>
             ))}
           </Select>
         </div>
