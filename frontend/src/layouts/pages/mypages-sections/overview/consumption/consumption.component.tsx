@@ -6,7 +6,6 @@ import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useEffect, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { getRepresentingMode } from '@utils/representingModeRoute';
 import dayjs from 'dayjs';
 
 export const Consumption = () => {
@@ -18,7 +17,6 @@ export const Consumption = () => {
 
   const [address, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
-  const representingMode = getRepresentingMode();
 
   useEffect(() => {
     setAddress(user?.addresses[0].address ?? '');
