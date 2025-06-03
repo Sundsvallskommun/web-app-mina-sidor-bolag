@@ -57,7 +57,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
             )}
             <p className="text-small">
               jämfört med {dayjs().subtract(1, 'year').format('MMMM YYYY').toLowerCase()} (
-              {measurementData?.previous ? measurementData.previous : 0}
+              {measurementData?.previous ?? 0}
               kWh)
             </p>
           </div>

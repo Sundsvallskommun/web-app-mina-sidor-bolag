@@ -12,8 +12,8 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 
 @Controller()
 export class MeasurementDataController {
-  private apiService = new ApiService();
-  private apiBase = getApiBase('measurementdata');
+  readonly apiService = new ApiService();
+  readonly apiBase = getApiBase('measurementdata');
 
   @Get('/measurementdata')
   @OpenAPI({ summary: 'Return measurement data by category' })
