@@ -14,53 +14,31 @@ import dayjs from 'dayjs';
 export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
   const { facility } = props;
 
-  const getParams = (current: boolean) => {
+  const getParams = () => {
     const params = new URLSearchParams({});
     const date = new Date();
 
-    const firstDay = new Date(
-      current ? date.getFullYear() : date.getFullYear() - 1,
-      date.getMonth(),
-      2,
-      1,
-      0,
-      0
-    ).toISOString();
-
-    const lastDay = new Date(
-      current ? date.getFullYear() : date.getFullYear() - 1,
-      date.getMonth() + 1,
-      0,
-      24,
-      59,
-      59
-    ).toISOString();
+    const firstDay = new Date(date.getFullYear() - 1, date.getMonth(), 1, 1, 0, 0).toISOString();
+    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0, 24, 59, 59).toISOString();
 
     params.append('category', getCategoryFromInstalledBaseType(facility.type));
     params.append('facilityId', facility.facilityId ?? '');
     params.append('fromDate', firstDay.toString());
     params.append('toDate', lastDay.toString());
-    params.append('aggregateOn', 'DAY');
+    params.append('aggregateOn', 'MONTH');
 
     return params.toString();
   };
 
-  const { data: currentYear, isFetching: isCurrentFetching } = useApi({
-    url: `/measurementdata?${getParams(true)}`,
+  const { data: measurementData, isFetching: isCurrentFetching } = useApi({
+    url: `/measurementdata?${getParams()}`,
     method: 'get',
     dataHandler: measurementDataByMonthHandler,
-    queryKey: ['currentYear', facility.facilityId, getParams(true)],
-  });
-
-  const { data: previousYear, isFetching: isPreviousFetching } = useApi({
-    url: `/measurementdata?${getParams(false)}`,
-    method: 'get',
-    dataHandler: measurementDataByMonthHandler,
-    queryKey: ['previousYear', facility.facilityId, getParams(false)],
+    queryKey: ['currentYear', facility.facilityId, getParams()],
   });
 
   const yearDifference = () => {
-    const diff = calculateYearDifference(currentYear, previousYear);
+    const diff = calculateYearDifference(measurementData?.current, measurementData?.previous);
 
     return (
       <>
@@ -78,7 +56,9 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
               </p>
             )}
             <p className="text-small">
-              jämfört med {dayjs().subtract(1, 'year').format('MMMM YYYY').toLowerCase()} ({previousYear} kWh)
+              jämfört med {dayjs().subtract(1, 'year').format('MMMM YYYY').toLowerCase()} (
+              {measurementData?.previous ? measurementData.previous : 0}
+              kWh)
             </p>
           </div>
         ) : (
@@ -93,26 +73,24 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
   };
 
   return (
-    <article className="grow max-w-[520px] bg-background-content shadow-50 rounded-cards p-16 lg:my-0 mb-24">
-      <>
-        <div className="flex gap-12 pb-16">
-          <div className="flex items-center">
-            <div className={`bg-vattjom-background-200 flex justify-center items-center h-32 w-32 p-4 rounded-button`}>
-              <Icon icon={translateTypeIcon(facility.type ? facility.type : '')} size={20} />
-            </div>
+    <article className="grow min-w-[338px] max-w-[520px] bg-background-content shadow-50 rounded-cards p-16 lg:my-0 mb-24">
+      <div className="flex gap-12 pb-16">
+        <div className="flex items-center">
+          <div className={`bg-vattjom-background-200 flex justify-center items-center h-32 w-32 p-4 rounded-button`}>
+            <Icon icon={translateTypeIcon(facility.type ?? '')} size={20} />
           </div>
-          <p className="text-large">{facility.type}</p>
         </div>
+        <p className="text-large">{facility.type}</p>
+      </div>
 
-        {isCurrentFetching || isPreviousFetching ? (
-          <Spinner className="mx-auto py-42" />
-        ) : (
-          <div>
-            <h2>{currentYear ? currentYear : 0} kWh</h2>
-            {yearDifference()}
-          </div>
-        )}
-      </>
+      {isCurrentFetching ? (
+        <Spinner className="mx-auto py-42" />
+      ) : (
+        <div>
+          <h2>{measurementData && measurementData.current ? measurementData.current : 0} kWh</h2>
+          {yearDifference()}
+        </div>
+      )}
     </article>
   );
 };

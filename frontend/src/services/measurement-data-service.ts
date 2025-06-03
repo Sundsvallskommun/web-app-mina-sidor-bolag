@@ -1,21 +1,42 @@
 import { Data } from '@interfaces/measurement-data';
+import dayjs from 'dayjs';
 
-export const handleMeasurementDataByMonthResponse: (data: Data) => number = (data) => {
+export const handleMeasurementDataByMonthResponse: (data: Data) => {
+  current: number;
+  previous: number;
+} = (data) => {
+  const previous = data.fromDate?.slice(0, 4) + '-0' + (dayjs().month() + 1).toString() + '-01';
+  const current = data.toDate?.slice(0, 4) + '-0' + (dayjs().month() + 1).toString() + '-01';
+
   const measurementSeries =
     data.measurementSeries?.filter(
       (measurement) => measurement.measurementType === 'Energy' || measurement.measurementType === 'energy'
     ) ?? [];
 
-  const sum = measurementSeries?.[0]?.measurementPoints
-    ? measurementSeries[0]?.measurementPoints.reduce((accumulator, currentValue) => {
-        if (currentValue.value) return accumulator + currentValue?.value;
-      }, 0)
+  const currentMeasurements = measurementSeries?.[0].measurementPoints
+    ? measurementSeries[0].measurementPoints.filter((measurement) => {
+        return measurement?.timestamp?.includes(current);
+      })
     : 0;
 
-  return sum ? Math.round(sum) : 0;
+  const previousMeasurements = measurementSeries?.[0].measurementPoints
+    ? measurementSeries[0].measurementPoints.filter((measurement) => {
+        return measurement?.timestamp?.includes(previous);
+      })
+    : 0;
+
+  return {
+    current: Math.round(currentMeasurements[0].value),
+    previous: Math.round(previousMeasurements[0].value),
+  };
 };
 
-export const measurementDataByMonthHandler = (data: Data): number => handleMeasurementDataByMonthResponse(data);
+export const measurementDataByMonthHandler = (
+  data: Data
+): {
+  current: number;
+  previous: number;
+} => handleMeasurementDataByMonthResponse(data);
 
 export const getCategoryFromInstalledBaseType = (type: string | undefined): string => {
   switch (type) {

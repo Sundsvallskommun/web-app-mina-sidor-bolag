@@ -31,6 +31,7 @@ export const Consumption = () => {
         )
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   return (
@@ -54,7 +55,7 @@ export const Consumption = () => {
             </div>
           )}
 
-          <div className="w-full md:flex md:gap-24 block">
+          <div className="w-full md:flex md:flex-wrap md:gap-24 block">
             {facilities.map((facility) => {
               return <ConsumptionCard key={facility.facilityId} facility={facility} />;
             })}
