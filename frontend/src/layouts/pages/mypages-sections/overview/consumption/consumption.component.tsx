@@ -27,7 +27,8 @@ export const Consumption = () => {
       setFacilities(
         user?.facilities.filter(
           (facility) =>
-            (facility.type === 'El' || facility.type === 'Fjärrvärme') && facility?.address?.street === address
+            (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
+            facility?.address?.street === address
         )
       );
     }

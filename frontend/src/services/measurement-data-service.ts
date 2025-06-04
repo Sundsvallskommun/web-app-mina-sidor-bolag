@@ -44,6 +44,8 @@ export const getCategoryFromInstalledBaseType = (type: string | undefined): stri
       return 'ELECTRICITY';
     case 'Fjärrvärme':
       return 'DISTRICT_HEATING';
+    case 'Elproduktion':
+      return 'ELECTRICITY';
     default:
       return '';
   }

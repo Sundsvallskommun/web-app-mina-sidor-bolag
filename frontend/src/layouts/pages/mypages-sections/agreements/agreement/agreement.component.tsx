@@ -36,7 +36,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
           setFacility(facility);
         } else if (
           facility.facilityId === facilityId &&
-          facility.type === 'El' &&
+          (facility.type === 'El' || facility.type === 'Elproduktion') &&
           agreement[0].category.label === 'Elnät'
         ) {
           setFacility(facility);

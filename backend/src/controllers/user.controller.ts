@@ -10,7 +10,7 @@ import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
-import { InstalledBaseItem, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
+import { InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 
@@ -137,6 +137,13 @@ export class UserController {
           address: { street },
           facilityId,
         } = installation;
+        if (
+          installation.type === 'El' &&
+          installation.metaData.some((data: InstalledBaseItemMetaData) => data.key.includes('isproduction') && data.value.includes('true'))
+        ) {
+          installation.type = 'Elproduktion';
+          installation.address.street = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
+        }
         const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
 
         if (!addressDictionary[addressKey]) addressDictionary[addressKey] = [];
