@@ -87,7 +87,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
         <Spinner className="mx-auto py-42" />
       ) : (
         <div>
-          <h2>{measurementData && measurementData.current ? measurementData.current : 0} kWh</h2>
+          <h2>{measurementData?.current ? measurementData.current : 0} kWh</h2>
           {yearDifference()}
         </div>
       )}

@@ -60,7 +60,7 @@ export class UserController {
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name } = req.user;
-    const { representing } = req?.session;
+    const { representing } = req?.session ?? {};
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
