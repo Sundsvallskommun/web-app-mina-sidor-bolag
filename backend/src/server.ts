@@ -10,6 +10,7 @@ import { ContactSettingsController } from './controllers/contact-settings.contro
 import { HealthController } from './controllers/health.controller';
 import { InvoicesController } from './controllers/invoices.controller';
 import { AgreementController } from '@controllers/agreement.controller';
+import { MeasurementDataController } from '@controllers/measurement-data.controller';
 
 validateEnv();
 
@@ -24,6 +25,7 @@ const app = new App([
   HealthController,
   ContactSettingsController,
   AgreementController,
+  MeasurementDataController,
 ]);
 
 app.listen();

@@ -10,8 +10,10 @@ import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
-import { InstalledBaseItem, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
+import { InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
+import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+
 interface UserData {
   name: string;
   userSettings: any;
@@ -58,6 +60,7 @@ export class UserController {
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name } = req.user;
+    const { representing } = req?.session ?? {};
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
@@ -88,9 +91,10 @@ export class UserController {
 
     await this.cacheRelations(req);
 
-    if (!req.session.cache.addresses) {
+    if (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses) {
+      req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations ?? [];
-      const facilities = req.session.cache?.facilities ?? [];
+      const facilities = [];
       const addressDictionary: { [key: string]: string[] } = {};
       let customerItems = [];
       const installedBasePromises = [];
@@ -98,7 +102,7 @@ export class UserController {
         try {
           const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
           const installedBaseParams = {
-            partyId: req.user.partyId,
+            partyId: getRepresentingPartyId(representing),
           };
           const thisPromise = this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req).then(res => {
             const installedBaseRes: InstalledBaseResponse = res.data;
@@ -133,6 +137,13 @@ export class UserController {
           address: { street },
           facilityId,
         } = installation;
+        if (
+          installation.type === 'El' &&
+          installation.metaData.some((data: InstalledBaseItemMetaData) => data.key.includes('isproduction') && data.value.includes('true'))
+        ) {
+          installation.type = 'Elproduktion';
+          installation.address.street = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
+        }
         const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
 
         if (!addressDictionary[addressKey]) addressDictionary[addressKey] = [];

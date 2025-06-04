@@ -15,6 +15,7 @@ declare module 'express-session' {
     representingBusinessChoices?: Engagement[];
     messages: string[];
     cache?: {
+      partyId?: string;
       cases?: {
         PRIVATE?: CaseStatusResponse[];
         BUSINESS?: {

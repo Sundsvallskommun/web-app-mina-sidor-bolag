@@ -42,9 +42,7 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
         dataHandler: invoicesHandler,
     });
 
-    const {
-        data: userData,
-    } = useApi<User>({ url: '/me', method: 'get' });
+    const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
     useEffect(() => {
         setActivePage(1);

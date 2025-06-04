@@ -26,6 +26,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
   const { data: user } = useApi<User>({
     method: 'get',
     url: '/me',
+    queryKey: ['user'],
   });
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
           setFacility(facility);
         } else if (
           facility.facilityId === facilityId &&
-          facility.type === 'El' &&
+          (facility.type === 'El' || facility.type === 'Elproduktion') &&
           agreement[0].category.label === 'Elnät'
         ) {
           setFacility(facility);
