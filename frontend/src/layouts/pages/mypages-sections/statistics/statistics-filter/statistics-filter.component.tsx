@@ -21,6 +21,11 @@ export const StatisticsFilter = () => {
   });
 
   useEffect(() => {
+    setValue('address', user?.addresses[0].address);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
     const filteredFacilities = user?.facilities
       .filter(
         (facility) =>
@@ -28,21 +33,17 @@ export const StatisticsFilter = () => {
       )
       .sort((a, b) => ((a.type ?? '') > (b.type ?? '') ? 1 : -1));
 
-    console.log('ue ', filteredFacilities);
+    setFacilities(filteredFacilities);
 
-    if (filteredFacilities?.length) {
-      setFacilities(filteredFacilities);
-    }
-  }, [address, user?.facilities]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, user]);
 
   useEffect(() => {
     if (facilities) {
-      setValue(category, facilities[0]?.type);
+      setValue('category', facilities[0]?.type);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, facilities, user?.facilities]);
-
-  console.log('filtered ', facilities);
+  }, [facilities, address]);
 
   useEffect(() => {
     facilities?.map((facility) => {

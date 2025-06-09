@@ -42,7 +42,6 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => {
   consumption: MeasurementSerie[];
   temperature: MeasurementSerie[];
 } = (data) => {
-  console.log(data);
   return {
     consumption: data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [],
     temperature:

@@ -15,6 +15,9 @@ export default function Charts() {
   const [currentMeasurementData, setCurrentMeasurementData] = useState<MeasurementSerie[]>();
   const [currentOutdoorTemperatureData, setCurrentOutdoorTemperatureData] = useState<MeasurementSerie[]>();
 
+  console.log('currentMeasurementData', currentMeasurementData);
+  console.log('currentOutdoorTemperatureData', currentOutdoorTemperatureData);
+
   const getParams = (previous?: boolean) => {
     const params = new URLSearchParams({});
 
@@ -55,7 +58,7 @@ export default function Charts() {
     dataHandler: statisticsMeasurementDataHandler,
     queryKey: ['statistics', facilityId, getParams()],
     queryOptions: {
-      enabled: !!facilityId,
+      enabled: !!facilityId && !!category,
     },
   });
 
@@ -68,6 +71,8 @@ export default function Charts() {
       enabled: !!year,
     },
   });
+
+  console.log('previousMeasurementData', previousMeasurementData);
 
   useEffect(() => {
     setCurrentMeasurementData(measurementData?.consumption);
