@@ -1,4 +1,4 @@
-import { Data } from '@interfaces/measurement-data';
+import { Data, MeasurementSerie } from '@interfaces/measurement-data';
 import dayjs from 'dayjs';
 
 export const handleMeasurementDataByMonthResponse: (data: Data) => {
@@ -37,6 +37,20 @@ export const measurementDataByMonthHandler = (
   current: number;
   previous: number;
 } => handleMeasurementDataByMonthResponse(data);
+
+export const handleStatisticsMeasurementDataResponse: (data: Data) => {
+  consumption: MeasurementSerie[];
+  temperature: MeasurementSerie[];
+} = (data) => {
+  console.log(data);
+  return {
+    consumption: data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [],
+    temperature:
+      data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'outdoor_temperature') ?? [],
+  };
+};
+
+export const statisticsMeasurementDataHandler = (data: Data) => handleStatisticsMeasurementDataResponse(data);
 
 export const getCategoryFromInstalledBaseType = (type: string | undefined): string => {
   switch (type) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { FormProvider, useForm } from 'react-hook-form';
-import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter.component';
+import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
@@ -20,7 +20,7 @@ export default function Statistics() {
           <ExportStatisticsButton />
         </div>
 
-        <form onChange={() => console.log(context.getValues())}>
+        <form onChange={() => console.log('onChange ', context.getValues())}>
           <StatisticsFilter />
           <Charts />
         </form>
