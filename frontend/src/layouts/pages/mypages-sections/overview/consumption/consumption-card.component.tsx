@@ -42,8 +42,8 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
 
     return (
       <>
-        {diff ? (
-          <div className="flex pt-16">
+        {diff && (
+          <div className="flex items-start pt-16">
             {diff <= 0.99 ? (
               <p className="flex items-center text-small pr-4">
                 <Icon icon={<ArrowUpRight />} size={20} color="error" />
@@ -57,12 +57,9 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
             )}
             <p className="text-small">
               jämfört med {dayjs().subtract(1, 'year').format('MMMM YYYY').toLowerCase()} (
-              {measurementData?.previous ?? 0}
-              kWh)
+              {measurementData?.previous ?? 0} kWh)
             </p>
           </div>
-        ) : (
-          <p className="text-small pt-16">Det finns ingen data att visa från föregående år</p>
         )}
       </>
     );
@@ -73,7 +70,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
   };
 
   return (
-    <article className="grow min-w-[338px] max-w-[520px] bg-background-content shadow-50 rounded-cards p-16 lg:my-0 mb-24">
+    <article className="grow md:min-w-[338px] max-w-[520px] min-h-[165px] bg-background-content shadow-50 rounded-cards p-16 lg:my-0 mb-24">
       <div className="flex gap-12 pb-16">
         <div className="flex items-center">
           <div className={`bg-vattjom-background-200 flex justify-center items-center h-32 w-32 p-4 rounded-button`}>
@@ -87,7 +84,11 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
         <Spinner className="mx-auto py-42" />
       ) : (
         <div>
-          <h2>{measurementData?.current ? measurementData.current : 0} kWh</h2>
+          {measurementData?.current ? (
+            <h2>{measurementData.current + 'kWh'}</h2>
+          ) : (
+            <p className="text-small">Det går inte att hitta någon data för perioden.</p>
+          )}
           {yearDifference()}
         </div>
       )}
