@@ -7,10 +7,17 @@ import { getCategoryFromInstalledBaseType, statisticsMeasurementDataHandler } fr
 import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
 import { MeasurementSerie } from '@interfaces/measurement-data';
+import { User } from '@interfaces/user';
 
 export default function Charts() {
   const { watch } = useFormContext();
-  const { category, facilityId, toDate, fromDate, year } = watch();
+  const { facilityId, toDate, fromDate, year } = watch();
+
+  const { data: user } = useApi<User>({
+    method: 'get',
+    url: '/me',
+    queryKey: ['user'],
+  });
 
   const [currentMeasurementData, setCurrentMeasurementData] = useState<MeasurementSerie[]>();
   const [currentOutdoorTemperatureData, setCurrentOutdoorTemperatureData] = useState<MeasurementSerie[]>();
@@ -21,7 +28,12 @@ export default function Charts() {
   const getParams = (previous?: boolean) => {
     const params = new URLSearchParams({});
 
-    params.append('category', getCategoryFromInstalledBaseType(category));
+    user?.facilities?.forEach((facility) => {
+      if (facility.facilityId === facilityId) {
+        params.append('category', getCategoryFromInstalledBaseType(facility.type));
+      }
+    });
+
     params.append('facilityId', facilityId);
 
     params.append(
@@ -58,7 +70,7 @@ export default function Charts() {
     dataHandler: statisticsMeasurementDataHandler,
     queryKey: ['statistics', facilityId, getParams()],
     queryOptions: {
-      enabled: !!facilityId && !!category,
+      enabled: !!facilityId,
     },
   });
 
@@ -79,7 +91,7 @@ export default function Charts() {
     if (measurementData?.temperature.length) {
       setCurrentOutdoorTemperatureData(measurementData.temperature);
     }
-  }, [measurementData, category, facilityId]);
+  }, [measurementData, facilityId]);
 
   return (
     <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
