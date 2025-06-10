@@ -19,7 +19,7 @@ export const Consumption = () => {
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
 
   useEffect(() => {
-    setAddress(user?.addresses[0].address ?? '');
+    setAddress(user?.addresses[0]?.address ?? '');
   }, [user]);
 
   useEffect(() => {
@@ -38,11 +38,14 @@ export const Consumption = () => {
   return (
     <section className="pb-80 visible">
       <h1>Aktuell förbrukning och produktion</h1>
-      <p className="text-large mb-32">
-        Visar din förbrukning och produktion för {dayjs().format('MMMM YYYY').toLowerCase()}.
-      </p>
-      {!isUserFetching && user && facilities ? (
+
+      {isUserFetching ? (
+        <Spinner className="mx-auto" />
+      ) : user && facilities?.length ? (
         <div>
+          <p className="text-large mb-32">
+            Visar din förbrukning och produktion för {dayjs().format('MMMM YYYY').toLowerCase()}.
+          </p>
           {user.addresses.length > 1 && (
             <div className="sm:flex sm:flex-row items-center pb-24 gap-16 block">
               <strong>Adress</strong>
@@ -63,7 +66,7 @@ export const Consumption = () => {
           </div>
         </div>
       ) : (
-        <Spinner className="mx-auto" />
+        <p>Det finns ingen förbrukning att visa.</p>
       )}
     </section>
   );
