@@ -80,25 +80,25 @@ export const StatisticsFilter = () => {
         </Select>
       </div>
 
-      <div className="block w-full lg:pt-0 pt-16">
+      <div className="block lg:pt-0 pt-16">
         <FormLabel>Från</FormLabel>
         <DatePicker
           {...register('fromDate')}
           className="w-full mt-8"
-          defaultValue={dayjs().startOf('year').format('YYYY-MM-DD HH:mm')}
-          type="datetime-local"
-          max={dayjs().format('YYYY-MM-DD HH:mm')}
+          defaultValue={dayjs().startOf('year').format('YYYY-MM-DD')}
+          type="date"
+          max={dayjs().format('YYYY-MM-DD')}
         />
       </div>
 
-      <div className="block w-full lg:pt-0 pt-16">
+      <div className="block lg:pt-0 pt-16">
         <FormLabel>Till</FormLabel>
         <DatePicker
           {...register('toDate')}
-          defaultValue={dayjs().format('YYYY-MM-DD HH:mm')}
+          defaultValue={dayjs().format('YYYY-MM-DD')}
           className="w-full mt-8"
-          type="datetime-local"
-          max={dayjs().format('YYYY-MM-DD HH:mm')}
+          type="date"
+          max={dayjs().format('YYYY-MM-DD')}
         />
       </div>
 

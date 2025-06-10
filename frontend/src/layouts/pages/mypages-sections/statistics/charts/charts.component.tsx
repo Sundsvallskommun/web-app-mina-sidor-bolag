@@ -29,10 +29,10 @@ export default function Charts() {
       year && previous
         ? dayjs(fromDate)
             .subtract(parseInt(dayjs().format('YYYY')) - year, 'year')
-            .utc()
-            .add(1, 'hour')
+            .utc(true)
+            .startOf('date')
             .format()
-        : dayjs(fromDate).utc().add(1, 'hour').format()
+        : dayjs(fromDate).startOf('date').utc(true).format()
     );
 
     params.append(
@@ -40,10 +40,10 @@ export default function Charts() {
       year && previous
         ? dayjs(toDate)
             .subtract(parseInt(dayjs().format('YYYY')) - year, 'year')
-            .utc()
-            .add(1, 'hour')
+            .utc(true)
+            .endOf('date')
             .format()
-        : dayjs(toDate).utc().format()
+        : dayjs(toDate).endOf('date').utc(true).format()
     );
 
     const difference = dayjs(toDate).diff(fromDate, 'days');
