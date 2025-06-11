@@ -39,7 +39,7 @@ export class MeasurementDataController {
         aggregateOn,
       };
 
-      const res = await this.apiService.get<Data>({ url, params }, req);
+      const res = await this.apiService.get<Data>({ url, params }, req.user);
       return { data: res.data, message: 'success' };
     } catch (error) {
       // Handle 404 as empty

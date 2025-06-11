@@ -29,7 +29,7 @@ export class AgreementController {
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
     const params = {};
 
-    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req);
+    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
     return { data: res.data.agreements, message: 'success' };
   }
 
@@ -43,7 +43,7 @@ export class AgreementController {
   ): Promise<ApiResponse<Agreement[]>> {
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/agreements/${category}/${facilityId}`;
 
-    const res = await this.apiService.get<AgreementResponse>({ url }, req);
+    const res = await this.apiService.get<AgreementResponse>({ url }, req.user);
     return { data: res.data.agreementParties[0].agreements, message: 'success' };
   }
 }

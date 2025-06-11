@@ -3,7 +3,7 @@
 import { Button, Icon, Link } from '@sk-web-gui/react';
 import _ from 'lodash';
 import { Info, Pen, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { ClientContactSetting } from '@interfaces/contactsettings';
 import { useApi } from '@services/api-service';
@@ -29,6 +29,10 @@ const getAddress = (address) => {
 export const ContactDetails = () => {
   const { data: contactsettings } = useApi<ClientContactSetting>({ url: '/contactsettings', method: 'get' });
   const [isEdit, setIsEdit] = useState(false);
+
+  useEffect(() => {
+    console.log('mounted');
+  }, []);
 
   return (
     <ContentCard>

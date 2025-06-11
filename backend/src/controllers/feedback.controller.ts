@@ -73,7 +73,7 @@ export class FeedbackController {
         htmlMessage: base64Encode(messageHTML(userData.body)),
       };
       const url = `${this.apiBase}/${MUNICIPALITY_ID}/email`;
-      await this.apiService.post({ url, data: sendFeedback }, req);
+      await this.apiService.post({ url, data: sendFeedback }, req.user);
     });
 
     return { message: 'feedback sent' };

@@ -204,15 +204,19 @@ class App {
     this.app.get(
       `${BASE_URL_PREFIX}/saml/login`,
       (req, res, next) => {
+        console.log('request query:', req.query);
         if (req.session.returnTo) {
           req.query.RelayState = req.session.returnTo;
         } else if (req.query.successRedirect) {
           req.query.RelayState = req.query.successRedirect;
         }
+        console.log('req.query.representingMode:', req.query.representingMode);
         if (req.query.representingMode) {
+          console.log('Setting representing mode in session.');
           req.session.representing = {
             mode: parseInt(req.query.representingMode as string) as RepresentingMode,
           };
+          console.log('Representing mode set in session:', req.session.representing);
         }
         next();
       },

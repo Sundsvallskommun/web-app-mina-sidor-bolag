@@ -17,10 +17,13 @@ export const validationMiddleware = (
   whitelist = true,
   forbidNonWhitelisted = true,
 ): RequestHandler => {
+  console.log('Validation middleware initialized for type:', type.name, 'on value:', value);
   return (req, res, next) => {
+    console.log('Validation middleware initialized for type:', type.name, 'on value:', value);
     const obj = plainToInstance(type, req[value]);
     validate(obj, { skipMissingProperties, whitelist, forbidNonWhitelisted }).then((errors: ValidationError[]) => {
       if (errors.length > 0) {
+        console.log('Validation errors found:', JSON.stringify(errors));
         const message = errors.map(getAllNestedErrors).join(', ');
         next(new HttpException(400, message));
       } else {

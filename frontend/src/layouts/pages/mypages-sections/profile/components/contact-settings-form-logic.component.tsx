@@ -10,6 +10,8 @@ import * as yup from 'yup';
 const defaultContactSettingsForm: Partial<ClientContactSetting> = {
   name: undefined,
   email: undefined,
+  alias: undefined,
+  virtual: false,
   phone: undefined,
   notifications: {
     email_disabled: false,
@@ -44,6 +46,8 @@ const formSchema = yup
   .object<ClientContactSetting>({
     name: yup.string().nullable().optional(),
     email: yup.string().email('E-postadress har fel format').nullable().optional(),
+    alias: yup.string().nullable().optional(),
+    virtual: yup.boolean().optional(),
     phone: yup.string().matches(phoneRegExp, 'Telefonnummer har fel format').nullable().optional(),
     notifications: yup
       .object({
@@ -126,6 +130,7 @@ export default function ContactSettingsFormLogic({
       const apiCall = isPatch() ? await patchMutation.mutateAsync : await postMutation.mutateAsync;
       const data: Partial<ClientContactSetting> = _.merge(formData, {
         id: formData?.id,
+        alias: values.alias,
         email: values.email,
         phone: values.phone,
         notifications: {

@@ -1,4 +1,4 @@
-import { MUNICIPALITY_ID, MUNICIPALITY_ORG_NR } from '@/config';
+import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
 import { InvoicesResponse, InvoiceStatus, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
@@ -50,17 +50,15 @@ export class InvoicesController {
         page,
         limit,
       };
-      const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
+      const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
       const { invoices, _meta } = res.data;
       data.invoices = invoices;
       data._meta = _meta;
-    }
-    catch (error) {
+    } catch (error) {
       // Handle 404 as empty
       if (error.status === 404) {
         return { data, message: '404 from api, Assumed empty array' };
-      }
-      else {
+      } else {
         throw new HttpException(500, 'Could not fetch invoices');
       }
     }
@@ -70,7 +68,7 @@ export class InvoicesController {
 
   // TODO: Remove itterative logic once API supports passing multiple status filters
   @Get('/invoices/pending')
-  @OpenAPI({ summary: 'Return a list of pending invoices for current party'})
+  @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
     const { representing } = req?.session;
@@ -94,7 +92,7 @@ export class InvoicesController {
     */
 
     let meta;
-    let totalInvoices = [];
+    const totalInvoices = [];
     let totalRecords = 0;
     for (const invoiceStatus of pendingStatuses) {
       try {
@@ -108,19 +106,17 @@ export class InvoicesController {
           // dueDateFrom,
           // dueDateTo,
         };
-        const res = await this.apiService.get<InvoicesResponse>({ url, params }, req);
+        const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
         const { invoices, _meta } = res.data;
 
         totalInvoices.push(...invoices);
         totalRecords += _meta.totalRecords;
         meta = _meta;
-      }
-      catch (error) {
+      } catch (error) {
         // Handle 404 as empty
         if (error.status === 404) {
           return { data, message: '404 from api, Assumed empty array' };
-        }
-        else {
+        } else {
           throw new HttpException(500, 'Could not fetch invoices');
         }
       }
@@ -150,7 +146,7 @@ export class InvoicesController {
     }
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf`;
-    const res = await this.apiService.get<PdfInvoice>({ url }, req);
+    const res = await this.apiService.get<PdfInvoice>({ url }, req.user);
 
     return { data: res.data, message: 'success' };
   }
