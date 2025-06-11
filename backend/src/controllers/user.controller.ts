@@ -37,7 +37,7 @@ export class UserController {
     if (!req.session.cache.relations) {
       try {
         const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
-        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req);
+        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
         const relations = relationsRes.data?.customerRelations ?? [];
         req.session.cache.relations = relations.map(relation => ({
           ...relation,
@@ -104,11 +104,13 @@ export class UserController {
           const installedBaseParams = {
             partyId: getRepresentingPartyId(representing),
           };
-          const thisPromise = this.apiService.get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req).then(res => {
-            const installedBaseRes: InstalledBaseResponse = res.data;
-            const customer = installedBaseRes.installedBaseCustomers[0];
-            return customer.items;
-          });
+          const thisPromise = this.apiService
+            .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
+            .then(res => {
+              const installedBaseRes: InstalledBaseResponse = res.data;
+              const customer = installedBaseRes.installedBaseCustomers[0];
+              return customer.items;
+            });
           installedBasePromises.push(thisPromise);
         } catch (error) {
           // Handle 404 as empty

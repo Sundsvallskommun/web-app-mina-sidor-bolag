@@ -39,6 +39,9 @@ export class ClientContactSetting {
   id: string | null;
   @IsString()
   @IsOptional()
+  createdById?: string | null;
+  @IsString()
+  @IsOptional()
   name: User['name'];
   @IsString()
   @IsOptional()

@@ -2,6 +2,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { ClientContactSetting, Delegate, DelegatedContactSetting, Filter, Rule } from '@interfaces/contactsettings';
 import { useApi, useApiService } from '@services/api-service';
 import { useSnackbar } from '@sk-web-gui/react';
+import { DefaultError } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import _ from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
@@ -99,12 +101,12 @@ export default function DelegatedContactSettingsFormLogic({
   });
 
   const postDelegateMutation = useApi<Delegate>({
-    url: '/contactsettings/delegates',
+    url: '/delegates',
     method: 'post',
   });
 
   const patchDelegateMutation = useApi<Delegate>({
-    url: '/contactsettings/delegates',
+    url: '/delegates',
     method: 'patch',
   });
 
@@ -136,7 +138,7 @@ export default function DelegatedContactSettingsFormLogic({
   const delegate = context.watch('delegate');
 
   useEffect(() => {
-    console.log('update:', delegate);
+    // console.log('update:', delegate);
     // reset({ ...context.getValues(), delegate }); // Ensure the form is updated with the latest delegate values
   }, [delegate]);
 
@@ -145,33 +147,49 @@ export default function DelegatedContactSettingsFormLogic({
     if (onSubmit) {
       onSubmit(values, context);
     } else {
+      let contactSettingResult: Partial<ClientContactSetting> & { error?: DefaultError } = { error: undefined };
       const contactSettingApiCall = isContactSettingPatch()
         ? patchContactSettingMutation.mutateAsync
         : postContactSettingMutation.mutateAsync;
       const contactSettingData: Partial<ClientContactSetting> = _.merge(formData.contactSetting, {
         id: formData?.contactSetting?.id,
+        createdById: isContactSettingPatch() ? undefined : values?.contactSetting?.createdById,
         alias: values.contactSetting?.alias,
         phone: values.contactSetting?.phone,
         virtual: values.contactSetting?.virtual,
       });
-      const resContactSetting = await contactSettingApiCall(contactSettingData);
+      contactSettingResult = await contactSettingApiCall(contactSettingData).catch((error) => {
+        return { error: error as DefaultError };
+      });
 
-      const delegateApiCall = isDelegatePatch() ? patchDelegateMutation.mutateAsync : postDelegateMutation.mutateAsync;
-      const delegateData: Partial<Delegate> = {
-        agentId: values.delegate?.agentId,
-        principalId: values.delegate?.principalId,
-        id: formData?.delegate?.id,
-        filters: values.delegate?.filters,
-      };
-      const resDelegate = await delegateApiCall(delegateData);
+      let delegateResult: Delegate & { error?: DefaultError } = { error: undefined };
+      if (!contactSettingResult.error) {
+        const delegateApiCall = isDelegatePatch()
+          ? patchDelegateMutation.mutateAsync
+          : postDelegateMutation.mutateAsync;
+        const delegateData: Partial<Delegate> = {
+          agentId: isContactSettingPatch() ? values.delegate?.agentId : (contactSettingResult.id ?? undefined),
+          principalId: isContactSettingPatch()
+            ? values.delegate?.principalId
+            : (values?.contactSetting?.createdById ?? undefined),
+          id: values?.delegate?.id,
+          filters: values.delegate?.filters,
+        };
+        delegateResult = await delegateApiCall(delegateData).catch((error) => {
+          return { error: error as DefaultError };
+        });
+      }
 
-      if (!resContactSetting.error && !resDelegate.error) {
+      if (!contactSettingResult.error && !delegateResult.error) {
         reset({
-          contactSetting: resContactSetting,
-          delegate: resDelegate,
+          contactSetting: contactSettingResult,
+          delegate: delegateResult,
         });
         queryClient.invalidateQueries({
-          queryKey: ['/contactsettings', 'delegates'],
+          queryKey: ['contactsettings'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['delegates'],
         });
         snackBar({
           message: 'Uppgifterna sparades.',
@@ -179,10 +197,17 @@ export default function DelegatedContactSettingsFormLogic({
         });
         if (onSubmitSuccess) onSubmitSuccess();
       } else {
-        snackBar({
-          message: 'Det gick inte att spara uppgifterna.',
-          status: 'error',
-        });
+        if ((delegateResult.error as AxiosError).status === 471) {
+          snackBar({
+            message: 'Minst ett alternativ måste väljas.',
+            status: 'warning',
+          });
+        } else {
+          snackBar({
+            message: 'Det gick inte att spara uppgifterna.',
+            status: 'error',
+          });
+        }
         if (onSubmitFailed) onSubmitFailed();
       }
     }
@@ -190,8 +215,7 @@ export default function DelegatedContactSettingsFormLogic({
 
   return (
     <FormProvider {...context}>
-      <div>contactSetting ID: {context?.getValues()?.contactSetting?.id}</div>
-      <div>Delegate ID: {context?.getValues()?.delegate?.id}</div>
+      {/* <div>DelegatedContactSettingsFormLogic Delegate ID: {context?.getValues()?.delegate?.id}</div>
       {context?.getValues()?.delegate?.filters?.map((filter, index) => (
         <div key={filter.id + '-' + filter.alias + '-' + index}>
           <p>
@@ -205,7 +229,7 @@ export default function DelegatedContactSettingsFormLogic({
             ))}
           </ul>
         </div>
-      ))}
+      ))} */}
       {/* <div>{JSON.stringify(context.getValues().delegate)}</div> */}
       <form onSubmit={handleSubmit(_onSubmit)}>{children}</form>
     </FormProvider>

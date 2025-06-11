@@ -6,7 +6,7 @@ import { Info, Pen, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { ClientContactSetting } from '@interfaces/contactsettings';
-import { useApi } from '@services/api-service';
+import { useApi, useApiService } from '@services/api-service';
 import ContentCard, {
   ContactDetailsGrid,
   ContentCardBody,
@@ -27,12 +27,21 @@ const getAddress = (address) => {
 };
 
 export const ContactDetails = () => {
-  const { data: contactsettings } = useApi<ClientContactSetting>({ url: '/contactsettings', method: 'get' });
+  const queryClient = useApiService((s) => s.queryClient);
+  const { data: contactsettings, isError } = useApi<ClientContactSetting>({
+    url: '/contactsettings',
+    method: 'get',
+    queryKey: ['contactsetting'],
+  });
   const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
-    console.log('mounted');
-  }, []);
+    if (isError) {
+      console.log('Error 1 fetching delegated contact settings:', isError);
+      queryClient.setQueryData(['contactsetting'], []);
+      queryClient.setQueryData(['delegates'], []);
+    }
+  }, [isError]);
 
   return (
     <ContentCard>

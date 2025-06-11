@@ -19,6 +19,7 @@ export interface ClientContactSettingAddress {
 
 export interface ClientContactSetting {
   id?: string | null;
+  createdById?: string | null;
   alias?: string | null;
   virtual?: boolean;
   name: User['name'];

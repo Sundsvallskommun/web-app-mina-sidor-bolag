@@ -24,7 +24,7 @@ export const DelegateFilter = (props: {
   // }, [getValues]);
 
   useEffect(() => {
-    console.log('Delegated contact setting updated:', delegatedContactSetting);
+    // console.log('Delegated contact setting updated:', delegatedContactSetting);
     setValue('delegate', delegatedContactSetting.delegate);
   }, [delegatedContactSetting, setValue]);
 
@@ -67,8 +67,8 @@ export const DelegateFilter = (props: {
 
   return (
     <>
-      {/* <div>{JSON.stringify(delegatedContactSetting?.delegate?.filters)}</div> */}
-      {delegatedContactSetting?.delegate?.filters?.map((f, idx) => {
+      {/* <div>DelegateFilter delegate.id: {delegatedContactSetting.delegate.id}</div> */}
+      {/* {delegatedContactSetting?.delegate?.filters?.map((f, idx) => {
         return (
           <div key={`${f.id || f.alias || f.rules.map((r) => r.attributeName).join('-')}-${idx}`}>
             <p>
@@ -89,58 +89,50 @@ export const DelegateFilter = (props: {
       <p>Kategori är aktiv? {categoryIsEnabled ? 'Ja' : 'Nej'}</p>
       <p>
         Adress är aktiv? {user?.addresses.map((a) => `${a.address}: ${addressIsEnabled(a.address) ? 'Ja' : 'Nej'}`)}
-      </p>
-      <FormControl fieldset>
-        <Checkbox.Group>
-          {/* <Checkbox {...register('contactSetting.')}>Sms</Checkbox> */}
-          <Checkbox
-            disabled={!props.isEdit}
-            onChange={(e) => {
-              console.log('Checkbox changed for category:', props.category, 'checked:', e.target.checked);
+      </p> */}
+      <FormControl fieldset className="my-12">
+        {/* <Checkbox {...register('contactSetting.')}>Sms</Checkbox> */}
+        <Checkbox
+          disabled={!props.isEdit}
+          onChange={(e) => {
+            const filters: Filter[] = getValues('delegate.filters') ?? [];
+            if (e.target.checked) {
+              // Add a new filter if it doesn't exist
+              const newFilter = {
+                // id: `filter-${Date.now()}`,
+                alias: `Filter för ${prettyType} - ${props.category}`,
+                channel: 'se.stadsbacken.minasidor-test',
+                rules: [{ attributeName: 'category', operator: 'EQUALS' as Operator, attributeValue: props.category }],
+              };
+              const updatedFilters = [...filters, newFilter];
+              setDelegatedContactSetting({
+                ...delegatedContactSetting,
+                ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
+              });
+            } else if (e.target.checked === false) {
+              // Remove the filter if it exists
+              const existingFilter = filters.findIndex((f) =>
+                f.rules.some(
+                  (rule) =>
+                    rule.attributeName === 'category' &&
+                    rule.operator === ('EQUALS' as const) &&
+                    rule.attributeValue === props.category
+                )
+              );
 
-              const filters: Filter[] = getValues('delegate.filters') ?? [];
-              if (e.target.checked) {
-                // Add a new filter if it doesn't exist
-                const newFilter = {
-                  // id: `filter-${Date.now()}`,
-                  alias: `Filter för ${prettyType} - ${props.category}`,
-                  channel: 'se.stadsbacken.minasidor-test',
-                  rules: [
-                    { attributeName: 'category', operator: 'EQUALS' as Operator, attributeValue: props.category },
-                  ],
-                };
-                const updatedFilters = [...filters, newFilter];
-                console.log('Updated filters (added new):', updatedFilters);
+              if (existingFilter !== -1) {
+                const updatedFilters = filters.filter((f, index) => index !== existingFilter);
                 setDelegatedContactSetting({
                   ...delegatedContactSetting,
                   ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
                 });
-              } else if (e.target.checked === false) {
-                // Remove the filter if it exists
-                const existingFilter = filters.findIndex((f) =>
-                  f.rules.some(
-                    (rule) =>
-                      rule.attributeName === 'category' &&
-                      rule.operator === ('EQUALS' as const) &&
-                      rule.attributeValue === props.category
-                  )
-                );
-
-                if (existingFilter !== -1) {
-                  const updatedFilters = filters.filter((f, index) => index !== existingFilter);
-                  console.log('Updated filters (removed existing):', updatedFilters);
-                  setDelegatedContactSetting({
-                    ...delegatedContactSetting,
-                    ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
-                  });
-                }
               }
-            }}
-            checked={categoryIsEnabled}
-          >
-            Aviseringar för alla adresser
-          </Checkbox>
-        </Checkbox.Group>
+            }
+          }}
+          checked={categoryIsEnabled}
+        >
+          Aviseringar för alla adresser
+        </Checkbox>
       </FormControl>
       {user?.addresses
         .filter((address) => {
@@ -150,13 +142,13 @@ export const DelegateFilter = (props: {
             .map((facility) => facility.facilityId);
           return address.facilityIds.some((facilityId) => facilitiesOfType.includes(facilityId));
         })
+        .sort((a, b) => a.address.localeCompare(b.address))
         .map((a) => (
-          <FormControl key={a.address} fieldset>
+          <FormControl key={a.address} fieldset className="my-12">
             <Checkbox
               disabled={categoryIsEnabled || !props.isEdit}
               defaultChecked={addressIsEnabled(a.address)}
               onChange={(e) => {
-                console.log('Checkbox changed for address:', a.address, 'checked:', e.target.checked);
                 const filters = getValues('delegate.filters') ?? [];
                 if (e.target.checked) {
                   // Add a filter for each facilityId on the address

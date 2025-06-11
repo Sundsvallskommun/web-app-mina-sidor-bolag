@@ -147,7 +147,10 @@ export default function ContactSettingsFormLogic({
       if (!res.error) {
         reset(formConvertedData(res));
         queryClient.invalidateQueries({
-          queryKey: ['/contactsettings'],
+          queryKey: ['contactsettings'],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['delegates'],
         });
         snackBar({
           message: 'Uppgifterna sparades.',
