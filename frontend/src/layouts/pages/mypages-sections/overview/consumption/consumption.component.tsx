@@ -19,7 +19,7 @@ export const Consumption = () => {
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
 
   useEffect(() => {
-    setAddress(user?.addresses[0]?.address ?? '');
+    setAddress(user?.addresses?.[0]?.address ?? '');
   }, [user]);
 
   useEffect(() => {

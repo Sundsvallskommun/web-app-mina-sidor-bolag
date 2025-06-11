@@ -1,9 +1,98 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ElectricityConsumption from '@layouts/pages/mypages-sections/statistics/charts/electricity-consumption/electricity-consumption.component';
 import { Divider } from '@sk-web-gui/react';
 import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
+import { useFormContext } from 'react-hook-form';
+import { getCategoryFromInstalledBaseType, statisticsMeasurementDataHandler } from '@services/measurement-data-service';
+import { useApi } from '@services/api-service';
+import dayjs from 'dayjs';
+import { MeasurementSerie } from '@interfaces/measurement-data';
+import { User } from '@interfaces/user';
 
 export default function Charts() {
+  const { watch } = useFormContext();
+  const { facilityId, toDate, fromDate, year } = watch();
+
+  const { data: user } = useApi<User>({
+    method: 'get',
+    url: '/me',
+    queryKey: ['user'],
+  });
+
+  const [currentMeasurementData, setCurrentMeasurementData] = useState<MeasurementSerie[]>();
+  const [currentOutdoorTemperatureData, setCurrentOutdoorTemperatureData] = useState<MeasurementSerie[]>();
+
+  console.log('currentMeasurementData', currentMeasurementData);
+  console.log('currentOutdoorTemperatureData', currentOutdoorTemperatureData);
+
+  const getParams = (previous?: boolean) => {
+    const params = new URLSearchParams({});
+
+    user?.facilities?.forEach((facility) => {
+      if (facility.facilityId === facilityId) {
+        params.append('category', getCategoryFromInstalledBaseType(facility.type));
+      }
+    });
+
+    params.append('facilityId', facilityId);
+
+    params.append(
+      'fromDate',
+      year && previous
+        ? dayjs(fromDate)
+            .subtract(parseInt(dayjs().format('YYYY')) - year, 'year')
+            .utc(true)
+            .startOf('date')
+            .format()
+        : dayjs(fromDate).startOf('date').utc(true).format()
+    );
+
+    params.append(
+      'toDate',
+      year && previous
+        ? dayjs(toDate)
+            .subtract(parseInt(dayjs().format('YYYY')) - year, 'year')
+            .utc(true)
+            .endOf('date')
+            .format()
+        : dayjs(toDate).endOf('date').utc(true).format()
+    );
+
+    const difference = dayjs(toDate).diff(fromDate, 'days');
+    params.append('aggregateOn', difference < 2 ? 'HOUR' : difference < 31 ? 'DAY' : 'MONTH');
+
+    return params.toString();
+  };
+
+  const { data: measurementData } = useApi({
+    url: `/measurementdata?${getParams()}`,
+    method: 'get',
+    dataHandler: statisticsMeasurementDataHandler,
+    queryKey: ['statistics', facilityId, getParams()],
+    queryOptions: {
+      enabled: !!facilityId,
+    },
+  });
+
+  const { data: previousMeasurementData } = useApi({
+    url: `/measurementdata?${getParams(true)}`,
+    method: 'get',
+    dataHandler: statisticsMeasurementDataHandler,
+    queryKey: ['previousStatistics', year, getParams()],
+    queryOptions: {
+      enabled: !!year,
+    },
+  });
+
+  console.log('previousMeasurementData', previousMeasurementData);
+
+  useEffect(() => {
+    setCurrentMeasurementData(measurementData?.consumption);
+    if (measurementData?.temperature.length) {
+      setCurrentOutdoorTemperatureData(measurementData.temperature);
+    }
+  }, [measurementData, facilityId]);
+
   return (
     <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
       <ElectricityConsumption />
