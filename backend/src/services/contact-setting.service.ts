@@ -3,6 +3,51 @@ import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from './api.service';
+import { ClientContactSetting } from '@/responses/contactsettings.response';
+import { ContactSetting, ContactSettingChannel } from '@/interfaces/contact-settings';
+import { ContactMethod } from '@/data-contracts/contactsettings/data-contracts';
+import { getEmailSettingsFromChannels, getPhoneSettingsFromChannels } from '@/controllers/contact-settings/utils';
+
+export const getContactSettingChannels = (userData: ClientContactSetting) => {
+  const emailSettings: ContactSettingChannel = {
+    contactMethod: ContactMethod.EMAIL,
+    destination: userData.email,
+    disabled: userData.notifications.email_disabled,
+    alias: 'default',
+  };
+  const phoneSettings: ContactSettingChannel = {
+    contactMethod: ContactMethod.SMS,
+    destination: userData.phone,
+    disabled: userData.notifications.phone_disabled,
+    alias: 'default',
+  };
+  return [...(userData.email ? [emailSettings] : []), ...(userData.phone ? [phoneSettings] : [])];
+};
+
+export const makeClientContactSetting = (contactSetting: ContactSetting): ClientContactSetting => {
+  const emailSettings = getEmailSettingsFromChannels(contactSetting?.contactChannels);
+  const phoneSettings = getPhoneSettingsFromChannels(contactSetting?.contactChannels);
+
+  const clientContactSetting: ClientContactSetting = {
+    id: contactSetting.id,
+    name: null,
+    address: null,
+    email: emailSettings.email,
+    phone: phoneSettings.phone,
+    virtual: contactSetting.virtual,
+    alias: contactSetting.alias,
+    notifications: {
+      email_disabled: emailSettings.email_disabled,
+      phone_disabled: phoneSettings.phone_disabled,
+    },
+    decicionsAndDocuments: {
+      digitalInbox: true,
+      myPages: true,
+      snailmail: false,
+    },
+  };
+  return clientContactSetting;
+};
 
 export const deleteContactSetting = async (contactSettingId: string, req: RequestWithUser): Promise<boolean> => {
   const apiService = new ApiService();
@@ -11,7 +56,7 @@ export const deleteContactSetting = async (contactSettingId: string, req: Reques
     throw new HttpException(400, 'Bad Request');
   }
   const url = `${apiBase}/${MUNICIPALITY_ID}/settings/${contactSettingId}`;
-  const res = await apiService.delete<boolean>({ url }, req.user).catch(error => {
+  await apiService.delete<boolean>({ url }, req.user).catch(error => {
     console.error('Error deleting contact setting:', error);
     return false;
   });
@@ -26,7 +71,7 @@ export const deleteDelegate = async (delegateId: string, req: RequestWithUser): 
     throw new HttpException(400, 'Bad Request');
   }
   const url = `${apiBase}/${MUNICIPALITY_ID}/delegates/${delegateId}`;
-  const res = await apiService.delete<boolean>({ url }, req.user).catch(error => {
+  await apiService.delete<boolean>({ url }, req.user).catch(error => {
     console.error('Error deleting delegate:', error);
     return false;
   });

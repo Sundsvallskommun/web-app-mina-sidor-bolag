@@ -21,7 +21,6 @@ export const DelegatedContactDetails = () => {
     url: `/delegates/${mainContactsetting?.id ?? ''}`,
     method: 'get',
     queryKey: ['delegates', mainContactsetting?.id ?? ''],
-    // queryOptions: { enabled: !!mainContactsetting?.id && !isError },
   });
 
   const emptyDelegatedContactSetting: DelegatedContactSetting = {
@@ -46,7 +45,6 @@ export const DelegatedContactDetails = () => {
 
   useEffect(() => {
     if (isError) {
-      console.log('Error 2 fetching delegated contact settings:', isError);
       queryClient.setQueryData(['contactsetting'], undefined);
       queryClient.setQueryData(['delegates'], []);
     }
@@ -63,29 +61,32 @@ export const DelegatedContactDetails = () => {
       </ContentCardHeader>
 
       <ContentCardBody>
-        {/* <div>DelegatedContactDetails id 0: {delegatedContactSettings?.[0]?.delegate?.id ?? 'id 0 saknas'}</div>
-        <div>DelegatedContactDetails id 1: {delegatedContactSettings?.[1]?.delegate?.id ?? 'id 1 saknas'}</div> */}
         {!isError && delegatedContactSettings?.length ? (
-          delegatedContactSettings.map((delegatedContactSetting) => (
-            <DelegateItem
-              key={delegatedContactSetting?.delegate?.id}
-              delegatedContactSetting={delegatedContactSetting}
-            />
-          ))
+          delegatedContactSettings
+            .sort((a, b) => {
+              if (a.contactSetting.alias && b.contactSetting.alias) {
+                return a.contactSetting.alias.localeCompare(b.contactSetting.alias);
+              }
+              return 0;
+            })
+            .map((delegatedContactSetting) => (
+              <DelegateItem
+                key={delegatedContactSetting?.delegate?.id}
+                delegatedContactSetting={delegatedContactSetting}
+              />
+            ))
         ) : (
           <p>Inga anpassade aviseringar tillagda.</p>
         )}
 
         {newItem ? (
-          <>
-            <DelegateItem
-              delegatedContactSetting={emptyDelegatedContactSetting}
-              newItem
-              close={() => {
-                setNewItem(false);
-              }}
-            />
-          </>
+          <DelegateItem
+            delegatedContactSetting={emptyDelegatedContactSetting}
+            newItem
+            close={() => {
+              setNewItem(false);
+            }}
+          />
         ) : (
           <Button
             size="md"

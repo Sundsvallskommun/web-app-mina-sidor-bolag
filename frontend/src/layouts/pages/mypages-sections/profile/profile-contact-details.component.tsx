@@ -37,7 +37,6 @@ export const ContactDetails = () => {
 
   useEffect(() => {
     if (isError) {
-      console.log('Error 1 fetching delegated contact settings:', isError);
       queryClient.setQueryData(['contactsetting'], []);
       queryClient.setQueryData(['delegates'], []);
     }

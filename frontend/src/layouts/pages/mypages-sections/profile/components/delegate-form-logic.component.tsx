@@ -11,11 +11,11 @@ import * as yup from 'yup';
 
 const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
   contactSetting: {
-    name: '', //undefined,
-    email: '', //undefined,
+    name: '',
+    email: '',
     alias: undefined,
     virtual: false,
-    phone: '', //undefined,
+    phone: '',
     notifications: {
       email_disabled: true,
       phone_disabled: false,
@@ -87,9 +87,9 @@ export default function DelegatedContactSettingsFormLogic({
   children,
   formData = defaultDelegatedContactSettingsForm,
   onSubmit,
-  onSubmitSuccess,
-  onSubmitFailed,
-}: DelegatedContactSettingsFormLogicProps) {
+  onSubmitSuccess = () => {},
+  onSubmitFailed = () => {},
+}: Readonly<DelegatedContactSettingsFormLogicProps>) {
   const snackBar = useSnackbar();
   const postContactSettingMutation = useApi<ClientContactSetting>({
     url: '/contactsettings',
@@ -135,49 +135,55 @@ export default function DelegatedContactSettingsFormLogic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, reset]);
 
-  const delegate = context.watch('delegate');
+  const saveContactSetting: (
+    values: Partial<DelegatedContactSetting>
+  ) => Promise<Partial<ClientContactSetting> & { error?: DefaultError }> = async (values) => {
+    let contactSettingResult: Partial<ClientContactSetting> & { error?: DefaultError } = { error: undefined };
+    const contactSettingApiCall = isContactSettingPatch()
+      ? patchContactSettingMutation.mutateAsync
+      : postContactSettingMutation.mutateAsync;
+    const contactSettingData: Partial<ClientContactSetting> = _.merge(formData.contactSetting, {
+      id: formData?.contactSetting?.id,
+      createdById: isContactSettingPatch() ? undefined : values?.contactSetting?.createdById,
+      alias: values.contactSetting?.alias,
+      phone: values.contactSetting?.phone,
+      virtual: values.contactSetting?.virtual,
+    });
+    contactSettingResult = await contactSettingApiCall(contactSettingData).catch((error) => {
+      return { error: error as DefaultError };
+    });
+    return contactSettingResult;
+  };
 
-  useEffect(() => {
-    // console.log('update:', delegate);
-    // reset({ ...context.getValues(), delegate }); // Ensure the form is updated with the latest delegate values
-  }, [delegate]);
+  const saveDelegate: (
+    contactSettingResult: Partial<ClientContactSetting> & { error?: DefaultError },
+    values: Partial<DelegatedContactSetting>
+  ) => Promise<Partial<ClientContactSetting> & { error?: DefaultError }> = async (contactSettingResult, values) => {
+    let delegateResult: Delegate & { error?: DefaultError } = { error: undefined };
+    const delegateApiCall = isDelegatePatch() ? patchDelegateMutation.mutateAsync : postDelegateMutation.mutateAsync;
+    const delegateData: Partial<Delegate> = {
+      agentId: isContactSettingPatch() ? values.delegate?.agentId : (contactSettingResult.id ?? undefined),
+      principalId: isContactSettingPatch()
+        ? values.delegate?.principalId
+        : (values?.contactSetting?.createdById ?? undefined),
+      id: values?.delegate?.id,
+      filters: values.delegate?.filters,
+    };
+    delegateResult = await delegateApiCall(delegateData).catch((error) => {
+      return { error: error as DefaultError };
+    });
+    return delegateResult;
+  };
 
   const _onSubmit = async (values: Partial<DelegatedContactSetting>) => {
-    console.log('Submitting values:', values);
     if (onSubmit) {
       onSubmit(values, context);
     } else {
-      let contactSettingResult: Partial<ClientContactSetting> & { error?: DefaultError } = { error: undefined };
-      const contactSettingApiCall = isContactSettingPatch()
-        ? patchContactSettingMutation.mutateAsync
-        : postContactSettingMutation.mutateAsync;
-      const contactSettingData: Partial<ClientContactSetting> = _.merge(formData.contactSetting, {
-        id: formData?.contactSetting?.id,
-        createdById: isContactSettingPatch() ? undefined : values?.contactSetting?.createdById,
-        alias: values.contactSetting?.alias,
-        phone: values.contactSetting?.phone,
-        virtual: values.contactSetting?.virtual,
-      });
-      contactSettingResult = await contactSettingApiCall(contactSettingData).catch((error) => {
-        return { error: error as DefaultError };
-      });
+      const contactSettingResult = await saveContactSetting(values);
 
       let delegateResult: Delegate & { error?: DefaultError } = { error: undefined };
       if (!contactSettingResult.error) {
-        const delegateApiCall = isDelegatePatch()
-          ? patchDelegateMutation.mutateAsync
-          : postDelegateMutation.mutateAsync;
-        const delegateData: Partial<Delegate> = {
-          agentId: isContactSettingPatch() ? values.delegate?.agentId : (contactSettingResult.id ?? undefined),
-          principalId: isContactSettingPatch()
-            ? values.delegate?.principalId
-            : (values?.contactSetting?.createdById ?? undefined),
-          id: values?.delegate?.id,
-          filters: values.delegate?.filters,
-        };
-        delegateResult = await delegateApiCall(delegateData).catch((error) => {
-          return { error: error as DefaultError };
-        });
+        delegateResult = await saveDelegate(contactSettingResult, values);
       }
 
       if (!contactSettingResult.error && !delegateResult.error) {
@@ -195,42 +201,26 @@ export default function DelegatedContactSettingsFormLogic({
           message: 'Uppgifterna sparades.',
           status: 'success',
         });
-        if (onSubmitSuccess) onSubmitSuccess();
+        onSubmitSuccess();
       } else {
-        if ((delegateResult.error as AxiosError).status === 471) {
-          snackBar({
-            message: 'Minst ett alternativ måste väljas.',
-            status: 'warning',
-          });
-        } else {
-          snackBar({
-            message: 'Det gick inte att spara uppgifterna.',
-            status: 'error',
-          });
-        }
-        if (onSubmitFailed) onSubmitFailed();
+        snackBar(
+          (delegateResult.error as AxiosError).status === 471
+            ? {
+                message: 'Minst ett alternativ måste väljas.',
+                status: 'warning',
+              }
+            : {
+                message: 'Det gick inte att spara uppgifterna.',
+                status: 'error',
+              }
+        );
+        onSubmitFailed();
       }
     }
   };
 
   return (
     <FormProvider {...context}>
-      {/* <div>DelegatedContactSettingsFormLogic Delegate ID: {context?.getValues()?.delegate?.id}</div>
-      {context?.getValues()?.delegate?.filters?.map((filter, index) => (
-        <div key={filter.id + '-' + filter.alias + '-' + index}>
-          <p>
-            <strong>{filter.alias}</strong>
-          </p>
-          <ul>
-            {filter.rules.map((rule, ruleIndex) => (
-              <li key={`${rule.attributeName}-${ruleIndex}`}>
-                {rule.attributeName} {rule.operator} {rule.attributeValue}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))} */}
-      {/* <div>{JSON.stringify(context.getValues().delegate)}</div> */}
       <form onSubmit={handleSubmit(_onSubmit)}>{children}</form>
     </FormProvider>
   );

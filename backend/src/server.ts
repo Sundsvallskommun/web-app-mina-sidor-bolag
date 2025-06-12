@@ -11,6 +11,7 @@ import { HealthController } from './controllers/health.controller';
 import { InvoicesController } from './controllers/invoices.controller';
 import { AgreementController } from '@controllers/agreement.controller';
 import { MeasurementDataController } from '@controllers/measurement-data.controller';
+import { DelegateController } from './controllers/delegate.controller';
 
 validateEnv();
 
@@ -26,6 +27,7 @@ const app = new App([
   ContactSettingsController,
   AgreementController,
   MeasurementDataController,
+  DelegateController,
 ]);
 
 app.listen();

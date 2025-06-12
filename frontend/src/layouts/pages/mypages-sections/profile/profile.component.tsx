@@ -1,6 +1,6 @@
-import { DelegatedContactDetails } from './profile-delegated-contact-details.component';
+import { DelegatedContactDetails } from './profile-delegate-details.component';
 import { ContactSettings } from './profile-contact-settings.component';
-import { ContactDetails } from './profile-contact-details.component copy';
+import { ContactDetails } from './profile-contact-details.component';
 
 export const Profile = () => {
   return (

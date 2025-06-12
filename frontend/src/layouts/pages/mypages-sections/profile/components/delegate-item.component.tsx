@@ -5,8 +5,12 @@ import { Button, Icon, useConfirm, useSnackbar } from '@sk-web-gui/react';
 import { Pen, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DelegateFilter } from './delegate-filter.component';
-import DelegatedContactSettingsFormLogic from './delegated-contact-settings-form-logic.component';
+import DelegatedContactSettingsFormLogic from './delegate-form-logic.component';
 import { queryClient, useApi } from '@services/api-service';
+
+const EmptyField = (text: string) => {
+  return <span className="italic">{text}</span>;
+};
 
 export const DelegateItem = ({
   delegatedContactSetting,
@@ -31,10 +35,6 @@ export const DelegateItem = ({
   const [isEdit, setIsEdit] = useState(newItem);
   const { showConfirmation } = useConfirm();
   const message = useSnackbar();
-
-  const EmptyField = (text: string) => {
-    return <span className="italic">{text}</span>;
-  };
 
   useEffect(() => {
     if (newItem) {
@@ -72,7 +72,6 @@ export const DelegateItem = ({
             </Button>
           ) : null}
         </ContactDetailsGrid>
-        {/* -----------------------------------------<br></br>DelegateItem ID: {delegatedContactSetting?.delegate?.id} */}
         {isEdit ? (
           <>
             {[
