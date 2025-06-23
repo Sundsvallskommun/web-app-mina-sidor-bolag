@@ -1,6 +1,6 @@
 'use client';
 
-import { DatePicker, FormLabel, Select, Spinner } from '@sk-web-gui/react';
+import { Button, DatePicker, FormLabel, Select } from '@sk-web-gui/react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useFormContext } from 'react-hook-form';
@@ -9,19 +9,24 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import dayjs from 'dayjs';
 import { generateYearsBetween } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateYearsBetween';
 
-export const StatisticsFilter = () => {
+export interface StatisticsFilterProps {
+  closeHandler: () => void;
+}
+
+export const StatisticsFilter = (props: StatisticsFilterProps) => {
+  const { closeHandler } = props;
   const { register, watch, setValue } = useFormContext();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
-  const { address } = watch();
+  const { address, fromDate } = watch();
 
-  const { data: user, isFetching } = useApi<User>({
+  const { data: user } = useApi<User>({
     method: 'get',
     url: '/me',
     queryKey: ['user'],
   });
 
   useEffect(() => {
-    setValue('address', user?.addresses[0].address);
+    setValue('address', user?.addresses[0]?.address);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -44,13 +49,13 @@ export const StatisticsFilter = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facilities, address]);
 
-  return user && !isFetching ? (
+  return (
     <section className="lg:flex lg:justify-between block gap-24 lg:pt-0 pt-24">
       <div className="block w-full">
         <FormLabel>Adress</FormLabel>
 
         <Select {...register('address')} className="w-full mt-8">
-          {user.addresses.map((address) => (
+          {user?.addresses.map((address) => (
             <Select.Option key={address.address}>{address.address ? address.address : 'Okänd adress'}</Select.Option>
           ))}
         </Select>
@@ -62,12 +67,14 @@ export const StatisticsFilter = () => {
           {facilities?.map((facility) => {
             return (
               <Select.Option key={facility.facilityId + '-' + facility.type} value={facility.facilityId}>
-                {facility.type} ({facility.facilityId})
+                {facility.type === 'El' ? 'Elförbrukning' : facility.type} ({facility.facilityId})
               </Select.Option>
             );
           })}
         </Select>
       </div>
+
+      <p className="sm:hidden block text-large font-bold pt-32">Tidsperiod</p>
 
       <div className="block lg:pt-0 pt-16">
         <FormLabel>Från</FormLabel>
@@ -97,13 +104,15 @@ export const StatisticsFilter = () => {
           <Select.Option key={0} value="">
             Välj år
           </Select.Option>
-          {generateYearsBetween().map((year) => (
-            <Select.Option key={year}>{year}</Select.Option>
+          {generateYearsBetween(fromDate).map((y) => (
+            <Select.Option key={y}>{y}</Select.Option>
           ))}
         </Select>
       </div>
+
+      <Button onClick={closeHandler} className="sm:hidden block w-full mt-48">
+        Använd
+      </Button>
     </section>
-  ) : (
-    <Spinner className="mx-auto" />
   );
 };
