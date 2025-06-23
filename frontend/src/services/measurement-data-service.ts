@@ -47,7 +47,7 @@ export const measurementDataByMonthHandler = (
 
 export const handleStatisticsMeasurementDataResponse: (data: Data) => StatisticsMeasurementData = (data) => {
   const measurementData = data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [];
-  measurementData.map((measurement) => {
+  measurementData.forEach((measurement) => {
     return measurement?.measurementPoints?.forEach((m) =>
       Object.assign(m, {
         chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
@@ -57,7 +57,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
   const peakHourUsage =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'Peakhourusage') ?? [];
-  peakHourUsage.map((measurement) =>
+  peakHourUsage.forEach((measurement) =>
     measurement?.measurementPoints?.forEach((m) =>
       Object.assign(m, {
         chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
@@ -67,7 +67,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
   const temperatureData =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'outdoor_temperature') ?? [];
-  temperatureData.map((temperature) =>
+  temperatureData.forEach((temperature) =>
     temperature?.measurementPoints?.forEach((m) =>
       Object.assign(m, {
         chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
@@ -75,7 +75,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     )
   );
 
-  temperatureData.map((temperature) =>
+  temperatureData.forEach((temperature) =>
     temperature.measurementPoints?.forEach(
       (measurement) => (measurement.value = toFixedNumber(measurement.value ?? 0, 2))
     )
@@ -231,7 +231,7 @@ export const mergeMeasurementDataSets = (current: StatisticsMeasurementData, pre
         {
           ...current.measurementData[0],
           measurementPoints: current.measurementData[0].measurementPoints.map((measurement, index) => {
-            if (previous.measurementData && previous?.measurementData[0]?.measurementPoints?.[index]) {
+            if (previous?.measurementData?.[0]?.measurementPoints?.[index]) {
               return { ...measurement, previousValue: previous.measurementData[0].measurementPoints[index].value };
             } else {
               return { ...measurement, previousValue: 0 };
