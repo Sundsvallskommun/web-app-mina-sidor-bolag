@@ -7,11 +7,9 @@ export default function CustomTooltip({ active, payload, label, fromDate, year, 
     switch (aggregatedOn) {
       case 'HOUR':
         return (
-          <>
-            <strong>
-              {dayjs(fromDate).format('D MMMM').toLowerCase()} kl {label}.00
-            </strong>
-          </>
+          <strong>
+            {dayjs(fromDate).format('D MMMM').toLowerCase()} kl {label}.00
+          </strong>
         );
       case 'DAY':
         return (
@@ -26,7 +24,7 @@ export default function CustomTooltip({ active, payload, label, fromDate, year, 
     }
   };
 
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     return (
       <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
         {formatDate()}

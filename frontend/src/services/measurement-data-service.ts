@@ -48,7 +48,7 @@ export const measurementDataByMonthHandler = (
 export const handleStatisticsMeasurementDataResponse: (data: Data) => StatisticsMeasurementData = (data) => {
   const measurementData = data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [];
   measurementData.map((measurement) => {
-    return measurement?.measurementPoints?.map((m) =>
+    return measurement?.measurementPoints?.forEach((m) =>
       Object.assign(m, {
         chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
       })
@@ -58,7 +58,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
   const peakHourUsage =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'Peakhourusage') ?? [];
   peakHourUsage.map((measurement) =>
-    measurement?.measurementPoints?.map((m) =>
+    measurement?.measurementPoints?.forEach((m) =>
       Object.assign(m, {
         chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
       })
@@ -68,7 +68,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
   const temperatureData =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'outdoor_temperature') ?? [];
   temperatureData.map((temperature) =>
-    temperature?.measurementPoints?.map((m) =>
+    temperature?.measurementPoints?.forEach((m) =>
       Object.assign(m, {
         chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
       })
@@ -76,7 +76,9 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
   );
 
   temperatureData.map((temperature) =>
-    temperature.measurementPoints?.map((measurement) => (measurement.value = toFixedNumber(measurement.value ?? 0, 2)))
+    temperature.measurementPoints?.forEach(
+      (measurement) => (measurement.value = toFixedNumber(measurement.value ?? 0, 2))
+    )
   );
 
   return {
@@ -144,7 +146,7 @@ export const formatMeasurementDates = (date: string, aggregation: string) => {
 };
 
 export const calculateTotalConsumption = (measurementData: MeasurementSerie[] | undefined) => {
-  if (measurementData && measurementData[0]?.measurementPoints) {
+  if (measurementData?.[0]?.measurementPoints) {
     return Math.round(
       measurementData[0]?.measurementPoints?.reduce((accumulator, currentValue) => {
         return currentValue.value ? accumulator + currentValue?.value : accumulator;
@@ -156,7 +158,7 @@ export const calculateTotalConsumption = (measurementData: MeasurementSerie[] | 
 };
 
 export const calculateHighestValue = (aggregateOn: string | undefined, measurementData: MeasurementSerie[]) => {
-  if (measurementData && measurementData[0]?.measurementPoints) {
+  if (measurementData?.[0]?.measurementPoints) {
     const value = measurementData[0]?.measurementPoints?.reduce((a, b) => Math.max(a, b.value ?? 0), 0);
 
     const measurementPoints = measurementData[0].measurementPoints.filter((measurement) => measurement.value === value);
@@ -184,7 +186,7 @@ export const formatHighestValueDate = (aggregateOn: string | undefined, timestam
 };
 
 export const calculateAverageConsumption = (measurementData: MeasurementSerie[]) => {
-  if (measurementData && measurementData[0]?.measurementPoints) {
+  if (measurementData?.[0]?.measurementPoints) {
     const sum = measurementData[0]?.measurementPoints?.reduce((accumulator, currentValue) => {
       return currentValue.value ? accumulator + currentValue?.value : accumulator;
     }, 0);
@@ -222,7 +224,7 @@ export const translateAggregateOn = (aggregateOn: string | undefined) => {
 };
 
 export const mergeMeasurementDataSets = (current: StatisticsMeasurementData, previous: StatisticsMeasurementData) => {
-  if (current?.measurementData && current?.measurementData[0]?.measurementPoints && previous?.measurementData) {
+  if (current?.measurementData?.[0]?.measurementPoints && previous?.measurementData) {
     return {
       ...current,
       measurementData: [
@@ -242,14 +244,14 @@ export const mergeMeasurementDataSets = (current: StatisticsMeasurementData, pre
 };
 
 export const mergeTemperatureDataSets = (current: StatisticsMeasurementData, previous: StatisticsMeasurementData) => {
-  if (current?.temperatureData && current?.temperatureData[0]?.measurementPoints && previous?.measurementData) {
+  if (current?.temperatureData?.[0]?.measurementPoints && previous?.measurementData) {
     return {
       ...current,
       temperatureData: [
         {
           ...current.temperatureData[0],
           measurementPoints: current.temperatureData[0].measurementPoints.map((measurement, index) => {
-            if (previous.temperatureData && previous?.temperatureData[0]?.measurementPoints?.[index]) {
+            if (previous?.temperatureData?.[0]?.measurementPoints?.[index]) {
               return { ...measurement, previousValue: previous.temperatureData[0].measurementPoints[index].value };
             }
           }),

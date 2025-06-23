@@ -14,8 +14,7 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
   const { data } = props;
 
   return (
-    data &&
-    data.temperatureData && (
+    data?.temperatureData && (
       <ResponsiveContainer width="100%">
         <div>
           <LineChart

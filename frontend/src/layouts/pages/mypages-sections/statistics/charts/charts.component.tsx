@@ -107,7 +107,7 @@ export default function Charts() {
   return (
     <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
       <Consumption
-        data={mergedMeasurementData ? mergedMeasurementData : measurementData}
+        data={mergedMeasurementData ?? measurementData}
         isFetching={isFetchingMeasurementData}
         isPreviousFetching={isPreviousFetching}
       />
@@ -116,7 +116,7 @@ export default function Charts() {
         <>
           <Divider className="my-40" />
           <OutdoorTemperature
-            data={mergedTemperatureData ? mergedTemperatureData : measurementData}
+            data={mergedTemperatureData ?? measurementData}
             isFetching={isFetchingMeasurementData}
             isPreviousFetching={isPreviousFetching}
           />

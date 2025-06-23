@@ -15,8 +15,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const { data } = props;
 
   return (
-    data &&
-    data.measurementData && (
+    data?.measurementData && (
       <ResponsiveContainer className="my-56">
         <div>
           <p className="font-bold">kWh</p>

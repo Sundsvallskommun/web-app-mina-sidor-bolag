@@ -20,7 +20,6 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
   const { getValues } = useFormContext();
 
   return (
-    data &&
     data?.temperatureData && (
       <div className="mb-56">
         <h4>Utetemperatur</h4>

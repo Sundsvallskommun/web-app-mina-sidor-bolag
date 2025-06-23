@@ -28,7 +28,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
       <p>{getValues().address}</p>
       {isFetching || isPreviousFetching ? (
         <Spinner className="mx-auto my-80" />
-      ) : data && data.measurementData && data.measurementData[0]?.measurementPoints ? (
+      ) : data?.measurementData?.[0]?.measurementPoints ? (
         <div>
           <ConsumptionInformation data={data} />
 
