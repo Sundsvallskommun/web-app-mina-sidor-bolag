@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import ElectricityConsumption from '@layouts/pages/mypages-sections/statistics/charts/electricity-consumption/electricity-consumption.component';
+import Consumption from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption.component';
 import { Divider } from '@sk-web-gui/react';
 import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
 import { useFormContext } from 'react-hook-form';
-import { getCategoryFromInstalledBaseType, statisticsMeasurementDataHandler } from '@services/measurement-data-service';
+import {
+  getAreaFromFacility,
+  getCategoryFromFacilityType,
+  getCategoryFromInstalledBaseType,
+  mergeMeasurementDataSets,
+  mergeTemperatureDataSets,
+  statisticsMeasurementDataHandler,
+} from '@services/measurement-data-service';
 import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
-import { MeasurementSerie } from '@interfaces/measurement-data';
 import { User } from '@interfaces/user';
+import { MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 
 export default function Charts() {
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const { facilityId, toDate, fromDate, year } = watch();
+  const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
+  const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
 
   const { data: user } = useApi<User>({
     method: 'get',
     url: '/me',
     queryKey: ['user'],
   });
-
-  const [currentMeasurementData, setCurrentMeasurementData] = useState<MeasurementSerie[]>();
-  const [currentOutdoorTemperatureData, setCurrentOutdoorTemperatureData] = useState<MeasurementSerie[]>();
-
-  console.log('currentMeasurementData', currentMeasurementData);
-  console.log('currentOutdoorTemperatureData', currentOutdoorTemperatureData);
 
   const getParams = (previous?: boolean) => {
     const params = new URLSearchParams({});
@@ -40,7 +43,7 @@ export default function Charts() {
       'fromDate',
       year && previous
         ? dayjs(fromDate)
-            .subtract(parseInt(dayjs().format('YYYY')) - year, 'year')
+            .subtract(parseInt(dayjs(fromDate).format('YYYY')) - year, 'year')
             .utc(true)
             .startOf('date')
             .format()
@@ -51,7 +54,7 @@ export default function Charts() {
       'toDate',
       year && previous
         ? dayjs(toDate)
-            .subtract(parseInt(dayjs().format('YYYY')) - year, 'year')
+            .subtract(parseInt(dayjs(toDate).format('YYYY')) - year, 'year')
             .utc(true)
             .endOf('date')
             .format()
@@ -64,17 +67,17 @@ export default function Charts() {
     return params.toString();
   };
 
-  const { data: measurementData } = useApi({
+  const { data: measurementData, isFetching: isFetchingMeasurementData } = useApi({
     url: `/measurementdata?${getParams()}`,
     method: 'get',
     dataHandler: statisticsMeasurementDataHandler,
     queryKey: ['statistics', facilityId, getParams()],
     queryOptions: {
-      enabled: !!facilityId,
+      enabled: !!facilityId && !!toDate && !!fromDate,
     },
   });
 
-  const { data: previousMeasurementData } = useApi({
+  const { data: previousMeasurementData, isFetching: isPreviousFetching } = useApi({
     url: `/measurementdata?${getParams(true)}`,
     method: 'get',
     dataHandler: statisticsMeasurementDataHandler,
@@ -84,20 +87,41 @@ export default function Charts() {
     },
   });
 
-  console.log('previousMeasurementData', previousMeasurementData);
+  useEffect(() => {
+    setValue('category', getCategoryFromFacilityType(user?.facilities, facilityId));
+    setValue('area', getAreaFromFacility(user?.facilities, facilityId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [measurementData, facilityId]);
 
   useEffect(() => {
-    setCurrentMeasurementData(measurementData?.consumption);
-    if (measurementData?.temperature.length) {
-      setCurrentOutdoorTemperatureData(measurementData.temperature);
+    if (measurementData && previousMeasurementData) {
+      setMergedMeasurementData(mergeMeasurementDataSets(measurementData, previousMeasurementData));
+      setMergedTemperatureData(mergeTemperatureDataSets(measurementData, previousMeasurementData));
+    } else {
+      setMergedMeasurementData(undefined);
+      setMergedTemperatureData(undefined);
     }
-  }, [measurementData, facilityId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previousMeasurementData]);
 
   return (
     <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
-      <ElectricityConsumption />
-      <Divider className="my-40" />
-      <OutdoorTemperature />
+      <Consumption
+        data={mergedMeasurementData ? mergedMeasurementData : measurementData}
+        isFetching={isFetchingMeasurementData}
+        isPreviousFetching={isPreviousFetching}
+      />
+
+      {measurementData?.temperatureData?.length ? (
+        <>
+          <Divider className="my-40" />
+          <OutdoorTemperature
+            data={mergedTemperatureData ? mergedTemperatureData : measurementData}
+            isFetching={isFetchingMeasurementData}
+            isPreviousFetching={isPreviousFetching}
+          />
+        </>
+      ) : null}
     </div>
   );
 }
