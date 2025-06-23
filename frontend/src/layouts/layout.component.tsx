@@ -1,6 +1,4 @@
 'use client';
-
-import AlertBannerWrapper from '@components/alert-banner/alert-banner-wrapper.component';
 import { useLocalStorageValue } from '@react-hookz/web';
 import { CookieConsent, Footer, Link } from '@sk-web-gui/react';
 import Head from 'next/head';
@@ -48,8 +46,6 @@ export function Layout({ title, children }: { title: string; children: React.Rea
           Hoppa till innehåll
         </a>
       </NextLink>
-
-      <AlertBannerWrapper />
 
       <div className="root-container">
         {children}
