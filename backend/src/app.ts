@@ -115,6 +115,7 @@ const samlStrategy = new Strategy(
         name: `${givenName} ${surname}`,
         givenName: givenName,
         surname: surname,
+        username: 'unknown',
       };
 
       const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
