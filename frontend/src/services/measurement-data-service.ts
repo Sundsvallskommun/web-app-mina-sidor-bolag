@@ -1,5 +1,6 @@
 import {
   Data,
+  MeasurementPoints,
   MeasurementSerie,
   MergedStatisticsMeasurementData,
   StatisticsMeasurementData,
@@ -46,39 +47,28 @@ export const measurementDataByMonthHandler = (
 } => handleMeasurementDataByMonthResponse(data);
 
 export const handleStatisticsMeasurementDataResponse: (data: Data) => StatisticsMeasurementData = (data) => {
+  const addTimestampToMeasurementPoint: (m: MeasurementPoints) => MeasurementPoints = (m) =>
+    Object.assign(m, {
+      chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
+    }) as MeasurementPoints;
+
+  const addTimestamps: (series: MeasurementSerie) => void = (series: MeasurementSerie) => {
+    series?.measurementPoints?.forEach(addTimestampToMeasurementPoint);
+  };
+
   const measurementData = data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [];
-  measurementData.forEach((measurement) => {
-    return measurement?.measurementPoints?.forEach((m) =>
-      Object.assign(m, {
-        chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
-      })
-    );
-  });
+  measurementData.forEach(addTimestamps);
 
   const peakHourUsage =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'Peakhourusage') ?? [];
-  peakHourUsage.forEach((measurement) =>
-    measurement?.measurementPoints?.forEach((m) =>
-      Object.assign(m, {
-        chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
-      })
-    )
-  );
+  peakHourUsage.forEach(addTimestamps);
 
   const temperatureData =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'outdoor_temperature') ?? [];
-  temperatureData.forEach((temperature) =>
-    temperature?.measurementPoints?.forEach((m) =>
-      Object.assign(m, {
-        chartTimestamp: formatMeasurementDates(m.timestamp ?? '', data.aggregateOn ?? ''),
-      })
-    )
-  );
+  temperatureData.forEach(addTimestamps);
 
-  temperatureData.forEach((temperature) =>
-    temperature.measurementPoints?.forEach(
-      (measurement) => (measurement.value = toFixedNumber(measurement.value ?? 0, 2))
-    )
+  temperatureData.forEach((series) =>
+    series.measurementPoints?.forEach((measurement) => (measurement.value = toFixedNumber(measurement.value ?? 0, 2)))
   );
 
   return {
