@@ -29,18 +29,18 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
           <Spinner className="mx-auto" />
         ) : (
           <div className="mt-56">
-            <div className="flex justify-between mb-56">
+            <div className="md:flex mb-56 md:justify-between">
               <div className="content-center">
                 {getValues().year && current === 0 && (
-                  <div className="flex">
-                    <div className="flex w-100 items-center">
+                  <div className="flex md:justify-start justify-center justify-items-center">
+                    <div className="flex w-90 items-center md:left">
                       <Divider className="max-w-30 border-2 border-[#004070]" />
                       <p className="pl-16">
                         {dayjs(data?.measurementData?.[0].measurementPoints?.[0].timestamp).format('YYYY')}
                       </p>
                     </div>
 
-                    <div className="flex w-100 items-center">
+                    <div className="flex w-90 items-center ml-16">
                       <Divider className="max-w-30 border-2 border-[#A90074] border-dashed" />
                       <p className="pl-16"> {getValues().year}</p>
                     </div>
@@ -48,14 +48,14 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
                 )}
               </div>
 
-              <MenuBar current={current} showBackground>
-                <MenuBar.Item>
-                  <Button onClick={() => setCurrent(0)} inverted>
+              <MenuBar className="md:w-auto w-full md:mt-0 mt-40" current={current} showBackground>
+                <MenuBar.Item className="md:w-auto w-full">
+                  <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted>
                     <Icon icon={<BarChart3Icon />} className="mr-8" /> Graf
                   </Button>
                 </MenuBar.Item>
-                <MenuBar.Item>
-                  <Button onClick={() => setCurrent(1)}>
+                <MenuBar.Item className="md:w-auto w-full">
+                  <Button className="md:w-auto w-full" onClick={() => setCurrent(1)}>
                     <Icon icon={<TableIcon />} className="mr-8" /> Tabell
                   </Button>
                 </MenuBar.Item>

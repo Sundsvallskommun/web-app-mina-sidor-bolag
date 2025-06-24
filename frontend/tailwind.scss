@@ -53,6 +53,12 @@ body {
   flex-direction: column;
 }
 
+@media (max-width: 500px) {
+  .recharts-cartesian-axis-ticks {
+    @apply text-xs !important;
+  }
+}
+
 .root-container {
   @apply flex flex-col items-center bg-background-100;
 }

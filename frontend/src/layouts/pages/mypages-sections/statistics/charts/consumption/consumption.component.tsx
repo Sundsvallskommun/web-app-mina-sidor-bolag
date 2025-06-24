@@ -32,11 +32,11 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         <div>
           <ConsumptionInformation data={data} />
 
-          <div className="flex mt-56 mb-32 justify-between">
+          <div className="md:flex mt-56 mb-32 md:justify-between">
             <div className="content-center">
               {getValues().year && current === 0 && (
-                <div className="flex">
-                  <div className="flex w-100 items-center">
+                <div className="flex md:justify-start justify-center">
+                  <div className="flex w-90 md:mx-auto items-center md:left">
                     <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
                       <rect width="17" height="17" rx="2" ry="2" fill="#1E3158" />
                     </svg>
@@ -45,7 +45,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                     </p>
                   </div>
 
-                  <div className="flex w-100 items-center">
+                  <div className="flex w-90 items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 19 19" fill="none">
                       <rect width="17" height="17" rx="3.5" stroke="#005595" />
                     </svg>
@@ -55,14 +55,14 @@ export default function Consumption(props: ElectricityConsumptionProps) {
               )}
             </div>
 
-            <MenuBar current={current} showBackground>
-              <MenuBar.Item>
-                <Button onClick={() => setCurrent(0)} inverted>
+            <MenuBar className="md:w-auto w-full md:mt-0 mt-40" current={current} showBackground>
+              <MenuBar.Item className="md:w-auto w-full">
+                <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted>
                   <Icon icon={<BarChart3Icon />} className="mr-8" /> Graf
                 </Button>
               </MenuBar.Item>
-              <MenuBar.Item>
-                <Button onClick={() => setCurrent(1)}>
+              <MenuBar.Item className="md:w-auto w-full">
+                <Button className="md:w-auto w-full" onClick={() => setCurrent(1)}>
                   <Icon icon={<TableIcon />} className="mr-8" /> Tabell
                 </Button>
               </MenuBar.Item>

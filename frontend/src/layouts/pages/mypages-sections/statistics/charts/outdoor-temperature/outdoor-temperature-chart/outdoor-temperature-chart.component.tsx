@@ -4,19 +4,22 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
+import { useMediaQuery } from 'usehooks-ts';
 
 export interface OutdoorTemperatureChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
 }
 
 export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => {
+  const isLargeDevice = useMediaQuery('(min-width: 500px)');
+
   const { getValues } = useFormContext();
   const { data } = props;
 
   return (
     data?.temperatureData && (
-      <ResponsiveContainer width="100%">
-        <div>
+      <div style={{ maxWidth: 1000, height: 500 }}>
+        <ResponsiveContainer width="100%" height="100%">
           <LineChart
             width={1000}
             height={500}
@@ -28,8 +31,15 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               bottom: 0,
             }}
           >
-            <XAxis dy={10} height={50} axisLine={false} tickLine={false} dataKey="chartTimestamp" />
-            <YAxis axisLine={false} tickLine={false} />
+            <XAxis
+              interval="preserveStartEnd"
+              dy={10}
+              height={50}
+              axisLine={false}
+              tickLine={false}
+              dataKey="chartTimestamp"
+            />
+            {isLargeDevice && <YAxis axisLine={false} tickLine={false} />}
             <Tooltip
               content={
                 <CustomTooltip
@@ -55,8 +65,8 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               />
             )}
           </LineChart>
-        </div>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     )
   );
 };

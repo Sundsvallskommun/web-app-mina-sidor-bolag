@@ -5,20 +5,21 @@ import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/cus
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import React from 'react';
+import { useMediaQuery } from 'usehooks-ts';
 
 export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
 }
 
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
+  const isLargeDevice = useMediaQuery('(min-width: 500px)');
   const { getValues } = useFormContext();
   const { data } = props;
 
   return (
     data?.measurementData && (
-      <ResponsiveContainer className="my-56">
-        <div>
-          <p className="font-bold">kWh</p>
+      <div style={{ maxWidth: 1000, height: 500 }}>
+        <ResponsiveContainer width="100%" height="100%" className="my-56">
           <BarChart
             width={1000}
             height={500}
@@ -30,8 +31,8 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
               bottom: 0,
             }}
           >
-            <XAxis axisLine={false} tickLine={false} dataKey="chartTimestamp" />
-            <YAxis orientation="left" textAnchor="end" axisLine={false} tickLine={false} dataKey="value" />
+            <XAxis interval="preserveStartEnd" axisLine={false} tickLine={false} dataKey="chartTimestamp" />
+            {isLargeDevice && <YAxis axisLine={false} tickLine={false} dataKey="value" />}
             <Tooltip
               content={
                 <CustomTooltip
@@ -47,18 +48,11 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             />
             <Bar dataKey="value" fill="#1E3158" radius={[4, 4, 0, 0]} stroke="#1E3158" strokeWidth="1" />
             {getValues().year && (
-              <Bar
-                dataKey="previousValue"
-                fill="#FAFAFA"
-                radius={[4, 4, 0, 0]}
-                barSize={getValues().year ? 8 : 14}
-                stroke="#005595"
-                strokeWidth="1"
-              />
+              <Bar dataKey="previousValue" fill="#FAFAFA" radius={[4, 4, 0, 0]} stroke="#005595" strokeWidth="1" />
             )}
           </BarChart>
-        </div>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     )
   );
 };
