@@ -32,7 +32,7 @@ export default function Charts() {
     const params = new URLSearchParams({});
 
     user?.facilities?.forEach((facility) => {
-      if (facility.facilityId === facilityId) {
+      if (facility.facilityId === facilityId && facility.type !== 'Elhandel') {
         params.append('category', getCategoryFromInstalledBaseType(facility.type));
       }
     });
