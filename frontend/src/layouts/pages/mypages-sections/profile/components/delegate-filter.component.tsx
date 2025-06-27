@@ -61,6 +61,7 @@ export const DelegateFilter = (props: {
       const enabled = facilitiesOnAddress?.every(facilityIsEnabled);
       return enabled ?? false;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [delegatedContactSetting?.delegate?.filters, user?.addresses, user?.facilities, prettyType]
   );
 
@@ -135,7 +136,7 @@ export const DelegateFilter = (props: {
     <>
       <FormControl fieldset className="my-12">
         <Checkbox disabled={!props.isEdit} onChange={handleCategoryChange} checked={categoryIsEnabled}>
-          Aviseringar för alla adresser
+          Alla adresser (gäller även framtida adresser)
         </Checkbox>
       </FormControl>
       {user?.addresses
