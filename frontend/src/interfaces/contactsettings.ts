@@ -19,10 +19,46 @@ export interface ClientContactSettingAddress {
 
 export interface ClientContactSetting {
   id?: string | null;
+  createdById?: string | null;
+  alias?: string | null;
+  virtual?: boolean;
   name: User['name'];
   email: string | null;
   phone: string | null;
   address?: ClientContactSettingAddress | null;
   notifications?: ClientContactSettingNotifications | null;
   decicionsAndDocuments?: ClientContactSettingDecicionsAndDocuments | null;
+}
+
+export enum Operator {
+  EQUALS = 'EQUALS',
+  NOT_EQUALS = 'NOT_EQUALS',
+}
+export interface Rule {
+  attributeName: string;
+  operator: Operator;
+  attributeValue: string;
+}
+
+export interface Filter {
+  id?: string;
+  alias?: string;
+  channel?: string;
+  created?: string;
+  modified?: string;
+  rules: Rule[];
+}
+
+export interface Delegate {
+  id?: string | null;
+  principalId?: string;
+  agentId?: string;
+  created?: string;
+  modified?: string;
+  filters?: Filter[];
+}
+
+export interface DelegatedContactSetting {
+  delegate: Delegate;
+  contactSetting: ClientContactSetting;
 }

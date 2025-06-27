@@ -1,0 +1,163 @@
+import { DelegatedContactSetting, Filter, Operator, Rule } from '@interfaces/contactsettings';
+import { FacilityAddress } from '@interfaces/facility-address';
+import { User } from '@interfaces/user';
+import { useApi } from '@services/api-service';
+import { Checkbox, FormControl } from '@sk-web-gui/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+
+export const DelegateFilter = (props: {
+  delegatedContactSetting: DelegatedContactSetting;
+  category: 'ELECTRICITY' | 'DISTRICT_HEATING';
+  isEdit?: boolean;
+}) => {
+  const { getValues, setValue } = useFormContext();
+  const { data: user } = useApi<User>({ url: '/me', method: 'get' });
+
+  const prettyType = useMemo(() => {
+    if (props.category === 'ELECTRICITY') {
+      return 'El';
+    } else if (props.category === 'DISTRICT_HEATING') {
+      return 'Fjärrvärme';
+    } else {
+      return 'Okänd kategori';
+    }
+  }, [props.category]);
+
+  const [delegatedContactSetting, setDelegatedContactSetting] = useState({ ...props.delegatedContactSetting });
+
+  useEffect(() => {
+    setValue('delegate', delegatedContactSetting.delegate);
+  }, [delegatedContactSetting, setValue]);
+
+  const ruleAppliesToFacility = (facilityId) => (rule: Rule) =>
+    rule.attributeName === 'facilityId' && rule.operator === 'EQUALS' && rule.attributeValue === facilityId;
+
+  const ruleAppliesToCategory = (category) => (rule: Rule) =>
+    rule.attributeName === 'category' && rule.operator === 'EQUALS' && rule.attributeValue === category;
+
+  const filterHasRuleForCategory = (category) => (filter: Filter) =>
+    filter.rules?.length === 1 && filter.rules?.some(ruleAppliesToCategory(category));
+
+  const filterHasRuleForFacility = (facilityId) => (filter: Filter) =>
+    filter.rules?.length === 1 && filter.rules?.some(ruleAppliesToFacility(facilityId));
+
+  const categoryIsEnabled = useMemo(
+    () => delegatedContactSetting?.delegate?.filters?.some(filterHasRuleForCategory(props.category)) ?? false,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [delegatedContactSetting?.delegate?.filters, props.category]
+  );
+
+  const addressIsEnabled = useCallback(
+    (adress: string) => {
+      // Addresses are enabled if, for every facility on the address, there is some filter with exactly one rule that matches the facilityId
+      const facilitiesOnAddress = user?.addresses
+        ?.find((a) => a.address === adress)
+        ?.facilityIds.filter((id) => user?.facilities.find((f) => f.facilityId === id && f.type === prettyType));
+
+      const facilityIsEnabled = (facilityId) =>
+        delegatedContactSetting?.delegate?.filters?.some(filterHasRuleForFacility(facilityId)) ?? false;
+
+      const enabled = facilitiesOnAddress?.every(facilityIsEnabled);
+      return enabled ?? false;
+    },
+    [delegatedContactSetting?.delegate?.filters, user?.addresses, user?.facilities, prettyType]
+  );
+
+  const handleCategoryChange = (e) => {
+    const filters: Filter[] = getValues('delegate.filters') ?? [];
+    if (e.target.checked) {
+      // Add a new filter if it doesn't exist
+      const newFilter = {
+        alias: `Filter för ${prettyType} - ${props.category}`,
+        channel: 'se.stadsbacken.minasidor-test',
+        rules: [{ attributeName: 'category', operator: 'EQUALS' as Operator, attributeValue: props.category }],
+      };
+      const updatedFilters = [...filters, newFilter];
+      setDelegatedContactSetting({
+        ...delegatedContactSetting,
+        ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
+      });
+    } else if (e.target.checked === false) {
+      // Remove the filter if it exists
+      const existingFilter = filters.findIndex((filter) => filter.rules.some(ruleAppliesToCategory(props.category)));
+
+      if (existingFilter !== -1) {
+        const updatedFilters = filters.filter((f, index) => index !== existingFilter);
+        setDelegatedContactSetting({
+          ...delegatedContactSetting,
+          ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
+        });
+      }
+    }
+  };
+
+  const handleAddressChange = (e, user: User, a: FacilityAddress) => {
+    const filters: Filter[] = getValues('delegate.filters') ?? [];
+    const facilitiesOfType = user.facilities
+      .filter((facility) => facility.type === prettyType)
+      .map((facility) => facility.facilityId);
+
+    let updatedFilters: Filter[] = [];
+
+    if (e.target.checked) {
+      // Add a filter for each facilityId on the address
+      const newFilters = facilitiesOfType.map((facilityId) => {
+        return {
+          alias: `Filter för ${prettyType} - ${props.category} - ${a.address}`,
+          channel: 'se.stadsbacken.minasidor-test',
+          rules: [
+            {
+              attributeName: 'facilityId',
+              operator: 'EQUALS' as Operator,
+              attributeValue: facilityId,
+            } as Rule,
+          ],
+        };
+      });
+      updatedFilters = [...filters, ...newFilters];
+    } else if (e.target.checked === false) {
+      // Remove the filter for each facilityId on the address
+      const doesNotExistInAnyRule = (filter: Filter) => (facilityId) =>
+        !filter.rules.some(ruleAppliesToFacility(facilityId));
+
+      const hasNoFacilityRules = (filter: Filter) => facilitiesOfType.every(doesNotExistInAnyRule(filter));
+
+      updatedFilters = filters.filter(hasNoFacilityRules);
+    }
+    setDelegatedContactSetting({
+      ...delegatedContactSetting,
+      ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
+    });
+  };
+
+  return (
+    <>
+      <FormControl fieldset className="my-12">
+        <Checkbox disabled={!props.isEdit} onChange={handleCategoryChange} checked={categoryIsEnabled}>
+          Aviseringar för alla adresser
+        </Checkbox>
+      </FormControl>
+      {user?.addresses
+        .filter((address) => {
+          // filter out addresses that don't have any facilities of the specified type
+          const facilitiesOfType = user.facilities
+            .filter((facility) => facility.type === prettyType)
+            .map((facility) => facility.facilityId);
+          return address.facilityIds.some((facilityId) => facilitiesOfType.includes(facilityId));
+        })
+        .sort((a, b) => a.address.localeCompare(b.address))
+        .map((a) => (
+          <FormControl key={a.address} fieldset className="my-12">
+            <Checkbox
+              disabled={categoryIsEnabled ?? !props.isEdit}
+              defaultChecked={addressIsEnabled(a.address)}
+              onChange={(e) => handleAddressChange(e, user, a)}
+            >
+              {a.address}
+            </Checkbox>
+          </FormControl>
+        ))}
+    </>
+  );
+};

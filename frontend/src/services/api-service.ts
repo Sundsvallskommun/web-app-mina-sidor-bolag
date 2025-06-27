@@ -227,10 +227,12 @@ export function useApi<
   };
 
   if (method === 'get') {
+    const enabled = queryOptions?.enabled ?? true;
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useQuery(
       {
         queryKey,
+        enabled,
         queryFn: defaultQueryCall,
         throwOnError: (error) => {
           handleError(error);

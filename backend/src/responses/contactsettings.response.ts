@@ -1,8 +1,9 @@
 import { Type } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { User } from '../interfaces/users.interface';
 import { IsNullable } from '../utils/custom-validation-classes';
 import { Address } from '@/data-contracts/businessengagements/data-contracts';
+import { Delegate as IDelegate, Filter as IFilter, Rule as IRule, Operator } from '@/data-contracts/contactsettings/data-contracts';
 
 export class ClientContactSettingNotifications {
   @IsBoolean()
@@ -38,6 +39,9 @@ export class ClientContactSetting {
   id: string | null;
   @IsString()
   @IsOptional()
+  createdById?: string | null;
+  @IsString()
+  @IsOptional()
   name: User['name'];
   @IsString()
   @IsOptional()
@@ -60,4 +64,72 @@ export class ClientContactSetting {
   @Type(() => ClientContactSettingDecicionsAndDocuments)
   @IsOptional()
   decicionsAndDocuments: ClientContactSettingDecicionsAndDocuments;
+  @IsBoolean()
+  virtual: boolean;
+  @IsString()
+  @IsNullable()
+  alias: string | null;
+  @IsString()
+  @IsOptional()
+  @IsNullable()
+  municipalityId?: string | null;
+}
+
+export class ClientDelegate implements IDelegate {
+  @IsString()
+  @IsOptional()
+  id?: string | null;
+  @IsString()
+  @IsOptional()
+  principalId?: string;
+  @IsString()
+  @IsOptional()
+  agentId?: string;
+  @IsString()
+  @IsOptional()
+  created?: string;
+  @IsString()
+  @IsOptional()
+  modified?: string;
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => Filter)
+  filters?: Filter[];
+}
+
+export class Filter implements IFilter {
+  @IsString()
+  @IsOptional()
+  id?: string;
+  @IsString()
+  @IsOptional()
+  alias?: string;
+  @IsString()
+  @IsOptional()
+  channel?: string;
+  @IsString()
+  @IsOptional()
+  created?: string;
+  @IsString()
+  @IsOptional()
+  modified?: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Rule)
+  rules: IRule[];
+}
+
+class Rule implements IRule {
+  @IsString()
+  attributeName: string;
+  @IsEnum(Operator)
+  operator: Operator;
+  @IsString()
+  attributeValue: string;
+}
+
+export class DelegatedContactSetting {
+  delegate: ClientDelegate;
+  contactSetting: ClientContactSetting;
 }
