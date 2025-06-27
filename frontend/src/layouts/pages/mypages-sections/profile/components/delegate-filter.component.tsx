@@ -105,7 +105,7 @@ export const DelegateFilter = (props: {
       const newFilters = facilitiesOfType.map((facilityId) => {
         return {
           alias: `Filter för ${prettyType} - ${props.category} - ${a.address}`,
-          channel: 'se.stadsbacken.minasidor-test',
+          channel: process.env.NEXT_PUBLIC_DELEGATE_CHANNEL,
           rules: [
             {
               attributeName: 'facilityId',
