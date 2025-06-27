@@ -63,7 +63,12 @@ export class DelegateController {
     });
 
     return Promise.allSettled(delegatePromises)
-      .then(results => ({ data: results.filter(r => r.status === 'fulfilled').map(result => result.value), message: 'ok' }))
+      .then(results => ({
+        data: results
+          .filter(r => r.status === 'fulfilled')
+          .map((result: PromiseFulfilledResult<{ delegate: ClientDelegate; contactSetting: ClientContactSetting }>) => result.value),
+        message: 'ok',
+      }))
       .catch(error => {
         logger.error(`Error resolving delegate promises: ${error}`);
         throw new HttpException(500, 'Internal Server Error');

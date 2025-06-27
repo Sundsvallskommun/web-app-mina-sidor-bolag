@@ -98,7 +98,7 @@ const samlStrategy = new Strategy(
       const apiBase = getApiBase('citizen');
       const personNumber = profile.citizenIdentifier;
       const url = `${apiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
-      const citizenResult = await apiService.get<any>({ url }, { session: { user: { username } } });
+      const citizenResult = await apiService.get<any>({ url }, { username: 'unknown' });
       const { data: personId } = citizenResult;
 
       if (!personId) {
