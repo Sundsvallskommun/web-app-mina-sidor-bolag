@@ -41,6 +41,7 @@ export interface MeasurementPoints {
   value?: number;
   timestamp?: string;
   metaData?: MetaData[];
+  chartTimestamp?: string;
 }
 
 export interface MetaData {
@@ -65,4 +66,51 @@ export enum MeasurementDataSearchParametersAggregateOnEnum {
   DAY = 'DAY',
   MONTH = 'MONTH',
   YEAR = 'YEAR',
+}
+
+export interface StatisticsMeasurementData {
+  measurementData: MeasurementSerie[] | undefined;
+  peakHourUsage: MeasurementSerie[] | undefined;
+  temperatureData: MeasurementSerie[] | undefined;
+  category: string | undefined;
+  formattedDate: string | undefined;
+  aggregatedOn: string | undefined;
+  totalConsumption: number;
+  peakConsumptionValue: { value: number; timestamp: string | undefined };
+  averageConsumption: number;
+  peakEffectValue: { value: number; timestamp: string | undefined };
+}
+
+export interface MergedStatisticsMeasurementData extends Omit<StatisticsMeasurementData, 'measurementData'> {
+  measurementData: MergedMeasurementSeries[];
+}
+
+export interface MergedMeasurementPoints {
+  value: number;
+  timestamp: string;
+  chartTimestamp?: string;
+  metaData: MetaData[];
+  previousValue: number;
+}
+
+export interface MergedMeasurementSeries {
+  unit?: string;
+  measurementType?: string;
+  metaData?: MetaData[];
+  measurementPoints?: MergedMeasurementPoints[];
+}
+
+export enum Months {
+  jan = 'Januari',
+  feb = 'Februari',
+  mar = 'Mars',
+  apr = 'April',
+  maj = 'Maj',
+  jun = 'Juni',
+  jul = 'Juli',
+  aug = 'Augusti',
+  sep = 'September',
+  okt = 'Oktober',
+  nov = 'November',
+  dec = 'December',
 }

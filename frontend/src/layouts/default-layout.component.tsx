@@ -7,6 +7,7 @@ import { MobileMenu } from './mobile-menu/mobile-menu.component';
 import { appName } from '@utils/app-name';
 import React from 'react';
 import { Logotypes } from '@components/logotypes/logotypes.component';
+import { AlertBanner } from '@components/alert-banner/alert-banner.component';
 
 export const DefaultLayout = ({ children }) => {
   const { isMinDesktop } = useThemeQueries();
@@ -21,6 +22,7 @@ export const DefaultLayout = ({ children }) => {
       >
         {isMinDesktop && <SiteMenu />}
       </Header>
+      <AlertBanner/>
       {children}
     </Layout>
   );

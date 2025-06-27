@@ -77,7 +77,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
             <Icon icon={translateTypeIcon(facility.type ?? '')} size={20} />
           </div>
         </div>
-        <p className="text-large">{facility.type}</p>
+        <p className="text-large">{facility.type === 'El' ? 'Elförbrukning' : (facility.type ?? '')}</p>
       </div>
 
       {isCurrentFetching ? (

@@ -1,4 +1,3 @@
-import AlertBannerWrapper from '@components/alert-banner/alert-banner-wrapper.component';
 import Head from 'next/head';
 
 export default function EmptyLayout({ title, children }) {
@@ -13,8 +12,6 @@ export default function EmptyLayout({ title, children }) {
         <meta name="apple-mobile-web-app-capable" content="yes"></meta>
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></meta>
       </Head>
-
-      <AlertBannerWrapper />
 
       <div className="bg-background-content min-h-screen">{children}</div>
     </>
