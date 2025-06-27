@@ -204,6 +204,7 @@ class App {
     this.app.get(
       `${BASE_URL_PREFIX}/saml/login`,
       (req, res, next) => {
+        logger.info(`SAML login request received with query: ${JSON.stringify(req.query)}`);
         if (req.session.returnTo) {
           req.query.RelayState = req.session.returnTo;
         } else if (req.query.successRedirect) {
