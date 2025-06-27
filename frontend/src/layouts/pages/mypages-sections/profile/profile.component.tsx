@@ -11,11 +11,13 @@ export const Profile = () => {
       <h1 className="mb-16">Din profil och inställningar</h1>
 
       <Disclosure
-        className="bg-background-content rounded-cards shadow-50 py-16 px-24"
+        className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
         header={
           <>
             <h4 className="text-h4-md">Kontaktuppgifter</h4>
-            <p className="text-base font-normal mb-0">Uppdatera dina kontaktuppgifter så att vi kan nå dig.</p>
+            <p className="sm:text-base font-normal mb-0 text-small">
+              Uppdatera dina kontaktuppgifter så att vi kan nå dig.
+            </p>
           </>
         }
       >
@@ -23,11 +25,11 @@ export const Profile = () => {
       </Disclosure>
 
       <Disclosure
-        className="bg-background-content rounded-cards shadow-50 py-16 px-24"
+        className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
         header={
           <>
             <h4 className="text-h4-md">Aviseringar</h4>
-            <p className="text-base font-normal mb-0">
+            <p className="sm:text-base font-normal mb-0 text-small">
               Välj hur du vill ha aviseringar och lägg till fler kontaktpersoner.
             </p>
           </>
@@ -45,7 +47,7 @@ export const Profile = () => {
       Yet to be implemented
 
       <Disclosure
-        className="bg-background-content rounded-cards shadow-50 py-16 px-24"
+        className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
         header={
           <>
             <h4 className="text-h4-md">Behörigheter</h4>

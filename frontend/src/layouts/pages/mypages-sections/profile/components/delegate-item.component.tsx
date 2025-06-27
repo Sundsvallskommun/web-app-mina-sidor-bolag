@@ -54,56 +54,55 @@ export const DelegateItem = ({
         </FormBox>
 
         <p className="text-label-medium mb-0">Välj när sms ska skickas</p>
-        <>
-          {[
-            { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
-            { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
-          ].map(({ label, category }) => (
-            <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
-              <h3 className="text-large">{label}</h3>
-              {delegatedContactSetting ? (
-                <DelegateFilter delegatedContactSetting={delegatedContactSetting} category={category} isEdit />
-              ) : null}
-            </div>
-          ))}
 
-          {!newItem && (
-            <Button
-              size="sm"
-              variant="primary"
-              color="error"
-              type="button"
-              leftIcon={<Icon icon={<Trash />} />}
-              onClick={() => {
-                showConfirmation(
-                  'Ta bort kontaktperson',
-                  'Vill du ta bort denna kontaktperson?',
-                  'Ta bort',
-                  'Avbryt',
-                  'error'
-                ).then(async (confirm: boolean) => {
-                  if (confirm) {
-                    await deleteDelegate.mutateAsync(delegatedContactSetting);
-                    await deleteContactSetting.mutateAsync(delegatedContactSetting);
-                    queryClient.invalidateQueries({
-                      queryKey: ['delegates'],
-                    });
-                    queryClient.invalidateQueries({
-                      queryKey: ['contactsettings'],
-                    });
-                    message({
-                      message: 'Kontakten togs bort.',
-                      status: 'success',
-                    });
-                  }
-                });
-              }}
-              className="my-16"
-            >
-              Ta bort kontaktperson
-            </Button>
-          )}
-        </>
+        {[
+          { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
+          { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
+        ].map(({ label, category }) => (
+          <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
+            <h3 className="text-large">{label}</h3>
+            {delegatedContactSetting ? (
+              <DelegateFilter delegatedContactSetting={delegatedContactSetting} category={category} isEdit />
+            ) : null}
+          </div>
+        ))}
+
+        {!newItem && (
+          <Button
+            size="sm"
+            variant="primary"
+            color="error"
+            type="button"
+            leftIcon={<Icon icon={<Trash />} />}
+            onClick={() => {
+              showConfirmation(
+                'Ta bort kontaktperson',
+                'Vill du ta bort denna kontaktperson?',
+                'Ta bort',
+                'Avbryt',
+                'error'
+              ).then(async (confirm: boolean) => {
+                if (confirm) {
+                  await deleteDelegate.mutateAsync(delegatedContactSetting);
+                  await deleteContactSetting.mutateAsync(delegatedContactSetting);
+                  queryClient.invalidateQueries({
+                    queryKey: ['delegates'],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ['contactsettings'],
+                  });
+                  message({
+                    message: 'Kontakten togs bort.',
+                    status: 'success',
+                  });
+                }
+              });
+            }}
+            className="my-16"
+          >
+            Ta bort kontaktperson
+          </Button>
+        )}
       </div>
     );
   };
@@ -119,13 +118,15 @@ export const DelegateItem = ({
           onClick={() => {
             openHandler();
           }}
-          className="mt-8"
+          className="mt-8 sm:w-auto w-full"
         >
           Lägg till kontaktperson
         </Button>
       ) : (
-        <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards flex items-center justify-between">
-          <div>{delegatedContactSetting?.contactSetting?.alias ?? EmptyField('Inget alias tillagt')}</div>
+        <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards sm:flex sm:items-center sm:justify-between">
+          <div className="sm:pb-0 pb-16">
+            {delegatedContactSetting?.contactSetting?.alias ?? EmptyField('Inget alias tillagt')}
+          </div>
           <Button
             size="md"
             variant="tertiary"
@@ -134,6 +135,7 @@ export const DelegateItem = ({
             onClick={() => {
               openHandler();
             }}
+            className="sm:w-auto w-full"
           >
             Redigera
           </Button>
@@ -141,7 +143,7 @@ export const DelegateItem = ({
       )}
 
       <Modal
-        className="w-[52rem]"
+        className="sm:w-[52rem] w-auto sm:bottom-auto sm:left-auto sm:rounded-cards sm:relative bottom-0 fixed left-0 rounded-b-0"
         label={newItem ? 'Lägg till kontaktperson' : 'Redigera kontaktperson'}
         show={isOpen}
         onClose={closeHandler}
@@ -173,7 +175,7 @@ export const DelegateItem = ({
                 Avbryt
               </Button>
 
-              {newItem ? <Button type="submit">Lägg till</Button> : <Button type="submit">Spara</Button>}
+              <Button type="submit">{newItem ? 'Lägg till' : 'Spara'}</Button>
             </div>
           </Modal.Footer>
         </DelegatedContactSettingsFormLogic>
