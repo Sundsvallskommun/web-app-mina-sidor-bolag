@@ -48,20 +48,22 @@ export default function PagedAgreements() {
         <p>Du har inga avtal än, men så fort det finns avtal kan du se dem här.</p>
       </div>
     );
-  } else if (data) {
+  } else if (data && agreements) {
     return (
       <div>
-        <h1>Dina avtal</h1>
+        <h1 className="mb-40">Dina avtal</h1>
 
-        <SearchField
-          className="my-40 max-w-[520px]"
-          size="md"
-          value={term}
-          onChange={onChangeHandler}
-          onReset={onResetHandler}
-          showSearchButton={false}
-          placeholder="Sök efter anläggning"
-        />
+        {Object.keys(agreements).length > 1 && (
+          <SearchField
+            className="mb-40 max-w-[520px]"
+            size="md"
+            value={term}
+            onChange={onChangeHandler}
+            onReset={onResetHandler}
+            showSearchButton={false}
+            placeholder="Sök efter anläggning"
+          />
+        )}
 
         {Object.entries(data).map(([address, agreements]: [string, RefinedAgreement[]], index) => {
           return (
