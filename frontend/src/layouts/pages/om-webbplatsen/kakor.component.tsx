@@ -84,7 +84,7 @@ export default function Kakor() {
             <p className="my-16">
               Du kan ta bort kakor i din webbläsare eller via nedan länk &quot;Hantera kakor (cookies)&quot;
             </p>
-            <Button className="mt-16" color="vattjom" onClick={handleCookies}>
+            <Button className="mt-16" onClick={handleCookies}>
               Hantera kakor (cookies)
             </Button>
           </div>
