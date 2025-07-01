@@ -7,6 +7,8 @@ import { User } from '@interfaces/user';
 import { useEffect, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import dayjs from 'dayjs';
+import { pagedAgreementsHandler } from '@services/agreement-service';
+import { RefinedAgreement } from '@interfaces/agreement';
 
 export const Consumption = () => {
   const { data: user, isFetching: isUserFetching } = useApi<User>({
@@ -15,31 +17,50 @@ export const Consumption = () => {
     queryKey: ['user'],
   });
 
+  const { data: agreements, isFetching: isAgreementsFetching } = useApi({
+    url: `/paged/agreements`,
+    method: 'get',
+    dataHandler: pagedAgreementsHandler,
+  });
+
   const [address, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
+  const [isFiltering, setIsFiltering] = useState<boolean>(false);
 
   useEffect(() => {
     setAddress(user?.addresses?.[0]?.address ?? '');
-  }, [user]);
+    setIsFiltering(true);
+  }, [user, agreements]);
 
   useEffect(() => {
-    if (!isUserFetching) {
-      setFacilities(
-        user?.facilities.filter(
-          (facility) =>
-            (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
-            facility?.address?.street === address
-        )
-      );
+    if (user && agreements) {
+      for (const agreementAddress in agreements) {
+        if (agreementAddress === address) {
+          const agreementsFacilities: string[] = agreements[address].map(
+            (agreement: RefinedAgreement) => agreement.facilityId
+          );
+
+          const filteredFacilities = user?.facilities.filter(
+            (facility: InstalledBaseItem) =>
+              (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
+              facility?.address?.street === address &&
+              agreementsFacilities.some((agreement) => agreement === facility?.facilityId)
+          );
+
+          setFacilities(filteredFacilities);
+        }
+      }
+      setIsFiltering(false);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address]);
+  }, [agreements, address]);
 
   return (
     <section className="pb-80 visible">
       <h1>Aktuell förbrukning och produktion</h1>
 
-      {isUserFetching ? (
+      {isUserFetching || isAgreementsFetching || isFiltering ? (
         <Spinner className="mx-auto" />
       ) : user && facilities?.length ? (
         <div>

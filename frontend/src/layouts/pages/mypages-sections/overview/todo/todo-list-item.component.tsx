@@ -52,7 +52,7 @@ export const TodoListItem = (props: TodoListItemProps) => {
       </div>
 
       <NextLink className="flex md:items-center md:pt-0 pt-32" href={adjustedPath}>
-        <Button className="md:w-auto w-full" variant="primary" size="lg" rightIcon={<Icon icon={<ChevronRight />} />}>
+        <Button className="md:w-auto w-full" variant="primary" size="md" rightIcon={<Icon icon={<ChevronRight />} />}>
           {linkText}
         </Button>
       </NextLink>
