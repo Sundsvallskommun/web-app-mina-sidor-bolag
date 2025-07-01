@@ -111,7 +111,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                         <div className="md:pb-0">
                           <strong>Avtalsperiod</strong>
                           <p>
-                            {a.fromDate} - {a.toDate ? a.toDate : 'Löpande'}
+                            {a.fromDate} – {a.toDate ? a.toDate : 'Löpande'}
                           </p>
                         </div>
                       </div>
@@ -138,7 +138,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
 
                       <div className="md:pl-16 md:flex block">
                         <strong className="pr-8">Avtalsperiod</strong>
-                        {a.fromDate} - {a.toDate ? a.toDate : 'Löpande'}
+                        {a.fromDate} – {a.toDate ? a.toDate : 'Löpande'}
                       </div>
                     </div>
                   </div>
