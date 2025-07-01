@@ -108,17 +108,15 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             })}
           </Select>
         </div>
-      </section>
-      <section className="lg:flex lg:justify-between block gap-24 pt-24">
         {/* <p className="sm:hidden block text-large font-bold pt-32">Tidsperiod</p> */}
         <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
           <div className="block w-full lg:pt-0 pt-16">
-            <FormLabel>Tidsperiod</FormLabel>
-            <MenuBar className="!py-6 bg-tertiary-surface flex justify-around">
+            <FormLabel>Visa statistik per</FormLabel>
+            <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" size="md">
               {[
-                { value: 'year', label: 'Per år' },
-                { value: 'month', label: 'Per månad' },
-                { value: 'day', label: 'Per dag' },
+                { value: 'year', label: 'År' },
+                { value: 'month', label: 'Månad' },
+                { value: 'day', label: 'Dag' },
               ].map((item, index) => (
                 <MenuBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
                   <Button
@@ -143,7 +141,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             </MenuBar>
           </div>
         </div>
-        <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'year' ? 'block' : 'hidden')}>
+        <div className={cx(`w-full lg:w-2/3 lg:pt-0 pt-16`, mode === 'year' ? 'block' : 'hidden')}>
           <FormLabel>År</FormLabel>
           <Select
             {...register('selectedYear')}
@@ -160,7 +158,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             ))}
           </Select>
         </div>
-        <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'month' ? 'block' : 'hidden')}>
+        <div className={cx(`w-full lg:w-2/3 lg:pt-0 pt-16`, mode === 'month' ? 'block' : 'hidden')}>
           <FormLabel>Månad</FormLabel>
           <Select
             className="w-full mt-8"
@@ -177,7 +175,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             ))}
           </Select>
         </div>
-        <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'day' ? 'block' : 'hidden')}>
+        <div className={cx(`w-full lg:w-2/3 lg:pt-0 pt-16`, mode === 'day' ? 'block' : 'hidden')}>
           <FormLabel>Dag</FormLabel>
           <DatePicker
             {...register('selectedDay')}
@@ -191,7 +189,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             }}
           />
         </div>
-        <div className="block w-full lg:w-3/4 lg:pt-0 pt-16">
+        <div className="block w-full lg:w-2/3 lg:pt-0 pt-16">
           <FormLabel>Jämför med år</FormLabel>
           <Select {...register('year')} className="w-full mt-8">
             <Select.Option key={0} value="">

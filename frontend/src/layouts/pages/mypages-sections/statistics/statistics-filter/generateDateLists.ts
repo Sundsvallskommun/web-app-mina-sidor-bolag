@@ -23,7 +23,7 @@ export function generateSelectableMonths(today: string) {
       if (i === endYear && month > parseInt(dayjs(today).format('M')) - 1) {
         continue; // Skip months beyond the current month in the end year
       }
-      const monthLabel = dayjs().month(month).format('MMMM');
+      const monthLabel = dayjs().month(month).format('MMM');
       const yearLabel = dayjs().year(i).format('YYYY');
       months.push({
         label: `${monthLabel} ${yearLabel}`,
