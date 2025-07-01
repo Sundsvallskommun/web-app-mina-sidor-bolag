@@ -1,12 +1,12 @@
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 export function generateYearsBetween(fromDate: string) {
   let startYear = 2022;
   const endDate = parseInt(dayjs(fromDate).format('YYYY'));
-  const years: number[] = [];
+  const years: string[] = [];
 
   for (let i = startYear; i < endDate; i++) {
-    years.push(startYear);
+    years.push(dayjs(`${startYear}-01-01`).format('YYYY-MM-DD'));
     startYear++;
   }
 
@@ -16,7 +16,7 @@ export function generateYearsBetween(fromDate: string) {
 export function generateSelectableMonths(today: string) {
   let startYear = 2022;
   const endYear = parseInt(dayjs(today).format('YYYY'));
-  const months: { label: string; value: Dayjs }[] = [];
+  const months: { label: string; value: string }[] = [];
 
   for (let i = startYear; i < endYear + 1; i++) {
     for (let month = 0; month < 12; month++) {
@@ -27,7 +27,7 @@ export function generateSelectableMonths(today: string) {
       const yearLabel = dayjs().year(i).format('YYYY');
       months.push({
         label: `${monthLabel} ${yearLabel}`,
-        value: dayjs().year(i).month(month).startOf('month'),
+        value: dayjs().year(i).month(month).startOf('month').format('YYYY-MM-DD'),
       });
     }
     startYear++;
