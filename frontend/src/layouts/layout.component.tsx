@@ -161,13 +161,13 @@ export function Layout({ title, children }: { title: string; children: React.Rea
       </div>
 
       <CookieConsent
-        title="Kakor på minasidor.foretagscentersundsvall.se"
+        title="Kakor på minasidor.stadsbacken.se"
         body={
           <p>
             Vi använder kakor, cookies, för att ge dig en förbättrad upplevelse, sammanställa statistik och för att viss
             nödvändig funktionalitet ska fungera på webbplatsen.{' '}
             <NextLink href="/kakor" legacyBehavior passHref>
-              <Link>Läs mer om hur vi använder kakor</Link>
+              <Link variant="tertiary">Läs mer om hur vi använder kakor</Link>
             </NextLink>
           </p>
         }
