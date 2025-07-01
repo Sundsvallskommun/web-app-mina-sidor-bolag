@@ -1,9 +1,8 @@
-import { ContactDetailsGrid } from '@components/content-card/content-card';
 import { FormBox } from '@components/form/form-box.component';
 import { DelegatedContactSetting } from '@interfaces/contactsettings';
-import { Button, Icon, useConfirm, useSnackbar } from '@sk-web-gui/react';
-import { Pen, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Button, Icon, Modal, useConfirm, useSnackbar } from '@sk-web-gui/react';
+import { Pen, Plus, Trash } from 'lucide-react';
+import { useState } from 'react';
 import { DelegateFilter } from './delegate-filter.component';
 import DelegatedContactSettingsFormLogic from './delegate-form-logic.component';
 import { queryClient, useApi } from '@services/api-service';
@@ -19,7 +18,7 @@ export const DelegateItem = ({
 }: {
   delegatedContactSetting: DelegatedContactSetting;
   newItem?: boolean;
-  close?: () => void;
+  close: () => void;
 }) => {
   const deleteDelegate = useApi<DelegatedContactSetting>({
     url: `/delegates/${delegatedContactSetting?.delegate?.id ?? ''}`,
@@ -32,111 +31,155 @@ export const DelegateItem = ({
     method: 'delete',
   });
 
-  const [isEdit, setIsEdit] = useState(newItem);
   const { showConfirmation } = useConfirm();
   const message = useSnackbar();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (newItem) {
-      setIsEdit(true);
-    }
-  }, [newItem]);
+  const openHandler = () => {
+    setIsOpen(true);
+  };
+
+  const closeHandler = () => {
+    setIsOpen(false);
+  };
+
+  const FormComponent = () => {
+    return (
+      <div>
+        <FormBox name="contactSetting.alias" header="Namn på kontakt" isEdit>
+          <div className="mb-40"></div>
+        </FormBox>
+        <FormBox name="contactSetting.phone" header="Mobilnummer" isEdit>
+          <div className="mb-40"></div>
+        </FormBox>
+
+        <p className="text-label-medium mb-0">Välj när sms ska skickas</p>
+
+        {[
+          { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
+          { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
+        ].map(({ label, category }) => (
+          <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
+            <h3 className="text-large">{label}</h3>
+            {delegatedContactSetting ? (
+              <DelegateFilter delegatedContactSetting={delegatedContactSetting} category={category} isEdit />
+            ) : null}
+          </div>
+        ))}
+
+        {!newItem && (
+          <Button
+            size="sm"
+            variant="primary"
+            color="error"
+            type="button"
+            leftIcon={<Icon icon={<Trash />} />}
+            onClick={() => {
+              showConfirmation(
+                'Ta bort kontaktperson',
+                'Vill du ta bort denna kontaktperson?',
+                'Ta bort',
+                'Avbryt',
+                'error'
+              ).then(async (confirm: boolean) => {
+                if (confirm) {
+                  await deleteDelegate.mutateAsync(delegatedContactSetting);
+                  await deleteContactSetting.mutateAsync(delegatedContactSetting);
+                  queryClient.invalidateQueries({
+                    queryKey: ['delegates'],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: ['contactsettings'],
+                  });
+                  message({
+                    message: 'Kontakten togs bort.',
+                    status: 'success',
+                  });
+                }
+              });
+            }}
+            className="my-16"
+          >
+            Ta bort kontaktperson
+          </Button>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="my-lg p-20 border rounded-20">
-      <DelegatedContactSettingsFormLogic
-        onSubmitSuccess={() => {
-          setIsEdit(false);
-          if (close) {
-            close();
-          }
-        }}
-        formData={delegatedContactSetting}
+    <div>
+      {newItem ? (
+        <Button
+          size="md"
+          variant="secondary"
+          showBackground={true}
+          leftIcon={<Icon icon={<Plus />} />}
+          onClick={() => {
+            openHandler();
+          }}
+          className="mt-8 sm:w-auto w-full"
+        >
+          Lägg till kontaktperson
+        </Button>
+      ) : (
+        <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards sm:flex sm:items-center sm:justify-between">
+          <div className="sm:pb-0 pb-16">
+            {delegatedContactSetting?.contactSetting?.alias ?? EmptyField('Inget alias tillagt')}
+          </div>
+          <Button
+            size="md"
+            variant="tertiary"
+            showBackground={true}
+            leftIcon={<Icon icon={<Pen />} />}
+            onClick={() => {
+              openHandler();
+            }}
+            className="sm:w-auto w-full"
+          >
+            Redigera
+          </Button>
+        </div>
+      )}
+
+      <Modal
+        className="sm:w-[52rem] w-auto sm:bottom-auto sm:left-auto sm:rounded-cards sm:relative bottom-0 fixed left-0 rounded-b-0"
+        label={newItem ? 'Lägg till kontaktperson' : 'Redigera kontaktperson'}
+        show={isOpen}
+        onClose={closeHandler}
       >
-        <ContactDetailsGrid>
-          <FormBox name="contactSetting.alias" header="Namn på kontaktväg" isEdit={isEdit}>
-            <div>{delegatedContactSetting?.contactSetting?.alias ?? EmptyField('Inget alias tillagt')}</div>{' '}
-          </FormBox>
-          <FormBox name="contactSetting.phone" header="Telefonnummer" isEdit={isEdit}>
-            <div>{delegatedContactSetting?.contactSetting?.phone ?? EmptyField('Inget telefonnummer tillagt')}</div>
-          </FormBox>
-          {!newItem ? (
-            <Button
-              size="md"
-              variant="tertiary"
-              showBackground={true}
-              leftIcon={<Icon icon={isEdit ? <X /> : <Pen />} />}
-              onClick={() => setIsEdit((isEdit) => !isEdit)}
-            >
-              {isEdit ? 'Avbryt' : 'Redigera'}
-            </Button>
-          ) : null}
-        </ContactDetailsGrid>
-        {isEdit ? (
-          <>
-            {[
-              { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
-              { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
-            ].map(({ label, category }) => (
-              <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
-                <h3 className="text-large">{label}</h3>
-                {delegatedContactSetting ? (
-                  <DelegateFilter
-                    delegatedContactSetting={delegatedContactSetting}
-                    category={category}
-                    isEdit={isEdit}
-                  />
-                ) : null}
-              </div>
-            ))}
-            {isEdit && (
-              <div className="mt-40 flex flex-row gap-16 justify-start">
-                <Button type="submit" color="vattjom">
-                  Spara
-                </Button>
-                {newItem ? (
-                  <Button color="primary" type="button" onClick={close} variant="secondary">
-                    Stäng
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    type="button"
-                    onClick={() => {
-                      showConfirmation(
-                        'Ta bort kontakt',
-                        'Vill du ta bort denna kontakt',
-                        'Ta bort',
-                        'Avbryt',
-                        'warning'
-                      ).then(async (confirm: boolean) => {
-                        if (confirm) {
-                          await deleteDelegate.mutateAsync(delegatedContactSetting);
-                          await deleteContactSetting.mutateAsync(delegatedContactSetting);
-                          queryClient.invalidateQueries({
-                            queryKey: ['delegates'],
-                          });
-                          queryClient.invalidateQueries({
-                            queryKey: ['contactsettings'],
-                          });
-                          setIsEdit(false);
-                          message({
-                            message: 'Kontakten togs bort.',
-                            status: 'success',
-                          });
-                        }
-                      });
-                    }}
-                    variant="secondary"
-                  >
-                    Ta bort
-                  </Button>
-                )}
-              </div>
-            )}
-          </>
-        ) : null}
-      </DelegatedContactSettingsFormLogic>
+        <DelegatedContactSettingsFormLogic
+          onSubmitSuccess={() => {
+            if (close) {
+              close();
+              closeHandler();
+            }
+          }}
+          formData={delegatedContactSetting}
+        >
+          <Modal.Content>
+            <FormComponent />
+          </Modal.Content>
+
+          <Modal.Footer>
+            <div className="flex flex-row gap-16 justify-start">
+              <Button
+                color="primary"
+                type="button"
+                onClick={() => {
+                  close();
+                  closeHandler();
+                }}
+                variant="secondary"
+              >
+                Avbryt
+              </Button>
+
+              <Button type="submit">{newItem ? 'Lägg till' : 'Spara'}</Button>
+            </div>
+          </Modal.Footer>
+        </DelegatedContactSettingsFormLogic>
+      </Modal>
     </div>
   );
 };
