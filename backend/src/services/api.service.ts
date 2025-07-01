@@ -62,7 +62,7 @@ class ApiService {
         return Promise.resolve(response);
       },
       function (error) {
-        return Promise.reject(new Error(error));
+        return Promise.reject(error);
       },
     );
   }

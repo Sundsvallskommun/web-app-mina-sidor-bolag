@@ -70,7 +70,7 @@ export const DelegateFilter = (props: {
       // Add a new filter if it doesn't exist
       const newFilter = {
         alias: `Filter för ${prettyType} - ${props.category}`,
-        channel: 'se.stadsbacken.minasidor-test',
+        channel: process.env.NEXT_PUBLIC_DELEGATE_CHANNEL,
         rules: [{ attributeName: 'category', operator: 'EQUALS' as Operator, attributeValue: props.category }],
       };
       const updatedFilters = [...filters, newFilter];
@@ -105,7 +105,7 @@ export const DelegateFilter = (props: {
       const newFilters = facilitiesOfType.map((facilityId) => {
         return {
           alias: `Filter för ${prettyType} - ${props.category} - ${a.address}`,
-          channel: 'se.stadsbacken.minasidor-test',
+          channel: process.env.NEXT_PUBLIC_DELEGATE_CHANNEL,
           rules: [
             {
               attributeName: 'facilityId',

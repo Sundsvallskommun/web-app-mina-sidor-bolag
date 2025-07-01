@@ -48,6 +48,7 @@ export class UserController {
         if (error.status === 404) {
           req.session.cache.relations = [];
           req.cache.relations = [];
+          return Promise.resolve(true);
         } else {
           throw new HttpException(500, 'Could not fetch customer relations');
         }
@@ -88,6 +89,7 @@ export class UserController {
     }
 
     req.session.cache ??= {};
+    req.cache ??= {};
 
     await this.cacheRelations(req);
 
@@ -181,6 +183,7 @@ export class UserController {
     }
 
     req.session.cache ??= {};
+    req.cache ??= {};
 
     await this.cacheRelations(req);
 
