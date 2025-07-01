@@ -74,6 +74,8 @@ export class InvoicesController {
     const { representing } = req?.session;
     const { facilityId, page, limit } = req.query;
 
+    console.log('Using representing:', representing);
+
     const partyId = getRepresentingPartyId(representing);
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');

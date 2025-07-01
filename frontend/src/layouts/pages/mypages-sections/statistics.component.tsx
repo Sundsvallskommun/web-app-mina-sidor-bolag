@@ -2,7 +2,6 @@
 
 import { FormProvider, useForm } from 'react-hook-form';
 import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
-import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
 import React, { useState } from 'react';
@@ -57,10 +56,6 @@ export default function Statistics() {
             </>
           )}
         </form>
-
-        <div className="mt-56 flex justify-end">
-          <ExportStatisticsButton />
-        </div>
 
         <Modal
           className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards"

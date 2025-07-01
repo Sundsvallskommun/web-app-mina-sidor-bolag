@@ -1,64 +1,58 @@
 'use client';
 
 import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.component';
-import { Card, Icon } from '@sk-web-gui/react';
+import { Icon } from '@sk-web-gui/react';
 import { ExternalLink } from 'lucide-react';
 
 export default function OmWebbplatsen() {
+  const ContentCard = ({ title, text, href, external }) => {
+    return (
+      <a
+        href={href}
+        target={external ? '_blank' : '_self'}
+        className="p-24 shadow-50 bg-background-content rounded-cards focus:ring"
+      >
+        <div className="flex items-center">
+          <h2 className="sk-link-lg underline">{title}</h2>
+          {external && <Icon size={24} className="!pl-0" icon={<ExternalLink />} />}
+        </div>
+        <p className="text-small">{text}</p>
+      </a>
+    );
+  };
+
   return (
     <PagesBreadcrumbsLayout>
       <h1>Om webbplatsen</h1>
-      <div>
-        Jorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet
-        odio mattis.
-      </div>
-      <div className="mt-56 flex flex-col large-device:flex-row gap-24 justify-start text-body">
-        <Card useHoverEffect href="/om-webbplatsen/kakor" layout="horizontal">
-          <Card.Body>
-            <Card.Header>
-              <h2>Kakor (cookies)</h2>
-            </Card.Header>
-            <Card.Text>
-              <p>
-                Amet enim adipiscing congue justo adipiscing sagittis volutpat nibh ac. Integer viverra lectus in
-                quisque. In nisl mauris faucibus egestas quis mi nam.
-              </p>
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card useHoverEffect href="/om-webbplatsen/tillganglighet" layout="horizontal">
-          <Card.Body>
-            <Card.Header>
-              <h2>Tillgänglighet</h2>
-            </Card.Header>
-            <Card.Text>
-              <p>
-                Amet enim adipiscing congue justo adipiscing sagittis volutpat nibh ac. Integer viverra lectus in
-                quisque. In nisl mauris faucibus egestas quis mi nam.
-              </p>
-            </Card.Text>
-          </Card.Body>
-        </Card>
-        <Card
-          useHoverEffect
-          target="_blank"
-          href={`https://sundsvall.se/kommun-och-politik/overklaga-beslut-rattssakerhet/behandling-av-personuppgifter`}
-          layout="horizontal"
-        >
-          <Card.Body>
-            <Card.Header>
-              <h2>
-                Personuppgifter <Icon size={24} className="!pl-0" icon={<ExternalLink />} />
-              </h2>
-            </Card.Header>
-            <Card.Text>
-              <p>
-                Amet enim adipiscing congue justo adipiscing sagittis volutpat nibh ac. Integer viverra lectus in
-                quisque. In nisl mauris faucibus egestas quis mi nam.
-              </p>
-            </Card.Text>
-          </Card.Body>
-        </Card>
+
+      <div className="mt-56 grid grid-cols-1 large-device:grid-cols-4 gap-24 justify-start">
+        <ContentCard
+          title="Kakor (cookies)"
+          text="Information om spårningsteknik och om annan användning av personuppgifter på minasidor.stadsbacken.se."
+          href="/om-webbplatsen/kakor"
+          external={false}
+        />
+
+        <ContentCard
+          title="Tillgänglighet"
+          text="Information om hur webbplatsen uppfyller lagen om tillgänglighet till digital offentlig service."
+          href="/om-webbplatsen/tillganglighet"
+          external={false}
+        />
+
+        <ContentCard
+          title="Personuppgifter Sundsvall Energi"
+          text="Samlad information om hur vi behandlar dina personuppgifter när du använder Sundsvall Energis tjänster."
+          href="https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
+          external={true}
+        />
+
+        <ContentCard
+          title="Personuppgifter Sundsvall Elnät"
+          text="Samlad information om hur vi behandlar dina personuppgifter när du använder Sundsvall Elnäts tjänster."
+          href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
+          external={true}
+        />
       </div>
     </PagesBreadcrumbsLayout>
   );

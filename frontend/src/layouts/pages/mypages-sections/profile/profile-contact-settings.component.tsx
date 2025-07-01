@@ -1,10 +1,9 @@
 'use client';
 
 import { Button, Checkbox, FormControl, FormLabel, Icon } from '@sk-web-gui/react';
-import { Pen, X } from 'lucide-react';
+import { Pen } from 'lucide-react';
 import { useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
-import ContentCard, { ContentCardHeader, ContentCardBody } from '@components/content-card/content-card';
 import { ConnectForm } from '@components/form/connect-form.component';
 import { ClientContactSetting } from '@interfaces/contactsettings';
 import { useApi } from '@services/api-service';
@@ -14,43 +13,19 @@ export const ContactSettings = () => {
   const [isEdit, setIsEdit] = useState(false);
 
   return (
-    <ContentCard>
+    <div className="pt-40 px-16">
       <ContactSettingsFormLogic onSubmitSuccess={() => setIsEdit(false)} formData={contactsettings}>
-        <ContentCardHeader>
-          <ConnectForm>
-            {({ reset }) => (
-              <>
-                <h2 className="text-h4-lg mb-0">
-                  <div className="flex items-center gap-md">
-                    <span>Kontaktvägar</span>
-                  </div>
-                </h2>
-                <Button
-                  size="md"
-                  variant="tertiary"
-                  showBackground={false}
-                  leftIcon={<Icon icon={isEdit ? <X /> : <Pen />} />}
-                  onClick={() => {
-                    reset();
-                    setIsEdit((isEdit) => !isEdit);
-                  }}
-                >
-                  {isEdit ? 'Avbryt' : 'Redigera'}
-                </Button>
-              </>
-            )}
-          </ConnectForm>
-        </ContentCardHeader>
-
-        <ContentCardBody>
-          <div className="flex flex-col gap-y-40">
+        <div>
+          <div className="flex flex-col gap-y-40 pb-24">
             <ConnectForm>
               {({ register, watch }) => {
                 if (isEdit) {
                   return (
                     <FormControl fieldset>
-                      <FormLabel className="text-large">Påminnelser och notiser</FormLabel>
-                      <Checkbox.Group>
+                      <FormLabel className="text-large">
+                        Aviseringar om avbrott i din strömförsörjning och fjärrvärme
+                      </FormLabel>
+                      <Checkbox.Group direction="row">
                         <Checkbox {...register('notifications.phone_disabled')}>Sms</Checkbox>
                         <Checkbox {...register('notifications.email_disabled')}>E-post</Checkbox>
                       </Checkbox.Group>
@@ -68,11 +43,13 @@ export const ContactSettings = () => {
 
                   return (
                     <div className="text-content">
-                      <h3 className="text-large font-bold">Påminnelser och notiser</h3>
+                      <h3 className="text-large font-bold">
+                        Aviseringar om avbrott i din strömförsörjning och fjärrvärme
+                      </h3>
                       <p>
                         {contactWaysString
-                          ? `Du får påminnelser och notiser via ${contactWaysString}`
-                          : 'Du får inga påminnelser eller notiser'}
+                          ? `Du har valt att få aviseringar via ${contactWaysString}`
+                          : 'Du får inga aviseringar'}
                       </p>
                     </div>
                   );
@@ -80,15 +57,44 @@ export const ContactSettings = () => {
               }}
             </ConnectForm>
           </div>
-          {isEdit && (
-            <div className="mt-40">
-              <Button type="submit" color="vattjom">
-                Spara
-              </Button>
-            </div>
-          )}
-        </ContentCardBody>
+
+          <ConnectForm>
+            {({ reset }) => (
+              <div className="flex gap-16">
+                {isEdit ? (
+                  <>
+                    <Button
+                      size="md"
+                      variant="secondary"
+                      showBackground={false}
+                      onClick={() => {
+                        reset();
+                        setIsEdit((isEdit) => !isEdit);
+                      }}
+                    >
+                      Avbryt
+                    </Button>
+                    <Button type="submit">Spara</Button>
+                  </>
+                ) : (
+                  <Button
+                    size="md"
+                    variant="secondary"
+                    showBackground={false}
+                    leftIcon={<Icon icon={<Pen />} />}
+                    onClick={() => {
+                      reset();
+                      setIsEdit((isEdit) => !isEdit);
+                    }}
+                  >
+                    Ändra aviseringar
+                  </Button>
+                )}
+              </div>
+            )}
+          </ConnectForm>
+        </div>
       </ContactSettingsFormLogic>
-    </ContentCard>
+    </div>
   );
 };

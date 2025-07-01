@@ -15,6 +15,7 @@ import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
 import { User } from '@interfaces/user';
 import { MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
+import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 
 export default function Charts() {
   const { watch, setValue } = useFormContext();
@@ -105,23 +106,32 @@ export default function Charts() {
   }, [previousMeasurementData]);
 
   return (
-    <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
-      <Consumption
-        data={mergedMeasurementData ?? measurementData}
-        isFetching={isFetchingMeasurementData}
-        isPreviousFetching={isPreviousFetching}
-      />
+    <div>
+      <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
+        <Consumption
+          data={mergedMeasurementData ?? measurementData}
+          isFetching={isFetchingMeasurementData}
+          isPreviousFetching={isPreviousFetching}
+        />
 
-      {measurementData?.temperatureData?.length ? (
-        <>
-          <Divider className="my-40" />
-          <OutdoorTemperature
-            data={mergedTemperatureData ?? measurementData}
-            isFetching={isFetchingMeasurementData}
-            isPreviousFetching={isPreviousFetching}
-          />
-        </>
-      ) : null}
+        {measurementData?.temperatureData?.length ? (
+          <>
+            <Divider className="my-40" />
+            <OutdoorTemperature
+              data={mergedTemperatureData ?? measurementData}
+              isFetching={isFetchingMeasurementData}
+              isPreviousFetching={isPreviousFetching}
+            />
+          </>
+        ) : null}
+      </div>
+
+      <div className="mt-40 flex justify-end">
+        <ExportStatisticsButton
+          data={mergedMeasurementData ?? measurementData}
+          isFetching={isFetchingMeasurementData}
+        />
+      </div>
     </div>
   );
 }

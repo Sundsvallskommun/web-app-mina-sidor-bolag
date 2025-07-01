@@ -107,5 +107,14 @@ body {
         @apply max-w-full whitespace-break-spaces hyphens-auto break-words;
       }
     }
+
+    &-cookie-consent-btn-wrapper .sk-btn-primary {
+      background-color: var(--sk-colors-primary-surface-DEFAULT);
+      color: var(--sk-colors-light-primary);
+    }
+
+    &-cookie-consent-btn-wrapper .sk-btn-primary:hover {
+      background-color: var(--sk-colors-primary-surface-hover);
+    }
   }
 }
