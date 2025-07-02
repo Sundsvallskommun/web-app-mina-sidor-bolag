@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { User } from '@interfaces/user';
 import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/agreement/facility-information/facility-information.component';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
+import Link from 'next/link';
 
 export const AgreementComponent = (props: { category: string; facilityId: string }) => {
   const { category, facilityId } = props;
@@ -85,7 +86,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                         </div>
                       </div>
                       <Button className="md:w-1/4 md:p-0 w-full my-40" rightIcon={<ArrowRight />} variant="secondary">
-                        Visa statistik
+                        <Link href={`../../statistik?installation=${a.facilityId}`}>Visa statistik</Link>
                       </Button>
                     </div>
 

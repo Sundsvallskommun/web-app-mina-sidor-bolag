@@ -8,12 +8,16 @@ import { useEffect, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import dayjs from 'dayjs';
 import { generateYearsBetween } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateYearsBetween';
+import { useSearchParams } from 'next/navigation';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
 }
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
+  const searchParams = useSearchParams();
+  const linkedFacilityId = searchParams?.get('installation');
+
   const { closeHandler } = props;
   const { register, watch, setValue } = useFormContext();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
@@ -48,6 +52,18 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facilities, address]);
+
+  useEffect(() => {
+    if (linkedFacilityId) {
+      const facility = user?.facilities.find((f) => f.facilityId === linkedFacilityId);
+      if (facility?.address?.street && facility?.facilityId) {
+        setValue('address', facility.address?.street ?? '');
+        setTimeout(() => {
+          setValue('facilityId', facility.facilityId);
+        }, 100);
+      }
+    }
+  }, []);
 
   return (
     <section className="lg:flex lg:justify-between block gap-24 lg:pt-0 pt-24">
