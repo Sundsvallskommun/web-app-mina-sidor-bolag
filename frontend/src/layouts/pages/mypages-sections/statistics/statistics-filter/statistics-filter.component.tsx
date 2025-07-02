@@ -86,7 +86,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   return (
     <>
       <section className="lg:flex lg:justify-between block gap-48 lg:pt-0 pt-24">
-        <div className="flex flex-col lg:flex-row gap-16 w-full lg:w-2/5 lg:pt-0 pt-24">
+        <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-2/5 lg:pt-0 pt-24">
           <div className="block w-full">
             <FormLabel>Adress</FormLabel>
 
@@ -113,7 +113,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           </div>
         </div>
         {/* <p className="sm:hidden block text-large font-bold pt-32">Tidsperiod</p> */}
-        <div className="flex flex-col lg:flex-row gap-16 w-full lg:w-1/2 lg:pt-0 pt-16">
+        <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-1/2 lg:pt-0 pt-16">
           <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
             <div className="block w-full lg:pt-0 pt-16">
               <FormLabel>Visa statistik per</FormLabel>
@@ -146,7 +146,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </MenuBar>
             </div>
           </div>
-          <div className={cx(`w-full lg:w-2/3 lg:pt-0 pt-16`, mode === 'year' ? 'block' : 'hidden')}>
+          <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'year' ? 'block' : 'hidden')}>
             <FormLabel>År</FormLabel>
             <Select
               {...register('selectedYear')}
@@ -163,7 +163,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               ))}
             </Select>
           </div>
-          <div className={cx(`w-full lg:w-2/3 lg:pt-0 pt-16`, mode === 'month' ? 'block' : 'hidden')}>
+          <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'month' ? 'block' : 'hidden')}>
             <FormLabel>Månad</FormLabel>
             <Select
               className="w-full mt-8"
@@ -180,7 +180,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               ))}
             </Select>
           </div>
-          <div className={cx(`w-full lg:w-2/3 lg:pt-0 pt-16`, mode === 'day' ? 'block' : 'hidden')}>
+          <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'day' ? 'block' : 'hidden')}>
             <FormLabel>Dag</FormLabel>
             <DatePicker
               {...register('selectedDay')}
