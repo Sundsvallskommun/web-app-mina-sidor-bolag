@@ -3,7 +3,11 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
-import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
+import {
+  MergedMeasurementPoints,
+  MergedStatisticsMeasurementData,
+  StatisticsMeasurementData,
+} from '@interfaces/measurement-data';
 import React from 'react';
 import { useMediaQuery } from 'usehooks-ts';
 
@@ -15,6 +19,21 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 500px)');
   const { getValues } = useFormContext();
   const { data } = props;
+
+  const setYAxisDomain: () => number = () => {
+    if (data) {
+      const values: number[] = data?.measurementData?.[0]?.measurementPoints?.map(
+        (measurement: MergedMeasurementPoints) => measurement.value
+      ) ?? [0];
+      const previousValues: number[] = data?.measurementData?.[0]?.measurementPoints?.map(
+        (measurement: MergedMeasurementPoints) => (measurement?.previousValue > 0 ? measurement.previousValue : 0)
+      ) ?? [0];
+
+      return Math.ceil(Math.max(...values, ...previousValues) / 100) * 100;
+    } else {
+      return 0;
+    }
+  };
 
   return (
     data?.measurementData && (
@@ -32,7 +51,9 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             }}
           >
             <XAxis interval="preserveStartEnd" axisLine={false} tickLine={false} dataKey="chartTimestamp" />
-            {isLargeDevice && <YAxis axisLine={false} tickLine={false} dataKey="value" />}
+            {isLargeDevice && (
+              <YAxis axisLine={false} tickLine={false} dataKey="value" domain={[0, setYAxisDomain()]} />
+            )}
             <Tooltip
               content={
                 <CustomTooltip
