@@ -56,6 +56,8 @@ export const Consumption = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agreements, address]);
 
+  const thisMonth = dayjs();
+
   return (
     <section className="pb-80 visible">
       <h1>Aktuell förbrukning och produktion</h1>
@@ -65,7 +67,7 @@ export const Consumption = () => {
       ) : user && facilities?.length ? (
         <div>
           <p className="text-large mb-32">
-            Visar din förbrukning och produktion för {dayjs().format('MMMM YYYY').toLowerCase()}.
+            Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
           </p>
           {user.addresses.length > 1 && (
             <div className="sm:flex sm:flex-row items-center pb-24 gap-16 block">
@@ -82,7 +84,7 @@ export const Consumption = () => {
 
           <div className="w-full md:flex md:flex-wrap md:gap-24 block">
             {facilities.map((facility) => {
-              return <ConsumptionCard key={facility.facilityId} facility={facility} />;
+              return <ConsumptionCard key={facility.facilityId} facility={facility} date={thisMonth} />;
             })}
           </div>
         </div>

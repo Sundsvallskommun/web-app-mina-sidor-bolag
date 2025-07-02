@@ -13,9 +13,9 @@ export const handleMeasurementDataByMonthResponse: (data: Data) => {
   current: number;
   previous: number;
 } = (data) => {
-  const previous = data.fromDate?.slice(0, 4) + '-0' + (dayjs().month() + 1).toString() + '-01';
-  const current = data.toDate?.slice(0, 4) + '-0' + (dayjs().month() + 1).toString() + '-01';
-
+  const previous = dayjs(data.fromDate).startOf('month').format('YYYY-MM-DD');
+  const current = dayjs(data.toDate).startOf('month').format('YYYY-MM-DD');
+  
   const measurementSeries =
     data.measurementSeries?.filter(
       (measurement) => measurement.measurementType === 'Energy' || measurement.measurementType === 'energy'

@@ -9,22 +9,22 @@ import {
 } from '@services/measurement-data-service';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { ArrowDownRight, ArrowUpRight, Lightbulb, Waves } from 'lucide-react';
-import dayjs from 'dayjs';
+import { Dayjs } from 'dayjs';
 
-export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
-  const { facility } = props;
+export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayjs }) => {
+  const { facility, date } = props;
 
   const getParams = () => {
     const params = new URLSearchParams({});
-    const date = new Date();
 
-    const firstDay = new Date(date.getFullYear() - 1, date.getMonth(), 1, 1, 0, 0).toISOString();
-    const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0, 24, 59, 59).toISOString();
+    // Fetch 13 months of data so that we can compare the current month with the same month last year
+    const firstDay = date.subtract(1, 'year').startOf('month').toISOString();
+    const lastDay = date.endOf('month').toISOString();
 
     params.append('category', getCategoryFromInstalledBaseType(facility.type));
     params.append('facilityId', facility.facilityId ?? '');
-    params.append('fromDate', firstDay.toString());
-    params.append('toDate', lastDay.toString());
+    params.append('fromDate', firstDay);
+    params.append('toDate', lastDay);
     params.append('aggregateOn', 'MONTH');
 
     return params.toString();
@@ -42,9 +42,13 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
 
     return (
       <>
-        {diff && (
+        {typeof diff === 'number' && (
           <div className="flex items-start pt-16">
-            {diff <= 0.99 ? (
+            {diff === 0 ? (
+              <p className="flex items-center text-small pr-4">
+                <strong className="text-vattjom-text">{diff.toString()}% </strong>
+              </p>
+            ) : diff <= 0.99 ? (
               <p className="flex items-center text-small pr-4">
                 <Icon icon={<ArrowUpRight />} size={20} color="error" />
                 <strong className="text-error">+{diff.toString().slice(1)}% </strong>
@@ -56,8 +60,8 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem }) => {
               </p>
             )}
             <p className="text-small">
-              jämfört med {dayjs().subtract(1, 'year').format('MMMM YYYY').toLowerCase()} (
-              {measurementData?.previous ?? 0} kWh)
+              jämfört med {date.subtract(1, 'year').format('MMMM YYYY').toLowerCase()} ({measurementData?.previous ?? 0}{' '}
+              kWh)
             </p>
           </div>
         )}
