@@ -9,7 +9,7 @@ import {
   StatisticsMeasurementData,
 } from '@interfaces/measurement-data';
 import React from 'react';
-import { useMediaQuery } from 'usehooks-ts';
+import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 
 export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -18,6 +18,7 @@ export interface ConsumptionChartProps {
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 500px)');
   const { getValues } = useFormContext();
+  const { isDarkMode } = useDarkMode();
   const { data } = props;
 
   const setYAxisDomain: () => number = () => {
@@ -50,9 +51,21 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
               bottom: 0,
             }}
           >
-            <XAxis interval="preserveStartEnd" axisLine={false} tickLine={false} dataKey="chartTimestamp" />
+            <XAxis
+              interval="preserveStartEnd"
+              axisLine={false}
+              tickLine={false}
+              dataKey="chartTimestamp"
+              tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
+            />
             {isLargeDevice && (
-              <YAxis axisLine={false} tickLine={false} dataKey="value" domain={[0, setYAxisDomain()]} />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                dataKey="value"
+                domain={[0, setYAxisDomain()]}
+                tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
+              />
             )}
             <Tooltip
               content={
@@ -67,9 +80,22 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 />
               }
             />
-            <Bar dataKey="value" fill="#1E3158" radius={[4, 4, 0, 0]} stroke="#1E3158" strokeWidth="1" />
+            <Bar
+              className="dark:bg-background-content"
+              dataKey="value"
+              fill={isDarkMode ? '#FAE9E7' : '#600724'}
+              radius={[4, 4, 0, 0]}
+              stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+              strokeWidth="1"
+            />
             {getValues().year && (
-              <Bar dataKey="previousValue" fill="#FAFAFA" radius={[4, 4, 0, 0]} stroke="#005595" strokeWidth="1" />
+              <Bar
+                dataKey="previousValue"
+                fill={isDarkMode ? '#2F2E2E' : '#FAE9E7'}
+                radius={[4, 4, 0, 0]}
+                stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+                strokeWidth="1"
+              />
             )}
           </BarChart>
         </ResponsiveContainer>

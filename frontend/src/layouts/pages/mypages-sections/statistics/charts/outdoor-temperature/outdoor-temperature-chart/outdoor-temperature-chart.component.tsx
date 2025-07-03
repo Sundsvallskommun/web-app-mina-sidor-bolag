@@ -4,7 +4,7 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
-import { useMediaQuery } from 'usehooks-ts';
+import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 
 export interface OutdoorTemperatureChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -12,6 +12,7 @@ export interface OutdoorTemperatureChartProps {
 
 export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 500px)');
+  const { isDarkMode } = useDarkMode();
 
   const { getValues } = useFormContext();
   const { data } = props;
@@ -38,8 +39,11 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               axisLine={false}
               tickLine={false}
               dataKey="chartTimestamp"
+              tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
             />
-            {isLargeDevice && <YAxis axisLine={false} tickLine={false} />}
+            {isLargeDevice && (
+              <YAxis axisLine={false} tickLine={false} tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }} />
+            )}
             <Tooltip
               content={
                 <CustomTooltip
@@ -53,12 +57,18 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
                 />
               }
             />
-            <Line type="monotone" dataKey="value" stroke="#004070" strokeWidth={2} dot={false} />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+              strokeWidth={2}
+              dot={false}
+            />
             {getValues().year && (
               <Line
                 type="monotone"
                 dataKey="previousValue"
-                stroke="#A90074"
+                stroke={isDarkMode ? '#B5CFE3' : '#005595'}
                 strokeDasharray="5 5"
                 strokeWidth={2}
                 dot={false}
