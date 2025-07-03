@@ -7,6 +7,7 @@ import { ConsumptionChart } from '@layouts/pages/mypages-sections/statistics/cha
 import { BarChart3Icon, TableIcon } from 'lucide-react';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
 import dayjs from 'dayjs';
+import { useDarkMode } from 'usehooks-ts';
 
 export interface ElectricityConsumptionProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -18,6 +19,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
   const { data, isFetching, isPreviousFetching } = props;
   const [current, setCurrent] = useState<number>(0);
   const { getValues } = useFormContext();
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div>
@@ -38,7 +40,14 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                 <div className="flex md:justify-start justify-center">
                   <div className="flex w-90 md:mx-auto items-center md:left">
                     <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="17" height="17" rx="2" ry="2" fill="#1E3158" />
+                      <rect
+                        width="17"
+                        height="17"
+                        rx="2"
+                        ry="2"
+                        fill={isDarkMode ? '#FAE9E7' : '#600724'}
+                        stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+                      />
                     </svg>
                     <p className="pl-8">
                       {dayjs(data?.measurementData?.[0].measurementPoints?.[0].timestamp).format('YYYY')}
@@ -46,8 +55,14 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                   </div>
 
                   <div className="flex w-90 items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 19 19" fill="none">
-                      <rect width="17" height="17" rx="3.5" stroke="#005595" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 19 19">
+                      <rect
+                        width="17"
+                        height="17"
+                        rx="3.5"
+                        fill={isDarkMode ? '#2F2E2E' : '#FAE9E7'}
+                        stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+                      />
                     </svg>
                     <p className="pl-8"> {getValues().year}</p>
                   </div>

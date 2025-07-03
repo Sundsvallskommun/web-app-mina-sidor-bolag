@@ -34,14 +34,14 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
                 {getValues().year && current === 0 && (
                   <div className="flex md:justify-start justify-center justify-items-center">
                     <div className="flex w-90 items-center md:left">
-                      <Divider className="max-w-30 border-2 border-[#004070]" />
+                      <Divider className="max-w-30 border-2 border-[#600724] dark:border-[#FAE9E7]" />
                       <p className="pl-16">
                         {dayjs(data?.measurementData?.[0].measurementPoints?.[0].timestamp).format('YYYY')}
                       </p>
                     </div>
 
                     <div className="flex w-90 items-center ml-16">
-                      <Divider className="max-w-30 border-2 border-[#A90074] border-dashed" />
+                      <Divider className="max-w-30 border-2 border-[#005595] dark:border-[#B5CFE3] border-dashed" />
                       <p className="pl-16"> {getValues().year}</p>
                     </div>
                   </div>
