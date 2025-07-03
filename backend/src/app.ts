@@ -77,6 +77,7 @@ const samlStrategy = new Strategy(
     wantAuthnResponseSigned: false,
     audience: false,
     logoutCallbackUrl: SAML_LOGOUT_CALLBACK_URL,
+    acceptedClockSkewMs: -1,
   },
   async function (profile: Profile, done: VerifiedCallback) {
     if (!profile) {
