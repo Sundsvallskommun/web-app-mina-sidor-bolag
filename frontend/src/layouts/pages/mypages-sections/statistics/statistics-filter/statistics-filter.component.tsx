@@ -6,6 +6,7 @@ import { User } from '@interfaces/user';
 import { useFormContext } from 'react-hook-form';
 import { useEffect, useMemo, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
+import { useSearchParams } from 'next/navigation';
 import dayjs, { Dayjs } from 'dayjs';
 import {
   generateSelectableMonths,
@@ -17,6 +18,9 @@ export interface StatisticsFilterProps {
 }
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
+  const searchParams = useSearchParams();
+  const linkedFacilityId = searchParams?.get('installation');
+
   const { closeHandler } = props;
   const { register, watch, setValue, getValues } = useFormContext();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
@@ -61,6 +65,19 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facilities, address]);
 
+  useEffect(() => {
+    if (linkedFacilityId) {
+      const facility = user?.facilities.find((f) => f.facilityId === linkedFacilityId);
+      if (facility?.address?.street && facility?.facilityId) {
+        setValue('address', facility.address?.street ?? '');
+        setTimeout(() => {
+          setValue('facilityId', facility.facilityId);
+        }, 100);
+      }
+    }
+    setDate(dayjs(), mode);
+  }, []);
+
   const setDate = (date: Dayjs, by: 'year' | 'month' | 'day') => {
     setValue('selectedYear', date.startOf('year').format('YYYY-MM-DD'), {
       shouldDirty: true,
@@ -78,10 +95,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
       shouldDirty: true,
     });
   };
-
-  useEffect(() => {
-    setDate(dayjs(), mode);
-  }, []);
 
   return (
     <>
