@@ -67,13 +67,13 @@ export const AgreementComponent = (props: { category: string; facilityId: string
       }
     >
       {agreement && facility ? (
-        <section className="bg-background-content md:px-32 px-20 md:pb-32 pb-20 rounded-cards shadow-50">
-          <div className="md:pt-0 pt-24 mb-64">
+        <section className="bg-background-content md:px-32 px-20 md:pb-32 pb-20 rounded-cards shadow-50 pt-24 md:pt-28">
+          <div className="pt-0 mb-64">
             {agreement?.map((a, index) => {
               if (a.mainAgreement) {
                 return (
                   <div key={`main-agreement`}>
-                    <div className="md:flex items-center justify-between">
+                    <div className="md:flex items-center justify-between mb-36 md:mb-30">
                       <div className="flex md:items-center items-start">
                         <PaddedListIcon color={a.category.color} iconName={a.category.icon} />
 
@@ -85,9 +85,15 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                           <p>{a.siteAddress}</p>
                         </div>
                       </div>
-                      <Button className="md:w-1/4 md:p-0 w-full my-40" rightIcon={<ArrowRight />} variant="secondary">
-                        <Link href={`../../statistik?installation=${a.facilityId}`}>Visa statistik</Link>
-                      </Button>
+                      {a.production ? null : (
+                        <Button
+                          className="md:w-1/4 md:p-0 mt-40 md:mt-0 w-full"
+                          rightIcon={<ArrowRight />}
+                          variant="secondary"
+                        >
+                          <Link href={`../../statistik?installation=${a.facilityId}`}>Visa statistik</Link>
+                        </Button>
+                      )}
                     </div>
 
                     <div>
