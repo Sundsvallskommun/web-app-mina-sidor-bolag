@@ -1,7 +1,7 @@
 'use client';
 
-import { ArrowRight, Leaf, Wrench } from 'lucide-react';
-import { Breadcrumb, Button, Divider, Icon, Spinner } from '@sk-web-gui/react';
+import { ArrowRight, ChartNoAxesCombined, Leaf, Recycle, Waves, Wrench } from 'lucide-react';
+import { Breadcrumb, Button, Divider, Icon, Label, Spinner } from '@sk-web-gui/react';
 import NextLink from 'next/link';
 import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.component';
 import { useApi } from '@services/api-service';
@@ -46,6 +46,25 @@ export const AgreementComponent = (props: { category: string; facilityId: string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, facilityId, agreement]);
 
+  const getAdditionalAgreementIcon = (description: string) => {
+    switch (description) {
+      case 'Bra miljöval':
+        return <Icon.Padded icon={<Leaf />} size={30} inverted color="gronsta" />;
+      case 'Klimatneutral fjärrvärme':
+        return <Icon.Padded icon={<Waves />} className="rotate-90" size={30} inverted color="gronsta" />;
+      case 'Serviceavtal Företag':
+        return <Icon.Padded icon={<Wrench />} size={30} inverted />;
+      case '100% återvunnet':
+        return <Icon.Padded icon={<Recycle />} size={30} inverted color="gronsta" />;
+      case 'Mätvärdesavtal':
+        return <Icon.Padded icon={<ChartNoAxesCombined />} size={30} inverted />;
+      case 'Serviceavtal Privat':
+        return <Icon.Padded icon={<Wrench />} size={30} inverted />;
+      default:
+        return <Icon.Padded icon={<Wrench />} size={30} inverted />;
+    }
+  };
+
   return (
     <PagesBreadcrumbsLayout
       breadcrumbs={
@@ -89,6 +108,18 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                       </Button>
                     </div>
 
+                    {!a.active && (
+                      <div className="rounded-cards border-1 border-error-surface-primary p-16 mt-16 mb-56">
+                        <Label color="error" inverted rounded>
+                          Frånkopplad
+                        </Label>
+                        <p className="pt-16 m-0">
+                          Avtalet är frånkopplat och din anläggning har därför ingen strömförsörjning. Kontakta{' '}
+                          {a.category.contractor}s kundtjänst för mer information.
+                        </p>
+                      </div>
+                    )}
+
                     <div>
                       <Divider.Section>Huvudavtal</Divider.Section>
                       <div className="md:flex justify-between pt-24">
@@ -128,11 +159,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                       key={`additional-agreement}`}
                     >
                       <div className="flex items-center w-[250px] md:pb-0 pb-16">
-                        {a.description === 'Bra Miljöval' ? (
-                          <Icon.Padded icon={<Leaf />} size={30} inverted color="gronsta" />
-                        ) : (
-                          <Icon.Padded icon={<Wrench />} size={30} inverted />
-                        )}
+                        {getAdditionalAgreementIcon(a.description)}
                         <div className="text-large font-bold pl-8 pr-28">{a.description}</div>
                       </div>
 
