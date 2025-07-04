@@ -60,6 +60,8 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             />
             {isLargeDevice && (
               <YAxis
+                dx={-50}
+                textAnchor="left"
                 axisLine={false}
                 tickLine={false}
                 dataKey="value"

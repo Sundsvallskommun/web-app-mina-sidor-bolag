@@ -42,7 +42,14 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
             />
             {isLargeDevice && (
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }} />
+              <YAxis
+                dx={-30}
+                width={40} 
+                textAnchor="left"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
+              />
             )}
             <Tooltip
               content={
