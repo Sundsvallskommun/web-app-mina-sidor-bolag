@@ -16,7 +16,7 @@ export interface ConsumptionChartProps {
 }
 
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
-  const isLargeDevice = useMediaQuery('(min-width: 500px)');
+  const isLargeDevice = useMediaQuery('(min-width: 480px)');
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
   const { data } = props;
@@ -38,7 +38,8 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
 
   return (
     data?.measurementData && (
-      <div style={{ maxWidth: 1000, height: 500 }}>
+      <div className="relative" style={{ maxWidth: 1000, height: 500 }}>
+        <span className="absolute bottom-[100%] left-0 hidden sm:block"><strong>kWh</strong></span>
         <ResponsiveContainer width="100%" height="100%" className="my-56">
           <BarChart
             width={1000}

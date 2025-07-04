@@ -11,7 +11,7 @@ export interface OutdoorTemperatureChartProps {
 }
 
 export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => {
-  const isLargeDevice = useMediaQuery('(min-width: 500px)');
+  const isLargeDevice = useMediaQuery('(min-width: 480px)');
   const { isDarkMode } = useDarkMode();
 
   const { getValues } = useFormContext();
