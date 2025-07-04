@@ -7,6 +7,7 @@ import { InvoicesResponse } from "@data-contracts/invoices/data-contracts";
 import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
 import { User } from "@interfaces/user";
+import { useAppContext } from "@contexts/app.context";
 
 interface InvoiceTableContentProps {
     pageSize: number;
@@ -16,6 +17,7 @@ interface InvoiceTableContentProps {
 }
 
 export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPending}: InvoiceTableContentProps) => {
+    const { representingName } = useAppContext();
     const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
     const [activePage, setActivePage] = useState(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
@@ -47,7 +49,7 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
     useEffect(() => {
         setActivePage(1);
         refetch();
-    }, [refetch, setActivePage, facilityIds]);
+    }, [refetch, setActivePage, facilityIds, representingName]);
 
     useEffect(() => {
         refetch();
@@ -130,7 +132,7 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
             ),
         },
     ], [pdfIsLoading, setPdfIsLoading, getOrganizationName]);
-
+        
     if (isFetched && !rows.length)
         return emptyComponent
             ? emptyComponent

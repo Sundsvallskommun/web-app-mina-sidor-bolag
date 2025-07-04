@@ -6,6 +6,7 @@ import { useApi } from "@services/api-service";
 import { InvoicesCardEntry } from "./invoices-card-entry.component";
 import { Button, Spinner } from "@sk-web-gui/react";
 import { User } from "@interfaces/user";
+import { useAppContext } from "@contexts/app.context";
 
 interface InvoiceTableContentProps {
     pageSize: number;
@@ -15,6 +16,7 @@ interface InvoiceTableContentProps {
 }
 
 export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPending}: InvoiceTableContentProps) => {
+    const { representingName } = useAppContext();
     const [activePage, setActivePage] = useState<number>(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
     const previousRows = useRef<IInvoice[]>([]);
@@ -51,7 +53,7 @@ export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPen
         previousRows.current = [];
         setActivePage(1);
         refetch();
-    }, [refetch, setActivePage, facilityIds]);
+    }, [refetch, setActivePage, facilityIds, representingName]);
 
     useEffect(() => {
         if (!isFetched)

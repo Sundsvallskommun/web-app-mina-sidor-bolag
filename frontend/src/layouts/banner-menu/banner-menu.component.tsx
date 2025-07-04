@@ -2,8 +2,6 @@
 
 import { MenuBar, cx, useThemeQueries } from '@sk-web-gui/react';
 import { usePathname } from 'next/navigation';
-import { RepresentingEntity, RepresentingMode } from '../../interfaces/app';
-import { useApi } from '../../services/api-service';
 import { useBannerMenuItems } from './banner-menu-items';
 import { useAppContext } from '@contexts/app.context';
 
@@ -11,17 +9,7 @@ export const BannerMenu: React.FC = () => {
   const pathname = usePathname();
   const bannerMenuItems = useBannerMenuItems();
   const { isMinDesktop } = useThemeQueries();
-  const { representingMode } = useAppContext();
-
-  const { data: representingEntity } = useApi<RepresentingEntity>({
-    url: '/representing',
-    method: 'get',
-  });
-
-  const representingLabel =
-    representingMode === RepresentingMode.BUSINESS
-      ? representingEntity?.BUSINESS?.organizationName
-      : representingEntity?.PRIVATE?.name;
+  const { representingName: representingLabel } = useAppContext();
 
   return (
     <div className="w-full bg-brand-primary">
