@@ -8,6 +8,8 @@ import { emptyInvoicesList, invoicesHandler } from "@services/invoice-service";
 import { useApi } from "@services/api-service";
 import { User } from "@interfaces/user";
 import { useAppContext } from "@contexts/app.context";
+import { isEqual } from "lodash";
+import { RepresentingMode } from "@interfaces/app";
 
 interface InvoiceTableContentProps {
     pageSize: number;
@@ -17,11 +19,15 @@ interface InvoiceTableContentProps {
 }
 
 export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPending}: InvoiceTableContentProps) => {
-    const { representingName } = useAppContext();
+    const { representingMode, representingName } = useAppContext();
     const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
     const [activePage, setActivePage] = useState(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
     const totalCount = useRef<number>(0);
+
+    const previousActivePage = useRef<number>(-1);
+    const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
+    const previousFacilityIds = useRef<string[] | undefined>(undefined);
 
     const searchParams = new URLSearchParams({});
     searchParams.append('limit', pageSize.toString());
@@ -29,17 +35,20 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
     if (facilityIds?.length)
         searchParams.append('facilityId', facilityIds.toString());
 
+    const paginationChanged = activePage !== previousActivePage.current;
+    const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
+    const representingModeChanged = representingMode !== previousRepresentingMode.current;
+
     const base = onlyPending ? '/invoices/pending' : '/invoices';
     const {
         data= emptyInvoicesList,
         isFetched,
-        refetch,
     } = useApi<InvoicesResponse, Error, InvoicesData>({
         queryKey: [base, searchParams.toString()],
         url: `${base}?${searchParams.toString()}`,
         method: 'get',
         queryOptions: {
-            enabled: false,
+            enabled: paginationChanged || facilityIdsChanged,
         },
         dataHandler: invoicesHandler,
     });
@@ -47,18 +56,19 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
     const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
     useEffect(() => {
+        previousActivePage.current = -1;
         setActivePage(1);
-        refetch();
-    }, [refetch, setActivePage, facilityIds, representingName]);
+        setRows([]);
+    }, [setActivePage, setRows, facilityIds, representingName]);
 
-    useEffect(() => {
-        refetch();
-    }, [refetch, activePage]);
 
     useEffect(() => {
         if (!isFetched)
             return;
 
+        previousActivePage.current = activePage;
+        previousFacilityIds.current = facilityIds;
+        previousRepresentingMode.current = representingMode;
         totalCount.current = data.totalCount;
         setRows(data.invoices);
     }, [setRows, isFetched, data]);
@@ -132,18 +142,18 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
             ),
         },
     ], [pdfIsLoading, setPdfIsLoading, getOrganizationName]);
-        
-    if (isFetched && !rows.length)
-        return emptyComponent
-            ? emptyComponent
-            : <p>Inga fakturor</p>;
-
-    if (!isFetched && !rows.length)
+    
+    if ((!isFetched && !rows.length) || representingModeChanged)
         return (
             <div className="w-full flex justify-center p-md">
                 <Spinner aria-label="Hämtar fakturor" />
             </div>
         );
+
+    if (isFetched && !rows.length)
+        return emptyComponent
+            ? emptyComponent
+            : <p>Inga fakturor</p>;
 
     const pageCount = Math.ceil(totalCount.current / pageSize);
 

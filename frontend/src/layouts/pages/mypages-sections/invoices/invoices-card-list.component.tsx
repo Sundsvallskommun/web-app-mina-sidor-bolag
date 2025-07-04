@@ -7,6 +7,8 @@ import { InvoicesCardEntry } from "./invoices-card-entry.component";
 import { Button, Spinner } from "@sk-web-gui/react";
 import { User } from "@interfaces/user";
 import { useAppContext } from "@contexts/app.context";
+import { RepresentingMode } from "@interfaces/app";
+import { isEqual } from "lodash";
 
 interface InvoiceTableContentProps {
     pageSize: number;
@@ -16,11 +18,15 @@ interface InvoiceTableContentProps {
 }
 
 export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPending}: InvoiceTableContentProps) => {
-    const { representingName } = useAppContext();
+    const { representingMode, representingName } = useAppContext();
     const [activePage, setActivePage] = useState<number>(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
     const previousRows = useRef<IInvoice[]>([]);
     const totalCount = useRef<number>(0);
+
+    const previousActivePage = useRef<number>(-1);
+    const previousFacilityIds = useRef<string[] | undefined>(undefined);
+    const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
 
     const searchParams = new URLSearchParams({});
     searchParams.append('limit', pageSize.toString());
@@ -28,17 +34,20 @@ export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPen
     if (facilityIds?.length)
         searchParams.append('facilityId', facilityIds.toString());
 
+    const paginationChanged = activePage !== previousActivePage.current;
+    const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
+    const representingModeChanged = representingMode !== previousRepresentingMode.current;
+
     const base = onlyPending ? '/invoices/pending' : '/invoices';
     const {
         data= emptyInvoicesList,
         isFetched,
-        refetch,
     } = useApi<InvoicesResponse, Error, InvoicesData>({
         queryKey: [base, searchParams.toString()],
         url: `${base}?${searchParams.toString()}`,
         method: 'get',
         queryOptions: {
-            enabled: false,
+            enabled: paginationChanged || facilityIdsChanged,
         },
         dataHandler: invoicesHandler,
     });
@@ -46,22 +55,23 @@ export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPen
     const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
     useEffect(() => {
-        refetch();
-    }, [refetch, activePage]);
-
-    useEffect(() => {
+        previousActivePage.current = -1;
         previousRows.current = [];
         setActivePage(1);
-        refetch();
-    }, [refetch, setActivePage, facilityIds, representingName]);
+        setRows([]);
+    }, [setActivePage, setRows, facilityIds, representingName]);
 
     useEffect(() => {
         if (!isFetched)
             return;
 
+        previousActivePage.current = activePage;
+        previousFacilityIds.current = facilityIds;
+        previousRepresentingMode.current = representingMode;
+
         const totalRows = [...previousRows.current, ...data.invoices];
-        previousRows.current = totalRows;
         totalCount.current = data.totalCount;
+        previousRows.current = totalRows;
         setRows(totalRows);
     }, [setRows, isFetched, data]);
 
@@ -69,17 +79,17 @@ export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPen
         return userData?.relations.find(relation => relation.organizationNumber === organizationNumber)?.organizationName ?? 'Okänd';
     }, [userData]);
 
-    if (isFetched && !rows.length)
-        return emptyComponent
-            ? emptyComponent
-            : <p>Inga fakturor</p>;
-
-    if (!isFetched && !rows.length)
+    if ((!isFetched && !rows.length) || representingModeChanged)
         return (
             <div className="w-full flex justify-center p-md">
                 <Spinner aria-label="Hämtar fakturor" />
             </div>
         );
+
+    if (isFetched && !rows.length)
+        return emptyComponent
+            ? emptyComponent
+            : <p>Inga fakturor</p>;
 
     const canFetch = rows.length < totalCount.current;
 
