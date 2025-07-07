@@ -34,6 +34,11 @@ export class InvoicesController {
   async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
     const { representing } = req?.session;
     const { facilityId, page, limit } = req.query;
+    if (!facilityId) {
+      // Facility ids must be provided. Together with the filter on facilities in User Controller,
+      // this ensures that only invoices for active (plus three years back) facilities are fetched.
+      throw new HttpException(400, 'Bad Request. Facility id:s are required');
+    }
 
     const partyId = getRepresentingPartyId(representing);
     if (!partyId) {
@@ -66,7 +71,7 @@ export class InvoicesController {
     return { data, message: 'success' };
   }
 
-  // TODO: Remove itterative logic once API supports passing multiple status filters
+  // TODO: Remove iterative logic once API supports passing multiple status filters
   @Get('/invoices/pending')
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @UseBefore(authMiddleware)
@@ -75,10 +80,14 @@ export class InvoicesController {
     const { facilityId, page, limit } = req.query;
 
     console.log('Using representing:', representing);
+    if (!facilityId) {
+      // See comment in getInvoices method.
+      throw new HttpException(400, 'Bad Request. Facility id:s are required');
+    }
 
     const partyId = getRepresentingPartyId(representing);
     if (!partyId) {
-      throw new HttpException(400, 'Bad Request');
+      throw new HttpException(400, 'Bad Request. Party id is required');
     }
 
     const data = Object.assign({}, emptyInvoice);

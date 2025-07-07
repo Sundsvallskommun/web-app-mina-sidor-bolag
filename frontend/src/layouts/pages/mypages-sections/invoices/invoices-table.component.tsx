@@ -16,6 +16,7 @@ interface InvoiceTableContentProps {
 }
 
 export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPending}: InvoiceTableContentProps) => {
+    const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
     const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
     const [activePage, setActivePage] = useState(1);
     const [rows, setRows] = useState<IInvoice[]>([]);
@@ -24,8 +25,12 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
     const searchParams = new URLSearchParams({});
     searchParams.append('limit', pageSize.toString());
     searchParams.append('page', activePage.toString());
-    if (facilityIds?.length)
-        searchParams.append('facilityId', facilityIds.toString());
+    if (facilityIds?.length) {
+      searchParams.append('facilityId', facilityIds.toString());
+    }
+    if (userData?.facilities?.length) {
+      searchParams.append('facilityId', userData.facilities.map((f) => f.facilityId).toString());
+    }
 
     const base = onlyPending ? '/invoices/pending' : '/invoices';
     const {
@@ -42,7 +47,6 @@ export const InvoicesTable = ({pageSize, facilityIds, emptyComponent, onlyPendin
         dataHandler: invoicesHandler,
     });
 
-    const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
     useEffect(() => {
         setActivePage(1);

@@ -13,6 +13,7 @@ import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contr
 import { InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+import dayjs from 'dayjs';
 
 interface UserData {
   name: string;
@@ -25,6 +26,15 @@ interface UserData {
 export class PatchUserSettingsDto {
   @IsIn(['untilRemoved', 'oneMonth', 'twoWeeks'])
   feedbackLifespan: string;
+}
+
+function facilityActiveLastThreeYears(installation: InstalledBaseItem): boolean {
+  // Facilities are considered active if the `facilityCommitmentEndDate` is undefined or within the last three years.
+  const facilityIsActive =
+    typeof installation.facilityCommitmentEndDate === 'undefined' ||
+    dayjs(installation.facilityCommitmentEndDate).isAfter(dayjs().subtract(3, 'year')) ||
+    dayjs(installation.facilityCommitmentEndDate).isSame(dayjs(), 'day');
+  return facilityIsActive;
 }
 
 @Controller()
@@ -111,7 +121,7 @@ export class UserController {
             .then(res => {
               const installedBaseRes: InstalledBaseResponse = res.data;
               const customer = installedBaseRes.installedBaseCustomers[0];
-              return customer.items;
+              return customer.items.filter(i => facilityActiveLastThreeYears(i));
             });
           installedBasePromises.push(thisPromise);
         } catch (error) {
