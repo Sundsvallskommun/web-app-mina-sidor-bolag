@@ -36,16 +36,17 @@ export const Consumption = () => {
     if (user && agreements) {
       for (const agreementAddress in agreements) {
         if (agreementAddress === address) {
-          const agreementsFacilities: string[] = agreements[address].map(
+          const agreementsFacilities: string[] = agreements[address]?.map(
             (agreement: RefinedAgreement) => agreement.facilityId
           );
 
-          const filteredFacilities = user?.facilities.filter(
-            (facility: InstalledBaseItem) =>
-              (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
-              facility?.address?.street === address &&
-              agreementsFacilities.some((agreement) => agreement === facility?.facilityId)
-          );
+          const filteredFacilities =
+            user?.facilities?.filter(
+              (facility: InstalledBaseItem) =>
+                (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
+                facility?.address?.street === address &&
+                agreementsFacilities?.some((agreement) => agreement === facility?.facilityId)
+            ) ?? [];
 
           setFacilities(filteredFacilities);
         }
@@ -74,8 +75,8 @@ export const Consumption = () => {
               <strong>Adress</strong>
               <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
                 {user.addresses?.map((address) => (
-                  <Select.Option key={address.address}>
-                    {address.address ? address.address : 'Okänd adress'}
+                  <Select.Option key={address?.address ?? 'unknown'}>
+                    {address?.address ? address.address : 'Okänd adress'}
                   </Select.Option>
                 ))}
               </Select>

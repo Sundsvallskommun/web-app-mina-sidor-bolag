@@ -53,7 +53,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
   useEffect(() => {
     const filteredFacilities = user?.facilities
-      .filter(
+      ?.filter(
         (facility) =>
           facility?.address?.street === address &&
           facility.type !== 'Elhandel' &&
@@ -74,7 +74,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
   useEffect(() => {
     if (linkedFacilityId) {
-      const facility = user?.facilities.find((f) => f.facilityId === linkedFacilityId);
+      const facility = user?.facilities?.find((f) => f.facilityId === linkedFacilityId);
       if (facility?.address?.street && facility?.facilityId) {
         setValue('address', facility.address?.street ?? '');
         setTimeout(() => {
@@ -112,7 +112,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
             <Select {...register('address')} className="w-full mt-8">
               {user?.addresses
-                .filter((a) => a.address)
+                ?.filter((a) => a.address)
                 .sort((a, b) => (a.address > b.address ? 1 : -1))
                 .map((address) => (
                   <Select.Option key={address.address}>

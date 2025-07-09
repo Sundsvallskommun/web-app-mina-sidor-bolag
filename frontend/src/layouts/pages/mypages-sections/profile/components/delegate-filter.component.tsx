@@ -53,7 +53,7 @@ export const DelegateFilter = (props: {
       // Addresses are enabled if, for every facility on the address, there is some filter with exactly one rule that matches the facilityId
       const facilitiesOnAddress = user?.addresses
         ?.find((a) => a.address === adress)
-        ?.facilityIds.filter((id) => user?.facilities.find((f) => f.facilityId === id && f.type === prettyType));
+        ?.facilityIds.filter((id) => user?.facilities?.find((f) => f.facilityId === id && f.type === prettyType));
 
       const facilityIsEnabled = (facilityId) =>
         delegatedContactSetting?.delegate?.filters?.some(filterHasRuleForFacility(facilityId)) ?? false;
