@@ -26,36 +26,35 @@ export default function Invoices() {
         <div className="text-content">
           <h1>Dina fakturor</h1>
         </div>
-      </div> 
-      { userData && userData.addresses.length > 1 ? (
+      </div>
+      {userData && userData.addresses.length > 1 ? (
         <FormControl className="w-full desktop:w-fit">
-          <FormLabel>Visa fakturor per adress</FormLabel>                                
+          <FormLabel>Visa fakturor per adress</FormLabel>
           <Select className="w-full" title="address" size="md" onSelectValue={handleOnSelectAddress}>
             <Select.Option key="all" value="">
               Välj adress
             </Select.Option>
-            {
-              userData.addresses.map(({address, facilityIds}, index) => (
-                <Select.Option key={`${index}`} value={JSON.stringify(facilityIds)}>
-                  { address }
-                </Select.Option>
-              ))
-            }
+            {userData.addresses.map(({ address, facilityIds }, index) => (
+              <Select.Option key={`${index}`} value={JSON.stringify(facilityIds)}>
+                {address}
+              </Select.Option>
+            ))}
           </Select>
         </FormControl>
-      ): undefined }
-      <div className="flex flex-col gap-[6.4rem]">
-        <InvoicesList
-          heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
-          pageSize={24}
-          facilityIds={facilityIds}
-          onlyPending
-        />
-        <InvoicesList
-          heading={<h2 className="text-h3">Alla fakturor</h2>}
-          pageSize={12}
-          facilityIds={facilityIds}
-        />
+      ) : undefined}
+      <div className="flex flex-col gap-[6.4rem]" data-cy="invoices-wrapper">
+        <div data-cy="unhandled-invoices-table">
+          <InvoicesList
+            heading={<h2 className="text-h3">Ohanterade fakturor</h2>}
+            pageSize={24}
+            facilityIds={facilityIds}
+            onlyPending
+          />
+        </div>
+
+        <div data-cy="all-invoices-table">
+          <InvoicesList heading={<h2 className="text-h3">Alla fakturor</h2>} pageSize={12} facilityIds={facilityIds} />
+        </div>
       </div>
     </div>
   );

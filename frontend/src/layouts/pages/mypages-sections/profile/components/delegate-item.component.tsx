@@ -45,7 +45,7 @@ export const DelegateItem = ({
 
   const FormComponent = () => {
     return (
-      <div>
+      <div data-cy="form-component">
         <FormBox name="contactSetting.alias" header="Namn på kontakt" isEdit>
           <div className="mb-40"></div>
         </FormBox>
@@ -99,6 +99,7 @@ export const DelegateItem = ({
               });
             }}
             className="my-16"
+            data-cy="remove-contact-person-button"
           >
             Ta bort kontaktperson
           </Button>
@@ -119,12 +120,13 @@ export const DelegateItem = ({
             openHandler();
           }}
           className="mt-8 sm:w-auto w-full"
+          data-cy="add-delegate-button"
         >
           Lägg till kontaktperson
         </Button>
       ) : (
         <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards sm:flex sm:items-center sm:justify-between">
-          <div className="sm:pb-0 pb-16">
+          <div className="sm:pb-0 pb-16" data-cy="delegate-alias">
             {delegatedContactSetting?.contactSetting?.alias ?? EmptyField('Inget alias tillagt')}
           </div>
           <Button
@@ -136,6 +138,7 @@ export const DelegateItem = ({
               openHandler();
             }}
             className="sm:w-auto w-full"
+            data-cy="edit-delegate"
           >
             Redigera
           </Button>
@@ -171,11 +174,14 @@ export const DelegateItem = ({
                   closeHandler();
                 }}
                 variant="secondary"
+                data-cy="cancel-delegate-form-button"
               >
                 Avbryt
               </Button>
 
-              <Button type="submit">{newItem ? 'Lägg till' : 'Spara'}</Button>
+              <Button type="submit" data-cy="save-delegate-button">
+                {newItem ? 'Lägg till' : 'Spara'}
+              </Button>
             </div>
           </Modal.Footer>
         </DelegatedContactSettingsFormLogic>

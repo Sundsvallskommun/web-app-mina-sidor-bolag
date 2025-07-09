@@ -74,7 +74,10 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayj
   };
 
   return (
-    <article className="grow md:min-w-[338px] max-w-[520px] min-h-[165px] bg-background-content shadow-50 rounded-cards p-16 lg:my-0 mb-24">
+    <article
+      className="grow md:min-w-[338px] max-w-[520px] min-h-[165px] bg-background-content shadow-50 rounded-cards p-16 lg:my-0 mb-24"
+      data-cy={`${facility.facilityId}`}
+    >
       <div className="flex gap-12 pb-16">
         <div className="flex items-center">
           <div className={`bg-vattjom-background-200 flex justify-center items-center h-32 w-32 p-4 rounded-button`}>

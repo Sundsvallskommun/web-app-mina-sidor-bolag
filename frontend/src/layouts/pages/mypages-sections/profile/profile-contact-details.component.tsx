@@ -59,31 +59,38 @@ export const ContactDetails = () => {
       <ContactSettingsFormLogic onSubmitSuccess={() => setIsEditFalse()} formData={contactsettings}>
         <>
           <FormBox header="Namn">
-            <div>{contactsettings?.name ?? EmptyField('Inget namn tillagt')}</div>{' '}
+            <div data-cy="form-box-name">{contactsettings?.name ?? EmptyField('Inget namn tillagt')}</div>{' '}
           </FormBox>
           <Divider className="my-16" />
           <FormBox header="Adress">
-            <div>{getAddress(contactsettings?.address) ?? EmptyField('Ingen address tillagd')}</div>
+            <div data-cy="form-box-address">
+              {getAddress(contactsettings?.address) ?? EmptyField('Ingen address tillagd')}
+            </div>
           </FormBox>
           <Divider className="my-16" />
 
           <FormBox name="email" header={isEditEmail ? 'Ändra e-postadress' : 'E-postadress'} isEdit={isEditEmail}>
             {isEditEmail ? (
               <div className="flex gap-16 mt-16">
-                <Button variant="secondary" onClick={() => setIsEditEmail(false)}>
+                <Button variant="secondary" data-cy="cancel-edit-email-button" onClick={() => setIsEditEmail(false)}>
                   Avbryt
                 </Button>
-                <Button type="submit">Spara</Button>
+                <Button type="submit" data-cy="save-email-button">
+                  Spara
+                </Button>
               </div>
             ) : (
               <>
-                <div>{contactsettings?.email ?? EmptyField('Ingen e-postaddress tillagd')}</div>
+                <div data-cy="form-box-email">
+                  {contactsettings?.email ?? EmptyField('Ingen e-postaddress tillagd')}
+                </div>
                 <Button
                   size="md"
                   variant="secondary"
                   leftIcon={<Icon icon={<Pen />} />}
                   onClick={() => setIsEditEmail(true)}
                   className="mt-32"
+                  data-cy="edit-email-button"
                 >
                   Ändra e-postadress
                 </Button>
@@ -95,20 +102,23 @@ export const ContactDetails = () => {
           <FormBox name="phone" header={isEditPhone ? 'Ändra mobilnummer' : 'Mobilnummer'} isEdit={isEditPhone}>
             {isEditPhone ? (
               <div className="flex gap-16 mt-16">
-                <Button variant="secondary" onClick={() => setIsEditPhone(false)}>
+                <Button variant="secondary" data-cy="cancel-edit-phone-button" onClick={() => setIsEditPhone(false)}>
                   Avbryt
                 </Button>
-                <Button type="submit">Spara</Button>
+                <Button type="submit" data-cy="save-phone-button">
+                  Spara
+                </Button>
               </div>
             ) : (
               <>
-                <div>{contactsettings?.phone ?? EmptyField('Inget mobilnummer tillagt')}</div>
+                <div data-cy="form-box-phone">{contactsettings?.phone ?? EmptyField('Inget mobilnummer tillagt')}</div>
                 <Button
                   size="md"
                   variant="secondary"
                   leftIcon={<Icon icon={<Pen />} />}
                   onClick={() => setIsEditPhone(true)}
                   className="mt-32"
+                  data-cy="edit-phone-button"
                 >
                   Ändra mobilnummer
                 </Button>

@@ -47,7 +47,9 @@ export const TodoListItem = (props: TodoListItemProps) => {
         <div>
           <p className="text-large font-bold m-0">{title}</p>
 
-          <div className="md:flex items-center text-small text-secondary">{subTitle}</div>
+          <div className="md:flex items-center text-small text-secondary" data-cy="todo-list-item-subtitle">
+            {subTitle}
+          </div>
         </div>
       </div>
 

@@ -135,7 +135,12 @@ export const DelegateFilter = (props: {
   return (
     <>
       <FormControl fieldset className="my-12">
-        <Checkbox disabled={!props.isEdit} onChange={handleCategoryChange} checked={categoryIsEnabled}>
+        <Checkbox
+          disabled={!props.isEdit}
+          onChange={handleCategoryChange}
+          checked={categoryIsEnabled}
+          data-cy="delegation-all-addresses-checkbox"
+        >
           Alla adresser (gäller även framtida adresser)
         </Checkbox>
       </FormControl>

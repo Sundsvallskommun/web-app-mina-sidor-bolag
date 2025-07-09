@@ -1,32 +1,29 @@
 'use client';
 
-import { InvoicesResponse } from "@data-contracts/invoices/data-contracts";
-import { useApi } from "@services/api-service";
-import { Spinner } from "@sk-web-gui/react";
-import { TodoListItem } from "./todo-list-item.component";
+import { InvoicesResponse } from '@data-contracts/invoices/data-contracts';
+import { useApi } from '@services/api-service';
+import { Spinner } from '@sk-web-gui/react';
+import { TodoListItem } from './todo-list-item.component';
 
 export const Todos = () => {
   const searchParams = new URLSearchParams({});
   searchParams.append('limit', `${1}`);
   searchParams.append('page', `${1}`);
 
-  const {
-    data: invoices,
-    isFetching: invoicesIsFetching,
-  } = useApi<InvoicesResponse>({
+  const { data: invoices, isFetching: invoicesIsFetching } = useApi<InvoicesResponse>({
     queryKey: ['/invoices/pending', searchParams.toString()],
     url: `/invoices/pending?${searchParams.toString()}`,
-    method: 'get'
+    method: 'get',
   });
 
   return (
-    <section>
+    <section data-cy="todo-invoices-item">
       <h1>Att göra</h1>
-      { invoicesIsFetching ? (
+      {invoicesIsFetching ? (
         <div className="w-full flex justify-center p-md">
           <Spinner aria-label="Hämtar ohanterade uppgifter" />
         </div>
-      ): invoices?.invoices?.length ? (
+      ) : invoices?.invoices?.length ? (
         <div className="w-full flex flex-column justify-stretch gap-lg">
           <TodoListItem
             type="invoices"
@@ -36,7 +33,7 @@ export const Todos = () => {
             linkText="Visa fakturor"
           />
         </div>
-      ): (
+      ) : (
         <p>Du har inget du behöver ta hand om.</p>
       )}
     </section>

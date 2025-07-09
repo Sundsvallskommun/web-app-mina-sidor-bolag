@@ -7,7 +7,8 @@ import { getContactSettings } from 'cypress/fixtures/getContactSettings';
 import { getInvoices } from 'cypress/fixtures/getInvoices';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { getMe } from '../fixtures/getMe';
-
+import { getMyRelations } from '../fixtures/getMyRelations';
+import { getMyPagedAgreements } from '../fixtures/getMyPagedAgreements';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -25,6 +26,9 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
   cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
   cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
+
+  cy.intercept('GET', '**/api/myrelations', getMyRelations()).as('getMyRelations');
+  cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
 };
 
 beforeEach(() => {
