@@ -10,7 +10,7 @@ export default function SelfService() {
   const { data } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const facilityTypes = useMemo(() => {
     if (!data?.facilities) return new Set();
-    return new Set(data.facilities.map((f) => f.type ?? ''));
+    return new Set(data.facilities?.map((f) => f.type ?? ''));
   }, [data]);
   return (
     <div>

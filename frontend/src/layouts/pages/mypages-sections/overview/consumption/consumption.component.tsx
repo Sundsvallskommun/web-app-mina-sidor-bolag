@@ -83,7 +83,7 @@ export const Consumption = () => {
           )}
 
           <div className="w-full md:flex md:flex-wrap md:gap-24 block" data-cy="consumption-card-wrapper">
-            {facilities.map((facility) => {
+            {facilities?.map((facility) => {
               return <ConsumptionCard key={facility.facilityId} facility={facility} date={thisMonth} />;
             })}
           </div>
