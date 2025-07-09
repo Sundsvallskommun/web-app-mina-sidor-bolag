@@ -8,7 +8,7 @@ import { TodoListItem } from './todo-list-item.component';
 
 export const Todos = () => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
-  const facilityIds = userData?.facilities.map((f) => f.facilityId ?? '') ?? [];
+  const facilityIds = userData?.facilities?.map((f) => f.facilityId ?? '') ?? [];
   const searchParams = new URLSearchParams({});
   searchParams.append('limit', `${1}`);
   searchParams.append('page', `${1}`);

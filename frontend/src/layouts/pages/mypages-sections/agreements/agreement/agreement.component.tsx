@@ -31,8 +31,8 @@ export const AgreementComponent = (props: { category: string; facilityId: string
   });
 
   useEffect(() => {
-    if (agreement && user) {
-      user.facilities.map((facility) => {
+    if (agreement && user?.facilities) {
+      user.facilities?.map((facility) => {
         if (facility.facilityId === facilityId && facility.type === agreement[0].category.label) {
           setFacility(facility);
         } else if (
