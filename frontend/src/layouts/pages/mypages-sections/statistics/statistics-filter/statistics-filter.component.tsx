@@ -46,8 +46,8 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
     const latestFacility = user?.facilities?.sort((a, b) =>
       dayjs(a?.facilityCommitmentStartDate).isAfter(dayjs(b?.facilityCommitmentStartDate)) ? -1 : 1
     )?.[0];
-    const matchingUserAddress = user?.addresses.find((a) => a.address === latestFacility?.address?.street)?.address;
-    setValue('address', matchingUserAddress ?? user?.addresses.find((a) => a.address)?.address ?? '');
+    const matchingUserAddress = user?.addresses?.find((a) => a.address === latestFacility?.address?.street)?.address;
+    setValue('address', matchingUserAddress ?? user?.addresses?.find((a) => a.address)?.address ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

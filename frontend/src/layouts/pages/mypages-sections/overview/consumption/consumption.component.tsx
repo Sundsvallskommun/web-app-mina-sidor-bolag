@@ -69,11 +69,11 @@ export const Consumption = () => {
           <p className="text-large mb-32">
             Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
           </p>
-          {user.addresses.length > 1 && (
+          {user.addresses?.length > 1 && (
             <div className="sm:flex sm:flex-row items-center pb-24 gap-16 block">
               <strong>Adress</strong>
               <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
-                {user.addresses.map((address) => (
+                {user.addresses?.map((address) => (
                   <Select.Option key={address.address}>
                     {address.address ? address.address : 'Okänd adress'}
                   </Select.Option>
