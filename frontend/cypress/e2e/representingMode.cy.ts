@@ -1,5 +1,4 @@
 import { RepresentingMode } from '@interfaces/app';
-import { testContactSettings, testInvoices } from 'cypress/e2e/utils';
 import { getMe } from 'cypress/fixtures/getMe';
 import { getPrivateRepresentFromGetMe, getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { setIntercepts } from 'cypress/support/e2e';
