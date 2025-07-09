@@ -7,8 +7,6 @@ describe('Fakturor', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/fakturor');
-
-    cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
   });
 
   it('should render invoices tables', () => {

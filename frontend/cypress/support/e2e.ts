@@ -4,11 +4,17 @@ import { RepresentingMode } from '@interfaces/app';
 import { CookieConsentUtils } from '@sk-web-gui/react';
 import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
-import { getInvoices } from 'cypress/fixtures/getInvoices';
+import { getInvoices, getPendingInvoices } from 'cypress/fixtures/getInvoices';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { getMe } from '../fixtures/getMe';
 import { getMyRelations } from '../fixtures/getMyRelations';
 import { getMyPagedAgreements } from '../fixtures/getMyPagedAgreements';
+import dayjs from 'dayjs';
+import {
+  getOverviewDistrictHeatingData,
+  getOverviewElectricityData,
+  getOverviewElectricityProductionData,
+} from '../fixtures/getMeasurementData';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -29,6 +35,28 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
 
   cy.intercept('GET', '**/api/myrelations', getMyRelations()).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
+
+  cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
+
+  const fromDate = dayjs().startOf('month').subtract(12, 'months').toISOString();
+  const toDate = dayjs().endOf('month').toISOString();
+
+  cy.intercept(
+    'GET',
+    `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    getOverviewDistrictHeatingData(fromDate, toDate)
+  ).as('getOverviewDistrictHeatingData');
+
+  cy.intercept(
+    'GET',
+    `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    getOverviewElectricityData(fromDate, toDate)
+  ).as('getOverviewElectricityData');
+  cy.intercept(
+    'GET',
+    `**/api/measurementdata?category=ELECTRICITY&facilityId=222&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    getOverviewElectricityProductionData(fromDate, toDate)
+  ).as('getOverviewElectricityProductionData');
 };
 
 beforeEach(() => {
