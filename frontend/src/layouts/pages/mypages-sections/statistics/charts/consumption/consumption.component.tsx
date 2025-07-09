@@ -34,7 +34,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         <div>
           <ConsumptionInformation data={data} />
 
-          <div className="md:flex mt-56 mb-32 md:justify-between">
+          <div className="md:flex md:mt-56 mt-0 mb-32 md:justify-between">
             <div className="content-center">
               {getValues().year && current === 0 && (
                 <div className="flex md:justify-start justify-center">

@@ -27,8 +27,8 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
             data={data.temperatureData[0].measurementPoints}
             margin={{
               top: 0,
-              right: 0,
-              left: 0,
+              right: 4,
+              left: 4,
               bottom: 0,
             }}
           >
@@ -44,7 +44,7 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
             {isLargeDevice && (
               <YAxis
                 dx={-30}
-                width={40} 
+                width={40}
                 textAnchor="left"
                 axisLine={false}
                 tickLine={false}

@@ -39,7 +39,9 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   return (
     data?.measurementData && (
       <div className="relative" style={{ maxWidth: 1000, height: 500 }}>
-        <span className="absolute bottom-[100%] left-0 hidden sm:block"><strong>kWh</strong></span>
+        <span className="absolute bottom-[100%] left-0 hidden sm:block">
+          <strong>kWh</strong>
+        </span>
         <ResponsiveContainer width="100%" height="100%" className="my-56">
           <BarChart
             width={1000}
@@ -48,8 +50,8 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             margin={{
               top: 0,
               right: 0,
-              left: 0,
-              bottom: 0,
+              left: 4,
+              bottom: 4,
             }}
           >
             <XAxis

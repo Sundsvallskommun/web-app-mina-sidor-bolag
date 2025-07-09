@@ -28,7 +28,7 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
         {isFetching || isPreviousFetching ? (
           <Spinner className="mx-auto" />
         ) : (
-          <div className="mt-56">
+          <div className="md:mt-56 mt-0">
             <div className="md:flex mb-56 md:justify-between">
               <div className="content-center">
                 {getValues().year && current === 0 && (
