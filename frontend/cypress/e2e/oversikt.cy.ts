@@ -42,7 +42,7 @@ describe('Översikt', () => {
     cy.get('h1').should('exist').should('contain.text', '');
 
     // Consumption cards
-    getMe.data.addresses[0].facilityIds.map((facility) => {
+    getMe.data.addresses[0].facilityIds.forEach((facility) => {
       cy.get(`[data-cy="${facility}"]`).should('exist');
     });
 

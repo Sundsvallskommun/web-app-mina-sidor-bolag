@@ -20,7 +20,7 @@ describe('Fakturor', () => {
   it('should display table headers correctly', () => {
     const tableHeaders = ['Leverantör', 'Status', 'Fakturadatum', 'Förfallodatum', 'Belopp', 'Fakturanummer', 'Adress'];
 
-    tableHeaders.map((header) => {
+    tableHeaders.forEach((header) => {
       cy.get('[data-cy="unhandled-invoices-table"]')
         .should('exist')
         .within(() => {
@@ -35,7 +35,7 @@ describe('Fakturor', () => {
   });
 
   it('should display table data correctly', () => {
-    getPendingInvoices().data.invoices.map(() => {
+    getPendingInvoices().data.invoices.forEach(() => {
       cy.get('[data-cy="unhandled-invoices-table"]')
         .should('exist')
         .within(() => {
@@ -44,7 +44,7 @@ describe('Fakturor', () => {
         });
     });
 
-    getGeneratedInvoices().map(() => {
+    getGeneratedInvoices().forEach(() => {
       cy.get('[data-cy="all-invoices-table"]')
         .should('exist')
         .within(() => {

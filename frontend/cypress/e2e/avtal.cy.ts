@@ -13,7 +13,7 @@ describe('Avtal', () => {
     cy.get('h1').should('exist').should('contain.text', 'Dina avtal');
     cy.get('[data-cy="agreement-search-field"]').should('not.exist');
 
-    getMyPagedAgreements().data.map((agreement) => {
+    getMyPagedAgreements().data.forEach((agreement) => {
       if (agreement.mainAgreement) {
         cy.get(`[data-cy="agreement-${agreement.facilityId}-${agreement.description}"]`)
           .should('exist')
@@ -33,7 +33,7 @@ describe('Avtal', () => {
     cy.get('[data-cy="agreement-label"]').should('exist').should('not.include.text', 'produktion');
     cy.get('[data-cy="agreement-to-statistics-button"]').should('exist');
 
-    getAgreement().data.map((agreement) => {
+    getAgreement().data.forEach((agreement) => {
       if (!agreement.mainAgreement) {
         cy.get(`[data-cy="additional-agreement-111-${agreement.description}"]`).should('exist');
       }
