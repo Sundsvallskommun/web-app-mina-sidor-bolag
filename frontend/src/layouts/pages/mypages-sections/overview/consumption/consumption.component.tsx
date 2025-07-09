@@ -40,12 +40,13 @@ export const Consumption = () => {
             (agreement: RefinedAgreement) => agreement.facilityId
           );
 
-          const filteredFacilities = user?.facilities.filter(
-            (facility: InstalledBaseItem) =>
-              (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
-              facility?.address?.street === address &&
-              agreementsFacilities.some((agreement) => agreement === facility?.facilityId)
-          );
+          const filteredFacilities =
+            user?.facilities?.filter(
+              (facility: InstalledBaseItem) =>
+                (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
+                facility?.address?.street === address &&
+                agreementsFacilities.some((agreement) => agreement === facility?.facilityId)
+            ) ?? [];
 
           setFacilities(filteredFacilities);
         }
