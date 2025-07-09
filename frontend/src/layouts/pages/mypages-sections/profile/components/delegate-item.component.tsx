@@ -2,10 +2,11 @@ import { FormBox } from '@components/form/form-box.component';
 import { DelegatedContactSetting } from '@interfaces/contactsettings';
 import { Button, Icon, Modal, useConfirm, useSnackbar } from '@sk-web-gui/react';
 import { Pen, Plus, Trash } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { DelegateFilter } from './delegate-filter.component';
 import DelegatedContactSettingsFormLogic from './delegate-form-logic.component';
 import { queryClient, useApi } from '@services/api-service';
+import { useFormContext } from 'react-hook-form';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
@@ -44,13 +45,23 @@ export const DelegateItem = ({
   };
 
   const FormComponent = () => {
+    const { formState } = useFormContext();
+
     return (
       <div data-cy="form-component">
         <FormBox name="contactSetting.alias" header="Namn på kontakt" isEdit>
-          <div className="mb-40"></div>
+          <div className="mb-40">
+            {formState.errors?.contactSetting?.['alias'] && (
+              <p className="text-small text-error">{formState.errors?.contactSetting?.['alias']?.message}</p>
+            )}
+          </div>
         </FormBox>
         <FormBox name="contactSetting.phone" header="Mobilnummer" isEdit>
-          <div className="mb-40"></div>
+          <div className="mb-40">
+            {formState.errors?.contactSetting?.['phone'] && (
+              <p className="text-small text-error">{formState.errors?.contactSetting?.['phone']?.message}</p>
+            )}
+          </div>
         </FormBox>
 
         <p className="text-label-medium mb-0">Välj när sms ska skickas</p>
@@ -100,6 +111,7 @@ export const DelegateItem = ({
             }}
             className="my-16"
             data-cy="remove-contact-person-button"
+            inverted
           >
             Ta bort kontaktperson
           </Button>

@@ -5,7 +5,7 @@ import { useSnackbar } from '@sk-web-gui/react';
 import { DefaultError } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import _ from 'lodash';
-import { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
@@ -47,9 +47,13 @@ const formSchema = yup
     contactSetting: yup.object<ClientContactSetting>({
       name: yup.string().nullable().optional(),
       email: yup.string().email('E-postadress har fel format').nullable().optional(),
-      alias: yup.string().nullable().optional(),
+      alias: yup.string().nullable().required('Namn på kontakt är obligatoriskt'),
       virtual: yup.boolean(),
-      phone: yup.string().matches(phoneRegExp, 'Telefonnummer har fel format').nullable().optional(),
+      phone: yup
+        .string()
+        .matches(phoneRegExp, 'Mobilnummer har fel format')
+        .nullable()
+        .required('Mobilnummer är obligatoriskt'),
     }),
     delegate: yup
       .object<Delegate>({
@@ -62,7 +66,7 @@ const formSchema = yup
             yup
               .object<Filter>({
                 id: yup.string().nullable().optional(),
-                alias: yup.string().nullable().optional(),
+                alias: yup.string().nullable().required(),
                 channel: yup.string().nullable().optional(),
                 rules: yup
                   .array()
