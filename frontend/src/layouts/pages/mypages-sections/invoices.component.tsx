@@ -29,14 +29,14 @@ export default function Invoices() {
           <h1>Dina fakturor</h1>
         </div>
       </div>
-      {userData && userData.addresses.length > 1 ? (
+      {userData && userData.addresses?.length > 1 ? (
         <FormControl className="w-full desktop:w-fit">
           <FormLabel>Visa fakturor per adress</FormLabel>
           <Select className="w-full" title="address" size="md" onSelectValue={handleOnSelectAddress}>
             <Select.Option key="all" value="">
               Välj adress
             </Select.Option>
-            {userData.addresses.map(({ address, facilityIds }, index) => (
+            {userData.addresses?.map(({ address, facilityIds }, index) => (
               <Select.Option key={`${index}`} value={JSON.stringify(facilityIds)}>
                 {address}
               </Select.Option>
