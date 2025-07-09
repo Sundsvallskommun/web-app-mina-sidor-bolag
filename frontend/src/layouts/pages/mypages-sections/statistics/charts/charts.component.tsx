@@ -107,7 +107,7 @@ export default function Charts() {
 
   return (
     <div>
-      <div className="bg-background-content rounded-cards shadow-50 mt-40 py-40 lg:px-32 px-20">
+      <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
         <Consumption
           data={mergedMeasurementData ?? measurementData}
           isFetching={isFetchingMeasurementData}
