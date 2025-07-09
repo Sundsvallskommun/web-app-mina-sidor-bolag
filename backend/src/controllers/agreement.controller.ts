@@ -9,6 +9,12 @@ import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Agreement, AgreementResponse, Category, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+import dayjs from 'dayjs';
+
+function activeAgreement(agreement: Agreement): boolean {
+  // Agreements are considered active if the `toDate` is in the future or undefined (ongoing agreements).
+  return dayjs(agreement.toDate).isAfter(dayjs()) || typeof agreement.toDate === 'undefined';
+}
 
 @Controller()
 export class AgreementController {
@@ -30,7 +36,8 @@ export class AgreementController {
     const params = {};
 
     const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-    return { data: res.data.agreements, message: 'success' };
+    const filteredAgreements = res.data.agreements.filter(activeAgreement);
+    return { data: filteredAgreements, message: 'success' };
   }
 
   @Get('/agreement/:category/:facilityId')
@@ -44,6 +51,8 @@ export class AgreementController {
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/agreements/${category}/${facilityId}`;
 
     const res = await this.apiService.get<AgreementResponse>({ url }, req.user);
-    return { data: res.data.agreementParties[0].agreements, message: 'success' };
+
+    const filteredAgreements = res.data.agreementParties[0].agreements.filter(activeAgreement);
+    return { data: filteredAgreements, message: 'success' };
   }
 }

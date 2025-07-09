@@ -1,14 +1,20 @@
 'use client';
 
 import { InvoicesResponse } from '@data-contracts/invoices/data-contracts';
+import { User } from '@interfaces/user';
 import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
 import { TodoListItem } from './todo-list-item.component';
 
 export const Todos = () => {
+  const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const facilityIds = userData?.facilities.map((f) => f.facilityId ?? '') ?? [];
   const searchParams = new URLSearchParams({});
   searchParams.append('limit', `${1}`);
   searchParams.append('page', `${1}`);
+  if (facilityIds?.length) {
+    searchParams.append('facilityId', facilityIds.toString());
+  }
 
   const { data: invoices, isFetching: invoicesIsFetching } = useApi<InvoicesResponse>({
     queryKey: ['/invoices/pending', searchParams.toString()],

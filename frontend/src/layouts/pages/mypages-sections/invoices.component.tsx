@@ -13,7 +13,9 @@ export default function Invoices() {
 
   const handleOnSelectAddress = (value: string) => {
     if (!value) {
-      setFacilityIds([]);
+      const userFacilityIds =
+        userData?.facilities?.filter((f) => typeof f.facilityId !== 'undefined').map((f) => f.facilityId) ?? [];
+      setFacilityIds(userFacilityIds.map((id) => id ?? '') ?? []);
       return;
     }
     const facilityIds = JSON.parse(value);

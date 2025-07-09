@@ -9,8 +9,9 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import { useSearchParams } from 'next/navigation';
 import dayjs, { Dayjs } from 'dayjs';
 import {
+  generateComparableYears,
   generateSelectableMonths,
-  generateYearsBetween,
+  generateSelectableYears,
 } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 
 export interface StatisticsFilterProps {
@@ -34,7 +35,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   });
 
   const selectableYears = useMemo(() => {
-    return generateYearsBetween(dayjs().add(1, 'year').format('YYYY-MM-DD'));
+    return generateSelectableYears(dayjs().format('YYYY-MM-DD'));
   }, []);
 
   const selectableMonths = useMemo(() => {
@@ -42,7 +43,11 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   }, []);
 
   useEffect(() => {
-    setValue('address', user?.addresses[0]?.address);
+    const latestFacility = user?.facilities?.sort((a, b) =>
+      dayjs(a?.facilityCommitmentStartDate).isAfter(dayjs(b?.facilityCommitmentStartDate)) ? -1 : 1
+    )?.[0];
+    const matchingUserAddress = user?.addresses.find((a) => a.address === latestFacility?.address?.street)?.address;
+    setValue('address', matchingUserAddress ?? user?.addresses.find((a) => a.address)?.address ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -50,10 +55,12 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
     const filteredFacilities = user?.facilities
       .filter(
         (facility) =>
-          facility?.address?.street === address && facility.type !== 'Elhandel' && facility.type !== 'Fjärrkyla'
+          facility?.address?.street === address &&
+          facility.type !== 'Elhandel' &&
+          facility.type !== 'Fjärrkyla' &&
+          facility.type !== 'Avfallsvåg'
       )
       .sort((a, b) => ((a.type ?? '') > (b.type ?? '') ? 1 : -1));
-
     setFacilities(filteredFacilities);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, user]);
@@ -104,11 +111,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             <FormLabel>Adress</FormLabel>
 
             <Select {...register('address')} className="w-full mt-8">
-              {user?.addresses.map((address) => (
-                <Select.Option key={address.address}>
-                  {address.address ? address.address : 'Okänd adress'}
-                </Select.Option>
-              ))}
+              {user?.addresses
+                .filter((a) => a.address)
+                .sort((a, b) => (a.address > b.address ? 1 : -1))
+                .map((address) => (
+                  <Select.Option key={address.address}>
+                    {address.address ? address.address : 'Okänd adress'}
+                  </Select.Option>
+                ))}
             </Select>
           </div>
 
@@ -199,7 +209,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               {...register('selectedDay')}
               className="w-full mt-8"
               type="date"
-              min={dayjs('2022-01-01').format('YYYY-MM-DD')}
+              min={dayjs().startOf('year').subtract(3, 'year').format('YYYY-MM-DD')}
               max={dayjs().format('YYYY-MM-DD')}
               onChange={(e) => {
                 const selectedDate = dayjs(e.target.value);
@@ -213,7 +223,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <Select.Option key={0} value="">
                 Välj år
               </Select.Option>
-              {generateYearsBetween(fromDate).map((y) => (
+              {generateComparableYears(fromDate).map((y) => (
                 <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
               ))}
             </Select>
