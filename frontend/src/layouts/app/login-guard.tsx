@@ -49,9 +49,9 @@ export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode 
       if (representingError && representingMode === RepresentingMode.BUSINESS) {
         const ignorePattern = /\/?foretag\/valj-foretag\/?/g;
         const nonRepeatLocation = window.location.pathname.replace(ignorePattern, '');
-        router.push(
-          `${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/valj-foretag?path=${nonRepeatLocation}`
-        );
+        setTimeout(() => {
+          router.push(`${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/valj-foretag?path=${nonRepeatLocation}`);
+        }, 50);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
