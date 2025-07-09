@@ -36,7 +36,7 @@ export const Consumption = () => {
     if (user && agreements) {
       for (const agreementAddress in agreements) {
         if (agreementAddress === address) {
-          const agreementsFacilities: string[] = agreements[address].map(
+          const agreementsFacilities: string[] = agreements[address]?.map(
             (agreement: RefinedAgreement) => agreement.facilityId
           );
 
@@ -45,7 +45,7 @@ export const Consumption = () => {
               (facility: InstalledBaseItem) =>
                 (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
                 facility?.address?.street === address &&
-                agreementsFacilities.some((agreement) => agreement === facility?.facilityId)
+                agreementsFacilities?.some((agreement) => agreement === facility?.facilityId)
             ) ?? [];
 
           setFacilities(filteredFacilities);

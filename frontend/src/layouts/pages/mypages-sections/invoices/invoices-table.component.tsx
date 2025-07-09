@@ -37,7 +37,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
     searchParams.append('facilityId', facilityIds.toString());
   }
   if (userData?.facilities?.length) {
-    searchParams.append('facilityId', userData.facilities.map((f) => f.facilityId).toString());
+    searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
   }
 
   const paginationChanged = activePage !== previousActivePage.current;
