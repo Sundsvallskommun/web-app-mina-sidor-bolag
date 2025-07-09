@@ -112,7 +112,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
             <Select {...register('address')} className="w-full mt-8">
               {user?.addresses
-                .filter((a) => a.address)
+                ?.filter((a) => a.address)
                 .sort((a, b) => (a.address > b.address ? 1 : -1))
                 .map((address) => (
                   <Select.Option key={address.address}>

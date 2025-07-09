@@ -74,8 +74,8 @@ export const Consumption = () => {
               <strong>Adress</strong>
               <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
                 {user.addresses?.map((address) => (
-                  <Select.Option key={address.address}>
-                    {address.address ? address.address : 'Okänd adress'}
+                  <Select.Option key={address?.address ?? 'unknown'}>
+                    {address?.address ? address.address : 'Okänd adress'}
                   </Select.Option>
                 ))}
               </Select>

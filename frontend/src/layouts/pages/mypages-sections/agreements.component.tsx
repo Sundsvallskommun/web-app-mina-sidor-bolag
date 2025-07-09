@@ -68,10 +68,10 @@ export default function PagedAgreements() {
 
         {Object.entries(data).map(([address, agreements]: [string, RefinedAgreement[]], index) => {
           return (
-            agreements.length !== 0 && (
+            agreements?.length !== 0 && (
               <div className="pb-64" key={`site-${index}`}>
                 <h3 className="text-h3-lg pb-24">{address ? address : 'Okänd adress'}</h3>
-                {agreements.map((val, index) => {
+                {agreements?.map((val, index) => {
                   return (
                     <AgreementListItem
                       key={`agreement-${index}`}
