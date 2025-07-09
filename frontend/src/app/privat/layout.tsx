@@ -6,9 +6,10 @@ import { useAppContext } from '../../contexts/app.context';
 import { RepresentingEntity, RepresentingMode } from '../../interfaces/app';
 import { DefaultLayout } from '../../layouts/default-layout.component';
 import { useApi } from '../../services/api-service';
+import { toRepresentingLabel } from '../../utils/to-representing-label';
 
 export default function Layout({ children }) {
-  const { representingMode, setRepresentingMode } = useAppContext();
+  const { representingMode, setRepresentingMode, setRepresentingName } = useAppContext();
   const [mounted, setMounted] = useState(false);
   const {
     data: representingEntity,
@@ -28,6 +29,7 @@ export default function Layout({ children }) {
       if (representingEntity?.mode !== RepresentingMode.PRIVATE || representingMode !== RepresentingMode.PRIVATE) {
         setRepresentingMode(RepresentingMode.PRIVATE);
       }
+      setRepresentingName(toRepresentingLabel(representingEntity));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, representingIsLoading, representingIsFetching]);
