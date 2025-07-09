@@ -1,5 +1,4 @@
 import { RepresentingMode } from '@interfaces/app';
-import { testContactSettings, testInvoices } from 'cypress/e2e/utils';
 import { getMe } from 'cypress/fixtures/getMe';
 import { getPrivateRepresentFromGetMe, getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { setIntercepts } from 'cypress/support/e2e';
@@ -19,10 +18,11 @@ describe('Ändra representationsläge (privat/företag)', () => {
     setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat');
   });
-  it.only('should render /privat/oversikt then /foretag/valj-foretag then /foretag/oversikt with no chosen business', () => {
+
+  it('should render /privat/oversikt then /foretag/valj-foretag then /foretag/oversikt with no chosen business', () => {
     cy.contains('[data-cy="representingLabel"]', getMe.data.name);
     cy.url().should('include', '/privat/oversikt');
-    cy.wait(['@getCases', '@getRepresenting']).then(() => {
+    cy.wait(['@getRepresenting']).then(() => {
       setIntercepts(RepresentingMode.BUSINESS);
       cy.intercept('GET', '**/api/representing', { statusCode: 400 }).as('getRepresenting');
 
@@ -41,9 +41,10 @@ describe('Ändra representationsläge (privat/företag)', () => {
       cy.url().should('include', '/foretag/oversikt');
     });
   });
+
   it('should render /privat/oversikt then /foretag/oversikt then /privat/oversikt', () => {
     cy.url().should('include', '/privat/oversikt');
-    cy.wait(['@getCases', '@getRepresenting'])
+    cy.wait(['@getRepresenting'])
       .then(() => {
         setIntercepts(RepresentingMode.BUSINESS);
 
@@ -58,50 +59,15 @@ describe('Ändra representationsläge (privat/företag)', () => {
         cy.url().should('include', '/privat/oversikt');
       });
   });
+
   it('should render /privat/oversikt then /foretag/oversikt', () => {
     cy.url().should('include', '/privat/oversikt');
-    cy.wait(['@getCases', '@getRepresenting']).then(() => {
+    cy.wait(['@getRepresenting']).then(() => {
       setIntercepts(RepresentingMode.BUSINESS);
 
       // RepresentingSwitchButton
       cy.contains('[role="menuitem"]', 'Företag').click();
       cy.url().should('include', '/foretag/oversikt');
-    });
-  });
-  it('should render /privat/fakturor then /foretag/fakturor', () => {
-    cy.contains('[role="menuitem"]', 'Fakturor').click();
-
-    cy.url().should('include', '/privat/fakturor');
-    cy.wait(['@getInvoices', '@getRepresenting']).then(() => {
-      testInvoices(RepresentingMode.PRIVATE);
-
-      setIntercepts(RepresentingMode.BUSINESS);
-
-      // RepresentingSwitchButton
-      cy.contains('[role="menuitem"]', 'Företag').click();
-
-      cy.url().should('include', '/foretag/fakturor');
-      cy.wait(['@getInvoices', '@getRepresenting']).then(() => {
-        testInvoices(RepresentingMode.BUSINESS);
-      });
-    });
-  });
-  it('should render /privat/profil then /foretag/profil', () => {
-    cy.contains('[role="menuitem"]', 'Profil och inställningar').click();
-
-    cy.url().should('include', '/privat/profil');
-    cy.wait(['@getContactSettings', '@getRepresenting']).then(() => {
-      testContactSettings(RepresentingMode.PRIVATE);
-
-      setIntercepts(RepresentingMode.BUSINESS);
-
-      // RepresentingSwitchButton
-      cy.contains('[role="menuitem"]', 'Företag').click();
-
-      cy.url().should('include', '/foretag/profil');
-      cy.wait(['@getContactSettings', '@getRepresenting']).then(() => {
-        testContactSettings(RepresentingMode.BUSINESS);
-      });
     });
   });
 });

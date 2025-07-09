@@ -22,3 +22,34 @@ export const getContactSettings: (representingMode: RepresentingMode) => ApiResp
   },
   message: 'success',
 });
+
+export const patchContactSettings: () => ApiResponse<ClientContactSetting> = () => ({
+  data: {
+    id: 'a-a-a-a-a',
+    name: 'Förnamn Efternamn',
+    address: {
+      city: 'SUNDSVALL',
+      street: 'Storgatan 1',
+      postcode: '111 22',
+    },
+    email: 'mail@example.com',
+    phone: '+46701740635',
+    virtual: false,
+    alias: 'default',
+    notifications: {
+      email_disabled: true,
+      phone_disabled: true,
+    },
+    decicionsAndDocuments: {
+      digitalInbox: true,
+      myPages: true,
+      snailmail: false,
+    },
+  },
+  message: 'updated',
+});
+
+export const deleteContactSetting: () => { data: boolean; message: string } = () => ({
+  data: true,
+  message: 'Deleted delegate',
+});

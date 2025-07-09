@@ -62,6 +62,7 @@ export default function PagedAgreements() {
             onReset={onResetHandler}
             showSearchButton={false}
             placeholder="Sök efter anläggning"
+            data-cy="agreement-search-field"
           />
         )}
 

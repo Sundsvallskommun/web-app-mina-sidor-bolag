@@ -12,6 +12,7 @@ export const Profile = () => {
 
       <Disclosure
         className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
+        data-cy="contact-information-disclosure"
         header={
           <>
             <h4 className="text-h4-md">Kontaktuppgifter</h4>
@@ -26,6 +27,7 @@ export const Profile = () => {
 
       <Disclosure
         className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
+        data-cy="notifications-disclosure"
         header={
           <>
             <h4 className="text-h4-md">Aviseringar</h4>
