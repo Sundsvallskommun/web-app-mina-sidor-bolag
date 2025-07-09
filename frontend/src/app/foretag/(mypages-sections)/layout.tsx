@@ -6,9 +6,10 @@ import { useAppContext } from '../../../contexts/app.context';
 import { RepresentingEntity, RepresentingMode } from '../../../interfaces/app';
 import { DefaultLayout } from '../../../layouts/default-layout.component';
 import { useApi } from '../../../services/api-service';
+import { toRepresentingLabel } from '@utils/to-representing-label';
 
 export default function Layout({ children }) {
-  const { setRepresentingMode, representingMode } = useAppContext();
+  const { representingMode, setRepresentingMode, setRepresentingName } = useAppContext();
   const {
     data: representingEntity,
     isLoading: representingIsLoading,
@@ -28,6 +29,7 @@ export default function Layout({ children }) {
       if (representingEntity?.mode !== RepresentingMode.BUSINESS || representingMode !== RepresentingMode.BUSINESS) {
         setRepresentingMode(RepresentingMode.BUSINESS);
       }
+      setRepresentingName(toRepresentingLabel(representingEntity));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, representingIsLoading, representingIsFetching]);

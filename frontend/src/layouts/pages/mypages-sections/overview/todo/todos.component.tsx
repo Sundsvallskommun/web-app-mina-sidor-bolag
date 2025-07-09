@@ -1,10 +1,10 @@
 'use client';
 
-import { InvoicesResponse } from "@data-contracts/invoices/data-contracts";
-import { useApi } from "@services/api-service";
-import { Spinner } from "@sk-web-gui/react";
-import { TodoListItem } from "./todo-list-item.component";
+import { InvoicesResponse } from '@data-contracts/invoices/data-contracts';
 import { User } from '@interfaces/user';
+import { useApi } from '@services/api-service';
+import { Spinner } from '@sk-web-gui/react';
+import { TodoListItem } from './todo-list-item.component';
 
 export const Todos = () => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
@@ -23,7 +23,7 @@ export const Todos = () => {
   });
 
   return (
-    <section>
+    <section data-cy="todo-invoices-item">
       <h1>Att göra</h1>
       {invoicesIsFetching ? (
         <div className="w-full flex justify-center p-md">

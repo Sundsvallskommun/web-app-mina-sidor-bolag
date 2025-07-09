@@ -27,6 +27,7 @@ export const AgreementListItem = (props: AgreementListItemProps) => {
     <div
       onClick={() => handleClick()}
       className="flex mb-16 bg-background-content shadow-50 py-16 px-20 rounded-cards justify-between hover:bg-background-200 hover:cursor-pointer"
+      data-cy={`agreement-${facilityId}-${description}`}
     >
       <div className="flex lg:items-center justify-between">
         <PaddedListIcon color={category.color} iconName={category.icon} />

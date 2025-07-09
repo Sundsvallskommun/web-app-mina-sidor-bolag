@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 export default function ValjForetag() {
   const router = useRouter();
   const { representingMode } = useAppContext();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { isMinDesktop, isMinSmallDevice } = useThemeQueries();
   const searchParams = useSearchParams();
@@ -38,6 +39,7 @@ export default function ValjForetag() {
   };
 
   const onContinue = async () => {
+    setLoading(true);
     const res = await setRepresenting({ organizationNumber: choosen, mode: RepresentingMode.BUSINESS });
     if (!res.error) {
       const path = searchParams?.get('path') || '';
@@ -46,6 +48,7 @@ export default function ValjForetag() {
     } else {
       setError('Misslyckades med att välja företag');
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -76,7 +79,9 @@ export default function ValjForetag() {
             <CardElevated className="pb-40 pt-32 desktop:pt-40 px-0 desktop:px-80">
               <Main>
                 <div>
-                  <h1 className="text-h2-sm desktop:text-h2-lg mb-24 desktop:mb-32">Välj organisationen du vill företräda</h1>
+                  <h1 className="text-h2-sm desktop:text-h2-lg mb-24 desktop:mb-32">
+                    Välj organisationen du vill företräda
+                  </h1>
                 </div>
                 <div className="break-words">
                   {engagements?.length === 0 ? (
@@ -84,7 +89,11 @@ export default function ValjForetag() {
                       <div className="row-header-name">Inga organisationer hittades</div>
                     </div>
                   ) : (
-                    <Table background wrappingBorder className={cx('mb-40 desktop:mb-24', !isMinDesktop && '[&_.sk-table-thead]:sr-only')}>
+                    <Table
+                      background
+                      wrappingBorder
+                      className={cx('mb-40 desktop:mb-24', !isMinDesktop && '[&_.sk-table-thead]:sr-only')}
+                    >
                       <Table.Header className="bg-background-content border-black border-b-1">
                         {isMinDesktop ? (
                           <>
@@ -162,8 +171,8 @@ export default function ValjForetag() {
                   <Button
                     className="flex-grow desktop:flex-none"
                     data-cy="representingEntityButton"
-                    loading={engagementsIsLoading}
-                    loadingText={'Hämtar bolagsengagemang'}
+                    loading={loading || engagementsIsLoading}
+                    loadingText={loading ? 'Loggar in' : 'Hämtar bolagsengagemang'}
                     disabled={!choosen}
                     onClick={() => onContinue()}
                     rightIcon={<Icon icon={<ArrowRight />} />}

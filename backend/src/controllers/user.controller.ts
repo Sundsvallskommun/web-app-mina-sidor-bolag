@@ -103,7 +103,7 @@ export class UserController {
 
     await this.cacheRelations(req);
 
-    if (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses) {
+    if (representing && (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations ?? [];
       const facilities = [];

@@ -9,6 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { RepresentingEntity, RepresentingEntityDto, RepresentingMode } from '../../interfaces/app';
 import { useApi, useApiService } from '../../services/api-service';
 import { getRepresentingModeRoute, newRepresentingModePathname } from '../../utils/representingModeRoute';
+import { toRepresentingLabel } from '@utils/to-representing-label';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -60,6 +61,7 @@ export const MyPagesToggle = () => {
 };
 
 export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = ({ submitCallback }) => {
+  const { setRepresentingName } = useAppContext();
   const { setRepresenting } = useRepresentingSwitch();
   const { engagements } = useCombinedBusinessEngagements();
   const { data: representingEntity } = useApi<RepresentingEntity>({
@@ -68,8 +70,10 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
   });
   const { isMinDesktop } = useThemeQueries();
 
-  const setEngagement = (value) => {
-    setRepresenting({ organizationNumber: value });
+  const setEngagement = async (value) => {
+    const res = await setRepresenting({ organizationNumber: value }) as RepresentingEntity;
+    setRepresentingName(toRepresentingLabel(res));
+
     if (submitCallback) submitCallback();
   };
 

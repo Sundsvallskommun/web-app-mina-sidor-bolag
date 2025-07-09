@@ -26,8 +26,18 @@ export const ContactSettings = () => {
                         Aviseringar om avbrott i din strömförsörjning och fjärrvärme
                       </FormLabel>
                       <Checkbox.Group direction="row">
-                        <Checkbox {...register('notifications.phone_disabled')}>Sms</Checkbox>
-                        <Checkbox {...register('notifications.email_disabled')}>E-post</Checkbox>
+                        <Checkbox
+                          {...register('notifications.phone_disabled')}
+                          data-cy="notification-channel-sms-checkbox"
+                        >
+                          Sms
+                        </Checkbox>
+                        <Checkbox
+                          {...register('notifications.email_disabled')}
+                          data-cy="notification-channel-email-checkbox"
+                        >
+                          E-post
+                        </Checkbox>
                       </Checkbox.Group>
                     </FormControl>
                   );
@@ -71,10 +81,13 @@ export const ContactSettings = () => {
                         reset();
                         setIsEdit((isEdit) => !isEdit);
                       }}
+                      data-cy="cancel-edit-notification-channel-button"
                     >
                       Avbryt
                     </Button>
-                    <Button type="submit">Spara</Button>
+                    <Button type="submit" data-cy="save-notification-channel-button">
+                      Spara
+                    </Button>
                   </>
                 ) : (
                   <Button
@@ -86,6 +99,7 @@ export const ContactSettings = () => {
                       reset();
                       setIsEdit((isEdit) => !isEdit);
                     }}
+                    data-cy="edit-notification-channel-button"
                   >
                     Ändra aviseringar
                   </Button>

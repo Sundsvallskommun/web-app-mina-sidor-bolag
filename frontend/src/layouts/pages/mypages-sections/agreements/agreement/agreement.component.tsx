@@ -97,7 +97,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                         <PaddedListIcon color={a.category.color} iconName={a.category.icon} />
 
                         <div>
-                          <h3 className="md:text-h3-lg text-h3-sm">
+                          <h3 className="md:text-h3-lg text-h3-sm" data-cy="agreement-label">
                             {a.category.label}
                             {a.production ? ' produktion ' : null} avtal
                           </h3>
@@ -109,6 +109,7 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                           className="md:w-1/4 md:p-0 mt-40 md:mt-0 w-full"
                           rightIcon={<ArrowRight />}
                           variant="secondary"
+                          data-cy="agreement-to-statistics-button"
                         >
                           <Link href={`../../statistik?installation=${a.facilityId}`}>Visa statistik</Link>
                         </Button>
@@ -160,7 +161,10 @@ export const AgreementComponent = (props: { category: string; facilityId: string
                 );
               } else {
                 return (
-                  <div key={`additional-agreement-${index}`}>
+                  <div
+                    key={`additional-agreement-${index}`}
+                    data-cy={`additional-agreement-${a.facilityId}-${a.description}`}
+                  >
                     <div
                       className="md:flex items-center bg-background-color-mixin-1 rounded-cards p-20 mb-12"
                       key={`additional-agreement}`}
