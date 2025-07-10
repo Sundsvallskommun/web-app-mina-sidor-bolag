@@ -28,7 +28,7 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
         {isFetching || isPreviousFetching ? (
           <Spinner className="mx-auto" />
         ) : (
-          <div className="mt-56">
+          <div className="md:mt-56 mt-0">
             <div className="md:flex mb-56 md:justify-between">
               <div className="content-center">
                 {getValues().year && current === 0 && (
@@ -48,14 +48,14 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
                 )}
               </div>
 
-              <MenuBar className="md:w-auto w-full md:mt-0 mt-40" current={current} showBackground>
+              <MenuBar className="md:w-auto w-full md:mt-0 mt-40" showBackground>
                 <MenuBar.Item className="md:w-auto w-full">
-                  <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted>
+                  <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted={current === 0}>
                     <Icon icon={<BarChart3Icon />} className="mr-8" /> Graf
                   </Button>
                 </MenuBar.Item>
                 <MenuBar.Item className="md:w-auto w-full">
-                  <Button className="md:w-auto w-full" onClick={() => setCurrent(1)}>
+                  <Button className="md:w-auto w-full" onClick={() => setCurrent(1)} inverted={current === 1}>
                     <Icon icon={<TableIcon />} className="mr-8" /> Tabell
                   </Button>
                 </MenuBar.Item>

@@ -11,7 +11,7 @@ export interface OutdoorTemperatureChartProps {
 }
 
 export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => {
-  const isLargeDevice = useMediaQuery('(min-width: 500px)');
+  const isLargeDevice = useMediaQuery('(min-width: 480px)');
   const { isDarkMode } = useDarkMode();
 
   const { getValues } = useFormContext();
@@ -27,8 +27,8 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
             data={data.temperatureData[0].measurementPoints}
             margin={{
               top: 0,
-              right: 0,
-              left: 0,
+              right: 4,
+              left: 4,
               bottom: 0,
             }}
           >
@@ -42,7 +42,14 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
             />
             {isLargeDevice && (
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }} />
+              <YAxis
+                dx={-30}
+                width={40}
+                textAnchor="left"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
+              />
             )}
             <Tooltip
               content={
