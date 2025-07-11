@@ -3,11 +3,7 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
-import {
-  MergedMeasurementPoints,
-  MergedStatisticsMeasurementData,
-  StatisticsMeasurementData,
-} from '@interfaces/measurement-data';
+import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 
@@ -20,21 +16,6 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
   const { data } = props;
-
-  const setYAxisDomain: () => number = () => {
-    if (data) {
-      const values: number[] = data?.measurementData?.[0]?.measurementPoints?.map(
-        (measurement: MergedMeasurementPoints) => measurement.value
-      ) ?? [0];
-      const previousValues: number[] = data?.measurementData?.[0]?.measurementPoints?.map(
-        (measurement: MergedMeasurementPoints) => (measurement?.previousValue > 0 ? measurement.previousValue : 0)
-      ) ?? [0];
-
-      return Math.ceil(Math.max(...values, ...previousValues) / 100) * 100;
-    } else {
-      return 0;
-    }
-  };
 
   return (
     data?.measurementData && (
@@ -68,7 +49,19 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 axisLine={false}
                 tickLine={false}
                 dataKey="value"
-                domain={[0, setYAxisDomain()]}
+                domain={[
+                  0,
+                  (dataMax) => {
+                    if (dataMax > 0 && dataMax < 10) {
+                      return Math.floor(dataMax) + 2;
+                    } else if (dataMax > 10 && dataMax < 100) {
+                      return (Math.floor(dataMax / 10) + 1) * 10;
+                    } else if (dataMax > 100 && dataMax < 1000) {
+                      return (Math.floor(dataMax / 100) + 1) * 100;
+                    }
+                    return (Math.floor(dataMax / 1000) + 1) * 1000;
+                  },
+                ]}
                 tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
               />
             )}
