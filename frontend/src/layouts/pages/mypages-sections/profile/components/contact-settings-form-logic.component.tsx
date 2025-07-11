@@ -48,7 +48,7 @@ const formSchema = yup
     email: yup.string().email('E-postadress har fel format').nullable().optional(),
     alias: yup.string().nullable().optional(),
     virtual: yup.boolean().optional(),
-    phone: yup.string().matches(phoneRegExp, 'Telefonnummer har fel format').nullable().optional(),
+    phone: yup.string().matches(phoneRegExp, 'Mobilnummer har fel format').nullable().optional(),
     notifications: yup
       .object({
         email_disabled: yup.boolean(),
