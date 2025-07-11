@@ -21,7 +21,9 @@ export const EntryLayout: React.FC<{
             <div className="hidden lg:block -mt-[4rem] -ml-34 absolute w-[36rem]"></div>
           </div>
         </div>
-        <div className={cx('relative items-center justify-center px-20 py-40 lg:py-80 lg:px-40', className)}>
+        <div
+          className={cx('relative flex flex-col items-center justify-center px-20 py-40 lg:py-80 lg:px-40', className)}
+        >
           <LogoGroup
             wrapperClasses="justify-self-center"
             logoClasses={cx(`text-black w-[7.7rem] h-[3.6rem] lg:h-[5rem] lg:w-[10rem] mb-32 lg:mb-48`, logoClasses)}
