@@ -27,7 +27,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         {getValues().category} {data?.formattedDate}
         {getValues().year && !isFetching ? <> och {getValues().year}</> : ''}
       </h4>
-      <p>{getValues().address}</p>
+      <p data-cy="address">{getValues().address}</p>
       {isFetching || isPreviousFetching ? (
         <Spinner className="mx-auto my-80" />
       ) : data?.measurementData?.[0]?.measurementPoints ? (

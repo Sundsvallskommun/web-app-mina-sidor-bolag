@@ -110,7 +110,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           <div className="block w-full">
             <FormLabel>Adress</FormLabel>
 
-            <Select {...register('address')} className="w-full mt-8">
+            <Select {...register('address')} className="w-full mt-8" data-cy="address-select">
               {user?.addresses
                 ?.filter((a) => a.address)
                 .sort((a, b) => (a.address > b.address ? 1 : -1))
@@ -124,7 +124,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
           <div className="block w-full">
             <FormLabel>Avtalstyp</FormLabel>
-            <Select {...register('facilityId')} className="w-full mt-8">
+            <Select {...register('facilityId')} className="w-full mt-8" data-cy="contract-select">
               {facilities?.map((facility) => {
                 return (
                   <Select.Option key={facility.facilityId + '-' + facility.type} value={facility.facilityId}>
@@ -140,7 +140,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
             <div className="block w-full lg:pt-0 pt-16">
               <FormLabel>Visa statistik per</FormLabel>
-              <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" size="md">
+              <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
                 {[
                   { value: 'year', label: 'År' },
                   { value: 'month', label: 'Månad' },
@@ -178,6 +178,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                 const selectedDate = dayjs(e.target.value);
                 setDate(selectedDate, 'year');
               }}
+              data-cy="year-select"
             >
               {selectableYears.map((y) => (
                 <Select.Option key={`selectedYear-${y}`} value={y}>
@@ -195,6 +196,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                 const selectedDate = dayjs(e.target.value);
                 setDate(selectedDate, 'month');
               }}
+              data-cy="month-select"
             >
               {selectableMonths.map((y) => (
                 <Select.Option key={y.label} value={y.value}>
@@ -215,11 +217,12 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                 const selectedDate = dayjs(e.target.value);
                 setDate(selectedDate, 'day');
               }}
+              data-cy="day-select"
             />
           </div>
           <div className="block w-full lg:w-2/3 lg:pt-0 pt-16">
             <FormLabel>Jämför med år</FormLabel>
-            <Select {...register('year')} className="w-full mt-8">
+            <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
               <Select.Option key={0} value="">
                 Välj år
               </Select.Option>

@@ -23,7 +23,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
               Total {getValues().category === 'Elproduktion' ? 'produktion' : 'förbrukning'}
             </p>
           </div>
-          <h4>{data.totalConsumption} kWh</h4>
+          <h4 data-cy="total-consumption-value">{data.totalConsumption} kWh</h4>
           <p className="capitalize">{data.formattedDate}</p>
         </div>
 
@@ -35,7 +35,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
                 Högsta {getValues().category === 'Elproduktion' ? 'produktion' : 'förbrukning'}
               </p>
             </div>
-            <h4>{data.peakConsumptionValue.value} kWh</h4>
+            <h4 data-cy="highest-consumption-value">{data.peakConsumptionValue.value} kWh</h4>
             <p>{data.peakConsumptionValue.timestamp}</p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
                 Genomsnittlig {getValues().category === 'Elproduktion' ? 'produktion' : 'förbrukning'}
               </p>
             </div>
-            <h4>{data.averageConsumption} kWh</h4>
+            <h4 data-cy="average-consumption-value">{data.averageConsumption} kWh</h4>
             <p>per {translateAggregateOn(data.aggregatedOn)}</p>
           </div>
         </div>
