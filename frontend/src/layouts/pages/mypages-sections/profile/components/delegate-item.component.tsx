@@ -7,6 +7,7 @@ import { DelegateFilter } from './delegate-filter.component';
 import DelegatedContactSettingsFormLogic from './delegate-form-logic.component';
 import { queryClient, useApi } from '@services/api-service';
 import { useFormContext } from 'react-hook-form';
+import { User } from '@interfaces/user';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
@@ -21,6 +22,7 @@ export const DelegateItem = ({
   newItem?: boolean;
   close: () => void;
 }) => {
+  const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const deleteDelegate = useApi<DelegatedContactSetting>({
     url: `/delegates/${delegatedContactSetting?.delegate?.id ?? ''}`,
     queryKey: ['delegates', delegatedContactSetting?.delegate?.id ?? ''],
@@ -42,6 +44,16 @@ export const DelegateItem = ({
 
   const closeHandler = () => {
     setIsOpen(false);
+  };
+
+  const categoryExists = (service: { label: string; category: 'ELECTRICITY' | 'DISTRICT_HEATING' }) => {
+    return userData?.facilities?.some((f) =>
+      service.category === 'ELECTRICITY'
+        ? f.type === 'El'
+        : service.category === 'DISTRICT_HEATING'
+          ? f.type === 'Fjärrvärme'
+          : false
+    );
   };
 
   const FormComponent = () => {
@@ -69,14 +81,16 @@ export const DelegateItem = ({
         {[
           { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
           { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
-        ].map(({ label, category }) => (
-          <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
-            <h3 className="text-large">{label}</h3>
-            {delegatedContactSetting ? (
-              <DelegateFilter delegatedContactSetting={delegatedContactSetting} category={category} isEdit />
-            ) : null}
-          </div>
-        ))}
+        ]
+          .filter(categoryExists)
+          .map(({ label, category }) => (
+            <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
+              <h3 className="text-large">{label}</h3>
+              {delegatedContactSetting ? (
+                <DelegateFilter delegatedContactSetting={delegatedContactSetting} category={category} isEdit />
+              ) : null}
+            </div>
+          ))}
 
         {!newItem && (
           <Button

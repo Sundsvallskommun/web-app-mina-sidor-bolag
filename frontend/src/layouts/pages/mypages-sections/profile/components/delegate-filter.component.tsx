@@ -134,16 +134,18 @@ export const DelegateFilter = (props: {
 
   return (
     <>
-      <FormControl fieldset className="my-12">
-        <Checkbox
-          disabled={!props.isEdit}
-          onChange={handleCategoryChange}
-          checked={categoryIsEnabled}
-          data-cy="delegation-all-addresses-checkbox"
-        >
-          Alla adresser (gäller även framtida adresser)
-        </Checkbox>
-      </FormControl>
+      {user?.facilities?.some((facility) => facility.type === prettyType) ? (
+        <FormControl fieldset className="my-12">
+          <Checkbox
+            disabled={!props.isEdit}
+            onChange={handleCategoryChange}
+            checked={categoryIsEnabled}
+            data-cy="delegation-all-addresses-checkbox"
+          >
+            Alla adresser (gäller även framtida adresser)
+          </Checkbox>
+        </FormControl>
+      ) : null}
       {user?.addresses
         .filter((address) => {
           // filter out addresses that don't have any facilities of the specified type
