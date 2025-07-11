@@ -53,6 +53,7 @@ function Login() {
           case 'MISSING_PERMISSIONS':
             setErrorMessage('Användaren saknar rättigheter');
           default:
+            setErrorMessage('Det gick inte att logga in, försök igen senare.');
           //
         }
       }
@@ -66,29 +67,30 @@ function Login() {
         <CardElevated>
           <Main>
             <CenterDiv className="px-0 desktop:px-80 pt-32 pb-40 desktop:pb-56 gap-40">
-              { isLoggedOut ? (
+              {isLoggedOut ? (
                 <>
                   <div className="flex flex-col w-full gap-12">
-                    <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">
-                      Du är nu utloggad
-                    </h1>
+                    <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">Du är nu utloggad</h1>
 
                     <p className="text-center text-secondary m-0">
-                      Tack för besöket! Du kan alltid läsa mer hos <Link href="https://sundsvallenergi.se/" external>Sundsvall Energi</Link> eller <Link href="https://sundsvallelnat.se/" external>Sundsvall Elnät</Link>
+                      Tack för besöket! Du kan alltid läsa mer hos{' '}
+                      <Link href="https://sundsvallenergi.se/" external>
+                        Sundsvall Energi
+                      </Link>{' '}
+                      eller{' '}
+                      <Link href="https://sundsvallelnat.se/" external>
+                        Sundsvall Elnät
+                      </Link>
                     </p>
                   </div>
 
                   <div className="flex flex-col">
-                    <Button
-                      variant="primary"
-                      size="md"
-                      onClick={() => router.push('/login')}
-                    >
+                    <Button variant="primary" size="md" onClick={() => router.push('/login')}>
                       Logga in igen
                     </Button>
                   </div>
                 </>
-              ): (
+              ) : (
                 <>
                   <div className="flex flex-col w-full gap-12">
                     <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">
@@ -122,8 +124,8 @@ function Login() {
                       >
                         Organisation
                       </Button>
-                      {errorMessage && <FormErrorMessage className="mt-lg">{errorMessage}</FormErrorMessage>}
                     </div>
+                    {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
                   </div>
                 </>
               )}
