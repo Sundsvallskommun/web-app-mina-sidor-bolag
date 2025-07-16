@@ -4,6 +4,7 @@ import { MenuBar, cx, useThemeQueries } from '@sk-web-gui/react';
 import { usePathname } from 'next/navigation';
 import { useBannerMenuItems } from './banner-menu-items';
 import { useAppContext } from '@contexts/app.context';
+import { titleCase } from '@utils/title-caser';
 
 export const BannerMenu: React.FC = () => {
   const pathname = usePathname();
@@ -20,7 +21,7 @@ export const BannerMenu: React.FC = () => {
             data-cy="representingLabel"
             className={cx('text-display-3-sm text-dark-primary lg:text-display-2-md xs:mb-32 lg:mb-48')}
           >
-            {representingLabel}
+            {titleCase(representingLabel)}
           </span>
           {isMinDesktop && (
             <MenuBar className="self-stretch" aria-label={`Undersidor ${representingLabel}`}>
