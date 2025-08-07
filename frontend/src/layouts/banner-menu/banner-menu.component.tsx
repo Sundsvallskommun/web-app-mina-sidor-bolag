@@ -5,12 +5,13 @@ import { usePathname } from 'next/navigation';
 import { useBannerMenuItems } from './banner-menu-items';
 import { useAppContext } from '@contexts/app.context';
 import { titleCase } from '@utils/title-caser';
+import { RepresentingMode } from '@interfaces/app';
 
 export const BannerMenu: React.FC = () => {
   const pathname = usePathname();
   const bannerMenuItems = useBannerMenuItems();
   const { isMinDesktop } = useThemeQueries();
-  const { representingName: representingLabel } = useAppContext();
+  const { representingMode, representingName: representingLabel } = useAppContext();
 
   return (
     <div className="w-full bg-brand-primary">
@@ -21,7 +22,7 @@ export const BannerMenu: React.FC = () => {
             data-cy="representingLabel"
             className={cx('text-display-3-sm text-dark-primary lg:text-display-2-md xs:mb-32 lg:mb-48')}
           >
-            {titleCase(representingLabel)}
+            {representingMode === RepresentingMode.PRIVATE ? titleCase(representingLabel) : representingLabel}
           </span>
           {isMinDesktop && (
             <MenuBar className="self-stretch" aria-label={`Undersidor ${representingLabel}`}>
