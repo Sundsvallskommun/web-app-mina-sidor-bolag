@@ -46,6 +46,8 @@ function Login() {
         onLogin(RepresentingMode.PRIVATE);
       } else if (failMessage) {
         switch (failMessage) {
+          case 'Not Authorized':
+            break;
           case 'SAML_MISSING_GROUP':
             setErrorMessage('Användaren saknar rätt grupper');
           case 'SAML_MISSING_ATTRIBUTES':
