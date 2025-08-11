@@ -48,7 +48,6 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 textAnchor="left"
                 axisLine={false}
                 tickLine={false}
-                dataKey="value"
                 domain={[
                   0,
                   (dataMax) => {
