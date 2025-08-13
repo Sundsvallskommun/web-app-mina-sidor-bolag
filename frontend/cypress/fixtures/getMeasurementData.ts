@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import dayjs, { ManipulateType } from 'dayjs';
 import { Aggregation, Category, Data, MeasurementPoints } from '@interfaces/measurement-data';
 import { ApiResponse } from '@services/api-service';
 
@@ -92,35 +92,73 @@ export const getOverviewElectricityProductionData: (fromDate: string, toDate: st
   message: 'success',
 });
 
-export const generateStatisticsElectricityData = (fromDate: string, currentDaysOfMonth: number) => {
-  const measurements: MeasurementPoints[] = [];
+export const generateStatisticsData = (fromDate: string, aggregateOn: string) => {
+  const getMeasurementMax = () => {
+    switch (aggregateOn) {
+      case 'HOUR':
+        return 24;
+      case 'DAY':
+        return parseInt(dayjs().format('DD'));
+      case 'MONTH':
+        return parseInt(dayjs().format('M'));
+      default:
+        return parseInt(dayjs().format('DD'));
+    }
+  };
 
-  for (let i = 0; i < currentDaysOfMonth; i++) {
+  const getStartOf = () => {
+    switch (aggregateOn) {
+      case 'HOUR':
+        return 'day';
+      case 'DAY':
+        return 'month';
+      case 'MONTH':
+        return 'year';
+      default:
+        return 'day';
+    }
+  };
+
+  const measurements: MeasurementPoints[] = [];
+  const measurementMax = getMeasurementMax();
+  const startOf = getStartOf();
+
+  for (let i = 0; i < measurementMax; i++) {
     measurements.push({
-      value: i * 100,
-      timestamp: dayjs(fromDate).startOf('month').add(i, 'days').format('YYYY-MM-DD').toString(),
+      value: i * i,
+      timestamp: dayjs(fromDate)
+        .startOf(startOf)
+        .add(i, aggregateOn as ManipulateType)
+        .format('YYYY-MM-DD HH:mm')
+        .toString(),
     });
   }
 
   return measurements;
 };
 
-export const getStatisticsElectricityData: (
+export const getStatisticsData: (
   fromDate: string,
   toDate: string,
-  currentDaysOfMonth: number
-) => ApiResponse<Data> = (fromDate, toDate, currentDaysOfMonth) => ({
+  category: Category,
+  aggregateOn: Aggregation
+) => ApiResponse<Data> = (fromDate, toDate, category, aggregateOn) => ({
   data: {
-    category: Category.ELECTRICITY,
+    category: category,
     facilityId: '111',
-    aggregateOn: Aggregation.DAY,
+    aggregateOn: aggregateOn,
     toDate: toDate,
     fromDate: fromDate,
     measurementSeries: [
       {
         unit: 'kWh',
         measurementType: 'energy',
-        measurementPoints: generateStatisticsElectricityData(fromDate, currentDaysOfMonth),
+        measurementPoints: generateStatisticsData(fromDate, aggregateOn),
+      },
+      {
+        unit: 'C',
+        measurementType: 'outdoor_temperature',
+        measurementPoints: generateStatisticsData(fromDate, aggregateOn),
       },
     ],
   },

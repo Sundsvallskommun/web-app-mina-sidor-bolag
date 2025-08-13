@@ -87,7 +87,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
           {current === 0 ? <ConsumptionChart data={data} /> : <MeasurementDataTable data={data} isConsumption={true} />}
         </div>
       ) : (
-        <div className="w-full text-center my-56">
+        <div data-cy="empty-response-container" className="w-full text-center my-56">
           <p className="font-bold">Det finns ingen data att visa för vald kategori och period</p>
         </div>
       )}

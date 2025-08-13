@@ -83,6 +83,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
       }
     }
     setDate(dayjs(), mode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setDate = (date: Dayjs, by: 'year' | 'month' | 'day') => {
@@ -105,7 +106,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
   return (
     <>
-      <section className="lg:flex lg:justify-between block gap-48 lg:pt-0 pt-24">
+      <section className="lg:flex lg:justify-between block gap-48 lg:pt-0 pt-24" data-cy="statistics-filter">
         <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-2/5 lg:pt-0 pt-24">
           <div className="block w-full">
             <FormLabel>Adress</FormLabel>
@@ -135,7 +136,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             </Select>
           </div>
         </div>
-        {/* <p className="sm:hidden block text-large font-bold pt-32">Tidsperiod</p> */}
+
         <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-1/2 lg:pt-0 pt-16">
           <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
             <div className="block w-full lg:pt-0 pt-16">
@@ -161,6 +162,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                           setDate(dayjs(getValues().fromDate), 'day');
                         }
                       }}
+                      data-cy={`date-toggle-${item.value}-button`}
                     >
                       {item.label}
                     </Button>

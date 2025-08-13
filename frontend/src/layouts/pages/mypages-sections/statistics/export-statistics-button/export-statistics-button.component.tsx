@@ -81,6 +81,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
       disabled={isFetching || !data?.measurementData?.length}
       onClick={() => exportStatistics()}
       className="sm:w-auto w-full"
+      data-cy="export-statistics-button"
     >
       Exportera statistik
     </Button>
