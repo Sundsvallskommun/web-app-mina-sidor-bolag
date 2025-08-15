@@ -53,7 +53,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
           </div>
         </div>
 
-        {data.peakHourUsage?.length ? (
+        {data.peakHourUsage?.length && data.peakEffectValue?.value ? (
           <div className="flex lg:pr-32 border-divider lg:border-l-1 lg:border-b-0 border-l-0 border-b-1 lg:py-0 py-16">
             <div className="lg:pl-48 pl-0">
               <div className="flex items-center pb-12">
