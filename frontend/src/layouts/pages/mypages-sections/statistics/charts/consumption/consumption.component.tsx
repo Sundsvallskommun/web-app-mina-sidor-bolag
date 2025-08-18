@@ -27,7 +27,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         {getValues().category} {data?.formattedDate}
         {getValues().year && !isFetching ? <> och {getValues().year}</> : ''}
       </h4>
-      <p>{getValues().address}</p>
+      <p data-cy="address">{getValues().address}</p>
       {isFetching || isPreviousFetching ? (
         <Spinner className="mx-auto my-80" />
       ) : data?.measurementData?.[0]?.measurementPoints ? (
@@ -87,7 +87,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
           {current === 0 ? <ConsumptionChart data={data} /> : <MeasurementDataTable data={data} isConsumption={true} />}
         </div>
       ) : (
-        <div className="w-full text-center my-56">
+        <div data-cy="empty-response-container" className="w-full text-center my-56">
           <p className="font-bold">Det finns ingen data att visa för vald kategori och period</p>
         </div>
       )}

@@ -19,7 +19,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
 
   return (
     data?.measurementData && (
-      <div className="relative" style={{ maxWidth: 1000, height: 500 }}>
+      <div className="relative" style={{ maxWidth: 1000, height: 500 }} data-cy="consumption-chart">
         <span className="absolute bottom-[100%] left-0 hidden sm:block">
           <strong>kWh</strong>
         </span>

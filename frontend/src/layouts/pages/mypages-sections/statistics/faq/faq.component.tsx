@@ -4,7 +4,7 @@ import { Accordion, Link } from '@sk-web-gui/react';
 
 export const Faq = () => {
   return (
-    <div className="mt-80">
+    <div className="mt-80" data-cy="statistics-faq">
       <h2 className="text-h2-lg">Vanliga frågor och svar om din förbrukning</h2>
 
       <Accordion className="mt-32">

@@ -19,7 +19,7 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
 
   return (
     data?.temperatureData && (
-      <div style={{ maxWidth: 1000, height: 500 }}>
+      <div style={{ maxWidth: 1000, height: 500 }} data-cy="outdoor-temperature-chart">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             width={1000}
