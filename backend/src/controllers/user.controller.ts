@@ -37,6 +37,10 @@ function facilityActiveLastThreeYears(installation: InstalledBaseItem): boolean 
   return facilityIsActive;
 }
 
+function onlyHandelFacilities(installation: InstalledBaseItem): boolean {
+  return installation.type === 'Elhandel' || installation.type === 'Fjärrvärme';
+}
+
 @Controller()
 export class UserController {
   private apiService = new ApiService();
@@ -121,7 +125,7 @@ export class UserController {
             .then(res => {
               const installedBaseRes: InstalledBaseResponse = res.data;
               const customer = installedBaseRes.installedBaseCustomers[0];
-              return customer.items.filter(i => facilityActiveLastThreeYears(i));
+              return customer.items.filter(facilityActiveLastThreeYears); //.filter(onlyHandelFacilities);
             });
           installedBasePromises.push(thisPromise);
         } catch (error) {
@@ -152,10 +156,14 @@ export class UserController {
           facilityId,
         } = installation;
         if (
-          installation.type === 'El' &&
-          installation.metaData.some((data: InstalledBaseItemMetaData) => data.key.includes('isproduction') && data.value.includes('true'))
+          installation.metaData.some(
+            (data: InstalledBaseItemMetaData) =>
+              (data.key.includes('isproduction') || data.key.includes('issmallproduction')) && data.value.includes('true'),
+          )
         ) {
-          installation.type = 'Elproduktion';
+          if (installation.type === 'El') {
+            installation.type = 'Elproduktion';
+          }
           installation.address.street = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
         }
         const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');

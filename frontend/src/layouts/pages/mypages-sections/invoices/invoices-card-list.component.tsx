@@ -62,17 +62,17 @@ export const InvoicesCardList = ({pageSize, facilityIds, emptyComponent, onlyPen
     }, [setActivePage, setRows, facilityIds, representingName]);
 
     useEffect(() => {
-        if (!isFetched)
-            return;
+      if (!isFetched) return;
 
-        previousActivePage.current = activePage;
-        previousFacilityIds.current = facilityIds;
-        previousRepresentingMode.current = representingMode;
+      previousActivePage.current = activePage;
+      previousFacilityIds.current = facilityIds;
+      previousRepresentingMode.current = representingMode;
 
-        const totalRows = [...previousRows.current, ...data.invoices];
-        totalCount.current = data.totalCount;
-        previousRows.current = totalRows;
-        setRows(totalRows);
+      const totalRows = [...previousRows.current, ...data.invoices];
+      totalCount.current = data.totalCount;
+      previousRows.current = totalRows;
+      setRows(totalRows);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setRows, isFetched, data]);
 
     const getOrganizationName = useMemo(() => (organizationNumber: string): string => {
