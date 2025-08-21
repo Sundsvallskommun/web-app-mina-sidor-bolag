@@ -26,20 +26,22 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
   }, [isEdit, setIsEdit, reset]);
 
   return (
-    <Modal.Content className="sm:px-80">
-      <h1>Bekräfta kontaktuppgifter</h1>
-      <p>
-        Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer
-        uppgifterna nedan?
-      </p>
+    <Modal.Content className="px-0 lg:px-56 gap-32 md:gap-40">
+      <div>
+        <h1 className="pb-8">Bekräfta kontaktuppgifter</h1>
+        <p>
+          Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer
+          uppgifterna nedan?
+        </p>
+      </div>
 
-      <Divider className="pt-20" />
+      <Divider />
 
-      <div className="flex items-center pt-24 pb-40">
+      <div className="flex items-center">
         <div
-          className={`bg-background-color-mixin-2 flex justify-center items-center lg:w-52 lg:h-52 md:h-48 md:w-48 h-32 w-32 md:p-0 p-4 rounded-button mr-16`}
+          className={`bg-background-color-mixin-2 flex justify-center items-center w-46 h-46 md:h-56 md:w-56 p-10 lg:p-12 rounded-button mr-16`}
         >
-          <Icon icon={<Mail />} size={30} />
+          <Icon icon={<Mail />} size={56} />
         </div>
         <div>
           <FormBox name="email" header={'E-postadress'} isEdit={isEdit}>
@@ -48,11 +50,11 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
         </div>
       </div>
 
-      <div className="flex items-center pb-40">
+      <div className="flex items-center">
         <div
-          className={`bg-background-color-mixin-2 flex justify-center items-center lg:w-52 lg:h-52 md:h-48 md:w-48 h-32 w-32 md:p-0 p-4 rounded-button mr-16`}
+          className={`bg-background-color-mixin-2 flex justify-center items-center w-46 h-46 md:h-56 md:w-56 p-10 lg:p-12 rounded-button mr-16`}
         >
-          <Icon icon={<Smartphone />} size={30} />
+          <Icon icon={<Smartphone />} size={56} />
         </div>
         <div>
           <FormBox name="phone" header={'Mobilnummer'} isEdit={isEdit}>
@@ -61,39 +63,41 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
         </div>
       </div>
 
-      <Divider className="py-0 my-0" />
-      <Accordion>
-        <Accordion.Item header="Hantering av personuppgifter">
-          <p className="pb-16">
-            Vi använder din e-postadress och ditt mobilnummer för att kunna skicka viktig information, bekräftelser
-            och påminnelser som rör dina avtal. Sundsvall Elnät och Sundsvall Energi är personuppgiftsansvarig och
-            behandlar dina uppgifter enligt dataskyddsförordningen (GDPR).
-          </p>
-          <p>
-            <Link
-              href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
-              target="_blank"
-              variant="tertiary"
-              external
-            >
-              Läs mer om hur Sundsvall Elnät hanterar dina personuppgifter
-            </Link>
-          </p>
-          <p>
-            <Link
-              href="https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
-              target="_blank"
-              variant="tertiary"
-              external
-            >
-              Läs mer om hur Sundsvall Energi hanterar dina personuppgifter
-            </Link>
-          </p>
-        </Accordion.Item>
-      </Accordion>
-      <Divider className="py-0 my-0" />
+      <div>
+        <Divider className="py-0 my-0" />
+        <Accordion>
+          <Accordion.Item header="Hantering av personuppgifter">
+            <p className="pb-16">
+              Vi använder din e-postadress och ditt mobilnummer för att kunna skicka viktig information, bekräftelser
+              och påminnelser som rör dina avtal. Sundsvall Elnät och Sundsvall Energi är personuppgiftsansvarig och
+              behandlar dina uppgifter enligt dataskyddsförordningen (GDPR).
+            </p>
+            <p>
+              <Link
+                href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
+                target="_blank"
+                variant="tertiary"
+                external
+              >
+                Läs mer om hur Sundsvall Elnät hanterar dina personuppgifter
+              </Link>
+            </p>
+            <p>
+              <Link
+                href="https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
+                target="_blank"
+                variant="tertiary"
+                external
+              >
+                Läs mer om hur Sundsvall Energi hanterar dina personuppgifter
+              </Link>
+            </p>
+          </Accordion.Item>
+        </Accordion>
+        <Divider className="py-0 my-0"/>
+      </div>
 
-      <Modal.Footer className="pt-40">
+      <Modal.Footer className="gap-16 flex-col-reverse md:flex-row">
         {isEdit ? (
           <>
             <Button
