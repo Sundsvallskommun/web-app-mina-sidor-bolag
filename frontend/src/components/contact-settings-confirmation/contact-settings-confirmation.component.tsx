@@ -10,10 +10,11 @@ import { ClientContactSetting } from '@interfaces/contactsettings';
 import ContactSettingsFormLogic from '@layouts/pages/mypages-sections/profile/components/contact-settings-form-logic.component';
 
 interface ContactSettingsCOnfirmationContentProps {
+  isInitial: boolean;
   onClose: () => void;
 }
 
-const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationContentProps> = ({onClose}) => {
+const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationContentProps> = ({isInitial, onClose}) => {
   const methods = useFormContext();
   const { getValues, reset } = methods;
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -25,17 +26,29 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
     setIsEdit(!isEdit);
   }, [isEdit, setIsEdit, reset]);
 
+  const title = isInitial
+    ? 'Välkommen till Mina sidor'
+    : 'Bekräfta kontaktuppgifter';
+
+  const description = isInitial
+    ? 'Här får du en samlad överblick över dina avtal, fakturor och din förbrukning från Sundsvall Elnät och Sundsvall Energi.'
+    : 'Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer uppgifterna nedan?'
+
   return (
     <Modal.Content className="px-0 lg:px-56 gap-32 md:gap-40">
       <div>
-        <h1 className="pb-8">Bekräfta kontaktuppgifter</h1>
-        <p>
-          Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer
-          uppgifterna nedan?
-        </p>
+        <h1 className="pb-8">{title}</h1>
+        <p className="text-[18px]">{description}</p>
       </div>
 
       <Divider />
+
+      { isInitial ? (
+        <div>
+          <h2 className="!text-[18px]">Lägg till dina kontaktuppgifter</h2>
+          <p>Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser.</p>
+        </div>
+      ): null }
 
       <div className="flex items-center">
         <div
@@ -44,8 +57,8 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
           <Icon icon={<Mail />} size={56} />
         </div>
         <div>
-          <FormBox name="email" header={'E-postadress'} isEdit={isEdit}>
-            {isEdit ? null : (getValues()?.email ?? 'Ingen e-postadress tillagd')}
+          <FormBox name="email" header={'E-postadress'} isEdit={isInitial || isEdit}>
+            {isInitial || isEdit ? null : (getValues()?.email ?? 'Ingen e-postadress tillagd')}
           </FormBox>
         </div>
       </div>
@@ -57,8 +70,8 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
           <Icon icon={<Smartphone />} size={56} />
         </div>
         <div>
-          <FormBox name="phone" header={'Mobilnummer'} isEdit={isEdit}>
-            {isEdit ? null : (getValues()?.phone ?? 'Inget mobilnummer tillagt')}
+          <FormBox name="phone" header={'Mobilnummer'} isEdit={isInitial || isEdit}>
+            {isInitial || isEdit ? null : (getValues()?.phone ?? 'Inget mobilnummer tillagt')}
           </FormBox>
         </div>
       </div>
@@ -98,7 +111,22 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
       </div>
 
       <Modal.Footer className="gap-16 flex-col-reverse md:flex-row">
-        {isEdit ? (
+        { isInitial ? (
+          <>
+            <Button
+              variant="secondary"
+              onClick={onClose}
+            >
+              Lägg till senare
+            </Button>
+            <Button
+              type="submit"
+              onClick={onClose}
+            >
+              Spara uppgifter
+            </Button>
+          </>
+        ) : isEdit ? (
           <>
             <Button
               variant="secondary"
@@ -152,7 +180,7 @@ export const ContactSettingsConfirmation: React.FC = () => {
         hideClosebutton
       >
         <ContactSettingsFormLogic formData={contactSettings}>
-          <ContactSettingsConfirmationContent onClose={closeHandler}/>
+          <ContactSettingsConfirmationContent onClose={closeHandler} isInitial={!contactSettings}/>
         </ContactSettingsFormLogic>
       </Modal>
     </div>
