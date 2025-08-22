@@ -8,13 +8,16 @@ import { useFormContext } from 'react-hook-form';
 import { useApi } from '@services/api-service';
 import { ClientContactSetting } from '@interfaces/contactsettings';
 import ContactSettingsFormLogic from '@layouts/pages/mypages-sections/profile/components/contact-settings-form-logic.component';
+import { useLocalStorageValue } from '@react-hookz/web';
 
-interface ContactSettingsCOnfirmationContentProps {
+interface ContactSettingsConfirmationContentProps {
   isInitial: boolean;
   onClose: () => void;
 }
 
-const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationContentProps> = ({isInitial, onClose}) => {
+const RENEWAL_INTERVAL = 1000 * 60 * 60 * 24 * 365;
+
+const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationContentProps> = ({isInitial, onClose}) => {
   const methods = useFormContext();
   const { getValues, reset } = methods;
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -155,21 +158,39 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsCOnfirmationCo
 };
 
 export const ContactSettingsConfirmation: React.FC = () => {
+  const { value: showedInitial, set: setShowedInitial } = useLocalStorageValue('showedInitialContactSettings');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   
-  const { data: contactSettings } = useApi<ClientContactSetting>({
+  const { data: contactSettings, isFetching } = useApi<ClientContactSetting>({
     url: '/contactsettings',
     method: 'get',
     queryKey: ['contactsetting'],
   });
 
   const closeHandler = () => {
+    if (!showedInitial) {
+      setShowedInitial(true);
+    }
     setIsOpen(false);
   };
 
   useEffect(() => {
-    setIsOpen(true);
-  }, []);
+    if (isFetching) {
+      return;
+    }
+
+    if ((!showedInitial && !contactSettings?.email && !contactSettings?.phone) || !contactSettings) {
+      setIsOpen(true);
+      return;
+    }
+
+    const modifiedTime = new Date(contactSettings.modified!).getTime();
+    const currentTime = new Date().getTime();
+
+    if (currentTime - modifiedTime > RENEWAL_INTERVAL) {
+      setIsOpen(true);
+    }
+  }, [isFetching, contactSettings]);
 
   return (
     <div>
@@ -180,7 +201,7 @@ export const ContactSettingsConfirmation: React.FC = () => {
         hideClosebutton
       >
         <ContactSettingsFormLogic formData={contactSettings}>
-          <ContactSettingsConfirmationContent onClose={closeHandler} isInitial={!contactSettings}/>
+          <ContactSettingsConfirmationContent onClose={closeHandler} isInitial={!showedInitial}/>
         </ContactSettingsFormLogic>
       </Modal>
     </div>
