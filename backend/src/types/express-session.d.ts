@@ -12,9 +12,9 @@ declare module 'express-session' {
     user?: User;
     representing?: RepresentingEntity;
     passport?: any;
-    representingBusinessChoices?: Engagement[];
     messages: string[];
     cache?: {
+      representingBusinessChoices?: Engagement[];
       partyId?: string;
       cases?: {
         PRIVATE?: CaseStatusResponse[];

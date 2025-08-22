@@ -54,7 +54,8 @@ export class RepresentingController {
   });
 
   getDefaultBUSINESS = async (req: RequestWithUser) => {
-    const { representingBusinessChoices } = req?.session;
+    const cache = req?.session?.cache;
+    const representingBusinessChoices = cache?.representingBusinessChoices || [];
     const selected = this.getSelected<Engagement, 'organizationNumber'>(representingBusinessChoices, req.body, 'organizationNumber');
     const businessInformation = await this.getBusinessInformation(req, selected);
 
@@ -112,6 +113,7 @@ export class RepresentingController {
     let newRepresenting = representing;
 
     if (selectedRepresenting.organizationNumber !== undefined) {
+      console.log('Selected representing:', selectedRepresenting);
       const data: RepresentingEntity = {
         BUSINESS: await this.getDefaultBUSINESS(req),
         PRIVATE: newRepresenting?.PRIVATE,

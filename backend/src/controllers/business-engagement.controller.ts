@@ -70,9 +70,8 @@ export class BusinessEngagementController {
     if (!res.data?.engagements) {
       throw new HttpException(404, 'Not Found');
     }
-
     // NOTE: set representing to session so we can use it to lookup later
-    req.session.representingBusinessChoices = res.data && res.data.engagements ? res.data.engagements : [];
+    req.session.cache.representingBusinessChoices = res.data && res.data.engagements ? res.data.engagements : [];
 
     return { data: res.data.engagements, message: 'success' };
   }
