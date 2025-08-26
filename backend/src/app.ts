@@ -221,7 +221,8 @@ class App {
           req.query.RelayState = req.query.successRedirect;
         }
         if (req.query.representingMode) {
-          req.session.representing = {
+          req.session.cache ??= {};
+          req.session.cache.representing = {
             mode: parseInt(req.query.representingMode as string) as RepresentingMode,
           };
         }

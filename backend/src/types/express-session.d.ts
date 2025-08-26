@@ -10,10 +10,10 @@ declare module 'express-session' {
   interface Session {
     returnTo?: string;
     user?: User;
-    representing?: RepresentingEntity;
     passport?: any;
     messages: string[];
     cache?: {
+      representing?: RepresentingEntity;
       representingBusinessChoices?: Engagement[];
       partyId?: string;
       cases?: {

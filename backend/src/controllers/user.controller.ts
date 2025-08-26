@@ -71,7 +71,8 @@ export class UserController {
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name } = req.user;
-    const { representing } = req?.session ?? {};
+    const cache = req?.session?.cache;
+    const representing = cache?.representing ?? undefined;
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');

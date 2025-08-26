@@ -87,21 +87,22 @@ export class RepresentingController {
   @OpenAPI({ summary: 'Return which entity a logged in user represents' })
   @UseBefore(authMiddleware)
   async getBussinesEngagments(@Req() req: RequestWithUser): Promise<ResponseData> {
-    const { representing } = req?.session;
+    const cache = req?.session?.cache;
+    const representing = cache?.representing ?? undefined;
 
     if (!representing) {
       throw new HttpException(403, 'Forbidden');
     }
 
     if (!representing.PRIVATE) {
-      req.session.representing.PRIVATE = this.getDefaultPRIVATE(req);
+      req.session.cache.representing.PRIVATE = this.getDefaultPRIVATE(req);
     }
 
     if (representing.mode === RepresentingMode.BUSINESS && !representing.BUSINESS) {
       throw new HttpException(400, 'Representing not set');
     }
 
-    return { data: this.getRepresentingToSend(req.session.representing), message: 'success' };
+    return { data: this.getRepresentingToSend(req.session.cache.representing), message: 'success' };
   }
 
   @Post('/representing')
@@ -109,7 +110,8 @@ export class RepresentingController {
   @OpenAPI({ summary: 'Sets which entity a logged in user represents' })
   @UseBefore(authMiddleware)
   async postBusinessEngagements(@Body() selectedRepresenting: RepresentsDto, @Req() req: RequestWithUser): Promise<ResponseData> {
-    const { representing } = req?.session;
+    const cache = req?.session?.cache;
+    const representing = cache?.representing ?? undefined;
     let newRepresenting = representing;
 
     if (selectedRepresenting.organizationNumber !== undefined) {
@@ -142,7 +144,8 @@ export class RepresentingController {
       newRepresenting = data;
     }
 
-    req.session.representing = newRepresenting;
+    req.session.cache ??= {};
+    req.session.cache.representing = newRepresenting;
 
     return { data: this.getRepresentingToSend(newRepresenting), message: 'success' };
   }

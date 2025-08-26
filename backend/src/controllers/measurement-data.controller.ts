@@ -19,7 +19,8 @@ export class MeasurementDataController {
   @OpenAPI({ summary: 'Return measurement data by category' })
   @UseBefore(authMiddleware)
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
-    const { representing } = req?.session ?? {};
+    const cache = req?.session?.cache;
+    const representing = cache?.representing ?? undefined;
     const { category, facilityId, fromDate, toDate, aggregateOn } = req.query;
 
     const partyId = getRepresentingPartyId(representing);

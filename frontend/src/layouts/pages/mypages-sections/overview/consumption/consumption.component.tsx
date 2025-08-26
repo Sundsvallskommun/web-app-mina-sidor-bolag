@@ -56,7 +56,7 @@ export const Consumption = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agreements, address]);
+  }, [agreements, address, user]);
 
   const thisMonth = dayjs();
 
