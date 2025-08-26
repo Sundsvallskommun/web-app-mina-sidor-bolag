@@ -60,10 +60,11 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false, // default: true
       staleTime: 1000 * 60 * 5, // 5 minutes
       retry: (failureCount, error: AxiosError) => {
+        console.log(`Error.message: ${error.message}`);
         console.log(`Response Code: ${error.response?.status} failureCount: ${failureCount}`);
-        const shouldRetry = error.response?.status === 500 && failureCount < 3;
+        const shouldRetry = (error.response?.status === 500 && failureCount < 3) || error.message === 'Network Error';
         if (shouldRetry) console.log('Retrying ....!');
-        // retry on 500 errors for max 3 times
+        // retry on 500 or network errors for max 3 times
         return shouldRetry;
       },
     },
