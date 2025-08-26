@@ -21,6 +21,7 @@ export const Consumption = () => {
     url: `/paged/agreements`,
     method: 'get',
     dataHandler: pagedAgreementsHandler,
+    queryKey: ['agreements'],
   });
 
   const [address, setAddress] = useState<string>();

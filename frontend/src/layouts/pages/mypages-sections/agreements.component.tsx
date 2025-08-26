@@ -12,6 +12,7 @@ export default function PagedAgreements() {
     url: `/paged/agreements`,
     method: 'get',
     dataHandler: pagedAgreementsHandler,
+    queryKey: ['agreements'],
   });
 
   const [data, setData] = useState(agreements);
