@@ -220,11 +220,15 @@ class App {
         } else if (req.query.successRedirect) {
           req.query.RelayState = req.query.successRedirect;
         }
+        console.log('Boolean mode:');
+        console.log(!!req.query.representingMode);
         if (req.query.representingMode) {
+          console.log('Representingmode set, setting cache');
           req.session.cache ??= {};
           req.session.cache.representing = {
             mode: parseInt(req.query.representingMode as string) as RepresentingMode,
           };
+          console.log('req.session.cache:', req.session.cache);
         }
         next();
       },
