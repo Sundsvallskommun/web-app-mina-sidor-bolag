@@ -121,7 +121,7 @@ export class UserController {
             .then(res => {
               const installedBaseRes: InstalledBaseResponse = res.data;
               const customer = installedBaseRes.installedBaseCustomers[0];
-              return customer.items.filter(i => facilityActiveLastThreeYears(i));
+              return customer.items?.filter(i => facilityActiveLastThreeYears(i)) ?? [];
             });
           installedBasePromises.push(thisPromise);
         } catch (error) {
