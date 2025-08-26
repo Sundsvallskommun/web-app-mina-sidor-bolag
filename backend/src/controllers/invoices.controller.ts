@@ -37,7 +37,8 @@ export class InvoicesController {
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
       // this ensures that only invoices for active (plus three years back) facilities are fetched.
-      throw new HttpException(400, 'Bad Request. Facility id:s are required');
+      return { data: Object.assign({}, emptyInvoice), message: 'Empty response' };
+      // throw new HttpException(400, 'Bad Request. Facility id:s are required');
     }
 
     const partyId = getRepresentingPartyId(representing);
@@ -82,7 +83,8 @@ export class InvoicesController {
     console.log('Using representing:', representing);
     if (!facilityId) {
       // See comment in getInvoices method.
-      throw new HttpException(400, 'Bad Request. Facility id:s are required');
+      return { data: Object.assign({}, emptyInvoice), message: 'Empty response' };
+      // throw new HttpException(400, 'Bad Request. Facility id:s are required');
     }
 
     const partyId = getRepresentingPartyId(representing);
