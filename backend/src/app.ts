@@ -47,7 +47,6 @@ import swaggerUi from 'swagger-ui-express';
 import { getApiBase } from './config/api-config';
 import { HttpException } from './exceptions/HttpException';
 import { Profile } from './interfaces/profile.interface';
-import { RepresentingMode } from './interfaces/representing.interface';
 import { User } from './interfaces/users.interface';
 import { additionalConverters } from './utils/custom-validation-classes';
 import { isValidUrl } from './utils/util';
@@ -211,33 +210,25 @@ class App {
     this.app.use(passport.session());
     passport.use('saml', samlStrategy);
 
-    this.app.get(
-      `${BASE_URL_PREFIX}/saml/login`,
-      (req, res, next) => {
-        logger.info(`SAML login request received with query: ${JSON.stringify(req.query)}`);
-        if (req.session.returnTo) {
-          req.query.RelayState = req.session.returnTo;
-        } else if (req.query.successRedirect) {
-          req.query.RelayState = req.query.successRedirect;
-        }
-        console.log('Boolean mode:');
-        console.log(!!req.query.representingMode);
-        if (req.query.representingMode) {
-          console.log('Representingmode set, setting cache');
-          req.session.cache ??= {};
-          req.session.cache.representing = {
-            mode: parseInt(req.query.representingMode as string) as RepresentingMode,
-          };
-          console.log('req.session.cache:', req.session.cache);
-        }
-        next();
-      },
-      (req, res, next) => {
-        passport.authenticate('saml', {
-          failureRedirect: SAML_FAILURE_REDIRECT,
-        })(req, res, next);
-      },
-    );
+    this.app.get(`${BASE_URL_PREFIX}/saml/login`, (req, res, next) => {
+      const relay: Record<string, any> = {};
+
+      if (req.session.returnTo) {
+        relay.returnTo = req.session.returnTo;
+      } else if (req.query.successRedirect) {
+        relay.returnTo = req.query.successRedirect;
+      }
+
+      if (req.query.representingMode != null) {
+        relay.representingMode = req.query.representingMode;
+      }
+
+      req.query.RelayState = JSON.stringify(relay);
+
+      passport.authenticate('saml', {
+        failureRedirect: SAML_FAILURE_REDIRECT,
+      })(req, res, next);
+    });
 
     this.app.get(`${BASE_URL_PREFIX}/saml/metadata`, (req, res) => {
       res.type('application/xml');
@@ -299,24 +290,56 @@ class App {
     });
 
     this.app.post(`${BASE_URL_PREFIX}/saml/login/callback`, samlLimiter, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-      let successRedirect, failureRedirect;
-      if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
+      const relay = JSON.parse(req.body.RelayState);
+
+      let successRedirect;
+      if (typeof relay === 'object' && relay.returnTo && isValidUrl(relay.returnTo) && isValidOrigin(relay.returnTo)) {
+        successRedirect = relay.returnTo;
+      } else if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
         successRedirect = req.body.RelayState;
       } else {
         successRedirect = SAML_SUCCESS_REDIRECT;
       }
 
+      let failureRedirect;
       if (req.session.messages?.length > 0) {
         failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
       } else {
-        failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
+        failureRedirect = successRedirect + `?failMessage=SAML_UNKNOWN_ERROR`;
       }
 
-      passport.authenticate('saml', {
-        successReturnToOrRedirect: successRedirect,
-        failureRedirect: failureRedirect,
-        failureMessage: true,
-      })(req, res, next);
+      // Authenticate before saving state to session, since otherwise state may be overwritten
+      passport.authenticate(
+        'saml',
+        {
+          failureRedirect,
+          failureMessage: true,
+        },
+        (err, user) => {
+          if (err) return next(err);
+          if (!user) return res.redirect(failureRedirect);
+
+          req.logIn(user, err => {
+            if (err) return next(err);
+
+            if (req.body.RelayState) {
+              try {
+                const relay = JSON.parse(req.body.RelayState);
+                if (relay.representingMode != null) {
+                  req.session.representing = {
+                    mode: parseInt(relay.representingMode, 10),
+                  };
+                }
+              } catch {}
+            }
+
+            req.session.save(saveErr => {
+              if (saveErr) return next(saveErr);
+              res.redirect(successRedirect);
+            });
+          });
+        },
+      )(req, res, next);
     });
   }
 

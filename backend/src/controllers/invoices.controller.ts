@@ -32,8 +32,8 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
-    const cache = req?.session?.cache;
-    const representing = cache?.representing ?? undefined;
+    const representing = req.session?.representing ?? undefined;
+
     const { facilityId, page, limit } = req.query;
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
@@ -78,8 +78,7 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
-    const cache = req?.session?.cache;
-    const representing = cache?.representing ?? undefined;
+    const representing = req.session?.representing ?? undefined;
     const { facilityId, page, limit } = req.query;
 
     console.log('Using representing:', representing);

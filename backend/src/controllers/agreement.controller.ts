@@ -25,8 +25,7 @@ export class AgreementController {
   @OpenAPI({ summary: 'Get agreements by party id' })
   @UseBefore(authMiddleware)
   async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
-    const cache = req?.session?.cache;
-    const representing = cache?.representing ?? undefined;
+    const representing = req.session?.representing ?? undefined;
     const partyId = getRepresentingPartyId(representing);
 
     if (!partyId) {

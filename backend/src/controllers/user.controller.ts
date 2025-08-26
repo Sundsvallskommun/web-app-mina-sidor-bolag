@@ -53,6 +53,7 @@ export class UserController {
           ...relation,
           organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
         }));
+        return Promise.resolve(true);
       } catch (error) {
         // Handle 404 as empty
         if (error.status === 404) {
@@ -71,8 +72,9 @@ export class UserController {
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name } = req.user;
-    const cache = req?.session?.cache;
-    const representing = cache?.representing ?? undefined;
+    const representing = req.session?.representing ?? undefined;
+
+    console.log('User controller using representing:', representing);
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
@@ -103,6 +105,8 @@ export class UserController {
     req.cache ??= {};
 
     await this.cacheRelations(req);
+
+    console.log('Cache:', req.session);
 
     if (representing && (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)) {
       req.session.cache.partyId = getRepresentingPartyId(representing);

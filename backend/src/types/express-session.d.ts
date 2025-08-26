@@ -12,8 +12,8 @@ declare module 'express-session' {
     user?: User;
     passport?: any;
     messages: string[];
+    representing?: RepresentingEntity;
     cache?: {
-      representing?: RepresentingEntity;
       representingBusinessChoices?: Engagement[];
       partyId?: string;
       cases?: {

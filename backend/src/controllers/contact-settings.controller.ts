@@ -32,8 +32,7 @@ export class ContactSettingsController {
     @QueryParam('limit', { required: false }) limit?: number,
     @QueryParam('page', { required: false }) page?: number,
   ): Promise<ResponseData<ClientContactSetting>> {
-    const cache = req?.session?.cache;
-    const representing = cache?.representing ?? undefined;
+    const representing = req.session?.representing ?? undefined;
     const { user } = req;
 
     if (!getRepresentingPartyId(representing)) {
@@ -96,8 +95,7 @@ export class ContactSettingsController {
   @OpenAPI({ summary: 'Create contact settings for current logged in user' })
   @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
   async newContactSettings(@Req() req: RequestWithUser, @Body() userData: ClientContactSetting): Promise<ResponseData<ClientContactSetting>> {
-    const cache = req?.session?.cache;
-    const representing = cache?.representing ?? undefined;
+    const representing = req.session?.representing ?? undefined;
     const newContactSettings: NewContactSettings = {
       alias: userData.alias ?? 'default',
       virtual: userData.virtual ?? false,
