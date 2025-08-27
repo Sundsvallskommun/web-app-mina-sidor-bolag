@@ -332,14 +332,12 @@ class App {
                   const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
                   req.session.representing = {
                     mode,
-                  };
-                  if (mode === RepresentingMode.PRIVATE) {
-                    req.session.representing.PRIVATE = {
+                    PRIVATE: {
                       partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
                       personNumber: req.user.personNumber,
                       name: req.user.name,
-                    };
-                  }
+                    },
+                  };
                 }
               } catch {}
             }
