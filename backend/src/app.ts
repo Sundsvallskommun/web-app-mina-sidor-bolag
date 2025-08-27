@@ -322,21 +322,29 @@ class App {
           if (err) return next(err);
           if (!user) return res.redirect(failureRedirect);
 
-          req.logIn(user, err => {
+          req.logIn(user, async err => {
             if (err) return next(err);
 
             if (req.body.RelayState) {
               try {
                 const relay = JSON.parse(req.body.RelayState);
                 if (relay.representingMode != null) {
+                  const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
                   req.session.representing = {
-                    mode: parseInt(relay.representingMode, 10) as RepresentingMode,
+                    mode,
                   };
+                  if (mode === RepresentingMode.PRIVATE) {
+                    req.session.representing.PRIVATE = {
+                      partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
+                      personNumber: req.user.personNumber,
+                      name: req.user.name,
+                    };
+                  }
                 }
               } catch {}
             }
 
-            getBusinessEngagements(user.partyId, user.name)
+            await getBusinessEngagements(user.partyId, user.name)
               .then(engagements => {
                 req.session.representingBusinessChoices = engagements;
               })
