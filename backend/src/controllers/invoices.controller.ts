@@ -32,12 +32,12 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
-    const { representing } = req?.session;
+    const representing = req.session?.representing ?? undefined;
     const { facilityId, page, limit } = req.query;
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
       // this ensures that only invoices for active (plus three years back) facilities are fetched.
-      throw new HttpException(400, 'Bad Request. Facility id:s are required');
+      return { data: Object.assign({}, emptyInvoice), message: 'Empty response' };
     }
 
     const partyId = getRepresentingPartyId(representing);
@@ -76,13 +76,13 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
-    const { representing } = req?.session;
+    const representing = req.session?.representing ?? undefined;
     const { facilityId, page, limit } = req.query;
 
     console.log('Using representing:', representing);
     if (!facilityId) {
       // See comment in getInvoices method.
-      throw new HttpException(400, 'Bad Request. Facility id:s are required');
+      return { data: Object.assign({}, emptyInvoice), message: 'Empty response' };
     }
 
     const partyId = getRepresentingPartyId(representing);
