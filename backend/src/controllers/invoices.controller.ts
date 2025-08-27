@@ -37,7 +37,7 @@ export class InvoicesController {
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
       // this ensures that only invoices for active (plus three years back) facilities are fetched.
-      return { data: Object.assign({}, emptyInvoice), message: 'Empty response' };
+      return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
     const partyId = getRepresentingPartyId(representing);
@@ -82,7 +82,7 @@ export class InvoicesController {
     console.log('Using representing:', representing);
     if (!facilityId) {
       // See comment in getInvoices method.
-      return { data: Object.assign({}, emptyInvoice), message: 'Empty response' };
+      return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
     const partyId = getRepresentingPartyId(representing);

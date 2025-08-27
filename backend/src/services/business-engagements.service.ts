@@ -33,7 +33,6 @@ const getBusinessEngagements = async (partyId, name) => {
     const apiService = new ApiService();
     res = await apiService.get<BusinessEngagementsResponse>({ url, params }, { username: 'unknown' });
   }
-  // req.session.representingBusinessChoices = res.data.engagements;
   return res.data.engagements ?? [];
 };
 
