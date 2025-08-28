@@ -54,7 +54,7 @@ export class RepresentingController {
   });
 
   getDefaultBUSINESS = async (req: RequestWithUser) => {
-    const { representingBusinessChoices } = req?.session;
+    const representingBusinessChoices = req.session?.representingBusinessChoices || [];
     const selected = this.getSelected<Engagement, 'organizationNumber'>(representingBusinessChoices, req.body, 'organizationNumber');
     const businessInformation = await this.getBusinessInformation(req, selected);
 
@@ -86,7 +86,7 @@ export class RepresentingController {
   @OpenAPI({ summary: 'Return which entity a logged in user represents' })
   @UseBefore(authMiddleware)
   async getBussinesEngagments(@Req() req: RequestWithUser): Promise<ResponseData> {
-    const { representing } = req?.session;
+    const representing = req.session?.representing ?? undefined;
 
     if (!representing) {
       throw new HttpException(403, 'Forbidden');
@@ -108,7 +108,7 @@ export class RepresentingController {
   @OpenAPI({ summary: 'Sets which entity a logged in user represents' })
   @UseBefore(authMiddleware)
   async postBusinessEngagements(@Body() selectedRepresenting: RepresentsDto, @Req() req: RequestWithUser): Promise<ResponseData> {
-    const { representing } = req?.session;
+    const representing = req.session?.representing ?? undefined;
     let newRepresenting = representing;
 
     if (selectedRepresenting.organizationNumber !== undefined) {

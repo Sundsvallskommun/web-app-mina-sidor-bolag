@@ -53,6 +53,7 @@ export class UserController {
           ...relation,
           organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
         }));
+        return Promise.resolve(true);
       } catch (error) {
         // Handle 404 as empty
         if (error.status === 404) {
@@ -71,7 +72,7 @@ export class UserController {
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name } = req.user;
-    const { representing } = req?.session ?? {};
+    const representing = req.session?.representing ?? undefined;
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
@@ -103,7 +104,11 @@ export class UserController {
 
     await this.cacheRelations(req);
 
-    if (representing && (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)) {
+    if (
+      representing &&
+      getRepresentingPartyId(representing) &&
+      (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)
+    ) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations ?? [];
       const facilities = [];
@@ -121,7 +126,7 @@ export class UserController {
             .then(res => {
               const installedBaseRes: InstalledBaseResponse = res.data;
               const customer = installedBaseRes.installedBaseCustomers[0];
-              return customer.items.filter(i => facilityActiveLastThreeYears(i));
+              return customer.items?.filter(i => facilityActiveLastThreeYears(i)) ?? [];
             });
           installedBasePromises.push(thisPromise);
         } catch (error) {
@@ -140,8 +145,7 @@ export class UserController {
             .map((r: PromiseFulfilledResult<any>) => r.value)
             .flat();
         })
-        .catch(error => {
-          console.log('Error in installed base promises', error);
+        .catch(() => {
           customerItems = [];
         });
 
