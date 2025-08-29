@@ -22,17 +22,6 @@ export const OnlyTrade: React.FC<{ facility?: InstalledBaseItem }> = ({ facility
 
   return (
     <article className="grow md:min-w-[338px] max-w-[520px] min-h-[165px] bg-background-content p-16 lg:my-0 mb-24">
-      {/* <div className="flex gap-12 pb-16">
-        <div className="flex items-center">
-          <div className={`bg-vattjom-background-200 flex justify-center items-center h-32 w-32 p-4 rounded-button`}>
-            <Icon icon={<Lightbulb />} size={20} />
-          </div>
-        </div>
-        <p className="text-large">
-          {facility?.address?.street?.includes('Solcellsanläggning') ? 'Elproduktion' : 'Elförbrukning'}
-        </p>
-      </div> */}
-
       <div>
         <p className="text-small whitespace-normal">
           Din {facility?.address?.street?.includes('Solcellsanläggning') ? 'produktion' : 'förbrukning'} ser du hos ditt

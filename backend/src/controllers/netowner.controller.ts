@@ -44,7 +44,6 @@ export class NetOwnerController {
         facility.address?.city,
       )}/output/json/user/sundsvall_test/key/166dfcf731348498a23a3c2857`,
     );
-    console.log('elnatsagare', elnatsagare.data);
     return elnatsagare.data.elomradeAdress?.elnat?.natagare || 'Okänd elnätsägare';
   }
 }

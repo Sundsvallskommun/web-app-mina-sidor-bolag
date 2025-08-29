@@ -48,17 +48,6 @@ export const Consumption = () => {
                 agreementsFacilities?.some((agreement) => agreement === facility?.facilityId)
             ) ?? [];
           setFacilities(filteredFacilities);
-
-          const onlyElectricityTrade =
-            user?.facilities?.filter(
-              (facility: InstalledBaseItem) =>
-                user?.facilities?.some((f) => f.type === 'Elhandel' && f.facilityId === facility.facilityId) &&
-                !user?.facilities?.some((f) => f.type === 'El' && f.facilityId === facility.facilityId)
-            ) ?? [];
-
-          console.log(onlyElectricityTrade);
-
-          // setOnlyElectricityTradeFacilities(onlyElectricityTrade);
         }
       }
       setIsFiltering(false);
@@ -77,7 +66,6 @@ export const Consumption = () => {
         <Spinner className="mx-auto" />
       ) : user && user?.facilities?.length ? (
         <div>
-          ½
           <p className="text-large mb-32">
             Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
           </p>
@@ -97,9 +85,6 @@ export const Consumption = () => {
             {facilities?.map((facility) => {
               return <ConsumptionCard key={facility.facilityId} facility={facility} date={thisMonth} />;
             })}
-            {/* {onlyElectricityTradeFacilities.map((f) => (
-              <OnlyTrade key={`handel-facility-${f.facilityId}`} facility={f} />
-            ))} */}
           </div>
         </div>
       ) : (
