@@ -24,16 +24,21 @@ export default function CustomTooltip({ active, payload, label, fromDate, year, 
     }
   };
 
+  const formatted = (value) =>
+    new Intl.NumberFormat('se', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(value as number);
+
   if (active && payload?.length) {
     return (
       <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
         {formatDate()}
         <p>
-          <strong>{dayjs(fromDate).format('YYYY')}:</strong> {payload[0].value} {isConsumption ? 'kWh' : 'ºC'}
+          <strong>{dayjs(fromDate).format('YYYY')}:</strong> {formatted(payload[0].value)}{' '}
+          {isConsumption ? 'kWh' : 'ºC'}
         </p>
         {year && payload[1]?.payload?.previousValue ? (
           <p>
-            <strong>{year}:</strong> {payload[1]?.payload?.previousValue ?? ''} {isConsumption ? 'kWh' : 'ºC'}
+            <strong>{year}:</strong> {formatted(payload[1]?.payload?.previousValue ?? '')}{' '}
+            {isConsumption ? 'kWh' : 'ºC'}
           </p>
         ) : null}
       </div>
