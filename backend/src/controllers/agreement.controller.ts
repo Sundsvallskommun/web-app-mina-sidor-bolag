@@ -26,17 +26,38 @@ export class AgreementController {
   @UseBefore(authMiddleware)
   async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
     const { representing } = req?.session;
-    const partyId = getRepresentingPartyId(representing);
+    const delegations = req?.session.cache.delegations;
+    const partyIdList: string[] = [getRepresentingPartyId(representing)];
+    const agreements: Agreement[] = [];
 
-    if (!partyId) {
+    delegations.forEach(delegation => {
+      partyIdList.push(delegation.owner);
+    });
+
+    if (!partyIdList.length) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-    const params = {};
+    for (const partyId of partyIdList) {
+      const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
+      const params = {};
 
-    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-    const filteredAgreements = res.data.agreements.filter(activeAgreement);
+      const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
+      agreements.push(...res.data.agreements.filter(activeAgreement));
+    }
+
+    const filteredAgreements: Agreement[] = [];
+
+    agreements.forEach(agreement => {
+      delegations.forEach(delegation => {
+        delegation.facilities.forEach(facility => {
+          if (facility.id === agreement.facilityId) {
+            filteredAgreements.push(agreement);
+          }
+        });
+      });
+    });
+
     return { data: filteredAgreements, message: 'success' };
   }
 
