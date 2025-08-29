@@ -9,6 +9,7 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import dayjs from 'dayjs';
 import { pagedAgreementsHandler } from '@services/agreement-service';
 import { RefinedAgreement } from '@interfaces/agreement';
+import { FacilityAddress } from '@interfaces/facility-address';
 
 export const Consumption = () => {
   const { data: user, isFetching: isUserFetching } = useApi<User>({
@@ -27,7 +28,7 @@ export const Consumption = () => {
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
 
-  const hasAgreement = (a: { address: string | undefined }) => (a.address && agreements?.[a.address]?.length) ?? 0 > 0;
+  const hasAgreement = (a: FacilityAddress) => Boolean(a.address && agreements?.[a.address]?.length);
 
   useEffect(() => {
     setAddress(user?.addresses?.filter(hasAgreement)?.[0]?.address ?? '');
