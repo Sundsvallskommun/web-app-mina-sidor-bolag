@@ -53,6 +53,7 @@ import { additionalConverters } from './utils/custom-validation-classes';
 import { isValidUrl } from './utils/util';
 import { isValidOrigin } from './utils/isValidOrigin';
 import rateLimit from 'express-rate-limit';
+import getBusinessEngagements from './services/business-engagements.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -211,28 +212,26 @@ class App {
     this.app.use(passport.session());
     passport.use('saml', samlStrategy);
 
-    this.app.get(
-      `${BASE_URL_PREFIX}/saml/login`,
-      (req, res, next) => {
-        logger.info(`SAML login request received with query: ${JSON.stringify(req.query)}`);
-        if (req.session.returnTo) {
-          req.query.RelayState = req.session.returnTo;
-        } else if (req.query.successRedirect) {
-          req.query.RelayState = req.query.successRedirect;
-        }
-        if (req.query.representingMode) {
-          req.session.representing = {
-            mode: parseInt(req.query.representingMode as string) as RepresentingMode,
-          };
-        }
-        next();
-      },
-      (req, res, next) => {
-        passport.authenticate('saml', {
-          failureRedirect: SAML_FAILURE_REDIRECT,
-        })(req, res, next);
-      },
-    );
+    this.app.get(`${BASE_URL_PREFIX}/saml/login`, samlLimiter, (req, res, next) => {
+      logger.info(`SAML login request received with query: ${JSON.stringify(req.query)}`);
+      const relay: Record<string, any> = {};
+
+      if (req.session.returnTo) {
+        relay.returnTo = req.session.returnTo;
+      } else if (req.query.successRedirect) {
+        relay.returnTo = req.query.successRedirect;
+      }
+
+      if (req.query.representingMode != null) {
+        relay.representingMode = req.query.representingMode;
+      }
+
+      req.query.RelayState = JSON.stringify(relay);
+
+      passport.authenticate('saml', {
+        failureRedirect: SAML_FAILURE_REDIRECT,
+      })(req, res, next);
+    });
 
     this.app.get(`${BASE_URL_PREFIX}/saml/metadata`, (req, res) => {
       res.type('application/xml');
@@ -294,24 +293,71 @@ class App {
     });
 
     this.app.post(`${BASE_URL_PREFIX}/saml/login/callback`, samlLimiter, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-      let successRedirect, failureRedirect;
-      if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
+      const relay = JSON.parse(req.body.RelayState);
+
+      let successRedirect;
+      if (typeof relay === 'object' && relay.returnTo && isValidUrl(relay.returnTo) && isValidOrigin(relay.returnTo)) {
+        successRedirect = relay.returnTo;
+      } else if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
         successRedirect = req.body.RelayState;
       } else {
         successRedirect = SAML_SUCCESS_REDIRECT;
       }
 
+      let failureRedirect;
       if (req.session.messages?.length > 0) {
         failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
       } else {
-        failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
+        failureRedirect = successRedirect + `?failMessage=SAML_UNKNOWN_ERROR`;
       }
 
-      passport.authenticate('saml', {
-        successReturnToOrRedirect: successRedirect,
-        failureRedirect: failureRedirect,
-        failureMessage: true,
-      })(req, res, next);
+      // Authenticate before saving state to session, since otherwise state may be overwritten
+      passport.authenticate(
+        'saml',
+        {
+          failureRedirect,
+          failureMessage: true,
+        },
+        (err, user) => {
+          if (err) return next(err);
+          if (!user) return res.redirect(failureRedirect);
+
+          req.logIn(user, async err => {
+            if (err) return next(err);
+
+            if (req.body.RelayState) {
+              try {
+                const relay = JSON.parse(req.body.RelayState);
+                if (relay.representingMode != null) {
+                  const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
+                  req.session.representing = {
+                    mode,
+                    PRIVATE: {
+                      partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
+                      personNumber: req.user.personNumber,
+                      name: req.user.name,
+                    },
+                  };
+                }
+              } catch {}
+            }
+
+            await getBusinessEngagements(user.partyId, user.name)
+              .then(engagements => {
+                req.session.representingBusinessChoices = engagements;
+              })
+              .catch(err => {
+                console.error('Error fetching business engagements:', err);
+                req.session.representingBusinessChoices = [];
+              });
+
+            req.session.save(saveErr => {
+              if (saveErr) return next(saveErr);
+              res.redirect(successRedirect);
+            });
+          });
+        },
+      )(req, res, next);
     });
   }
 

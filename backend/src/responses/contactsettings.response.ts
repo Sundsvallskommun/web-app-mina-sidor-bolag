@@ -73,6 +73,9 @@ export class ClientContactSetting {
   @IsOptional()
   @IsNullable()
   municipalityId?: string | null;
+  @IsString()
+  @IsOptional()
+  modified: string;
 }
 
 export class ClientDelegate implements IDelegate {

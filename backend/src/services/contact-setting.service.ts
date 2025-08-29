@@ -45,7 +45,9 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
       myPages: true,
       snailmail: false,
     },
+    modified: contactSetting.modified,
   };
+
   return clientContactSetting;
 };
 
