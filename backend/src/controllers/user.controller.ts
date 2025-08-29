@@ -164,8 +164,8 @@ export class UserController {
 
       await this.getMyDelegatedFacilities(req).then(result => {
         req.session.cache.delegations = result;
-        result.map(delegation => {
-          delegation.facilities.map(facility => {
+        result.forEach(delegation => {
+          delegation.facilities.forEach(facility => {
             try {
               const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
               const installedBaseParams = {
