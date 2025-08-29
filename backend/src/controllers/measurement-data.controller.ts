@@ -20,9 +20,18 @@ export class MeasurementDataController {
   @UseBefore(authMiddleware)
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
     const { representing } = req?.session ?? {};
-    const { category, facilityId, fromDate, toDate, aggregateOn } = req.query;
+    const delegations = req.session.cache.delegations;
 
-    const partyId = getRepresentingPartyId(representing);
+    const { category, facilityId, fromDate, toDate, aggregateOn } = req.query;
+    let partyId = getRepresentingPartyId(representing);
+
+    delegations.forEach(delegation => {
+      delegation.facilities.forEach(facility => {
+        if (facility.id === facilityId) {
+          partyId = delegation.owner;
+        }
+      });
+    });
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
