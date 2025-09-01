@@ -6,7 +6,6 @@ import { useFormContext } from 'react-hook-form';
 import { User } from '@interfaces/user';
 import { FacilityDelegation, ResolvedFacilityDelegation } from '@interfaces/facility-delegation';
 import FacilityDelegateFormLogic from '@layouts/pages/mypages-sections/profile/components/facility-delegate-form-logic.component';
-import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { FacilityDelegateFilter } from '@layouts/pages/mypages-sections/profile/components/facility-delegate-filter.component';
 
 const EmptyField = (text: string) => {
@@ -43,17 +42,11 @@ export const FacilityDelegateItem = ({
   };
 
   const filteredDelegationFacilities = () => {
-    const f = facilityDelegate.facilities
-      ?.map((facility) => {
-        return userData?.facilities?.filter((userFacility: InstalledBaseItem) => {
-          if (userFacility.facilityId === facility.id && userFacility.type !== 'Elhandel') {
-            return userFacility;
-          }
-        });
-      })
-      .flat();
+    const f = facilityDelegate.facilities?.flatMap(
+      (facility) => userData?.facilities?.filter((uf) => uf.facilityId === facility.id && uf.type !== 'Elhandel') ?? []
+    );
 
-    return f?.map((f) => ` ${f?.address?.street} (${f?.type})`).join(',') ?? '';
+    return f?.map((uf) => `${uf.address?.street} (${uf.type})`).join(', ') ?? '';
   };
 
   const FormComponent = () => {
