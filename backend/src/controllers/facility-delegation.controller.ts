@@ -22,9 +22,8 @@ export class FacilityDelegationController {
   @Get('/facility/delegations')
   @OpenAPI({ summary: 'Get my delegations as owner' })
   @UseBefore(authMiddleware)
-  async getMyFacilityDelegations(@Req() req: RequestWithUser): Promise<ApiResponse<ResolvedFacilityDelegation[] | []>> {
-    const { representing } = req?.session ?? {};
-
+  async getMyFacilityDelegations(@Req() req: RequestWithUser): Promise<ApiResponse<ResolvedFacilityDelegation[]>> {
+    const { representing } = req.session ?? {};
     const partyId = getRepresentingPartyId(representing);
 
     if (!partyId) {
@@ -32,46 +31,41 @@ export class FacilityDelegationController {
     }
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/delegations?owner=${partyId}`;
-    const res = await this.apiService.get<Delegation[]>({ url }, req.user);
+    const { data: delegations } = await this.apiService.get<Delegation[]>({ url }, req.user);
 
-    const delegationPromises = [];
-    const resolvedFacilityDelegations = [];
-
-    for (const delegate of res.data) {
-      try {
-        const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${delegate.delegatedTo}`;
-        const thisPromise = this.apiService.get<CitizenExtended>({ url }, req.user).then(res => {
-          return res.data;
-        });
-
-        await Promise.resolve(thisPromise).then(async result => {
-          const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${delegate.delegatedTo}/personnumber`;
-          const thisPromise = this.apiService.get<number>({ url }, req.user).then(res => {
-            return res.data;
+    const resolvedFacilityDelegations = await Promise.all(
+      delegations.map(async delegate => {
+        try {
+          const citizenUrl = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${delegate.delegatedTo}`;
+          const { data: citizen } = await this.apiService.get<CitizenExtended>({ url: citizenUrl }, req.user).catch(() => {
+            throw new HttpException(404, 'CITIZEN_NOT_FOUND');
           });
 
-          const delegatePersonNumber = await Promise.resolve(thisPromise).then(numberRes => {
-            return numberRes.toString().slice(0, -4).concat('****');
+          const personNumberUrl = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${delegate.delegatedTo}/personnumber`;
+          const { data: personNumber } = await this.apiService.get<number>({ url: personNumberUrl }, req.user).catch(() => {
+            throw new HttpException(404, 'PERSON_NUMBER_NOT_FOUND');
           });
 
-          resolvedFacilityDelegations.push({
+          const maskedPersonNumber = personNumber.toString().slice(0, -4).concat('****');
+
+          return {
             ...delegate,
-            delegatedToName: `${result.givenname} ${result.lastname}`,
-            delegatedToBirthDate: delegatePersonNumber,
-          });
-        });
-        delegationPromises.push(thisPromise);
-      } catch (error) {
-        // Handle 404 as empty
-        if (error.status === 404) {
-          delegationPromises.push(Promise.resolve([]));
-        } else {
+            delegatedToName: `${citizen.givenname} ${citizen.lastname}`,
+            delegatedToBirthDate: maskedPersonNumber,
+          };
+        } catch (error: any) {
+          if (error.status === 404) {
+            return null; // ignore missing citizens
+          }
           throw new HttpException(500, 'Could not fetch citizen');
         }
-      }
-    }
+      }),
+    );
 
-    return { data: resolvedFacilityDelegations, message: 'success' };
+    return {
+      data: resolvedFacilityDelegations.filter(Boolean),
+      message: 'success',
+    };
   }
 
   @Patch('/delegations/:id')
