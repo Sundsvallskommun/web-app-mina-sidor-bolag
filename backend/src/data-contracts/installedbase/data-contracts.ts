@@ -26,6 +26,40 @@ export interface StatusType {
   reasonPhrase?: string;
 }
 
+/** CreateDelegation model */
+export interface CreateDelegation {
+  /**
+   * @minItems 1
+   * @uniqueItems true
+   */
+  facilities: Facility[];
+  /**
+   * Party ID of the delegate
+   * @example "81471222-5798-11e9-ae24-57fa13b361e2"
+   */
+  delegatedTo: string;
+  /**
+   * Party ID of the delegation owner
+   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
+   */
+  owner: string;
+}
+
+/** Facility model */
+export interface Facility {
+  /**
+   * Facility id
+   * @minLength 1
+   * @example "facility1"
+   */
+  id: string;
+  /**
+   * Organization number of the company owning the facility
+   * @example "5591628136"
+   */
+  businessEngagementOrgId?: string;
+}
+
 export interface ConstraintViolationProblem {
   cause?: ThrowableProblem;
   stackTrace?: {
@@ -110,6 +144,17 @@ export interface ThrowableProblem {
 export interface Violation {
   field?: string;
   message?: string;
+}
+
+/** UpdateDelegation model */
+export interface UpdateDelegation {
+  /** @uniqueItems true */
+  facilities?: Facility[];
+  /**
+   * Party ID of the delegate
+   * @example "81471222-5798-11e9-ae24-57fa13b361e2"
+   */
+  delegatedTo?: string;
 }
 
 /** Installed base owner model */
@@ -225,4 +270,39 @@ export interface InstalledBaseItemMetaData {
 /** Installed base response model */
 export interface InstalledBaseResponse {
   installedBaseCustomers?: InstalledBaseCustomer[];
+}
+
+/** Delegation response model */
+export interface Delegation {
+  /**
+   * Unique identifier for the delegation
+   * @example "12345678-1234-1234-1234-123456789012"
+   */
+  id?: string;
+  facilities?: Facility[];
+  /**
+   * Party ID of the delegate
+   * @example "81471222-5798-11e9-ae24-57fa13b361e2"
+   */
+  delegatedTo?: string;
+  /**
+   * Party ID of the delegation owner
+   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
+   */
+  owner?: string;
+  /**
+   * Municipality ID of the delegation
+   * @example "1234"
+   */
+  municipalityId?: string;
+  /**
+   * When the delegation was created
+   * @format date-time
+   */
+  created?: string;
+  /**
+   * When the delegation was last updated
+   * @format date-time
+   */
+  updated?: string;
 }
