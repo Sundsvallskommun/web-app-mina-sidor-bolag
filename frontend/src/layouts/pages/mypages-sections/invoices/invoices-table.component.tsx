@@ -69,6 +69,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
     previousRepresentingMode.current = representingMode;
     totalCount.current = data.totalCount;
     setRows(data.invoices);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setRows, isFetched, data]);
 
   const getOrganizationName = useMemo(
