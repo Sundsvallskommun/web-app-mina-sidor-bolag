@@ -24,8 +24,8 @@ export default function CustomTooltip({ active, payload, label, fromDate, year, 
     }
   };
 
-  const formatted = (value) =>
-    new Intl.NumberFormat('se', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(value as number);
+  const formatted = (value: number) =>
+    new Intl.NumberFormat('se', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(value);
 
   if (active && payload?.length) {
     return (
