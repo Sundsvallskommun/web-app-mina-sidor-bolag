@@ -26,7 +26,7 @@ export const APIS = [
   },
   {
     name: 'installedbase',
-    version: '3.0',
+    version: '3.1',
   },
   {
     name: 'agreement',
