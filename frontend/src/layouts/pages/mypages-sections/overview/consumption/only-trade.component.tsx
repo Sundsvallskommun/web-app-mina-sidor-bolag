@@ -10,7 +10,6 @@ export const OnlyTrade: React.FC<{ facility?: InstalledBaseItem }> = ({ facility
       apiService
         .post('netowner', facility)
         .then((response: AxiosResponse<string, unknown>) => {
-          console.log('Net owner response:', response.data);
           setNetOwner(response.data || 'Okänd elnätsägare');
         })
         .catch((error) => {
@@ -27,7 +26,6 @@ export const OnlyTrade: React.FC<{ facility?: InstalledBaseItem }> = ({ facility
           Din {facility?.address?.street?.includes('Solcellsanläggning') ? 'produktion' : 'förbrukning'} ser du hos ditt
           elnätsbolag. För denna anläggning ser vi att du har {netOwner}.
         </p>
-        <p className="text-small"></p>
       </div>
     </article>
   );
