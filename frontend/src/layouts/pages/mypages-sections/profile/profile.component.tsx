@@ -4,6 +4,7 @@ import { DelegatedContactDetails } from './profile-delegate-details.component';
 import { ContactSettings } from './profile-contact-settings.component';
 import { ContactDetails } from './profile-contact-details.component';
 import { Disclosure, Divider } from '@sk-web-gui/react';
+import { FacilityDelegates } from '@layouts/pages/mypages-sections/profile/profile-facility-delegates.component';
 
 export const Profile = () => {
   return (
@@ -44,19 +45,18 @@ export const Profile = () => {
         <DelegatedContactDetails />
       </Disclosure>
 
-      {/*
-
-      Yet to be implemented
-
       <Disclosure
         className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
+        data-cy="facility-delegates-disclosure"
         header={
           <>
             <h4 className="text-h4-md">Behörigheter</h4>
             <p className="text-base font-normal mb-0">Hantera dina behörigheter för Mina sidor.</p>
           </>
         }
-      ></Disclosure>*/}
+      >
+        <FacilityDelegates />
+      </Disclosure>
     </div>
   );
 };

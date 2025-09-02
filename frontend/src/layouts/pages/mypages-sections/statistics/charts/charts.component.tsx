@@ -16,10 +16,12 @@ import dayjs from 'dayjs';
 import { User } from '@interfaces/user';
 import { MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
+import { OnlyTrade } from '../../overview/consumption/only-trade.component';
 
 export default function Charts() {
   const { watch, setValue } = useFormContext();
   const { facilityId, toDate, fromDate, year } = watch();
+  const [onlyTrade, setOnlyTrade] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
   const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
 
@@ -91,6 +93,12 @@ export default function Charts() {
   useEffect(() => {
     setValue('category', getCategoryFromFacilityType(user?.facilities, facilityId));
     setValue('area', getAreaFromFacility(user?.facilities, facilityId));
+    setOnlyTrade(
+      (user?.facilities?.some((f) => f.type === 'Elhandel' && f.facilityId === facilityId) &&
+        !user?.facilities?.some((f) => f.type === 'El' && f.facilityId === facilityId) &&
+        !user?.facilities?.some((f) => f.type === 'Elproduktion' && f.facilityId === facilityId)) ||
+        false
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measurementData, facilityId]);
 
@@ -107,24 +115,33 @@ export default function Charts() {
 
   return (
     <div>
-      <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
-        <Consumption
-          data={mergedMeasurementData ?? measurementData}
-          isFetching={isFetchingMeasurementData}
-          isPreviousFetching={isPreviousFetching}
-        />
+      {onlyTrade && user?.facilities?.some((f) => f.facilityId === facilityId) ? (
+        <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20 flex justify-center items-center">
+          <OnlyTrade
+            key={`handel-facility-${facilityId}`}
+            facility={user?.facilities?.find((f) => f.facilityId === facilityId)}
+          />
+        </div>
+      ) : (
+        <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
+          <Consumption
+            data={mergedMeasurementData ?? measurementData}
+            isFetching={isFetchingMeasurementData}
+            isPreviousFetching={isPreviousFetching}
+          />
 
-        {measurementData?.temperatureData?.length ? (
-          <>
-            <Divider className="my-40" />
-            <OutdoorTemperature
-              data={mergedTemperatureData ?? measurementData}
-              isFetching={isFetchingMeasurementData}
-              isPreviousFetching={isPreviousFetching}
-            />
-          </>
-        ) : null}
-      </div>
+          {measurementData?.temperatureData?.length ? (
+            <>
+              <Divider className="my-40" />
+              <OutdoorTemperature
+                data={mergedTemperatureData ?? measurementData}
+                isFetching={isFetchingMeasurementData}
+                isPreviousFetching={isPreviousFetching}
+              />
+            </>
+          ) : null}
+        </div>
+      )}
 
       <div className="mt-40 flex justify-end">
         <ExportStatisticsButton

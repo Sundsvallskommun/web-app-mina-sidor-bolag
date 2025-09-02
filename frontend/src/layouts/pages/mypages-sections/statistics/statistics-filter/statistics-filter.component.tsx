@@ -52,15 +52,24 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   }, [user]);
 
   useEffect(() => {
-    const filteredFacilities = user?.facilities
-      ?.filter(
+    const nonTradeFacilities =
+      user?.facilities?.filter(
         (facility) =>
           facility?.address?.street === address &&
-          facility.type !== 'Elhandel' &&
           facility.type !== 'Fjärrkyla' &&
-          facility.type !== 'Avfallsvåg'
-      )
-      .sort((a, b) => ((a.type ?? '') > (b.type ?? '') ? 1 : -1));
+          facility.type !== 'Avfallsvåg' &&
+          facility.type !== 'Elhandel'
+      ) ?? [];
+    const uniqueTradeFacilities =
+      user?.facilities?.filter(
+        (facility) =>
+          facility.type === 'Elhandel' &&
+          facility.address?.street === address &&
+          !nonTradeFacilities?.some((_f) => _f.facilityId === facility.facilityId)
+      ) ?? [];
+    const filteredFacilities = [...nonTradeFacilities, ...uniqueTradeFacilities].sort((a, b) =>
+      (a.type ?? '') > (b.type ?? '') ? 1 : -1
+    );
     setFacilities(filteredFacilities);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, user]);

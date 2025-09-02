@@ -12,6 +12,8 @@ import { InvoicesController } from './controllers/invoices.controller';
 import { AgreementController } from '@controllers/agreement.controller';
 import { MeasurementDataController } from '@controllers/measurement-data.controller';
 import { DelegateController } from './controllers/delegate.controller';
+import { NetOwnerController } from './controllers/netowner.controller';
+import { FacilityDelegationController } from '@controllers/facility-delegation.controller';
 
 validateEnv();
 
@@ -28,6 +30,8 @@ const app = new App([
   AgreementController,
   MeasurementDataController,
   DelegateController,
+  NetOwnerController,
+  FacilityDelegationController,
 ]);
 
 app.listen();
