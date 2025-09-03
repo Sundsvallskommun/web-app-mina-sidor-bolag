@@ -180,6 +180,7 @@ export class UserController {
 
                   return customer.items
                     .filter(i => facilityActiveLastThreeYears(i))
+                    .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
                     .map(item => {
                       return { ...item, isDelegated: true };
                     });
@@ -209,7 +210,7 @@ export class UserController {
         });
 
       const uniqueFacilities = delegatedItems.reduce((accumulator, current) => {
-        if (!accumulator.find(item => item.facilityId === current.facilityId)) {
+        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId)) {
           accumulator.push(current);
         }
         return accumulator;
