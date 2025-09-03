@@ -20,6 +20,7 @@ export class MeasurementDataController {
   @UseBefore(authMiddleware)
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
     const representing = req.session?.representing ?? undefined;
+    const delegations = req.session?.cache?.delegations ?? [];
     const { category, facilityId, fromDate, toDate, aggregateOn } = req.query;
     let partyId = getRepresentingPartyId(representing);
 

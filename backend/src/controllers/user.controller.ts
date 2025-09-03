@@ -131,6 +131,7 @@ export class UserController {
       let customerItems = [];
       const installedBasePromises = [];
       const delegatedInstalledBasePromises = [];
+      let delegatedItems = [];
 
       for (const { organizationNumber } of relations) {
         try {
@@ -183,6 +184,7 @@ export class UserController {
 
                   return customer.items
                     .filter(i => facilityActiveLastThreeYears(i))
+                    .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
                     .map(item => {
                       return { ...item, isDelegated: true };
                     });
@@ -201,26 +203,26 @@ export class UserController {
       });
       await Promise.allSettled(delegatedInstalledBasePromises)
         .then(results => {
-          customerItems = results
+          delegatedItems = results
             .filter(r => r.status === 'fulfilled')
             .map((r: PromiseFulfilledResult<any>) => r.value)
             .flat();
         })
         .catch(error => {
           console.log('Error in delegated installed base promises', error);
-          customerItems = [];
+          delegatedItems = [];
         });
 
-      const uniqueFacilities = customerItems.reduce((accumulator, current) => {
-        if (!accumulator.find(item => item.facilityId === current.facilityId)) {
+      const uniqueFacilities = delegatedItems.reduce((accumulator, current) => {
+        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId)) {
           accumulator.push(current);
         }
         return accumulator;
       }, []);
 
-      facilities.push(...uniqueFacilities);
+      facilities.push(...customerItems, ...uniqueFacilities);
 
-      for (const installation of customerItems) {
+      for (const installation of facilities) {
         const {
           address: { street },
           facilityId,
@@ -253,6 +255,7 @@ export class UserController {
       addresses,
       facilities,
     };
+
     return response.send({ data: userData, message: 'success' });
   }
 
