@@ -26,27 +26,32 @@ export class AgreementController {
   @UseBefore(authMiddleware)
   async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
     const { representing } = req?.session;
-    const delegations = req?.session.cache.delegations;
-    const partyIdList: string[] = [getRepresentingPartyId(representing)];
+    const delegations = req?.session?.cache?.delegations ?? [];
+    const partyId = getRepresentingPartyId(representing);
+    const partyIdList: string[] = [];
     const agreements: Agreement[] = [];
+    const filteredAgreements: Agreement[] = [];
 
     delegations.forEach(delegation => {
       partyIdList.push(delegation.owner);
     });
 
-    if (!partyIdList.length) {
+    if (!partyId) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    for (const partyId of partyIdList) {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-      const params = {};
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
+    const params = {};
+
+    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
+    filteredAgreements.push(...res.data.agreements.filter(activeAgreement));
+
+    for (const partyIdItem of partyIdList) {
+      const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyIdItem}`;
 
       const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
       agreements.push(...res.data.agreements.filter(activeAgreement));
     }
-
-    const filteredAgreements: Agreement[] = [];
 
     agreements.forEach(agreement => {
       delegations.forEach(delegation => {

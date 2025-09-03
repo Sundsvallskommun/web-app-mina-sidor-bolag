@@ -126,6 +126,7 @@ export class UserController {
       let customerItems = [];
       const installedBasePromises = [];
       const delegatedInstalledBasePromises = [];
+      let delegatedItems = [];
 
       for (const { organizationNumber } of relations) {
         try {
@@ -197,26 +198,26 @@ export class UserController {
       });
       await Promise.allSettled(delegatedInstalledBasePromises)
         .then(results => {
-          customerItems = results
+          delegatedItems = results
             .filter(r => r.status === 'fulfilled')
             .map((r: PromiseFulfilledResult<any>) => r.value)
             .flat();
         })
         .catch(error => {
           console.log('Error in delegated installed base promises', error);
-          customerItems = [];
+          delegatedItems = [];
         });
 
-      const uniqueFacilities = customerItems.reduce((accumulator, current) => {
+      const uniqueFacilities = delegatedItems.reduce((accumulator, current) => {
         if (!accumulator.find(item => item.facilityId === current.facilityId)) {
           accumulator.push(current);
         }
         return accumulator;
       }, []);
 
-      facilities.push(...uniqueFacilities);
+      facilities.push(...customerItems, ...uniqueFacilities);
 
-      for (const installation of customerItems) {
+      for (const installation of facilities) {
         const {
           address: { street },
           facilityId,
@@ -249,6 +250,7 @@ export class UserController {
       addresses,
       facilities,
     };
+
     return response.send({ data: userData, message: 'success' });
   }
 
