@@ -20,7 +20,7 @@ export class FacilityDelegationController {
   private readonly citizenApiBase = getApiBase('citizen');
 
   @Get('/facility/delegations')
-  @OpenAPI({ summary: 'Get delegation by owner and or delegate' })
+  @OpenAPI({ summary: 'Get my delegations as owner' })
   @UseBefore(authMiddleware)
   async getMyFacilityDelegations(@Req() req: RequestWithUser): Promise<ApiResponse<ResolvedFacilityDelegation[]>> {
     const { representing } = req.session ?? {};

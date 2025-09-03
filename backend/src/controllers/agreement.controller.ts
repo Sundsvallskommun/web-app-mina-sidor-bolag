@@ -26,7 +26,15 @@ export class AgreementController {
   @UseBefore(authMiddleware)
   async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
     const representing = req.session?.representing ?? undefined;
+    const delegations = req?.session?.cache?.delegations ?? [];
     const partyId = getRepresentingPartyId(representing);
+    const partyIdList: string[] = [];
+    const agreements: Agreement[] = [];
+    const filteredAgreements: Agreement[] = [];
+
+    delegations.forEach(delegation => {
+      partyIdList.push(delegation.owner);
+    });
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
@@ -36,7 +44,25 @@ export class AgreementController {
     const params = {};
 
     const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-    const filteredAgreements = res.data.agreements.filter(activeAgreement);
+    filteredAgreements.push(...res.data.agreements.filter(activeAgreement));
+
+    for (const partyIdItem of partyIdList) {
+      const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyIdItem}`;
+
+      const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
+      agreements.push(...res.data.agreements.filter(activeAgreement));
+    }
+
+    agreements.forEach(agreement => {
+      delegations.forEach(delegation => {
+        delegation.facilities.forEach(facility => {
+          if (facility.id === agreement.facilityId) {
+            filteredAgreements.push(agreement);
+          }
+        });
+      });
+    });
+
     return { data: filteredAgreements, message: 'success' };
   }
 

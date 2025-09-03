@@ -10,7 +10,7 @@ import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
-import { InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
+import { Delegation, InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
@@ -21,6 +21,7 @@ interface UserData {
   relations?: CustomerRelation[];
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
+  delegations?: Delegation[];
 }
 
 export class PatchUserSettingsDto {
@@ -65,6 +66,20 @@ export class UserController {
         }
       }
     }
+  };
+  getMyDelegatedFacilities = async (req: RequestWithUser) => {
+    const { representing } = req?.session ?? {};
+
+    const partyId = getRepresentingPartyId(representing);
+
+    if (!partyId) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    const url = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/delegations?delegatedTo=${partyId}`;
+    const res = await this.apiService.get<Delegation[]>({ url }, req.user);
+
+    return res.data;
   };
 
   @Get('/me')
@@ -115,6 +130,9 @@ export class UserController {
       const addressDictionary: { [key: string]: string[] } = {};
       let customerItems = [];
       const installedBasePromises = [];
+      const delegatedInstalledBasePromises = [];
+      let delegatedItems = [];
+
       for (const { organizationNumber } of relations) {
         try {
           const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
@@ -149,8 +167,62 @@ export class UserController {
           customerItems = [];
         });
 
-      facilities.push(...customerItems);
-      for (const installation of customerItems) {
+      await this.getMyDelegatedFacilities(req).then(result => {
+        req.session.cache.delegations = result;
+        result.forEach(delegation => {
+          delegation.facilities.forEach(facility => {
+            try {
+              const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
+              const installedBaseParams = {
+                partyId: delegation.owner,
+              };
+              const thisPromise = this.apiService
+                .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
+                .then(res => {
+                  const installedBaseRes: InstalledBaseResponse = res.data;
+                  const customer = installedBaseRes.installedBaseCustomers[0];
+
+                  return customer.items
+                    .filter(i => facilityActiveLastThreeYears(i))
+                    .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
+                    .map(item => {
+                      return { ...item, isDelegated: true };
+                    });
+                });
+              delegatedInstalledBasePromises.push(thisPromise);
+            } catch (error) {
+              // Handle 404 as empty
+              if (error.status === 404) {
+                delegatedInstalledBasePromises.push(Promise.resolve([]));
+              } else {
+                throw new HttpException(500, 'Could not fetch installedbases');
+              }
+            }
+          });
+        });
+      });
+      await Promise.allSettled(delegatedInstalledBasePromises)
+        .then(results => {
+          delegatedItems = results
+            .filter(r => r.status === 'fulfilled')
+            .map((r: PromiseFulfilledResult<any>) => r.value)
+            .flat();
+        })
+        .catch(error => {
+          console.log('Error in delegated installed base promises', error);
+          delegatedItems = [];
+        });
+
+      const uniqueFacilities = delegatedItems.reduce((accumulator, current) => {
+        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId)) {
+          accumulator.push(current);
+        }
+        return accumulator;
+      }, []);
+
+      facilities.push(...customerItems, ...uniqueFacilities);
+
+      for (const installation of facilities) {
         const {
           address: { street },
           facilityId,
@@ -187,6 +259,7 @@ export class UserController {
       addresses,
       facilities,
     };
+
     return response.send({ data: userData, message: 'success' });
   }
 
