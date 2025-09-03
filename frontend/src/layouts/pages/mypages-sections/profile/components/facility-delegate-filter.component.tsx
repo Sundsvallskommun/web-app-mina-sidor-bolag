@@ -37,7 +37,7 @@ export const FacilityDelegateFilter = () => {
       <p className="text-label-medium mt-40 mb-0">Välj anläggning där behörighet ska gälla</p>
 
       {userData?.facilities
-        .filter((f: InstalledBaseItem) => f.type !== 'Elhandel')
+        ?.filter((f: InstalledBaseItem) => f.type !== 'Elhandel')
         .map((facility: InstalledBaseItem) => {
           return (
             <FormControl key={facility.facilityId} fieldset className="my-12">
