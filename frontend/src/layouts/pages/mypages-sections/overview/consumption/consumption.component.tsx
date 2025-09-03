@@ -9,6 +9,7 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import dayjs from 'dayjs';
 import { pagedAgreementsHandler } from '@services/agreement-service';
 import { RefinedAgreement } from '@interfaces/agreement';
+import { FacilityAddress } from '@interfaces/facility-address';
 
 export const Consumption = () => {
   const { data: user, isFetching: isUserFetching } = useApi<User>({
@@ -27,9 +28,12 @@ export const Consumption = () => {
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
 
+  const hasAgreement = (a: FacilityAddress) => Boolean(a.address && agreements?.[a.address]?.length);
+
   useEffect(() => {
-    setAddress(user?.addresses?.[0]?.address ?? '');
+    setAddress(user?.addresses?.filter(hasAgreement)?.[0]?.address ?? '');
     setIsFiltering(true);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, agreements]);
 
   useEffect(() => {
@@ -54,7 +58,7 @@ export const Consumption = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agreements, address]);
+  }, [agreements, address, user]);
 
   const thisMonth = dayjs();
 
@@ -69,15 +73,17 @@ export const Consumption = () => {
           <p className="text-large mb-32">
             Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
           </p>
-          {user.addresses?.length > 1 && (
+          {user.addresses?.filter(hasAgreement).length > 1 && (
             <div className="sm:flex sm:flex-row flex-nowrap items-center pb-24 gap-16 block">
               <strong>Adress</strong>
               <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
-                {user.addresses?.map((address) => (
-                  <Select.Option key={address?.address ?? 'unknown'}>
-                    {address?.address ? address.address : 'Okänd adress'}
-                  </Select.Option>
-                ))}
+                {user.addresses
+                  ?.filter(hasAgreement)
+                  .map((address) => (
+                    <Select.Option key={address?.address ?? 'unknown'}>
+                      {address?.address ? address.address : 'Okänd adress'}
+                    </Select.Option>
+                  ))}
               </Select>
             </div>
           )}
