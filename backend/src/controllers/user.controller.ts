@@ -218,7 +218,7 @@ export class UserController {
         });
 
       const uniqueFacilities = delegatedItems.reduce((accumulator, current) => {
-        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId)) {
+        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type)) {
           accumulator.push(current);
         }
         return accumulator;
@@ -240,9 +240,9 @@ export class UserController {
           if (installation.type === 'El') {
             installation.type = 'Elproduktion';
           }
-          installation.address.street = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
+          installation.address.street = street.replace(/\s*([Ss]ol[cs]ellsanläggning).*$/g, '');
         }
-        const addressKey = street.replace(/\s*([Ss]olcellsanläggning).*$/g, '');
+        const addressKey = street.replace(/\s*([Ss]ol[cs]ellsanläggning).*$/g, '');
 
         if (!addressDictionary[addressKey]) addressDictionary[addressKey] = [];
 
