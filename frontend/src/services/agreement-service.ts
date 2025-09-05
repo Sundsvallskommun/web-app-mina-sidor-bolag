@@ -6,6 +6,8 @@ export const agreementCategories = {
   ELECTRICITY: { label: 'Elnät', color: 'warning', icon: 'utility', contractor: 'Sundsvall elnät' },
   ELECTRICITY_TRADE: { label: 'Elhandel', color: 'vattjom', icon: 'lightbulb', contractor: 'Sundsvall elnät' },
   WASTE_MANAGEMENT: { label: 'Avfall', color: 'warning', icon: 'trash', contractor: 'Sundsvall energi' },
+  COMMUNICATION: { label: 'Bredband', color: 'vattjom', icon: 'wifi', contractor: 'Servanet' },
+  UNKNOWN: { label: 'Okänd', color: 'gray', icon: 'question', contractor: 'Okänd' },
 };
 
 export const mapCategory = (category?: Category) => {
@@ -78,6 +80,8 @@ export const getCategoryAsString = (categoryNumber: string): string => {
       return 'DISTRICT_HEATING';
     case '4':
       return 'WASTE_MANAGEMENT';
+    case '5':
+      return 'COMMUNICATION';
     default:
       return '';
   }
@@ -95,6 +99,8 @@ export const getCategoryAsNumber = (category: string): string | undefined => {
       return '3';
     case 'WASTE_MANAGEMENT':
       return '4';
+    case 'COMMUNICATION':
+      return '5';
     default:
       return undefined;
   }

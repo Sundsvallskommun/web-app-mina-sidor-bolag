@@ -1,5 +1,5 @@
 import { Icon } from '@sk-web-gui/react';
-import { Lightbulb, Snowflake, Trash, UtilityPole, WavesIcon } from 'lucide-react';
+import { Lightbulb, Snowflake, Trash, UtilityPole, WavesIcon, Wifi } from 'lucide-react';
 
 export interface PaddedListIconProps {
   color: string;
@@ -21,6 +21,8 @@ export const PaddedListIcon = (props: PaddedListIconProps) => {
         return <Trash />;
       case 'snowflake':
         return <Snowflake />;
+      case 'wifi':
+        return <Wifi />;
       default:
     }
   };

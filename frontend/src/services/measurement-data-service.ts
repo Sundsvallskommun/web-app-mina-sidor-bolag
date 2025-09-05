@@ -95,6 +95,8 @@ export const getCategoryFromInstalledBaseType = (type: string | undefined): stri
       return 'DISTRICT_HEATING';
     case 'Elproduktion':
       return 'ELECTRICITY';
+    case 'Bredband':
+      return 'COMMUNICATION';
     default:
       return '';
   }
