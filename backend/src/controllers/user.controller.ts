@@ -172,38 +172,37 @@ export class UserController {
           customerItems = [];
         });
 
-      await this.getMyDelegatedFacilities(req).then(result => {
-        req.session.cache.delegations = result;
-        result.forEach(delegation => {
-          delegation.facilities.forEach(facility => {
-            try {
-              const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
-              const installedBaseParams = {
-                partyId: delegation.owner,
-              };
-              const thisPromise = this.apiService
-                .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
-                .then(res => {
-                  const installedBaseRes: InstalledBaseResponse = res.data;
-                  const customer = installedBaseRes.installedBaseCustomers[0];
+      // Fetch complete facility information for delegated facilities
+      const delegations = req.session.cache.delegations;
+      delegations.forEach(delegation => {
+        delegation.facilities.forEach(facility => {
+          try {
+            const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
+            const installedBaseParams = {
+              partyId: delegation.owner,
+            };
+            const thisPromise = this.apiService
+              .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
+              .then(res => {
+                const installedBaseRes: InstalledBaseResponse = res.data;
+                const customer = installedBaseRes.installedBaseCustomers[0];
 
-                  return customer.items
-                    .filter(i => facilityActiveLastThreeYears(i))
-                    .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
-                    .map(item => {
-                      return { ...item, isDelegated: true };
-                    });
-                });
-              delegatedInstalledBasePromises.push(thisPromise);
-            } catch (error) {
-              // Handle 404 as empty
-              if (error.status === 404) {
-                delegatedInstalledBasePromises.push(Promise.resolve([]));
-              } else {
-                throw new HttpException(500, 'Could not fetch installedbases');
-              }
+                return customer.items
+                  .filter(i => facilityActiveLastThreeYears(i))
+                  .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
+                  .map(item => {
+                    return { ...item, isDelegated: true };
+                  });
+              });
+            delegatedInstalledBasePromises.push(thisPromise);
+          } catch (error) {
+            // Handle 404 as empty
+            if (error.status === 404) {
+              delegatedInstalledBasePromises.push(Promise.resolve([]));
+            } else {
+              throw new HttpException(500, 'Could not fetch installedbases');
             }
-          });
+          }
         });
       });
       await Promise.allSettled(delegatedInstalledBasePromises)
