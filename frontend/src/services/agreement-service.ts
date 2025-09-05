@@ -1,5 +1,7 @@
 import { Agreement, Category, AgreementData, RefinedAgreement } from '@interfaces/agreement';
 
+const visibleCategories = ['ELECTRICITY', 'ELECTRICITY_TRADE', 'DISTRICT_HEATING'];
+
 export const agreementCategories = {
   DISTRICT_COOLING: { label: 'Fjärrkyla', color: 'vattjom', icon: 'snowflake', contractor: 'Sundsvall energi' },
   DISTRICT_HEATING: { label: 'Fjärrvärme', color: 'vattjom', icon: 'waves', contractor: 'Sundsvall energi' },
@@ -40,7 +42,7 @@ export const handlePagedAgreementsResponse: (data: Agreement[]) => AgreementData
   if (data) {
     return data.reduce(function (r: AgreementData[], a: Agreement) {
       const key: string = a.siteAddress;
-      if (a.mainAgreement && a.category !== 'WASTE_MANAGEMENT') {
+      if (a.mainAgreement && visibleCategories.includes(a.category)) {
         r[key] = r[key] || [];
         r[key].push({ ...a, category: mapCategory(a.category) });
       }
