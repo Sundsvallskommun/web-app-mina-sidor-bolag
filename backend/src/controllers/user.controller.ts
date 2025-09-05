@@ -38,6 +38,11 @@ function facilityActiveLastThreeYears(installation: InstalledBaseItem): boolean 
   return facilityIsActive;
 }
 
+function relevantType(installation: InstalledBaseItem): boolean {
+  const relevantTypes: string[] = ['El', 'Elhandel', 'Elproduktion', 'Fjärrvärme'];
+  return relevantTypes.includes(installation.type);
+}
+
 @Controller()
 export class UserController {
   private apiService = new ApiService();
@@ -144,7 +149,7 @@ export class UserController {
             .then(res => {
               const installedBaseRes: InstalledBaseResponse = res.data;
               const customer = installedBaseRes.installedBaseCustomers[0];
-              return customer.items.filter(facilityActiveLastThreeYears);
+              return customer.items.filter(facilityActiveLastThreeYears).filter(relevantType);
             });
           installedBasePromises.push(thisPromise);
         } catch (error) {
