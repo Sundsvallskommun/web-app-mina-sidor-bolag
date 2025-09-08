@@ -72,20 +72,6 @@ export class UserController {
       }
     }
   };
-  getMyDelegatedFacilities = async (req: RequestWithUser) => {
-    const { representing } = req?.session ?? {};
-
-    const partyId = getRepresentingPartyId(representing);
-
-    if (!partyId) {
-      throw new HttpException(400, 'Bad Request');
-    }
-
-    const url = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/delegations?delegatedTo=${partyId}`;
-    const res = await this.apiService.get<Delegation[]>({ url }, req.user);
-
-    return res.data;
-  };
 
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
