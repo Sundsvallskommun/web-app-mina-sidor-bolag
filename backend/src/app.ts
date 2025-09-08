@@ -54,6 +54,7 @@ import { isValidUrl } from './utils/util';
 import { isValidOrigin } from './utils/isValidOrigin';
 import rateLimit from 'express-rate-limit';
 import getBusinessEngagements from './services/business-engagements.service';
+import getDelegatedFacilities from './services/delegation.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -351,6 +352,12 @@ class App {
                 req.session.representingBusinessChoices = [];
               });
 
+            req.session.cache ??= {};
+            const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+              console.error('Error fetching delegated facilities:', err);
+              return [];
+            });
+            req.session.cache.delegations = delegations;
             req.session.save(saveErr => {
               if (saveErr) return next(saveErr);
               res.redirect(successRedirect);
