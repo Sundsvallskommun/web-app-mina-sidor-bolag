@@ -353,14 +353,11 @@ class App {
               });
 
             req.session.cache ??= {};
-            await getDelegatedFacilities(user.partyId)
-              .then(delegations => {
-                req.session.cache.delegations = delegations;
-              })
-              .catch(err => {
-                console.error('Error fetching delegated facilities:', err);
-                req.session.cache.delegations = [];
-              });
+            const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+              console.error('Error fetching delegated facilities:', err);
+              return [];
+            });
+            req.session.cache.delegations = delegations;
             req.session.save(saveErr => {
               if (saveErr) return next(saveErr);
               res.redirect(successRedirect);
