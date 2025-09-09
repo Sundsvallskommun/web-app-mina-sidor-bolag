@@ -7,7 +7,11 @@ import { Spinner } from '@sk-web-gui/react';
 import { TodoListItem } from './todo-list-item.component';
 
 export const Todos = () => {
-  const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const { data: userData, isFetching: userDataIsFetching } = useApi<User>({
+    url: '/me',
+    method: 'get',
+    queryKey: ['user'],
+  });
   const facilityIds = userData?.facilities?.map((f) => f.facilityId ?? '') ?? [];
   const searchParams = new URLSearchParams({});
   searchParams.append('limit', `${1}`);
@@ -25,7 +29,7 @@ export const Todos = () => {
   return (
     <section data-cy="todo-invoices-item">
       <h1>Att göra</h1>
-      {invoicesIsFetching ? (
+      {userDataIsFetching || invoicesIsFetching ? (
         <div className="w-full flex justify-center p-md">
           <Spinner aria-label="Hämtar ohanterade uppgifter" />
         </div>
