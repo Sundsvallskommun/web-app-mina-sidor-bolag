@@ -35,7 +35,8 @@ export const FacilityDelegateFilter = () => {
 
   useEffect(() => {
     setUserFacilities(
-      userData?.facilities?.filter((facility: InstalledBaseItem & { isDelegated: boolean }) => !facility.isDelegated)
+      userData?.facilities?.filter((facility: InstalledBaseItem & { isDelegated: boolean }) => !facility.isDelegated) ??
+        []
     );
   }, [userData]);
 
