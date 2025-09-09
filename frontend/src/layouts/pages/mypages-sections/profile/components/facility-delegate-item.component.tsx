@@ -50,13 +50,17 @@ export const FacilityDelegateItem = ({
   };
 
   const FormComponent = () => {
-    const { register } = useFormContext();
+    const { register, formState } = useFormContext();
 
     return (
       <div data-cy="form-component">
         <FormLabel>Personnummer</FormLabel>
         <Input className="block w-2/3" {...register('delegatedToBirthDate')} readOnly={!newItem} />
-        <p className="text-small w-2/3">Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).</p>
+        {formState.errors['delegatedToBirthDate'] ? (
+          <p className="text-small text-error">Ogiltigt personnummer</p>
+        ) : (
+          <p className="text-small w-2/3">Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).</p>
+        )}
 
         <FacilityDelegateFilter />
 

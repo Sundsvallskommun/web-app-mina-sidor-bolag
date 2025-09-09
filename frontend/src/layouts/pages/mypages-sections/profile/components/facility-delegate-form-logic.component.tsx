@@ -31,7 +31,7 @@ interface FacilityDelegationFormLogicProps {
 const formSchema = yup
   .object<ResolvedFacilityDelegation>({
     id: yup.string(),
-    facilities: yup.mixed(),
+    facilities: yup.array().min(1),
     delegatedToBirthDate: yup.string().required('Personnummer är obligatoriskt'),
     delegatedTo: yup.string(),
     owner: yup.string(),
