@@ -70,7 +70,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
     const filteredFacilities = [...nonTradeFacilities, ...uniqueTradeFacilities].sort((a, b) =>
       (a.type ?? '') > (b.type ?? '') ? 1 : -1
     );
-    setFacilities(filteredFacilities);
+    setFacilities(filteredFacilities.reverse());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, user]);
 
