@@ -1,14 +1,14 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { InvoicesResponse, InvoiceStatus, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
+import { Invoice, InvoicesResponse, InvoiceStatus, MetaData, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { ApiResponse } from '../interfaces/service';
-import { getRepresentingPartyId } from '../utils/getRepresentingPartyId';
+import { ApiResponse } from '@interfaces/service';
+import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 
 const emptyInvoice = {
   invoices: [],
@@ -33,42 +33,54 @@ export class InvoicesController {
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
     const representing = req.session?.representing ?? undefined;
+
+    const delegations = req?.session?.cache?.delegations ?? [];
+    const partyIdList: string[] = [getRepresentingPartyId(representing)];
+    const allInvoices: Invoice[] = [];
     const { facilityId, page, limit } = req.query;
+
+    const metaData: MetaData = { page: parseInt(page.toString()), limit: parseInt(page.toString()), totalRecords: 0, totalPages: 0, count: 12 };
+
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
       // this ensures that only invoices for active (plus three years back) facilities are fetched.
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    const partyId = getRepresentingPartyId(representing);
-    if (!partyId) {
+    if (!partyIdList.length) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const data = Object.assign({}, emptyInvoice);
+    delegations.forEach(delegation => {
+      partyIdList.push(delegation.owner);
+    });
 
-    try {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
+
+    for (const partyId of partyIdList) {
       const params = {
         partyId,
         facilityId,
         page,
         limit,
       };
-      const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
-      const { invoices, _meta } = res.data;
-      data.invoices = invoices;
-      data._meta = _meta;
-    } catch (error) {
-      // Handle 404 as empty
-      if (error.status === 404) {
-        return { data, message: '404 from api, Assumed empty array' };
-      } else {
-        throw new HttpException(500, 'Could not fetch invoices');
+
+      try {
+        const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
+        if (res.data) {
+          const { invoices, _meta } = res.data;
+          allInvoices.push(...invoices);
+          metaData.totalRecords += _meta.totalRecords;
+          metaData.totalPages += _meta.totalPages;
+        }
+      } catch (error) {
+        if (error.status === 500) {
+          throw new HttpException(500, 'Could not fetch invoices');
+        }
       }
     }
 
-    return { data, message: 'success' };
+    return { data: { invoices: allInvoices, _meta: metaData }, message: 'success' };
   }
 
   // TODO: Remove iterative logic once API supports passing multiple status filters
@@ -79,14 +91,19 @@ export class InvoicesController {
     const representing = req.session?.representing ?? undefined;
     const { facilityId, page, limit } = req.query;
 
-    console.log('Using representing:', representing);
+    const delegations = req?.session?.cache?.delegations ?? [];
+    const partyIdList: string[] = [getRepresentingPartyId(representing)];
+
+    delegations.forEach(delegation => {
+      partyIdList.push(delegation.owner);
+    });
+
     if (!facilityId) {
       // See comment in getInvoices method.
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    const partyId = getRepresentingPartyId(representing);
-    if (!partyId) {
+    if (!partyIdList) {
       throw new HttpException(400, 'Bad Request. Party id is required');
     }
 
@@ -102,12 +119,13 @@ export class InvoicesController {
     const dueDateTo = `${date2.getUTCFullYear()}-${date2.getUTCDate()}-${date2.getUTCDay()}`;
     */
 
-    let meta;
+    let meta: MetaData;
     const totalInvoices = [];
     let totalRecords = 0;
     for (const invoiceStatus of pendingStatuses) {
-      try {
+      for (const partyId of partyIdList) {
         const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
+
         const params = {
           partyId,
           facilityId,
@@ -117,18 +135,19 @@ export class InvoicesController {
           // dueDateFrom,
           // dueDateTo,
         };
-        const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
-        const { invoices, _meta } = res.data;
 
-        totalInvoices.push(...invoices);
-        totalRecords += _meta.totalRecords;
-        meta = _meta;
-      } catch (error) {
-        // Handle 404 as empty
-        if (error.status === 404) {
-          return { data, message: '404 from api, Assumed empty array' };
-        } else {
-          throw new HttpException(500, 'Could not fetch invoices');
+        try {
+          const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
+          if (res.data) {
+            const { invoices, _meta } = res.data;
+            totalInvoices.push(...invoices);
+            totalRecords += _meta.totalRecords;
+            meta = _meta;
+          }
+        } catch (error) {
+          if (error.status === 500) {
+            throw new HttpException(500, 'Could not fetch invoices');
+          }
         }
       }
     }
