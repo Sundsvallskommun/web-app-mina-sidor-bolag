@@ -22,5 +22,5 @@ export interface User {
   };
   relations: CustomerRelation[];
   addresses: FacilityAddress[];
-  facilities: InstalledBaseItem[];
+  facilities: (InstalledBaseItem & { isDelegated?: boolean })[];
 }
