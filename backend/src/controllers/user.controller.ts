@@ -50,26 +50,52 @@ export class UserController {
   private installedBaseApiBase = getApiBase('installedbase');
 
   cacheRelations = async (req: RequestWithUser) => {
+    const delegations = req?.session?.cache?.delegations ?? [];
+    const allRelations: CustomerRelation[] = [];
+
     if (!req.session.cache.relations) {
       try {
         const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
         const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
         const relations = relationsRes.data?.customerRelations ?? [];
-        req.session.cache.relations = relations.map(relation => ({
-          ...relation,
-          organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        }));
-        return Promise.resolve(true);
+
+        relations.map(relation =>
+          allRelations.push({
+            ...relation,
+            organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+          }),
+        );
       } catch (error) {
-        // Handle 404 as empty
-        if (error.status === 404) {
-          req.session.cache.relations = [];
-          req.cache.relations = [];
-          return Promise.resolve(true);
-        } else {
+        if (error.status === 500) {
           throw new HttpException(500, 'Could not fetch customer relations');
         }
       }
+
+      if (delegations.length) {
+        try {
+          for (const delegation of delegations) {
+            const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${delegation.owner}`;
+            const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
+
+            const relations = relationsRes.data?.customerRelations ?? [];
+            relations.map(relation => {
+              if (!allRelations.some(r => r.organizationNumber === relation.organizationNumber)) {
+                allRelations.push({
+                  organizationNumber: relation.organizationNumber,
+                  organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+                });
+              }
+            });
+          }
+        } catch (error) {
+          if (error.status === 500) {
+            throw new HttpException(500, 'Could not fetch customer relations');
+          }
+        }
+      }
+
+      req.session.cache.relations = allRelations;
+      return Promise.resolve(true);
     }
   };
 
