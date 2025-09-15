@@ -59,7 +59,7 @@ export class UserController {
         const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
         const relations = relationsRes.data?.customerRelations ?? [];
 
-        relations.map(relation =>
+        relations.forEach(relation =>
           allRelations.push({
             ...relation,
             organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
@@ -78,7 +78,7 @@ export class UserController {
             const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
 
             const relations = relationsRes.data?.customerRelations ?? [];
-            relations.map(relation => {
+            relations.forEach(relation => {
               if (!allRelations.some(r => r.organizationNumber === relation.organizationNumber)) {
                 allRelations.push({
                   organizationNumber: relation.organizationNumber,
