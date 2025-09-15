@@ -15,6 +15,8 @@ import {
   SAML_IDP_PUBLIC_CERT,
   SAML_ISSUER,
   SAML_LOGOUT_CALLBACK_URL,
+  SAML_LOGOUT_REDIRECT,
+  SAML_LOGOUT_URL,
   SAML_PRIVATE_KEY,
   SAML_PUBLIC_KEY,
   SAML_SUCCESS_REDIRECT,
@@ -81,6 +83,7 @@ const samlStrategy = new Strategy(
     wantAssertionsSigned: false,
     wantAuthnResponseSigned: false,
     audience: false,
+    logoutUrl: SAML_LOGOUT_URL,
     logoutCallbackUrl: SAML_LOGOUT_CALLBACK_URL,
     acceptedClockSkewMs: -1,
   },
@@ -121,6 +124,9 @@ const samlStrategy = new Strategy(
         givenName: givenName,
         surname: surname,
         username: 'unknown',
+        nameID: profile.nameID,
+        nameIDFormat: profile.nameIDFormat,
+        sessionIndex: profile.sessionIndex,
       };
 
       const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
@@ -240,55 +246,76 @@ class App {
       res.status(200).send(metadata);
     });
 
-    this.app.get(
-      `${BASE_URL_PREFIX}/saml/logout`,
-      (req, res, next) => {
-        if (req.session.returnTo) {
-          req.query.RelayState = req.session.returnTo;
-        } else if (req.query.successRedirect) {
-          req.query.RelayState = req.query.successRedirect;
-        }
-        next();
-      },
-      (req, res, next) => {
-        let successRedirect = SAML_SUCCESS_REDIRECT;
-        if (typeof req.query.successRedirect === 'string' && isValidUrl(req.query.successRedirect) && isValidOrigin(req.query.successRedirect)) {
-          successRedirect = req.query.successRedirect;
+    this.app.get(`${BASE_URL_PREFIX}/saml/logout`, (req, res) => {
+      if (req.session?.returnTo) {
+        req.query.RelayState = req.session.returnTo;
+      } else if (req.query.successRedirect) {
+        req.query.RelayState = req.query.successRedirect;
+      }
+
+      if (!req.user || !req.user.nameID || !req.user.nameIDFormat) {
+        logger.warn('User missing required SAML fields for logout', { user: req.user });
+        res.redirect(SAML_LOGOUT_CALLBACK_URL);
+        return;
+      }
+
+      samlStrategy.logout(req as any, (err, url) => {
+        if (err || !url) {
+          logger.error('Failed to generate SAML logout URL', { err, user: req.user });
+          res.redirect(SAML_LOGOUT_CALLBACK_URL);
+          return;
         }
 
-        samlStrategy.logout(req as any, () => {
-          req.logout(err => {
-            if (err) {
-              return next(err);
-            }
-            res.redirect(successRedirect as string);
-          });
-        });
-      },
-    );
+        try {
+          logger.info(`Parsing url: ${url}`);
+          const parsed = new URL(url);
+          parsed.searchParams.set('RelayState', SAML_LOGOUT_CALLBACK_URL);
+
+          const redirectUrl = parsed.toString();
+          logger.info(`User ${req.user ? (req.user as User).partyId : 'unknown'} logged out`);
+          logger.info(`Using logout url: ${redirectUrl}`);
+
+          res.redirect(redirectUrl);
+        } catch (parseErr) {
+          logger.error('Error parsing SAML logout URL', { parseErr, url });
+          res.status(500).send('Invalid logout URL');
+        }
+      });
+    });
 
     this.app.get(`${BASE_URL_PREFIX}/saml/logout/callback`, samlLimiter, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
+      logger.info('SAML logout callback received', { query: req.query, body: req.body, user: req.user });
       req.logout(err => {
-        if (err) {
-          return next(err);
+        if (err) return res.status(500).send(err);
+        let successRedirect: URL = new URL(SAML_LOGOUT_REDIRECT);
+        let failureRedirect: URL;
+        const urls = req?.body?.RelayState?.split(',') ?? [];
+
+        if (urls.length !== 0) {
+          if (isValidUrl(urls[0])) {
+            successRedirect = new URL(urls[0]);
+          }
+          if (isValidUrl(urls[1])) {
+            failureRedirect = new URL(urls[1]);
+          } else {
+            failureRedirect = successRedirect;
+          }
         }
 
-        let successRedirect, failureRedirect;
-        if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
-          successRedirect = req.body.RelayState;
-        } else {
-          successRedirect = SAML_SUCCESS_REDIRECT;
+        const queries = new URLSearchParams(failureRedirect?.searchParams);
+
+        if (queries) {
+          if (req.session.messages?.length > 0) {
+            queries.append('failMessage', req.session.messages[0]);
+          } else {
+            queries.append('failMessage', 'SAML_UNKNOWN_ERROR');
+          }
         }
 
-        if (req.session.messages?.length > 0) {
-          failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
-        } else {
-          failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
-        }
         if (failureRedirect) {
-          res.redirect(failureRedirect);
+          res.redirect(failureRedirect.toString());
         } else {
-          res.redirect(successRedirect);
+          res.redirect(successRedirect.toString());
         }
       });
     });
