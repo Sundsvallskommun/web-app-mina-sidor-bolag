@@ -112,12 +112,6 @@ export default function Charts() {
 
       setOnlyTrade(!netAgreementExistsForFacility);
     }
-    // setOnlyTrade(
-    //   (user?.facilities?.some((f) => f.type === 'Elhandel' && f.facilityId === facilityId) &&
-    //     !user?.facilities?.some((f) => f.type === 'El' && f.facilityId === facilityId) &&
-    //     !user?.facilities?.some((f) => f.type === 'Elproduktion' && f.facilityId === facilityId)) ||
-    //     false
-    // );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measurementData, facilityId]);
 

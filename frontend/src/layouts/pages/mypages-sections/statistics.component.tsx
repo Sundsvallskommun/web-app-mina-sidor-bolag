@@ -33,10 +33,6 @@ export default function Statistics() {
     setIsOpen(false);
   };
 
-  useEffect(() => {
-    console.log('Form values changed: ', context.getValues());
-  }, [context.getValues()]);
-
   return (
     <div>
       <FormProvider {...context}>
