@@ -14,6 +14,7 @@ import { Delegation, InstalledBaseItem, InstalledBaseItemMetaData, InstalledBase
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
+import { logger } from '@/utils/logger';
 
 interface UserData {
   name: string;
@@ -117,12 +118,12 @@ export class UserController {
     ) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations ?? [];
-      const facilities = [];
+      const facilities: InstalledBaseItem[] = [];
       const addressDictionary: { [key: string]: string[] } = {};
-      let customerItems = [];
+      let customerItems: InstalledBaseItem[] = [];
       const installedBasePromises = [];
       const delegatedInstalledBasePromises = [];
-      let delegatedItems = [];
+      let delegatedItems: InstalledBaseItem[] = [];
 
       for (const { organizationNumber } of relations) {
         try {
@@ -174,7 +175,7 @@ export class UserController {
                 const customer = installedBaseRes.installedBaseCustomers[0];
 
                 return customer.items
-                  .filter(i => facilityActiveLastThreeYears(i))
+                  .filter(facilityActiveLastThreeYears)
                   .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
                   .map(item => {
                     return { ...item, isDelegated: true };
@@ -203,12 +204,16 @@ export class UserController {
           delegatedItems = [];
         });
 
-      const uniqueFacilities = delegatedItems.reduce((accumulator, current) => {
+      logger.info(`Found delegated items: ${JSON.stringify(delegatedItems, null, 2)}`);
+
+      const uniqueFacilities: InstalledBaseItem[] = delegatedItems.reduce((accumulator, current) => {
         if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type)) {
           accumulator.push(current);
         }
         return accumulator;
       }, []);
+
+      logger.info(`Unique facilities after deduplication: ${JSON.stringify(uniqueFacilities, null, 2)}`);
 
       facilities.push(...customerItems, ...uniqueFacilities);
 

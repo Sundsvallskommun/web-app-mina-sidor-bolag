@@ -4,7 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { Button, Modal, Spinner } from '@sk-web-gui/react';
@@ -32,6 +32,10 @@ export default function Statistics() {
   const closeHandler = () => {
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    console.log('Form values changed: ', context.getValues());
+  }, [context.getValues()]);
 
   return (
     <div>

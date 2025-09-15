@@ -17,6 +17,7 @@ import { User } from '@interfaces/user';
 import { MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { OnlyTrade } from '../../overview/consumption/only-trade.component';
+import { pagedAgreementsHandler } from '@services/agreement-service';
 
 export default function Charts() {
   const { watch, setValue } = useFormContext();
@@ -29,6 +30,12 @@ export default function Charts() {
     method: 'get',
     url: '/me',
     queryKey: ['user'],
+  });
+
+  const { data: agreements } = useApi({
+    url: `/paged/agreements`,
+    method: 'get',
+    dataHandler: pagedAgreementsHandler,
   });
 
   const getParams = (previous?: boolean) => {
@@ -91,14 +98,26 @@ export default function Charts() {
   });
 
   useEffect(() => {
-    setValue('category', getCategoryFromFacilityType(user?.facilities, facilityId));
+    const category = getCategoryFromFacilityType(user?.facilities, facilityId);
+    setValue('category', category);
     setValue('area', getAreaFromFacility(user?.facilities, facilityId));
-    setOnlyTrade(
-      (user?.facilities?.some((f) => f.type === 'Elhandel' && f.facilityId === facilityId) &&
-        !user?.facilities?.some((f) => f.type === 'El' && f.facilityId === facilityId) &&
-        !user?.facilities?.some((f) => f.type === 'Elproduktion' && f.facilityId === facilityId)) ||
-        false
-    );
+    if (category === 'Fjärrvärme') {
+      setOnlyTrade(false);
+    } else {
+      const netAgreementExistsForFacility = agreements
+        ? Object.values(agreements ?? {})
+            .flat()
+            .some((agreement) => agreement.facilityId === facilityId && agreement.category.code === 'ELECTRICITY')
+        : false;
+
+      setOnlyTrade(!netAgreementExistsForFacility);
+    }
+    // setOnlyTrade(
+    //   (user?.facilities?.some((f) => f.type === 'Elhandel' && f.facilityId === facilityId) &&
+    //     !user?.facilities?.some((f) => f.type === 'El' && f.facilityId === facilityId) &&
+    //     !user?.facilities?.some((f) => f.type === 'Elproduktion' && f.facilityId === facilityId)) ||
+    //     false
+    // );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measurementData, facilityId]);
 

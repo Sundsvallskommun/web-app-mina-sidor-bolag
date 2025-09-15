@@ -8,6 +8,7 @@ import DelegatedContactSettingsFormLogic from './delegate-form-logic.component';
 import { queryClient, useApi } from '@services/api-service';
 import { useFormContext } from 'react-hook-form';
 import { User } from '@interfaces/user';
+import { pagedAgreementsHandler } from '@services/agreement-service';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
@@ -33,6 +34,11 @@ export const DelegateItem = ({
     queryKey: ['contactsettings', delegatedContactSetting?.contactSetting?.id ?? ''],
     method: 'delete',
   });
+  const { data: agreements, isLoading: agreementsIsLoading } = useApi({
+    url: `/paged/agreements`,
+    method: 'get',
+    dataHandler: pagedAgreementsHandler,
+  });
 
   const { showConfirmation } = useConfirm();
   const message = useSnackbar();
@@ -46,14 +52,23 @@ export const DelegateItem = ({
     setIsOpen(false);
   };
 
-  const categoryExists = (service: { label: string; category: 'ELECTRICITY' | 'DISTRICT_HEATING' }) => {
-    return userData?.facilities?.some((f) =>
+  const categoryAndAgreementExists = (service: { label: string; category: 'ELECTRICITY' | 'DISTRICT_HEATING' }) => {
+    const categoryFacilities = userData?.facilities?.filter((f) =>
       service.category === 'ELECTRICITY'
         ? f.type === 'El'
         : service.category === 'DISTRICT_HEATING'
           ? f.type === 'Fjärrvärme'
           : false
     );
+
+    const activeAgreements = categoryFacilities?.filter((facility) => {
+      const agreementsOnFacility = Object.values(agreements ?? {})
+        .flat()
+        .filter((a) => a.facilityId === facility.facilityId);
+      return agreementsOnFacility.length > 0;
+    });
+
+    return !agreementsIsLoading && (activeAgreements?.length ?? 0) > 0;
   };
 
   const FormComponent = () => {
@@ -82,7 +97,7 @@ export const DelegateItem = ({
           { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
           { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
         ]
-          .filter(categoryExists)
+          .filter(categoryAndAgreementExists)
           .map(({ label, category }) => (
             <div key={`delegate-${category}`} className="my-24 bg-background-color-mixin-1 p-24 rounded-20">
               <h3 className="text-large">{label}</h3>
