@@ -21,7 +21,7 @@ export const FacilityDelegates = () => {
   const [, setNewItem] = useState(false);
 
   return (
-    <div className="px-14 pt-24">
+    <div className="pt-24">
       <p>
         Du kan ge en person behörighet till dina avtal och dokument. Kom ihåg att du själv måste ta bort behörigheten om
         personen inte längre ska kunna se eller göra ändringar i avtalen.

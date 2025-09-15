@@ -13,7 +13,7 @@ export const ContactSettings = () => {
   const [isEdit, setIsEdit] = useState(false);
 
   return (
-    <div className="pt-40 px-16">
+    <div className="pt-40">
       <ContactSettingsFormLogic onSubmitSuccess={() => setIsEdit(false)} formData={contactsettings}>
         <div>
           <div className="flex flex-col gap-y-40 pb-24">

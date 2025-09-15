@@ -12,7 +12,7 @@ export const Profile = () => {
       <h1 className="mb-16">Din profil och inställningar</h1>
 
       <Disclosure
-        className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
+        className="bg-background-content rounded-cards shadow-50 md:py-8 px-24"
         data-cy="contact-information-disclosure"
         header={
           <>
@@ -27,7 +27,7 @@ export const Profile = () => {
       </Disclosure>
 
       <Disclosure
-        className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
+        className="bg-background-content rounded-cards shadow-50 md:py-8 px-24"
         data-cy="notifications-disclosure"
         header={
           <>
@@ -46,7 +46,7 @@ export const Profile = () => {
       </Disclosure>
 
       <Disclosure
-        className="bg-background-content rounded-cards shadow-50 md:py-16 py-32 px-24"
+        className="bg-background-content rounded-cards shadow-50 md:py-8 px-24"
         data-cy="facility-delegates-disclosure"
         header={
           <>
