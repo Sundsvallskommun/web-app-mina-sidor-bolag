@@ -86,7 +86,7 @@ export const useInactivityAlert = ({
           . Välj om du vill logga ut eller stanna kvar.
         </span>
       );
-      showConfirmation(title, message, 'Stanna kvar', 'Logga ut', 'info').then((confirm: boolean) => {
+      showConfirmation(title, message, 'Stanna kvar', 'Logga ut', 'primary').then((confirm: boolean) => {
         if (confirm) {
           if (countdownTimerRef.current !== null) {
             clearTimeout(countdownTimerRef.current);

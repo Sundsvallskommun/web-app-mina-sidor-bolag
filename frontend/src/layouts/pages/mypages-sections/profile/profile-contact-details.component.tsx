@@ -45,7 +45,7 @@ export const ContactDetails = () => {
   };
 
   return (
-    <div className="pt-40 px-16">
+    <div className="pt-40">
       <div className="flex items-start max-w-fit mb-40 gap-12 ">
         <Icon icon={<Info />} className="shrink-0" />
         <span>
