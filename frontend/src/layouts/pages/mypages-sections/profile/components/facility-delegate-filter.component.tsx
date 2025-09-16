@@ -51,6 +51,7 @@ export const FacilityDelegateFilter = () => {
           !facility.isDelegated && facility.facilityId && agreementsFacilityIds.includes(facility.facilityId)
       ) ?? []
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
   return (
