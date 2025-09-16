@@ -17,7 +17,10 @@ interface ContactSettingsConfirmationContentProps {
 
 const RENEWAL_INTERVAL = 1000 * 60 * 60 * 24 * 365;
 
-const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationContentProps> = ({isInitial, onClose}) => {
+const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationContentProps> = ({
+  isInitial,
+  onClose,
+}) => {
   const methods = useFormContext();
   const { getValues, reset } = methods;
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -29,13 +32,11 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
     setIsEdit(!isEdit);
   }, [isEdit, setIsEdit, reset]);
 
-  const title = isInitial
-    ? 'Välkommen till Mina sidor'
-    : 'Bekräfta kontaktuppgifter';
+  const title = isInitial ? 'Välkommen till Mina sidor' : 'Bekräfta kontaktuppgifter';
 
   const description = isInitial
     ? 'Här får du en samlad överblick över dina avtal, fakturor och din förbrukning från Sundsvall Elnät och Sundsvall Energi.'
-    : 'Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer uppgifterna nedan?'
+    : 'Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer uppgifterna nedan?';
 
   return (
     <Modal.Content className="px-0 lg:px-56 gap-32 md:gap-40">
@@ -46,12 +47,12 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
 
       <Divider />
 
-      { isInitial ? (
+      {isInitial ? (
         <div>
           <h2 className="!text-[18px]">Lägg till dina kontaktuppgifter</h2>
           <p>Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser.</p>
         </div>
-      ): null }
+      ) : null}
 
       <div className="flex items-center">
         <div
@@ -110,44 +111,34 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
             </p>
           </Accordion.Item>
         </Accordion>
-        <Divider className="py-0 my-0"/>
+        <Divider className="py-0 my-0" />
       </div>
 
       <Modal.Footer className="gap-16 flex-col-reverse md:flex-row">
-        { isInitial ? (
+        {isInitial ? (
           <>
-            <Button
-              variant="secondary"
-              onClick={onClose}
-            >
+            <Button variant="secondary" onClick={onClose}>
               Lägg till senare
             </Button>
-            <Button
-              type="submit"
-              onClick={onClose}
-            >
+            <Button type="submit" onClick={onClose}>
               Spara uppgifter
             </Button>
           </>
         ) : isEdit ? (
           <>
-            <Button
-              variant="secondary"
-              onClick={handleToggleEdit}
-            >
+            <Button variant="secondary" onClick={handleToggleEdit}>
               Avbryt
             </Button>
-            <Button type="submit" onClick={onClose}>Spara uppgifter</Button>
+            <Button type="submit" onClick={onClose}>
+              Spara uppgifter
+            </Button>
           </>
         ) : (
           <>
             <Button variant="secondary" onClick={handleToggleEdit}>
               Nej, ändra
             </Button>
-            <Button
-              type="submit"
-              onClick={onClose}
-            >
+            <Button type="submit" onClick={onClose}>
               Ja, bekräfta
             </Button>
           </>
@@ -160,7 +151,7 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
 export const ContactSettingsConfirmation: React.FC = () => {
   const { value: showedInitial, set: setShowedInitial } = useLocalStorageValue('showedInitialContactSettings');
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  
+
   const { data: contactSettings, isFetching } = useApi<ClientContactSetting>({
     url: '/contactsettings',
     method: 'get',
@@ -194,14 +185,9 @@ export const ContactSettingsConfirmation: React.FC = () => {
 
   return (
     <div>
-      <Modal
-        className="sm:mx-auto sm:my-auto sm:bottom-auto sm:relative sm:inline-flex sm:max-w-[720px] w-full block left-0 bottom-0 fixed rounded-0 rounded-t-cards sm:rounded-b-cards"
-        disableCloseOutside={false}
-        show={isOpen}
-        hideClosebutton
-      >
+      <Modal className="w-full max-w-[720px]" disableCloseOutside={false} show={isOpen} hideClosebutton>
         <ContactSettingsFormLogic formData={contactSettings}>
-          <ContactSettingsConfirmationContent onClose={closeHandler} isInitial={!showedInitial}/>
+          <ContactSettingsConfirmationContent onClose={closeHandler} isInitial={!showedInitial} />
         </ContactSettingsFormLogic>
       </Modal>
     </div>
