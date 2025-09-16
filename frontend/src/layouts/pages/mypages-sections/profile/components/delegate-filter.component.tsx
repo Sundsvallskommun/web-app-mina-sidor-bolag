@@ -1,6 +1,7 @@
 import { DelegatedContactSetting, Filter, Operator, Rule } from '@interfaces/contactsettings';
 import { FacilityAddress } from '@interfaces/facility-address';
 import { User } from '@interfaces/user';
+import { pagedAgreementsHandler } from '@services/agreement-service';
 import { useApi } from '@services/api-service';
 import { Checkbox, FormControl } from '@sk-web-gui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -13,6 +14,11 @@ export const DelegateFilter = (props: {
 }) => {
   const { getValues, setValue } = useFormContext();
   const { data: user } = useApi<User>({ url: '/me', method: 'get' });
+  const { data: agreements } = useApi({
+    url: `/paged/agreements`,
+    method: 'get',
+    dataHandler: pagedAgreementsHandler,
+  });
 
   const prettyType = useMemo(() => {
     if (props.category === 'ELECTRICITY') {
@@ -149,10 +155,17 @@ export const DelegateFilter = (props: {
       {user?.addresses
         .filter((address) => {
           // filter out addresses that don't have any facilities of the specified type
+          // and also filter out addresses that don't have any active agreements on those facilities
           const facilitiesOfType = user.facilities
-            .filter((facility) => facility.type === prettyType)
+            .filter((facility) => facility.type === prettyType && !facility.isDelegated)
             .map((facility) => facility.facilityId);
-          return address.facilityIds.some((facilityId) => facilitiesOfType.includes(facilityId));
+          const agreementsFacilityIds =
+            Object.values(agreements ?? {})
+              .flat()
+              .map((a) => a.facilityId) ?? [];
+          return address.facilityIds.some(
+            (facilityId) => facilitiesOfType.includes(facilityId) && agreementsFacilityIds.includes(facilityId)
+          );
         })
         .sort((a, b) => a.address.localeCompare(b.address))
         .map((a) => (

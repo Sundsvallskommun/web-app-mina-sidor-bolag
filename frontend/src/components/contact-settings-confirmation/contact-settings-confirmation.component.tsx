@@ -190,6 +190,7 @@ export const ContactSettingsConfirmation: React.FC = () => {
     if (currentTime - modifiedTime > RENEWAL_INTERVAL) {
       setIsOpen(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching, contactSettings]);
 
   return (

@@ -5,9 +5,15 @@ import React, { BaseSyntheticEvent, useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { Facility } from '@interfaces/facility-delegation';
+import { pagedAgreementsHandler } from '@services/agreement-service';
 
 export const FacilityDelegateFilter = () => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const { data: agreements } = useApi({
+    url: `/paged/agreements`,
+    method: 'get',
+    dataHandler: pagedAgreementsHandler,
+  });
   const [userFacilities, setUserFacilities] = useState<InstalledBaseItem[]>([]);
 
   const { getValues, formState } = useFormContext();
@@ -34,9 +40,16 @@ export const FacilityDelegateFilter = () => {
   };
 
   useEffect(() => {
+    // Check that facility is not already delegated and that there is an agreement for the facility
+    const agreementsFacilityIds =
+      Object.values(agreements ?? {})
+        .flat()
+        .map((a) => a.facilityId) ?? [];
     setUserFacilities(
-      userData?.facilities?.filter((facility: InstalledBaseItem & { isDelegated: boolean }) => !facility.isDelegated) ??
-        []
+      userData?.facilities?.filter(
+        (facility: InstalledBaseItem & { isDelegated: boolean }) =>
+          !facility.isDelegated && facility.facilityId && agreementsFacilityIds.includes(facility.facilityId)
+      ) ?? []
     );
   }, [userData]);
 
