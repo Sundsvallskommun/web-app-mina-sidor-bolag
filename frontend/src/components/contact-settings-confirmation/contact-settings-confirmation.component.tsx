@@ -150,6 +150,7 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
 
 export const ContactSettingsConfirmation: React.FC = () => {
   const { value: showedInitial, set: setShowedInitial } = useLocalStorageValue('showedInitialContactSettings');
+  const [cookieExists, setCookieExists] = useState(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const { data: contactSettings, isFetching } = useApi<ClientContactSetting>({
@@ -157,6 +158,35 @@ export const ContactSettingsConfirmation: React.FC = () => {
     method: 'get',
     queryKey: ['contactsetting'],
   });
+
+  useEffect(() => {
+    const getCookie = (name) => {
+      const value = '; ' + document.cookie;
+      const parts = value.split('; ' + name + '=');
+      if (parts.length === 2) {
+        const part = parts.pop();
+        return part ? part.split(';').shift() : null;
+      }
+      return null;
+    };
+
+    const checkCookie = () => {
+      const cookieValue = getCookie('SKCookieConsent');
+      if (cookieValue) {
+        setCookieExists(true);
+      }
+    };
+    checkCookie();
+    const interval = setInterval(() => {
+      const cookieValue = getCookie('SKCookieConsent');
+      if (cookieValue) {
+        setCookieExists(true);
+        clearInterval(interval);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const closeHandler = () => {
     if (!showedInitial) {
@@ -186,7 +216,7 @@ export const ContactSettingsConfirmation: React.FC = () => {
 
   return (
     <div>
-      <Modal className="w-full max-w-[720px]" disableCloseOutside={false} show={isOpen} hideClosebutton>
+      <Modal className="w-full max-w-[720px]" disableCloseOutside={false} show={isOpen && cookieExists} hideClosebutton>
         <ContactSettingsFormLogic formData={contactSettings}>
           <ContactSettingsConfirmationContent onClose={closeHandler} isInitial={!showedInitial} />
         </ContactSettingsFormLogic>
