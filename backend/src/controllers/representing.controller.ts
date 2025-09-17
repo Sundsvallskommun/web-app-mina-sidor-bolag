@@ -143,7 +143,7 @@ export class RepresentingController {
 
     req.session.representing = newRepresenting;
 
-    if (req.session.representing.BUSINESS.partyId && req.session.representing.mode === 1) {
+    if (req.session?.representing?.BUSINESS?.partyId && representing.mode === 1) {
       req.session.cache.delegations = await getDelegatedFacilities(req.session.representing.BUSINESS.partyId).catch(err => {
         console.error('Error fetching delegated facilities:', err);
         return [];
