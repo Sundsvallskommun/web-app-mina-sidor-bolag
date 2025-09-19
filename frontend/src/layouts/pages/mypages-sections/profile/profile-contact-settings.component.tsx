@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Checkbox, FormControl, FormLabel, Icon } from '@sk-web-gui/react';
-import { Pen } from 'lucide-react';
+import { Info, Pen } from 'lucide-react';
 import { useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { ConnectForm } from '@components/form/connect-form.component';
@@ -19,25 +19,48 @@ export const ContactSettings = () => {
           <div className="flex flex-col gap-y-40 pb-24">
             <ConnectForm>
               {({ register, watch }) => {
+                const hasPhone = !!watch('phone');
+                const hasEmail = !!watch('email');
+
                 if (isEdit) {
                   return (
                     <FormControl fieldset>
                       <FormLabel className="text-large">
                         Aviseringar om avbrott i din strömförsörjning och fjärrvärme
                       </FormLabel>
-                      <Checkbox.Group direction="row">
-                        <Checkbox
-                          {...register('notifications.phone_disabled')}
-                          data-cy="notification-channel-sms-checkbox"
-                        >
-                          Sms
-                        </Checkbox>
+                      <Checkbox.Group>
                         <Checkbox
                           {...register('notifications.email_disabled')}
                           data-cy="notification-channel-email-checkbox"
+                          className="mt-8"
+                          disabled={!hasEmail}
                         >
                           E-post
                         </Checkbox>
+                        {!watch().email ? (
+                          <div className="flex items-center gap-6">
+                            <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
+                            <p className="text-small">
+                              För att få aviseringar via mail behöver du lägga till en e-post.
+                            </p>
+                          </div>
+                        ) : null}
+
+                        <Checkbox
+                          {...register('notifications.phone_disabled')}
+                          data-cy="notification-channel-sms-checkbox"
+                          disabled={!hasPhone}
+                        >
+                          Sms
+                        </Checkbox>
+                        {!watch().phone ? (
+                          <div className="flex items-center gap-6">
+                            <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
+                            <p className="text-small">
+                              För att få aviseringar via sms behöver du lägga till ett mobilnummer.
+                            </p>
+                          </div>
+                        ) : null}
                       </Checkbox.Group>
                     </FormControl>
                   );
