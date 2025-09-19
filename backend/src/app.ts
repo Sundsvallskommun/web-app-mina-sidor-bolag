@@ -233,7 +233,7 @@ class App {
         relay.representingMode = req.query.representingMode;
       }
 
-      req.query.RelayState = JSON.stringify(relay);
+      req.url = `${req.path}?RelayState=${JSON.stringify(relay)}`;
 
       passport.authenticate('saml', {
         failureRedirect: SAML_FAILURE_REDIRECT,
@@ -321,10 +321,10 @@ class App {
     });
 
     this.app.post(`${BASE_URL_PREFIX}/saml/login/callback`, samlLimiter, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-      const relay = JSON.parse(req.body.RelayState);
+      const relay = typeof req?.body?.RelayState === 'string' ? JSON.parse(req.body.RelayState) : null;
 
       let successRedirect;
-      if (typeof relay === 'object' && relay.returnTo && isValidUrl(relay.returnTo) && isValidOrigin(relay.returnTo)) {
+      if (typeof relay === 'object' && relay?.returnTo && isValidUrl(relay?.returnTo) && isValidOrigin(relay?.returnTo)) {
         successRedirect = relay.returnTo;
       } else if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
         successRedirect = req.body.RelayState;
