@@ -9,10 +9,25 @@ import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { Button, Modal, Spinner } from '@sk-web-gui/react';
 
+export interface StatisticsForm {
+  category: string;
+  facilityId?: string;
+  address: string;
+  fromDate: string;
+  toDate: string;
+  /** four digit string */
+  selectedYear?: string;
+  /** two digit string */
+  selectedMonth?: string;
+  /** two digit string */
+  selectedDay?: string;
+  year?: string;
+}
+
 export default function Statistics() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const context = useForm({
+  const context = useForm<StatisticsForm>({
     mode: 'onChange',
     defaultValues: {
       category: '',
