@@ -8,6 +8,7 @@ import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { formatPhoneNumber } from '@utils/format-phone-number';
 
 const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
   contactSetting: {
@@ -16,6 +17,8 @@ const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
     alias: undefined,
     virtual: false,
     phone: '',
+    phoneCountryCode: '+46',
+    phoneNumber: '',
     notifications: {
       email_disabled: true,
       phone_disabled: false,
@@ -40,7 +43,7 @@ interface DelegatedContactSettingsFormLogicProps {
   onSubmitFailed?: () => void;
 }
 
-const phoneRegExp = /^(?:\+46\d{9})?$/;
+const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
 
 const formSchema = yup
   .object<DelegatedContactSetting>({
@@ -49,11 +52,9 @@ const formSchema = yup
       email: yup.string().email('E-postadress har fel format').nullable().optional(),
       alias: yup.string().nullable().required('Namn på kontakt är obligatoriskt'),
       virtual: yup.boolean(),
-      phone: yup
-        .string()
-        .matches(phoneRegExp, 'Mobilnummer har fel format')
-        .nullable()
-        .required('Mobilnummer är obligatoriskt'),
+      phoneCountryCode: yup.string().optional(),
+      phoneNumber: yup.string().matches(phoneRegExp, 'Fyll i ett giltigt mobilnummer').optional(),
+      phone: yup.string().nullable().optional(),
     }),
     delegate: yup
       .object<Delegate>({
@@ -150,7 +151,7 @@ export default function DelegatedContactSettingsFormLogic({
       id: formData?.contactSetting?.id,
       createdById: isContactSettingPatch() ? undefined : values?.contactSetting?.createdById,
       alias: values.contactSetting?.alias,
-      phone: values.contactSetting?.phone,
+      phone: formatPhoneNumber(values.contactSetting?.phoneCountryCode ?? '', values.contactSetting?.phoneNumber ?? ''),
       virtual: values.contactSetting?.virtual,
     });
     contactSettingResult = await contactSettingApiCall(contactSettingData).catch((error) => {

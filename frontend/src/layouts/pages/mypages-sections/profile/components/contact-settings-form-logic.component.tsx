@@ -3,9 +3,10 @@ import { ClientContactSetting } from '@interfaces/contactsettings';
 import { useApi, useApiService } from '@services/api-service';
 import { useSnackbar } from '@sk-web-gui/react';
 import _ from 'lodash';
-import { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { formatPhoneNumber } from '@utils/format-phone-number';
 
 const defaultContactSettingsForm: Partial<ClientContactSetting> = {
   name: undefined,
@@ -40,7 +41,7 @@ interface ContactSettingsFormLogicProps {
   onSubmitFailed?: () => void;
 }
 
-const phoneRegExp = /^(?:\+46\d{9})?$/;
+const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
 
 const formSchema = yup
   .object<ClientContactSetting>({
@@ -48,7 +49,9 @@ const formSchema = yup
     email: yup.string().email('E-postadress har fel format').nullable().optional(),
     alias: yup.string().nullable().optional(),
     virtual: yup.boolean().optional(),
-    phone: yup.string().matches(phoneRegExp, 'Mobilnummer har fel format').nullable().optional(),
+    phoneCountryCode: yup.string().optional(),
+    phoneNumber: yup.string().matches(phoneRegExp, 'Fyll i ett giltigt mobilnummer').optional(),
+    phone: yup.string().nullable().optional(),
     notifications: yup
       .object({
         email_disabled: yup.boolean(),
@@ -132,7 +135,7 @@ export default function ContactSettingsFormLogic({
         id: formData?.id,
         alias: values.alias,
         email: values.email,
-        phone: values.phone,
+        phone: formatPhoneNumber(values.phoneCountryCode ?? '', values.phoneNumber ?? ''),
         notifications: {
           email_disabled: !values.notifications?.email_disabled,
           phone_disabled: !values.notifications?.phone_disabled,
@@ -143,6 +146,7 @@ export default function ContactSettingsFormLogic({
           snailmail: values.decicionsAndDocuments?.snailmail,
         },
       });
+
       const res = await apiCall(data);
       if (!res.error) {
         reset(formConvertedData(res));

@@ -29,6 +29,8 @@ export interface ClientContactSetting {
   notifications?: ClientContactSettingNotifications | null;
   decicionsAndDocuments?: ClientContactSettingDecicionsAndDocuments | null;
   modified?: string;
+  phoneCountryCode?: string;
+  phoneNumber?: string | null;
 }
 
 export enum Operator {

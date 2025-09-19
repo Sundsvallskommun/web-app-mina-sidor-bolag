@@ -1,6 +1,7 @@
 import { FormControl, FormErrorMessage, FormLabel, Input } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import React from 'react';
+import { CountryCodeSelect } from '@sk-web-gui/countrycode-select';
 
 export const ConnectForm = ({ children }) => {
   const methods = useFormContext();
@@ -17,6 +18,7 @@ interface ConnectFormInputProps {
 
 export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header, children, inputProps }) => {
   const methods = useFormContext();
+
   return (
     <FormControl id={name} className="w-full">
       {children && typeof children === 'function' ? (
@@ -27,8 +29,32 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
       ) : (
         <>
           <FormLabel>{header}</FormLabel>
-          <Input {...methods.register(name)} {...inputProps} />
-          {children}
+          {name.includes('phone') ? (
+            <>
+              <Input.Group className="sm:max-w-[33.8rem] max-w-[12rem]" size="md">
+                <Input.LeftAddon>
+                  <CountryCodeSelect
+                    className="sm:max-w-[33.8rem] max-w-[8rem]"
+                    defaultValue="SE"
+                    countries={['SE']}
+                    {...methods.register(`${name}CountryCode`)}
+                  />
+                </Input.LeftAddon>
+                <Input
+                  {...methods.register(`${name}Number`)}
+                  defaultValue={methods.getValues(`${name}`)?.substring(3) ?? ''}
+                  placeholder="701234567"
+                  aria-label="Telefonnummer"
+                />
+              </Input.Group>
+              {children}
+            </>
+          ) : (
+            <div className="w-full">
+              <Input className="w-full sm:max-w-[33.8rem] max-w-[20rem]" {...methods.register(name)} {...inputProps} />
+              {children}
+            </div>
+          )}
         </>
       )}
       {methods.formState.errors?.[name]?.message ? (
