@@ -146,7 +146,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
             <div className="block w-full lg:pt-0 pt-16">
               <FormLabel>Visa statistik per</FormLabel>
-              <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" data-cy="date-toggle">
+              <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
                 {[
                   { value: 'year', label: 'År' },
                   { value: 'month', label: 'Månad' },
@@ -159,7 +159,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                       inverted={mode === item.value}
                       onClick={() => {
                         setMode(item.value as 'year' | 'month' | 'day');
-                        // setDate(item.value as 'year' | 'month' | 'day');
                       }}
                       data-cy={`date-toggle-${item.value}-button`}
                     >
