@@ -152,10 +152,11 @@ export class InvoicesController {
       }
     }
 
-    data.invoices = totalInvoices
-      .sort((a, b) => Math.sign(new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()))
-      .splice(0, parseInt(`${limit}`));
-    data._meta = meta;
+    data.invoices =
+      totalInvoices
+        .sort((a, b) => Math.sign(new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()))
+        .splice(0, parseInt(`${limit}`)) ?? [];
+    data._meta = meta ?? {};
     data._meta.count = data.invoices.length;
     data._meta.totalRecords = totalRecords;
     data._meta.totalPages = Math.ceil(totalRecords / data.invoices.length);

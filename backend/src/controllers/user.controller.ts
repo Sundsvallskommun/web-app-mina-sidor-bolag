@@ -230,16 +230,12 @@ export class UserController {
           delegatedItems = [];
         });
 
-      logger.info(`Found delegated items: ${JSON.stringify(delegatedItems, null, 2)}`);
-
       const uniqueFacilities: InstalledBaseItem[] = delegatedItems.reduce((accumulator, current) => {
         if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type)) {
           accumulator.push(current);
         }
         return accumulator;
       }, []);
-
-      logger.info(`Unique facilities after deduplication: ${JSON.stringify(uniqueFacilities, null, 2)}`);
 
       facilities.push(...customerItems, ...uniqueFacilities);
 
