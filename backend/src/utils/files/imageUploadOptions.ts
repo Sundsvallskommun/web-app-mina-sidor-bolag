@@ -8,10 +8,10 @@ type FileNameCallback = (error: Error | null, filename: string) => void;
 type FilterFileNameCallback = (error: Error | null, pass: boolean) => void;
 
 const storage = multer.diskStorage({
-  destination: (_req: Request, _file: Express.Multer.File, cb: DestinationCallback) => {
+  destination: (_req: unknown, _file: Express.Multer.File, cb: DestinationCallback) => {
     cb(null, dataDir(imageUploadSettings.UPLOAD_FOLDER));
   },
-  filename: (_req: Request, file: Express.Multer.File, cb: FileNameCallback) => {
+  filename: (_req: unknown, file: Express.Multer.File, cb: FileNameCallback) => {
     cb(null, imageUploadSettings.fileNameFormat(file.originalname));
   },
 });
