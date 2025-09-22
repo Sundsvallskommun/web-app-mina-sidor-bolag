@@ -153,8 +153,8 @@ export class InvoicesController {
     }
 
     const byInvoiceDate = (a, b) => Math.sign(new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime());
-    const sortedInvoices = totalInvoices.sort(byInvoiceDate);
-    data.invoices = sortedInvoices.splice(0, Number.parseInt(`${limit}`)) ?? [];
+    totalInvoices.sort(byInvoiceDate);
+    data.invoices = totalInvoices.splice(0, Number.parseInt(`${limit}`)) ?? [];
     data._meta = meta ?? {};
     data._meta.count = data.invoices.length;
     data._meta.totalRecords = totalRecords;
