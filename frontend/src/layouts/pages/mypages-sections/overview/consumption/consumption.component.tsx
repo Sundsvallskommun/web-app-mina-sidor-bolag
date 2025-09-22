@@ -38,22 +38,23 @@ export const Consumption = () => {
 
   useEffect(() => {
     if (user && agreements) {
+      let filteredFacilities: InstalledBaseItem[] = [];
       for (const agreementAddress in agreements) {
         if (agreementAddress === address) {
           const agreementsFacilities: string[] = agreements[address]?.map(
             (agreement: RefinedAgreement) => agreement.facilityId
           );
 
-          const filteredFacilities =
+          filteredFacilities =
             user?.facilities?.filter(
               (facility: InstalledBaseItem) =>
                 (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
                 facility?.address?.street === address &&
                 agreementsFacilities?.some((agreement) => agreement === facility?.facilityId)
             ) ?? [];
-          setFacilities(filteredFacilities);
         }
       }
+      setFacilities(filteredFacilities);
       setIsFiltering(false);
     }
 
