@@ -139,7 +139,13 @@ export class FacilityDelegationController {
     let personId: ResponseData<string>;
 
     try {
-      personId = await this.getPersonIdByPersonNumber(req, facilityDelegationData.delegatedTo);
+      await this.getPersonIdByPersonNumber(req, facilityDelegationData.delegatedTo).then(res => {
+        if (res.data === partyId) {
+          throw new HttpException(409, 'PERSONID_EQUALS_USER_PARTY_ID');
+        } else {
+          personId = res;
+        }
+      });
     } catch (error) {
       if (error.status !== 404) {
         throw error;
