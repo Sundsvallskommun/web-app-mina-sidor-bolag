@@ -10,6 +10,7 @@ import {
 } from '@interfaces/facility-delegation';
 import { useSnackbar } from '@sk-web-gui/react';
 import { queryClient, useApi } from '@services/api-service';
+import { AxiosError } from 'axios';
 
 const defaultFacilityDelegateForm = {
   facilities: [],
@@ -79,24 +80,31 @@ export default function FacilityDelegateFormLogic({
         : { facilities: values.facilities, delegatedTo: values.delegatedToBirthDate };
 
       const apiCall = isPatch() ? await patchMutation.mutateAsync : await postMutation.mutateAsync;
-      const res = await apiCall(data);
-
-      if (!res.error) {
-        await queryClient.invalidateQueries({
-          queryKey: ['facilityDelegation'],
+      await apiCall(data)
+        .then(async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['facilityDelegation'],
+          });
+          snackBar({
+            message: 'Uppgifterna sparades.',
+            status: 'success',
+          });
+          if (onSubmitSuccess) onSubmitSuccess();
+        })
+        .catch((e: AxiosError) => {
+          if (e.status === 409) {
+            snackBar({
+              message: 'Du kan inte delegera dig själv.',
+              status: 'error',
+            });
+          } else {
+            snackBar({
+              message: 'Det gick inte att spara uppgifterna.',
+              status: 'error',
+            });
+          }
+          if (onSubmitFailed) onSubmitFailed();
         });
-        snackBar({
-          message: 'Uppgifterna sparades.',
-          status: 'success',
-        });
-        if (onSubmitSuccess) onSubmitSuccess();
-      } else {
-        snackBar({
-          message: 'Det gick inte att spara uppgifterna.',
-          status: 'error',
-        });
-        if (onSubmitFailed) onSubmitFailed();
-      }
     }
   };
 
