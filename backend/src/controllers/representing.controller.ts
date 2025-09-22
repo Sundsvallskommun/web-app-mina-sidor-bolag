@@ -10,6 +10,7 @@ import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '
 import { BusinessEngagementController } from './business-engagement.controller';
 import { Engagement } from '@/data-contracts/businessengagements/data-contracts';
 import getDelegatedFacilities from '@services/delegation.service';
+import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
 
 interface ResponseData {
   data: any;
@@ -143,8 +144,8 @@ export class RepresentingController {
 
     req.session.representing = newRepresenting;
 
-    if (req.session?.representing?.BUSINESS?.partyId && representing.mode === 1) {
-      req.session.cache.delegations = await getDelegatedFacilities(req.session.representing.BUSINESS.partyId).catch(err => {
+    if (getRepresentingPartyId(newRepresenting)) {
+      req.session.cache.delegations = await getDelegatedFacilities(getRepresentingPartyId(newRepresenting)).catch(err => {
         console.error('Error fetching delegated facilities:', err);
         return [];
       });

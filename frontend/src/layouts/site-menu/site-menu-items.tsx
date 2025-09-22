@@ -28,7 +28,7 @@ export const useRepresentingSwitch = () => {
     try {
       const res = await representingMutation.mutateAsync(representingDto);
       if (!res.error) {
-        invalidateQueries();
+        await invalidateQueries();
       } else {
         if (representingDto.mode === RepresentingMode.BUSINESS) {
           router.push(`${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/valj-foretag`);
