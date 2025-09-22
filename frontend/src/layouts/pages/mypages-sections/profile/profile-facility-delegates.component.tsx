@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { useApi } from '@services/api-service';
+import { ResolvedFacilityDelegation } from '@interfaces/facility-delegation';
 import { FacilityDelegateItem } from '@layouts/pages/mypages-sections/profile/components/facility-delegate-item.component';
-import { FacilityDelegation, ResolvedFacilityDelegation } from '@interfaces/facility-delegation';
+import { useApi } from '@services/api-service';
 
 const emptyFacilityDelegate: ResolvedFacilityDelegation = {
   facilities: [],
@@ -12,13 +11,11 @@ const emptyFacilityDelegate: ResolvedFacilityDelegation = {
 };
 
 export const FacilityDelegates = () => {
-  const { data: facilityDelegations } = useApi<FacilityDelegation[]>({
+  const { data: facilityDelegations } = useApi<ResolvedFacilityDelegation[]>({
     url: `facility/delegations`,
     method: 'get',
     queryKey: ['facilityDelegation'],
   });
-
-  const [, setNewItem] = useState(false);
 
   return (
     <div className="pt-24">
@@ -31,22 +28,12 @@ export const FacilityDelegates = () => {
         <div className="pt-40">
           <strong>Tillagda behörigheter</strong>
           {facilityDelegations.map((facilityDelegate: ResolvedFacilityDelegation) => (
-            <FacilityDelegateItem
-              facilityDelegate={facilityDelegate}
-              key={facilityDelegate?.id}
-              close={() => setNewItem(false)}
-            />
+            <FacilityDelegateItem facilityDelegate={facilityDelegate} key={facilityDelegate?.id} />
           ))}
         </div>
       ) : null}
 
-      <FacilityDelegateItem
-        newItem={true}
-        facilityDelegate={emptyFacilityDelegate}
-        close={() => {
-          setNewItem(false);
-        }}
-      />
+      <FacilityDelegateItem newItem={true} facilityDelegate={emptyFacilityDelegate} close={() => {}} />
     </div>
   );
 };

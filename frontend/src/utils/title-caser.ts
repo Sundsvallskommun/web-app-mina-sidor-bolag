@@ -1,4 +1,4 @@
-export function titleCase(st) {
+export function titleCase(st?: string) {
   return (
     st
       ?.toLowerCase()

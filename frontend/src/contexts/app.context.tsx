@@ -39,7 +39,11 @@ export const defaults: AppContextStates = {
   representingName: undefined,
 };
 
-export function AppWrapper({ children }) {
+interface AppWrapperProps {
+  children?: React.ReactNode;
+}
+
+export function AppWrapper({ children }: AppWrapperProps) {
   const router = useRouter();
   const pathname = usePathname();
 

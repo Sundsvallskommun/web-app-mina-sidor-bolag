@@ -23,7 +23,7 @@ interface FacilityDelegationFormLogicProps {
   formData?: FacilityDelegation;
   onSubmit?: (
     values: FacilityDelegation,
-    context: UseFormReturn<Partial<FacilityDelegation>, unknown, undefined>
+    context: UseFormReturn<Partial<FacilityDelegation>, unknown, Partial<FacilityDelegation>>
   ) => void;
   onSubmitSuccess?: () => void;
   onSubmitFailed?: () => void;
@@ -46,7 +46,8 @@ export default function FacilityDelegateFormLogic({
   onSubmitSuccess,
   onSubmitFailed,
 }: Readonly<FacilityDelegationFormLogicProps>) {
-  const context = useForm<Partial<ResolvedFacilityDelegation>>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const context = useForm<Partial<ResolvedFacilityDelegation>, any, Partial<FacilityDelegation>>({
     resolver: yupResolver(formSchema),
     defaultValues: useMemo(() => formData, [formData]),
     mode: 'onChange',

@@ -47,8 +47,8 @@ export const FacilityDelegateFilter = () => {
         .map((a) => a.facilityId) ?? [];
     setUserFacilities(
       userData?.facilities?.filter(
-        (facility: InstalledBaseItem & { isDelegated: boolean }) =>
-          !facility.isDelegated && facility.facilityId && agreementsFacilityIds.includes(facility.facilityId)
+        (facility: InstalledBaseItem & { isDelegated?: boolean }) =>
+          !facility.isDelegated && !!facility.facilityId && agreementsFacilityIds.includes(facility.facilityId)
       ) ?? []
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { DefaultLayout } from '../../layouts/default-layout.component';
 import FullscreenMainSpinner from '../../components/spinner/fullscreen-main-spinner.component';
 
-export default function Layout({ children }) {
+interface LayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

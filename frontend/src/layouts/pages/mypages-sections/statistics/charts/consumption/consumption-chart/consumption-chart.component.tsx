@@ -45,7 +45,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             {isLargeDevice && (
               <YAxis
                 dx={-50}
-                textAnchor="left"
+                textAnchor="start"
                 axisLine={false}
                 tickLine={false}
                 domain={[

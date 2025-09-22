@@ -33,9 +33,14 @@ export const handleMeasurementDataByMonthResponse: (data: Data) => {
       })
     : 0;
 
+  const currentValue =
+    Array.isArray(currentMeasurements) && currentMeasurements.length > 0 ? currentMeasurements[0].value : 0;
+  const previousValue =
+    Array.isArray(previousMeasurements) && previousMeasurements.length > 0 ? previousMeasurements[0].value : 0;
+
   return {
-    current: Math.round(currentMeasurements[0].value),
-    previous: Math.round(previousMeasurements[0].value),
+    current: Math.round(currentValue ?? 0),
+    previous: Math.round(previousValue ?? 0),
   };
 };
 

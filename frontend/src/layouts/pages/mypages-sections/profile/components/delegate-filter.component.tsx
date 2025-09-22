@@ -36,16 +36,16 @@ export const DelegateFilter = (props: {
     setValue('delegate', delegatedContactSetting.delegate);
   }, [delegatedContactSetting, setValue]);
 
-  const ruleAppliesToFacility = (facilityId) => (rule: Rule) =>
+  const ruleAppliesToFacility = (facilityId: string) => (rule: Rule) =>
     rule.attributeName === 'facilityId' && rule.operator === 'EQUALS' && rule.attributeValue === facilityId;
 
-  const ruleAppliesToCategory = (category) => (rule: Rule) =>
+  const ruleAppliesToCategory = (category: string) => (rule: Rule) =>
     rule.attributeName === 'category' && rule.operator === 'EQUALS' && rule.attributeValue === category;
 
-  const filterHasRuleForCategory = (category) => (filter: Filter) =>
+  const filterHasRuleForCategory = (category: string) => (filter: Filter) =>
     filter.rules?.length === 1 && filter.rules?.some(ruleAppliesToCategory(category));
 
-  const filterHasRuleForFacility = (facilityId) => (filter: Filter) =>
+  const filterHasRuleForFacility = (facilityId: string) => (filter: Filter) =>
     filter.rules?.length === 1 && filter.rules?.some(ruleAppliesToFacility(facilityId));
 
   const categoryIsEnabled = useMemo(
@@ -61,7 +61,7 @@ export const DelegateFilter = (props: {
         ?.find((a) => a.address === adress)
         ?.facilityIds.filter((id) => user?.facilities?.find((f) => f.facilityId === id && f.type === prettyType));
 
-      const facilityIsEnabled = (facilityId) =>
+      const facilityIsEnabled = (facilityId: string) =>
         delegatedContactSetting?.delegate?.filters?.some(filterHasRuleForFacility(facilityId)) ?? false;
 
       const enabled = facilitiesOnAddress?.every(facilityIsEnabled);
@@ -71,7 +71,7 @@ export const DelegateFilter = (props: {
     [delegatedContactSetting?.delegate?.filters, user?.addresses, user?.facilities, prettyType]
   );
 
-  const handleCategoryChange = (e) => {
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const filters: Filter[] = getValues('delegate.filters') ?? [];
     if (e.target.checked) {
       // Add a new filter if it doesn't exist
@@ -99,7 +99,7 @@ export const DelegateFilter = (props: {
     }
   };
 
-  const handleAddressChange = (e, user: User, a: FacilityAddress) => {
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>, user: User, a: FacilityAddress) => {
     const filters: Filter[] = getValues('delegate.filters') ?? [];
     const facilitiesOfType = user.facilities
       .filter((facility) => facility.type === prettyType)
@@ -125,8 +125,10 @@ export const DelegateFilter = (props: {
       updatedFilters = [...filters, ...newFilters];
     } else if (e.target.checked === false) {
       // Remove the filter for each facilityId on the address
-      const doesNotExistInAnyRule = (filter: Filter) => (facilityId) =>
-        !filter.rules.some(ruleAppliesToFacility(facilityId));
+      const doesNotExistInAnyRule =
+        (filter: Filter) =>
+        (facilityId: string = '') =>
+          !filter.rules.some(ruleAppliesToFacility(facilityId));
 
       const hasNoFacilityRules = (filter: Filter) => facilitiesOfType.every(doesNotExistInAnyRule(filter));
 

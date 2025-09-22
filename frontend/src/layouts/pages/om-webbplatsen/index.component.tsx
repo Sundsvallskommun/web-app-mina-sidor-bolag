@@ -4,23 +4,30 @@ import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.compon
 import { Icon } from '@sk-web-gui/react';
 import { ExternalLink } from 'lucide-react';
 
-export default function OmWebbplatsen() {
-  const ContentCard = ({ title, text, href, external }) => {
-    return (
-      <a
-        href={href}
-        target={external ? '_blank' : '_self'}
-        className="p-24 shadow-50 bg-background-content rounded-cards focus:ring"
-      >
-        <div className="flex items-center">
-          <h2 className="sk-link-lg underline">{title}</h2>
-          {external && <Icon size={24} className="!pl-0" icon={<ExternalLink />} />}
-        </div>
-        <p className="text-small">{text}</p>
-      </a>
-    );
-  };
+interface ContentCardProps {
+  title?: string;
+  text?: string;
+  href?: string;
+  external?: boolean;
+}
 
+const ContentCard: React.FC<ContentCardProps> = ({ title, text, href, external }) => {
+  return (
+    <a
+      href={href}
+      target={external ? '_blank' : '_self'}
+      className="p-24 shadow-50 bg-background-content rounded-cards focus:ring"
+    >
+      <div className="flex items-center">
+        <h2 className="sk-link-lg underline">{title}</h2>
+        {external && <Icon size={24} className="!pl-0" icon={<ExternalLink />} />}
+      </div>
+      <p className="text-small">{text}</p>
+    </a>
+  );
+};
+
+export default function OmWebbplatsen() {
   return (
     <PagesBreadcrumbsLayout>
       <h1>Om webbplatsen</h1>

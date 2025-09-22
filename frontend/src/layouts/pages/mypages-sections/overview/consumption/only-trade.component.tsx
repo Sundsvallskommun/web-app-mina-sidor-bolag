@@ -1,6 +1,5 @@
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { apiService } from '@services/api-service';
-import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 
 export const OnlyTrade: React.FC<{ facility?: InstalledBaseItem }> = ({ facility }) => {
@@ -8,8 +7,9 @@ export const OnlyTrade: React.FC<{ facility?: InstalledBaseItem }> = ({ facility
   useEffect(() => {
     if (facility?.address?.street && facility?.address?.city) {
       apiService
-        .post('netowner', facility)
-        .then((response: AxiosResponse<string, unknown>) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .post<any>('netowner', facility)
+        .then((response) => {
           setNetOwner(response.data || 'Okänd elnätsägare');
         })
         .catch((error) => {
