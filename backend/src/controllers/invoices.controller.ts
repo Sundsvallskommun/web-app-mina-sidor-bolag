@@ -155,7 +155,7 @@ export class InvoicesController {
     data.invoices =
       totalInvoices
         .sort((a, b) => Math.sign(new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()))
-        .splice(0, parseInt(`${limit}`)) ?? [];
+        .splice(0, Number.parseInt(`${limit}`)) ?? [];
     data._meta = meta ?? {};
     data._meta.count = data.invoices.length;
     data._meta.totalRecords = totalRecords;

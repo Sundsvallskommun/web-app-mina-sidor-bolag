@@ -14,7 +14,6 @@ import { Delegation, InstalledBaseItem, InstalledBaseItemMetaData, InstalledBase
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
-import { logger } from '@/utils/logger';
 
 interface UserData {
   name: string;
