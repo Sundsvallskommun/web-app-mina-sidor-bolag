@@ -1,18 +1,18 @@
 'use client';
 
-import { Button, cx, DatePicker, FormLabel, MenuBar, Select } from '@sk-web-gui/react';
-import { useApi } from '@services/api-service';
-import { User } from '@interfaces/user';
-import { useFormContext } from 'react-hook-form';
-import { useEffect, useMemo, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { useSearchParams } from 'next/navigation';
+import { User } from '@interfaces/user';
+import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
+import { useApi } from '@services/api-service';
+import { Button, FormLabel, MenuBar, Select } from '@sk-web-gui/react';
 import dayjs, { Dayjs } from 'dayjs';
-import {
-  generateComparableYears,
-  generateSelectableMonths,
-  generateSelectableYears,
-} from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { StatisticsForm } from '../../statistics.component';
+import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
+import { StatisticsFilterYear } from './components/statistics-filter-year.component';
+import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
@@ -23,10 +23,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const linkedFacilityId = searchParams?.get('installation');
 
   const { closeHandler } = props;
-  const { register, watch, setValue, getValues } = useFormContext();
+  const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [mode, setMode] = useState<'day' | 'month' | 'year'>('month');
-  const { address, fromDate } = watch();
+  const { address, fromDate, selectedDay, selectedMonth, selectedYear } = watch();
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -34,20 +34,13 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
     queryKey: ['user'],
   });
 
-  const selectableYears = useMemo(() => {
-    return generateSelectableYears(dayjs().format('YYYY-MM-DD'));
-  }, []);
-
-  const selectableMonths = useMemo(() => {
-    return generateSelectableMonths(dayjs().format('YYYY-MM-DD'));
-  }, []);
-
   useEffect(() => {
     const latestFacility = user?.facilities?.sort((a, b) =>
       dayjs(a?.facilityCommitmentStartDate).isAfter(dayjs(b?.facilityCommitmentStartDate)) ? -1 : 1
     )?.[0];
     const matchingUserAddress = user?.addresses?.find((a) => a.address === latestFacility?.address?.street)?.address;
     setValue('address', matchingUserAddress ?? user?.addresses?.find((a) => a.address)?.address ?? '');
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -91,27 +84,30 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
         }, 100);
       }
     }
-    setDate(dayjs(), mode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setDate = (date: Dayjs, by: 'year' | 'month' | 'day') => {
-    setValue('selectedYear', date.startOf('year').format('YYYY-MM-DD'), {
-      shouldDirty: true,
-    });
-    setValue('selectedMonth', date.startOf('month').format('YYYY-MM-DD'), {
-      shouldDirty: true,
-    });
-    setValue('selectedDay', date.startOf('day').format('YYYY-MM-DD'), {
-      shouldDirty: true,
-    });
-    setValue('fromDate', date.startOf(by).format('YYYY-MM-DD'), {
-      shouldDirty: true,
-    });
-    setValue('toDate', date.endOf(by).format('YYYY-MM-DD'), {
-      shouldDirty: true,
-    });
-  };
+  useEffect(() => {
+    const setDate = (by: 'year' | 'month' | 'day', _date?: Dayjs) => {
+      const date =
+        _date ??
+        dayjs(
+          `${selectedYear ?? dayjs().format('YYYY')}-${selectedMonth ?? dayjs().format('MM')}-${selectedDay ?? dayjs().format('DD')}`
+        );
+      const fromDate = date.startOf(by).format('YYYY-MM-DD');
+      const toDate = date.endOf(by).format('YYYY-MM-DD');
+      const year = date.format('YYYY');
+      const month = date.format('MM');
+      const day = date.format('DD');
+      setValue('fromDate', fromDate);
+      setValue('toDate', toDate);
+      setValue('selectedYear', year);
+      setValue('selectedMonth', month);
+      setValue('selectedDay', day);
+    };
+
+    setDate(mode);
+  }, [mode, selectedDay, selectedMonth, selectedYear, setValue]);
 
   return (
     <>
@@ -163,13 +159,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                       inverted={mode === item.value}
                       onClick={() => {
                         setMode(item.value as 'year' | 'month' | 'day');
-                        if (item.value === 'year') {
-                          setDate(dayjs(getValues().fromDate), 'year');
-                        } else if (item.value === 'month') {
-                          setDate(dayjs(getValues().fromDate), 'month');
-                        } else {
-                          setDate(dayjs(getValues().fromDate), 'day');
-                        }
                       }}
                       data-cy={`date-toggle-${item.value}-button`}
                     >
@@ -180,57 +169,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </MenuBar>
             </div>
           </div>
-          <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'year' ? 'block' : 'hidden')}>
-            <FormLabel>År</FormLabel>
-            <Select
-              {...register('selectedYear')}
-              className="w-full mt-8"
-              onChange={(e) => {
-                const selectedDate = dayjs(e.target.value);
-                setDate(selectedDate, 'year');
-              }}
-              data-cy="year-select"
-            >
-              {selectableYears.map((y) => (
-                <Select.Option key={`selectedYear-${y}`} value={y}>
-                  {dayjs(y).format('YYYY')}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'month' ? 'block' : 'hidden')}>
-            <FormLabel>Månad</FormLabel>
-            <Select
-              className="w-full mt-8"
-              {...register('selectedMonth')}
-              onChange={(e) => {
-                const selectedDate = dayjs(e.target.value);
-                setDate(selectedDate, 'month');
-              }}
-              data-cy="month-select"
-            >
-              {selectableMonths.map((y) => (
-                <Select.Option key={y.label} value={y.value}>
-                  {y.label}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <div className={cx(`w-full lg:pt-0 pt-16`, mode === 'day' ? 'block' : 'hidden')}>
-            <FormLabel>Dag</FormLabel>
-            <DatePicker
-              {...register('selectedDay')}
-              className="w-full mt-8"
-              type="date"
-              min={dayjs().startOf('year').subtract(3, 'year').format('YYYY-MM-DD')}
-              max={dayjs().format('YYYY-MM-DD')}
-              onChange={(e) => {
-                const selectedDate = dayjs(e.target.value);
-                setDate(selectedDate, 'day');
-              }}
-              data-cy="day-select"
-            />
-          </div>
+          {mode === 'year' && <StatisticsFilterYear />}
+          {mode === 'month' && <StatisticsFilterMonth />}
+          {mode === 'day' && <StatisticsFilterDay />}
+
           <div className="block w-full lg:w-2/3 lg:pt-0 pt-16">
             <FormLabel>Jämför med år</FormLabel>
             <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
