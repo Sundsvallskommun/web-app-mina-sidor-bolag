@@ -69,7 +69,7 @@ export const Consumption = () => {
 
       {isUserFetching || isAgreementsFetching || isFiltering ? (
         <Spinner className="mx-auto" />
-      ) : user && user?.facilities?.length ? (
+      ) : user && facilities?.length ? (
         <div>
           <p className="text-large mb-32">
             Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
