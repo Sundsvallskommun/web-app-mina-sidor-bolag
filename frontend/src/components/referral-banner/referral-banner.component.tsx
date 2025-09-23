@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from '@sk-web-gui/react';
 
-const URL_OLD = 'https://minasidor.stadsbacken.se/';
+const URL_OLD = 'https://e-tjanster.stadsbacken.se/?privat';
 
 export const ReferralBanner: React.FC = () => {
   return (
