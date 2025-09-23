@@ -26,7 +26,7 @@
     "@next/bundle-analyzer": "15.2.3",
     "@react-hookz/web": "^24.0.4",
     "@sk-web-gui/core": "3.16.1",
-    "@sk-web-gui/countrycode-select": "^1.1.0",
+    "@sk-web-gui/countrycode-select": "^1.1.1",
     "@sk-web-gui/react": "2.0.3",
     "@socialgouv/matomo-next": "^1.9.2",
     "@tailwindcss/container-queries": "^0.1.1",
