@@ -1,12 +1,12 @@
 'use client';
 import { useLocalStorageValue } from '@react-hookz/web';
-import { CookieConsent, Footer, Link } from '@sk-web-gui/react';
+import { CookieConsent, Footer } from '@sk-web-gui/react';
 import Head from 'next/head';
-import NextLink from 'next/link';
+import { NextLink } from '@sk-web-gui/next';
 import { Logotypes } from '@components/logotypes/logotypes.component';
 import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { useApi } from '@services/api-service';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
@@ -44,14 +44,14 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"></meta>
       </Head>
 
-      <NextLink href="#content" legacyBehavior passHref>
-        <a
-          onClick={setFocusToMain}
-          accessKey="s"
-          className="sr-only focus:not-sr-only bg-primary-light border-2 border-black p-4 text-black inline-block focus:absolute focus:top-0 focus:left-0 focus:right-0 focus:m-auto focus:w-80 text-center"
-        >
-          Hoppa till innehåll
-        </a>
+      <NextLink
+        onClick={setFocusToMain}
+        accessKey="s"
+        className="sr-only focus:not-sr-only bg-primary-light border-2 border-black p-4 text-black inline-block focus:absolute focus:top-0 focus:left-0 focus:right-0 focus:m-auto focus:w-80 text-center"
+        href="#content"
+        passHref
+      >
+        Hoppa till innehåll
       </NextLink>
 
       <div className="root-container">
@@ -64,55 +64,71 @@ export function Layout({ title, children }: { title: string; children: React.Rea
             <Footer.ListWrapper className="desktop:ml-80 gap-x-80 [&_.sk-footer-list-item]:w-full">
               <Footer.List>
                 <Footer.ListItem>
-                  <label>Kontakta oss</label>
+                  <label>Kontakt</label>
                 </Footer.ListItem>
+
+                <Footer.ListItem className="font-bold">Sundsvall Energi</Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'tel:+4660191000'}>
-                    <Link variant="tertiary">060-19 10 00</Link>
+                  Telefon:
+                  <NextLink passHref variant="tertiary" href={'tel:+46606005020'}>
+                    060-600 50 20
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'mailto:kontakt@sundsvall.se'}>
-                    <Link variant="tertiary">kontakt@sundsvall.se</Link>
+                  Mail:
+                  <NextLink passHref variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
+                    info@sundsvallelnat.se
                   </NextLink>
                 </Footer.ListItem>
-                <Footer.ListItem className="w-full">
-                  <span>Organisationsnummer: 212000-2411</span>
+
+                <Footer.ListItem className="font-bold">Sundsvall Elnät</Footer.ListItem>
+                <Footer.ListItem>
+                  Telefon:
+                  <NextLink passHref variant="tertiary" href={'tel:060192200'}>
+                    060-19 22 00
+                  </NextLink>
+                </Footer.ListItem>
+                <Footer.ListItem>
+                  Mail:
+                  <NextLink passHref variant="tertiary" href={'mailto:kundservice@sundsvallenergi.se'}>
+                    kundservice@sundsvallenergi.se
+                  </NextLink>
                 </Footer.ListItem>
               </Footer.List>
+
               <Footer.List>
                 <Footer.ListItem>
                   <label>Om bolagen</label>
                 </Footer.ListItem>
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
-                    <NextLink passHref legacyBehavior href={'https://sundsvallenergi.se/om-oss'}>
-                      <Link external variant="tertiary">
-                        Om Sundsvall Energi
-                      </Link>
+                    <NextLink passHref variant="tertiary" external href={'https://sundsvallenergi.se/om-oss'}>
+                      Om Sundsvall Energi
                     </NextLink>
                   </Footer.ListItem>
                 )}
                 {customerEngagements.includes('5565027223') && (
                   <Footer.ListItem>
-                    <NextLink passHref legacyBehavior href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}>
-                      <Link external variant="tertiary">
-                        Om Sundsvall Elnät
-                      </Link>
+                    <NextLink
+                      passHref
+                      variant="tertiary"
+                      external
+                      href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}
+                    >
+                      Om Sundsvall Elnät
                     </NextLink>
                   </Footer.ListItem>
                 )}
                 <Footer.ListItem>
                   <NextLink
                     passHref
-                    legacyBehavior
+                    variant="tertiary"
+                    external
                     href={
                       'https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab'
                     }
                   >
-                    <Link external variant="tertiary">
-                      Om Stadsbacken
-                    </Link>
+                    Om Stadsbacken
                   </NextLink>
                 </Footer.ListItem>
               </Footer.List>
@@ -121,30 +137,29 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                   <label>Om innehållet</label>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'/om-webbplatsen'}>
-                    <Link variant="tertiary">Om webbplatsen</Link>
+                  <NextLink passHref variant="tertiary" href={'/om-webbplatsen'}>
+                    Om webbplatsen
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'/om-webbplatsen/kakor'}>
-                    <Link variant="tertiary">Kakor (Cookies)</Link>
+                  <NextLink passHref variant="tertiary" href={'/om-webbplatsen/kakor'}>
+                    Kakor (Cookies)
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref legacyBehavior href={'/om-webbplatsen/tillganglighet'}>
-                    <Link variant="tertiary">Tillgänglighet</Link>
+                  <NextLink passHref variant="tertiary" href={'/om-webbplatsen/tillganglighet'}>
+                    Tillgänglighet
                   </NextLink>
                 </Footer.ListItem>
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
                     <NextLink
                       passHref
-                      legacyBehavior
+                      variant="tertiary"
+                      external
                       href={'https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy'}
                     >
-                      <Link variant="tertiary" external>
-                        Personuppgifter Sundsvall Energi
-                      </Link>
+                      Personuppgifter Sundsvall Energi
                     </NextLink>
                   </Footer.ListItem>
                 )}
@@ -152,12 +167,11 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                   <Footer.ListItem>
                     <NextLink
                       passHref
-                      legacyBehavior
+                      variant="tertiary"
+                      external
                       href={'https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter'}
                     >
-                      <Link variant="tertiary" external>
-                        Personuppgifter Sundsvall Elnät
-                      </Link>
+                      Personuppgifter Sundsvall Elnät
                     </NextLink>
                   </Footer.ListItem>
                 )}
@@ -173,8 +187,8 @@ export function Layout({ title, children }: { title: string; children: React.Rea
           <p>
             Vi använder kakor, cookies, för att ge dig en förbättrad upplevelse, sammanställa statistik och för att viss
             nödvändig funktionalitet ska fungera på webbplatsen.{' '}
-            <NextLink href="/kakor" legacyBehavior passHref>
-              <Link variant="tertiary">Läs mer om hur vi använder kakor</Link>
+            <NextLink href="/om-webbplatsen/kakor" variant="tertiary" passHref>
+              Läs mer om hur vi använder kakor
             </NextLink>
           </p>
         }
