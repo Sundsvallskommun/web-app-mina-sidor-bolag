@@ -62,9 +62,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
             </Footer.LogoWrapper>
             <Footer.ListWrapper className="desktop:ml-80 gap-x-80 [&_.sk-footer-list-item]:w-full">
               <Footer.List>
-                <Footer.ListItem>
-                  <label>Kontakt</label>
-                </Footer.ListItem>
+                <Footer.ListItem className="text-label-medium">Kontakt</Footer.ListItem>
 
                 <Footer.ListItem className="font-bold">Sundsvall Energi</Footer.ListItem>
                 <Footer.ListItem>
@@ -96,9 +94,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
               </Footer.List>
 
               <Footer.List>
-                <Footer.ListItem>
-                  <label>Om bolagen</label>
-                </Footer.ListItem>
+                <Footer.ListItem className="text-label-medium">Om bolagen</Footer.ListItem>
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
                     <NextLink passHref variant="tertiary" external href={'https://sundsvallenergi.se/om-oss'}>
@@ -132,9 +128,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 </Footer.ListItem>
               </Footer.List>
               <Footer.List>
-                <Footer.ListItem>
-                  <label>Om innehållet</label>
-                </Footer.ListItem>
+                <Footer.ListItem className="text-label-medium">Om innehållet</Footer.ListItem>
                 <Footer.ListItem>
                   <NextLink passHref variant="tertiary" href={'/om-webbplatsen'}>
                     Om webbplatsen
