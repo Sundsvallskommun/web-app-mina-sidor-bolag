@@ -37,14 +37,14 @@ export const ContactSettings = () => {
                         >
                           E-post
                         </Checkbox>
-                        {!watch().email ? (
+                        {watch().email ? null : (
                           <div className="flex items-center gap-6">
                             <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
                             <p className="text-small">
                               För att få aviseringar via mail behöver du lägga till en e-post.
                             </p>
                           </div>
-                        ) : null}
+                        )}
 
                         <Checkbox
                           {...register('notifications.phone_disabled')}
@@ -53,14 +53,14 @@ export const ContactSettings = () => {
                         >
                           Sms
                         </Checkbox>
-                        {!watch().phone ? (
+                        {watch().phone ? null : (
                           <div className="flex items-center gap-6">
                             <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
                             <p className="text-small">
                               För att få aviseringar via sms behöver du lägga till ett mobilnummer.
                             </p>
                           </div>
-                        ) : null}
+                        )}
                       </Checkbox.Group>
                     </FormControl>
                   );

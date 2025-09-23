@@ -1,5 +1,5 @@
 export const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
-  if (phoneNumber[0] === '0') {
+  if (phoneNumber.startsWith('0')) {
     phoneNumber = phoneNumber.substring(1);
   }
 
