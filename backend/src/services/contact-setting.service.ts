@@ -29,7 +29,7 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
   const phoneSettings = getPhoneSettingsFromChannels(contactSetting?.contactChannels);
 
   const clientContactSetting: ClientContactSetting = {
-    id: contactSetting.id,
+    id: contactSetting?.id,
     name: null,
     address: null,
     email: emailSettings.email,
@@ -45,7 +45,7 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
       myPages: true,
       snailmail: false,
     },
-    modified: contactSetting.modified,
+    modified: contactSetting?.modified,
   };
 
   return clientContactSetting;
