@@ -83,7 +83,7 @@ export default function Charts() {
     dataHandler: statisticsMeasurementDataHandler,
     queryKey: ['statistics', facilityId, getParams()],
     queryOptions: {
-      enabled: !!facilityId && !!toDate && !!fromDate,
+      enabled: !!facilityId && !!toDate && !!fromDate && getParams().includes('category='),
     },
   });
 

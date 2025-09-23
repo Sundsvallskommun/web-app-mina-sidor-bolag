@@ -3,7 +3,7 @@ import { getApiBase } from '@/config/api-config';
 import { Delegation } from '@/data-contracts/installedbase/data-contracts';
 import ApiService from './api.service';
 
-const getDelegatedFacilities = async partyId => {
+const getDelegatedFacilities = async (partyId: string) => {
   if (!partyId) {
     throw new Error('Bad Request: partyId is required');
   }

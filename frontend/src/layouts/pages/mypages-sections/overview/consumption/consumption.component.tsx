@@ -38,22 +38,23 @@ export const Consumption = () => {
 
   useEffect(() => {
     if (user && agreements) {
+      let filteredFacilities: InstalledBaseItem[] = [];
       for (const agreementAddress in agreements) {
         if (agreementAddress === address) {
           const agreementsFacilities: string[] = agreements[address]?.map(
             (agreement: RefinedAgreement) => agreement.facilityId
           );
 
-          const filteredFacilities =
+          filteredFacilities =
             user?.facilities?.filter(
               (facility: InstalledBaseItem) =>
                 (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
                 facility?.address?.street === address &&
                 agreementsFacilities?.some((agreement) => agreement === facility?.facilityId)
             ) ?? [];
-          setFacilities(filteredFacilities);
         }
       }
+      setFacilities(filteredFacilities);
       setIsFiltering(false);
     }
 
@@ -62,40 +63,41 @@ export const Consumption = () => {
 
   const thisMonth = dayjs();
 
+  const consumption =
+    user && facilities?.length ? (
+      <div>
+        <p className="text-large mb-32">
+          Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
+        </p>
+        {user.addresses?.filter(hasAgreement).length > 1 && (
+          <div className="sm:flex sm:flex-row flex-nowrap items-center pb-24 gap-16 block">
+            <strong>Adress</strong>
+            <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
+              {user.addresses
+                ?.filter(hasAgreement)
+                .map((address) => (
+                  <Select.Option key={address?.address ?? 'unknown'}>
+                    {address?.address ? address.address : 'Okänd adress'}
+                  </Select.Option>
+                ))}
+            </Select>
+          </div>
+        )}
+        <div className="w-full md:flex md:flex-wrap md:gap-24 block" data-cy="consumption-card-wrapper">
+          {facilities?.map((facility) => {
+            return <ConsumptionCard key={facility.facilityId} facility={facility} date={thisMonth} />;
+          })}
+        </div>
+      </div>
+    ) : (
+      <p>Det finns ingen förbrukning att visa.</p>
+    );
+
   return (
     <section className="pb-80 visible">
       <h1>Aktuell förbrukning och produktion</h1>
 
-      {isUserFetching || isAgreementsFetching || isFiltering ? (
-        <Spinner className="mx-auto" />
-      ) : user && user?.facilities?.length ? (
-        <div>
-          <p className="text-large mb-32">
-            Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
-          </p>
-          {user.addresses?.filter(hasAgreement).length > 1 && (
-            <div className="sm:flex sm:flex-row flex-nowrap items-center pb-24 gap-16 block">
-              <strong>Adress</strong>
-              <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
-                {user.addresses
-                  ?.filter(hasAgreement)
-                  .map((address) => (
-                    <Select.Option key={address?.address ?? 'unknown'}>
-                      {address?.address ? address.address : 'Okänd adress'}
-                    </Select.Option>
-                  ))}
-              </Select>
-            </div>
-          )}
-          <div className="w-full md:flex md:flex-wrap md:gap-24 block" data-cy="consumption-card-wrapper">
-            {facilities?.map((facility) => {
-              return <ConsumptionCard key={facility.facilityId} facility={facility} date={thisMonth} />;
-            })}
-          </div>
-        </div>
-      ) : (
-        <p>Det finns ingen förbrukning att visa.</p>
-      )}
+      {isUserFetching || isAgreementsFetching || isFiltering ? <Spinner className="mx-auto" /> : consumption}
     </section>
   );
 };
