@@ -1,7 +1,9 @@
 import {
+  Aggregation,
   Data,
   MeasurementPoints,
   MeasurementSerie,
+  MergedMeasurementPoints,
   MergedStatisticsMeasurementData,
   StatisticsMeasurementData,
 } from '@interfaces/measurement-data';
@@ -154,7 +156,7 @@ export const calculateTotalConsumption = (measurementData: MeasurementSerie[] | 
   }
 };
 
-export const calculateHighestValue = (aggregateOn: string | undefined, measurementData: MeasurementSerie[]) => {
+export const calculateHighestValue = (aggregateOn?: Aggregation, measurementData: MeasurementSerie[] = []) => {
   if (measurementData?.[0]?.measurementPoints) {
     const value = measurementData[0]?.measurementPoints?.reduce((a, b) => Math.max(a, b.value ?? 0), 0);
 
@@ -169,13 +171,14 @@ export const calculateHighestValue = (aggregateOn: string | undefined, measureme
   }
 };
 
-export const formatHighestValueDate = (aggregateOn: string | undefined, timestamp: string | undefined) => {
+export const formatHighestValueDate = (aggregateOn?: Aggregation, timestamp?: string) => {
+  if (!timestamp) return 'Saknas';
   switch (aggregateOn) {
-    case 'HOUR':
+    case Aggregation.HOUR:
       return dayjs(timestamp).format('HH:mm');
-    case 'DAY':
+    case Aggregation.DAY:
       return dayjs(timestamp).format('D MMM').toLowerCase();
-    case 'MONTH':
+    case Aggregation.MONTH:
       return dayjs(timestamp).format('MMMM');
     default:
       return 'Saknas';
@@ -194,49 +197,114 @@ export const calculateAverageConsumption = (measurementData: MeasurementSerie[])
   }
 };
 
-export const getFormattedDate = (aggregation: string | undefined, fromDate: string | undefined) => {
+export const getFormattedDate = (aggregation?: Aggregation, fromDate?: string) => {
+  if (!fromDate) return 'Datum saknas';
   switch (aggregation) {
-    case 'HOUR':
+    case Aggregation.HOUR:
       return dayjs(fromDate).format('D MMMM YYYY').toLowerCase();
-    case 'DAY':
+    case Aggregation.DAY:
       return dayjs(fromDate).format('MMMM YYYY').toLowerCase();
-    case 'MONTH':
+    case Aggregation.MONTH:
       return dayjs(fromDate).format('YYYY');
     default:
       return 'Datum saknas';
   }
 };
 
-export const translateAggregateOn = (aggregateOn: string | undefined) => {
+export const translateAggregateOn = (aggregateOn?: Aggregation) => {
   switch (aggregateOn) {
-    case 'HOUR':
+    case Aggregation.HOUR:
       return 'timme';
-    case 'DAY':
+    case Aggregation.DAY:
       return 'dag';
-    case 'MONTH':
+    case Aggregation.MONTH:
       return 'månad';
     default:
       return '';
   }
 };
 
-export const mergeMeasurementDataSets = (current: StatisticsMeasurementData, previous: StatisticsMeasurementData) => {
-  if (current?.measurementData?.[0]?.measurementPoints && previous?.measurementData) {
+export const mergeMeasurementDataSets = (
+  current: StatisticsMeasurementData,
+  previous: StatisticsMeasurementData,
+  fromDate: string
+): MergedStatisticsMeasurementData | undefined => {
+  const aggregation = current.aggregatedOn;
+  if (!fromDate || !aggregation) {
+    return;
+  }
+
+  const getDataLength = () => {
+    switch (aggregation) {
+      case Aggregation.HOUR:
+        return 24;
+      case Aggregation.DAY:
+        return dayjs(fromDate).daysInMonth();
+      case Aggregation.MONTH:
+        return 12;
+      default:
+        return 0;
+    }
+  };
+
+  const getCurrentDate = (index: number) => {
+    const oldDate = dayjs(fromDate);
+    switch (aggregation) {
+      case Aggregation.HOUR:
+        return `${oldDate.format('YYYY-MM-DD')}T${index < 10 ? '0' + index : index}:00:00`;
+      case Aggregation.DAY:
+        return `${oldDate.startOf('month').add(index, 'day').format('YYYY-MM-DD')}T00:00:00`;
+      case Aggregation.MONTH:
+        return `${oldDate.startOf('year').add(index, 'month').format('YYYY-MM-DD')}T00:00:00`;
+      default:
+        return '';
+    }
+  };
+  const getDateFindFormat = () => {
+    switch (aggregation) {
+      case Aggregation.HOUR:
+        return 'HH';
+      case Aggregation.DAY:
+        return 'DD';
+      case Aggregation.MONTH:
+        return 'MM';
+      default:
+        return 'DD';
+    }
+  };
+
+  const array = Array.from(new Array(getDataLength()));
+
+  const measurementPoints: MergedMeasurementPoints[] = array.map((_, index) => {
+    const currentDate = getCurrentDate(index);
+    const format = getDateFindFormat();
+
+    const currentMeasurement = current.measurementData?.[0]?.measurementPoints?.find(
+      (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
+    );
+    const previousMeasurement = previous.measurementData?.[0]?.measurementPoints?.find(
+      (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
+    );
+    const { value, ...rest } = currentMeasurement || {};
+    return {
+      ...rest,
+      timestamp: currentDate,
+      chartTimestamp: (index + 1).toString(),
+      value: value ?? 0,
+      previousValue: previousMeasurement?.value ?? 0,
+    };
+  });
+
+  if (current && measurementPoints?.length > 0) {
     return {
       ...current,
       measurementData: [
         {
-          ...current.measurementData[0],
-          measurementPoints: current.measurementData[0].measurementPoints.map((measurement, index) => {
-            if (previous?.measurementData?.[0]?.measurementPoints?.[index]) {
-              return { ...measurement, previousValue: previous.measurementData[0].measurementPoints[index].value };
-            } else {
-              return { ...measurement, previousValue: 0 };
-            }
-          }),
+          ...current.measurementData?.[0],
+          measurementPoints,
         },
       ],
-    } as MergedStatisticsMeasurementData;
+    };
   }
 };
 

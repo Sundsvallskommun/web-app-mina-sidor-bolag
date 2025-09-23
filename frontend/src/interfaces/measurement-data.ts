@@ -89,7 +89,7 @@ export interface MergedMeasurementPoints {
   value: number;
   timestamp: string;
   chartTimestamp?: string;
-  metaData: MetaData[];
+  metaData?: MetaData[];
   previousValue: number;
 }
 
