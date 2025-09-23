@@ -33,25 +33,31 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   };
 
   const rows = isConsumption
-    ? data?.measurementData?.[0]?.measurementPoints?.map((measurement: MergedMeasurementPoints) => {
+    ? data?.measurementData?.[0]?.measurementPoints?.map((measurement) => {
         return (
           <Table.Row key={`${measurement.timestamp}-${measurement.value}`}>
             <Table.Column>
-              <p className="font-bold">{formatDate(measurement.timestamp)} </p>
+              <p className="font-bold">{formatDate(measurement.timestamp ?? '')} </p>
             </Table.Column>
-            <Table.Column>{toFixedNumber(measurement.value, 2)} kWh</Table.Column>
-            {getValues().year && <Table.Column>{toFixedNumber(measurement.previousValue, 2)} kWh</Table.Column>}
+            <Table.Column>{toFixedNumber(measurement.value ?? 0, 2)} kWh</Table.Column>
+            {getValues().year && (
+              <Table.Column>
+                {toFixedNumber((measurement as MergedMeasurementPoints)?.previousValue ?? 0, 2)} kWh
+              </Table.Column>
+            )}
           </Table.Row>
         );
       })
-    : data?.temperatureData?.[0]?.measurementPoints?.map((temperature: MergedMeasurementPoints) => {
+    : data?.temperatureData?.[0]?.measurementPoints?.map((temperature) => {
         return (
           <Table.Row key={`${temperature.timestamp}-${temperature.value}`}>
             <Table.Column>
-              <p className="font-bold">{formatDate(temperature.timestamp)} </p>
+              <p className="font-bold">{formatDate(temperature.timestamp ?? '')} </p>
             </Table.Column>
             <Table.Column>{temperature.value}°C</Table.Column>
-            {getValues().year && <Table.Column>{temperature.previousValue}°C</Table.Column>}
+            {getValues().year && (
+              <Table.Column>{(temperature as MergedMeasurementPoints).previousValue}°C</Table.Column>
+            )}
           </Table.Row>
         );
       });

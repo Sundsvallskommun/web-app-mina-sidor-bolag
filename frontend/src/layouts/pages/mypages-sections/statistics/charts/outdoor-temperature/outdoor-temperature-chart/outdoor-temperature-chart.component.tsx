@@ -45,7 +45,7 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               <YAxis
                 dx={-30}
                 width={40}
-                textAnchor="left"
+                textAnchor="start"
                 axisLine={false}
                 tickLine={false}
                 tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}

@@ -8,7 +8,11 @@ import { DefaultLayout } from '../../../layouts/default-layout.component';
 import { useApi } from '../../../services/api-service';
 import { toRepresentingLabel } from '@utils/to-representing-label';
 
-export default function Layout({ children }) {
+interface DefaultLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function Layout({ children }: DefaultLayoutProps) {
   const { representingMode, setRepresentingMode, setRepresentingName } = useAppContext();
   const {
     data: representingEntity,

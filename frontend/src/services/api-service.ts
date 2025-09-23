@@ -20,9 +20,13 @@ export interface ApiResponse<T> {
   message: string;
 }
 
-export const handleError = (error) => {
+export const handleError = (error: AxiosError) => {
   if (error?.response?.status === 401 && !window?.location.pathname.includes('login')) {
-    window.location.href = `/login?path=${window.location.pathname}&failMessage=${error.response.data.message}`;
+    const failMessage =
+      error?.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data
+        ? (error.response.data as { message?: string }).message
+        : '';
+    window.location.href = `/login?path=${encodeURIComponent(window.location.pathname)}&failMessage=${encodeURIComponent(failMessage ?? '')}`;
   }
 };
 
@@ -59,8 +63,11 @@ export const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false, // default: true
       staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: (failureCount, error: AxiosError) => {
-        const shouldRetry = (error.response?.status === 500 && failureCount < 3) || error.message === 'Network Error';
+      retry: (failureCount, error: Error) => {
+        let shouldRetry = false;
+        if (axios.isAxiosError(error)) {
+          shouldRetry = (error.response?.status === 500 && failureCount < 3) || error.message === 'Network Error';
+        }
         if (shouldRetry) console.log('Retrying ....!');
         // retry on 500 or network errors for max 3 times
         return shouldRetry;
@@ -133,25 +140,39 @@ type UseApiProps<
 > = TMethod extends 'get'
   ? UseApiQueryProps<TQueryFnData, TError, TData, TQueryKey, TContext>
   : UseApiMutationProps<TQueryFnData, TError, TData, TQueryKey, TContext>;
+interface Context {
+  queryKey: QueryKey;
+  signal: AbortSignal;
+  meta: Record<string, unknown> | undefined;
+  pageParam?: unknown;
+  direction?: unknown;
+}
 
-export const defaultApiCall: <TQueryFnData = unknown>(config: {
+interface DefaultApiCallConfig {
   url: string;
   method?: Method;
   body?: unknown;
   axiosParameters?: AxiosRequestConfig;
-  context?: {
-    queryKey: QueryKey;
-    signal: AbortSignal;
-    meta: Record<string, unknown> | undefined;
-    pageParam?: unknown;
-    direction?: unknown;
-  };
-}) => Promise<AxiosResponse<ApiResponse<TQueryFnData>>> = <TQueryFnData>(config) => {
-  return apiService[config.method ?? 'get']<TQueryFnData>(config.url, config.body, {
-    signal: config.context?.signal,
-    ...config.axiosParameters,
-    params: { pageParam: config.context?.pageParam, meta: config.context?.meta, ...config.axiosParameters?.params },
-  });
+  context?: Context;
+}
+type DefaultApiCall = <TQueryFnData = unknown>(
+  config: DefaultApiCallConfig
+) => Promise<AxiosResponse<ApiResponse<TQueryFnData>>>;
+
+export const defaultApiCall: DefaultApiCall = <TQueryFnData>(config: DefaultApiCallConfig) => {
+  if (config.method === 'post' || config.method === 'put' || config.method === 'patch') {
+    return apiService[config.method]<TQueryFnData>(config.url, config?.body, {
+      signal: config.context?.signal,
+      ...config.axiosParameters,
+      params: { pageParam: config.context?.pageParam, meta: config.context?.meta, ...config.axiosParameters?.params },
+    });
+  } else {
+    return apiService[config.method ?? 'get']<TQueryFnData>(config.url, {
+      signal: config.context?.signal,
+      ...config.axiosParameters,
+      params: { pageParam: config.context?.pageParam, meta: config.context?.meta, ...config.axiosParameters?.params },
+    });
+  }
 };
 
 type UseApiResult<
@@ -200,7 +221,8 @@ export function useApi<
     url,
     method,
     axiosParameters,
-    dataHandler = (data) => data,
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dataHandler = (data: any) => data,
     body,
     queryKey = [url] as TQueryKey,
     queryOptions,
@@ -209,7 +231,7 @@ export function useApi<
   const _store_queryClient = useApiService((s) => s.queryClient);
   const _queryClient = queryClient ?? _store_queryClient;
 
-  const defaultQueryCall = async (context) =>
+  const defaultQueryCall = async (context: Context) =>
     defaultApiCall<TQueryFnData>({ url, method, body, axiosParameters, context }).then((res) =>
       dataHandler(res.data.data)
     );
@@ -220,7 +242,7 @@ export function useApi<
         dataHandler(res.data.data)
       );
     } catch (error) {
-      handleError(error);
+      handleError(error as AxiosError);
       return { error };
     }
   };
@@ -234,7 +256,7 @@ export function useApi<
         enabled,
         queryFn: defaultQueryCall,
         throwOnError: (error) => {
-          handleError(error);
+          handleError(error as AxiosError);
           return false;
         },
         ...queryOptions,
@@ -252,10 +274,11 @@ export function useApi<
           return { newBody };
         },
         onSuccess: (result) => {
-          _queryClient.setQueryData<TQueryFnData & { error?: DefaultError }>(queryKey, result);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          _queryClient.setQueryData<TQueryFnData & { error?: DefaultError }>(queryKey, result as any);
         },
         throwOnError: (error) => {
-          handleError(error);
+          handleError(error as AxiosError);
           return false;
         },
         ...mutationOptions,

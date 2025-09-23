@@ -24,10 +24,10 @@ export const mapCategory = (category?: Category) => {
   return Object.keys(agreementCategories).includes(category as unknown as string)
     ? {
         code: category,
-        color: agreementCategories[category].color,
-        label: agreementCategories[category].label,
-        icon: agreementCategories[category].icon,
-        contractor: agreementCategories[category].contractor,
+        color: agreementCategories[category as keyof typeof agreementCategories].color,
+        label: agreementCategories[category as keyof typeof agreementCategories].label,
+        icon: agreementCategories[category as keyof typeof agreementCategories].icon,
+        contractor: agreementCategories[category as keyof typeof agreementCategories].contractor,
       }
     : {
         code: 'UNKNOWN' as Category,
@@ -40,7 +40,7 @@ export const mapCategory = (category?: Category) => {
 
 export const handlePagedAgreementsResponse: (data: Agreement[]) => AgreementData = (data) => {
   if (data) {
-    return data.reduce(function (r: AgreementData[], a: Agreement) {
+    return data.reduce(function (r: { [key: string]: RefinedAgreement[] }, a: Agreement) {
       const key: string = a.siteAddress;
       if (a.mainAgreement && visibleCategories.includes(a.category)) {
         r[key] = r[key] || [];

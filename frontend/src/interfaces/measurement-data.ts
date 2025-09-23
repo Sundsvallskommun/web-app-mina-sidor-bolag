@@ -74,7 +74,7 @@ export interface StatisticsMeasurementData {
   temperatureData: MeasurementSerie[] | undefined;
   category: string | undefined;
   formattedDate: string | undefined;
-  aggregatedOn: string | undefined;
+  aggregatedOn: Aggregation | undefined;
   totalConsumption: number;
   peakConsumptionValue: { value: number; timestamp: string | undefined };
   averageConsumption: number;

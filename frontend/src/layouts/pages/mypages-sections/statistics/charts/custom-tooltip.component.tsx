@@ -1,8 +1,26 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import { Months } from '@interfaces/measurement-data';
+import { Aggregation, Months } from '@interfaces/measurement-data';
 
-export default function CustomTooltip({ active, payload, label, fromDate, year, isConsumption, aggregatedOn }) {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: { value: number; payload: { previousValue?: number } }[];
+  label?: keyof typeof Months;
+  fromDate: string;
+  year?: number;
+  isConsumption: boolean;
+  aggregatedOn?: Aggregation;
+}
+
+export default function CustomTooltip({
+  active,
+  payload,
+  label,
+  fromDate,
+  year,
+  isConsumption,
+  aggregatedOn,
+}: CustomTooltipProps) {
   const formatDate = () => {
     switch (aggregatedOn) {
       case 'HOUR':
@@ -18,7 +36,7 @@ export default function CustomTooltip({ active, payload, label, fromDate, year, 
           </strong>
         );
       case 'MONTH':
-        return <strong>{Months[label]}</strong>;
+        return <strong>{!!label && Months[label]}</strong>;
       default:
         return '';
     }

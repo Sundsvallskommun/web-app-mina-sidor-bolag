@@ -17,5 +17,5 @@ export default async function Agreement({
   if (!parameters) {
     return null;
   }
-  return <AgreementComponent category={parameters.slug[0]} facilityId={parameters.slug[1]} />;
+  return <AgreementComponent category={parameters.slug.category} facilityId={parameters.slug.facilityId} />;
 }

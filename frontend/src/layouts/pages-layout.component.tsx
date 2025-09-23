@@ -7,7 +7,11 @@ import MainLayout from './main-layout.component';
 import { usePathname } from 'next/navigation';
 import { useThemeQueries } from '@sk-web-gui/react';
 
-export const PagesLayout = ({ children }) => {
+interface PagesLayoutProps {
+  children?: React.ReactNode;
+}
+
+export const PagesLayout = ({ children }: PagesLayoutProps) => {
   const { isMinDesktop } = useThemeQueries();
   const pathname = usePathname();
   return (

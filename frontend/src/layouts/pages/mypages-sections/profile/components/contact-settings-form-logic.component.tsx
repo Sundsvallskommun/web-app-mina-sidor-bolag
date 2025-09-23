@@ -4,7 +4,7 @@ import { useApi, useApiService } from '@services/api-service';
 import { useSnackbar } from '@sk-web-gui/react';
 import _ from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
-import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
+import { FormProvider, SubmitHandler, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
 const defaultContactSettingsForm: Partial<ClientContactSetting> = {
@@ -34,7 +34,8 @@ interface ContactSettingsFormLogicProps {
   formData?: Partial<ClientContactSetting>;
   onSubmit?: (
     values: Partial<ClientContactSetting>,
-    context: UseFormReturn<Partial<ClientContactSetting>, unknown, undefined>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    context: UseFormReturn<Partial<ClientContactSetting>, any, Partial<ClientContactSetting>>
   ) => void;
   onSubmitSuccess?: () => void;
   onSubmitFailed?: () => void;
@@ -43,7 +44,7 @@ interface ContactSettingsFormLogicProps {
 const phoneRegExp = /^(?:\+46\d{9})?$/;
 
 const formSchema = yup
-  .object<ClientContactSetting>({
+  .object<Partial<ClientContactSetting>>({
     name: yup.string().nullable().optional(),
     email: yup.string().email('E-postadress har fel format').nullable().optional(),
     alias: yup.string().nullable().optional(),
@@ -102,7 +103,8 @@ export default function ContactSettingsFormLogic({
     method: 'patch',
   });
 
-  const context = useForm<Partial<ClientContactSetting>>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const context = useForm<Partial<ClientContactSetting>, any, Partial<ClientContactSetting>>({
     resolver: yupResolver(formSchema),
     defaultValues: useMemo(() => formData, [formData]),
     mode: 'onChange',
@@ -123,27 +125,27 @@ export default function ContactSettingsFormLogic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, reset]);
 
-  const _onSubmit = async (values: Partial<ClientContactSetting>) => {
-    if (onSubmit) {
-      onSubmit(values, context);
+  const _onSubmit: SubmitHandler<Partial<ClientContactSetting>> = async (data) => {
+    if (onSubmit && data) {
+      onSubmit(data, context);
     } else {
       const apiCall = isPatch() ? await patchMutation.mutateAsync : await postMutation.mutateAsync;
-      const data: Partial<ClientContactSetting> = _.merge(formData, {
+      const _data: Partial<ClientContactSetting> = _.merge(formData, {
         id: formData?.id,
-        alias: values.alias,
-        email: values.email,
-        phone: values.phone,
+        alias: data.alias,
+        email: data.email,
+        phone: data.phone,
         notifications: {
-          email_disabled: !values.notifications?.email_disabled,
-          phone_disabled: !values.notifications?.phone_disabled,
+          email_disabled: !data.notifications?.email_disabled,
+          phone_disabled: !data.notifications?.phone_disabled,
         },
         decicionsAndDocuments: {
-          digitalInbox: values.decicionsAndDocuments?.digitalInbox,
-          myPages: values.decicionsAndDocuments?.myPages,
-          snailmail: values.decicionsAndDocuments?.snailmail,
+          digitalInbox: data.decicionsAndDocuments?.digitalInbox,
+          myPages: data.decicionsAndDocuments?.myPages,
+          snailmail: data.decicionsAndDocuments?.snailmail,
         },
       });
-      const res = await apiCall(data);
+      const res = await apiCall(_data);
       if (!res.error) {
         reset(formConvertedData(res));
         queryClient.invalidateQueries({

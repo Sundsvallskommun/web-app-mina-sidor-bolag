@@ -10,7 +10,11 @@ import { Logotypes } from '@components/logotypes/logotypes.component';
 import { AlertBanner } from '@components/alert-banner/alert-banner.component';
 import { ReferralBanner } from '@components/referral-banner/referral-banner.component';
 
-export const DefaultLayout = ({ children }) => {
+interface DefaultLayoutProps {
+  children?: React.ReactNode;
+}
+
+export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   const { isMinDesktop } = useThemeQueries();
 
   return (
