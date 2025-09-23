@@ -46,7 +46,6 @@ export function Layout({ title, children }: { title: string; children: React.Rea
 
       <NextLink
         onClick={setFocusToMain}
-        accessKey="s"
         className="sr-only focus:not-sr-only bg-primary-light border-2 border-black p-4 text-black inline-block focus:absolute focus:top-0 focus:left-0 focus:right-0 focus:m-auto focus:w-80 text-center"
         href="#content"
         passHref
