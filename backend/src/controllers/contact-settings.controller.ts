@@ -53,7 +53,6 @@ export class ContactSettingsController {
       if (err.status !== 404) {
         throw err;
       }
-      throw new HttpException(404, 'Not Found');
     }
 
     const clientContactSetting = makeClientContactSetting(res?.data?.[0]);
