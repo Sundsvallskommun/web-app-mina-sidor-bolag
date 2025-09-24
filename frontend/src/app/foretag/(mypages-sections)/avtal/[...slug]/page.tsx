@@ -7,15 +7,6 @@ export async function generateMetadata() {
   };
 }
 
-export default async function Agreement({
-  params,
-}: {
-  params: Promise<{ slug: { category: string; facilityId: string } }>;
-}) {
-  const parameters = await params;
-
-  if (!parameters) {
-    return null;
-  }
-  return <AgreementComponent category={parameters.slug.category} facilityId={parameters.slug.facilityId} />;
+export default async function Agreement() {
+  return <AgreementComponent />;
 }
