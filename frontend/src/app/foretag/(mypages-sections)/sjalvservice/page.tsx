@@ -4,7 +4,7 @@ import SelfService from '@layouts/pages/mypages-sections/self-service/self-servi
 
 export async function generateMetadata() {
   return {
-    title: `Självservice - Företag - ${appName()}`,
+    title: `Självservice - Organisation - ${appName()}`,
   };
 }
 

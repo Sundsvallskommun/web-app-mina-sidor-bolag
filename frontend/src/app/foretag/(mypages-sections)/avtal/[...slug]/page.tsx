@@ -3,7 +3,7 @@ import { AgreementComponent } from '@layouts/pages/mypages-sections/agreements/a
 
 export async function generateMetadata() {
   return {
-    title: `Avtal - Företag - ${appName()}`,
+    title: `Avtal - Organisation - ${appName()}`,
   };
 }
 

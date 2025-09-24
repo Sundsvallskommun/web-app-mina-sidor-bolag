@@ -12,7 +12,7 @@ export const NoRepresent: React.FC = ({}) => {
   };
 
   return (
-    <EmptyLayout title="Företagscenter Mina Sidor - Logga In">
+    <EmptyLayout title="Mina Sidor - Logga In">
       <div className="flex items-center justify-center min-h-screen">
         <div className="max-w-[68rem] p-20 shadow-lg">
           <div className="mb-14">
