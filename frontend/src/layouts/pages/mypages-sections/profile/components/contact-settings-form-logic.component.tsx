@@ -135,7 +135,9 @@ export default function ContactSettingsFormLogic({
         id: formData?.id,
         alias: values.alias,
         email: values.email,
-        phone: formatPhoneNumber(values.phoneCountryCode ?? '', values.phoneNumber ?? ''),
+        phone: context.formState?.touchedFields?.phoneNumber
+          ? formatPhoneNumber(values.phoneCountryCode ?? '', values.phoneNumber ?? '')
+          : values.phone,
         notifications: {
           email_disabled: !values.notifications?.email_disabled,
           phone_disabled: !values.notifications?.phone_disabled,

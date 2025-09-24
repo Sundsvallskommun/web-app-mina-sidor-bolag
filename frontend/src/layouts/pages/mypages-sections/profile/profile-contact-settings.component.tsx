@@ -12,13 +12,28 @@ export const ContactSettings = () => {
   const { data: contactsettings } = useApi<ClientContactSetting>({ url: '/contactsettings', method: 'get' });
   const [isEdit, setIsEdit] = useState(false);
 
+  const getContactWayString = (email: boolean, phone: boolean) => {
+    const contactWayString: string = 'Du har valt att få aviseringar via';
+
+    switch (true) {
+      case email && phone:
+        return contactWayString.concat(' sms och e-post.');
+      case !email && phone:
+        return contactWayString.concat(' e-post.');
+      case email && !phone:
+        return contactWayString.concat(' sms.');
+      default:
+        return 'Du får inga aviseringar';
+    }
+  };
+
   return (
     <div className="pt-40">
       <ContactSettingsFormLogic onSubmitSuccess={() => setIsEdit(false)} formData={contactsettings}>
         <div>
           <div className="flex flex-col gap-y-40 pb-24">
             <ConnectForm>
-              {({ register, watch }) => {
+              {({ register, watch, getValues }) => {
                 const hasPhone = !!watch('phone');
                 const hasEmail = !!watch('email');
 
@@ -65,24 +80,16 @@ export const ContactSettings = () => {
                     </FormControl>
                   );
                 } else {
-                  const contactWaysString =
-                    watch('notifications.phone_disabled') && watch('notifications.email_disabled')
-                      ? 'sms och e-post'
-                      : watch('notifications.phone_disabled')
-                        ? 'sms'
-                        : watch('notifications.email_disabled')
-                          ? 'e-post'
-                          : '';
-
                   return (
                     <div className="text-content">
                       <h3 className="text-large font-bold">
                         Aviseringar om avbrott i din strömförsörjning och fjärrvärme
                       </h3>
                       <p>
-                        {contactWaysString
-                          ? `Du har valt att få aviseringar via ${contactWaysString}`
-                          : 'Du får inga aviseringar'}
+                        {getContactWayString(
+                          getValues('notifications.phone_disabled'),
+                          getValues('notifications.email_disabled')
+                        )}
                       </p>
                     </div>
                   );
