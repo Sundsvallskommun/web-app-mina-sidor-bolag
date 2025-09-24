@@ -187,7 +187,7 @@ export const DelegateItem = ({
       )}
 
       <Modal
-        className="sm:w-[52rem] w-auto sm:bottom-auto sm:left-auto sm:rounded-cards sm:relative bottom-0 fixed left-0 rounded-b-0"
+        className="sm:w-[52rem] w-full sm:bottom-auto sm:left-auto sm:rounded-cards sm:relative bottom-0 fixed left-0 rounded-b-0"
         label={newItem ? 'Lägg till kontaktperson' : 'Redigera kontaktperson'}
         show={isOpen}
         onClose={closeHandler}
