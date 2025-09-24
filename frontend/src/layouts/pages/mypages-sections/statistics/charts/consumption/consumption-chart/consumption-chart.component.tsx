@@ -50,7 +50,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 tickLine={false}
                 domain={[
                   0,
-                  (dataMax) => {
+                  (dataMax: number) => {
                     if (dataMax > 0 && dataMax < 10) {
                       return Math.floor(dataMax) + 2;
                     } else if (dataMax > 10 && dataMax < 100) {
