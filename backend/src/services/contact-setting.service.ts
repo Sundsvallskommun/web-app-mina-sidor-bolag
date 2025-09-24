@@ -34,8 +34,8 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
     address: null,
     email: emailSettings.email,
     phone: phoneSettings.phone,
-    virtual: contactSetting.virtual,
-    alias: contactSetting.alias,
+    virtual: contactSetting?.virtual ?? false,
+    alias: contactSetting?.alias ?? null,
     notifications: {
       email_disabled: emailSettings.email_disabled,
       phone_disabled: phoneSettings.phone_disabled,
