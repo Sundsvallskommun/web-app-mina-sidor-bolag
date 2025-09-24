@@ -48,7 +48,6 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         onClick={setFocusToMain}
         className="sr-only focus:not-sr-only bg-primary-light border-2 border-black p-4 text-black inline-block focus:absolute focus:top-0 focus:left-0 focus:right-0 focus:m-auto focus:w-80 text-center"
         href="#content"
-        passHref
       >
         Hoppa till innehåll
       </NextLink>
@@ -67,13 +66,13 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 <Footer.ListItem className="font-bold">Sundsvall Energi</Footer.ListItem>
                 <Footer.ListItem>
                   Telefon:
-                  <NextLink passHref variant="tertiary" href={'tel:+46606005020'}>
+                  <NextLink variant="tertiary" href={'tel:+46606005020'}>
                     060-600 50 20
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
                   Mail:
-                  <NextLink passHref variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
+                  <NextLink variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
                     info@sundsvallelnat.se
                   </NextLink>
                 </Footer.ListItem>
@@ -81,13 +80,13 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 <Footer.ListItem className="font-bold">Sundsvall Elnät</Footer.ListItem>
                 <Footer.ListItem>
                   Telefon:
-                  <NextLink passHref variant="tertiary" href={'tel:060192200'}>
+                  <NextLink variant="tertiary" href={'tel:060192200'}>
                     060-19 22 00
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
                   Mail:
-                  <NextLink passHref variant="tertiary" href={'mailto:kundservice@sundsvallenergi.se'}>
+                  <NextLink variant="tertiary" href={'mailto:kundservice@sundsvallenergi.se'}>
                     kundservice@sundsvallenergi.se
                   </NextLink>
                 </Footer.ListItem>
@@ -97,26 +96,20 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 <Footer.ListItem className="text-label-medium">Om bolagen</Footer.ListItem>
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
-                    <NextLink passHref variant="tertiary" external href={'https://sundsvallenergi.se/om-oss'}>
+                    <NextLink variant="tertiary" external href={'https://sundsvallenergi.se/om-oss'}>
                       Om Sundsvall Energi
                     </NextLink>
                   </Footer.ListItem>
                 )}
                 {customerEngagements.includes('5565027223') && (
                   <Footer.ListItem>
-                    <NextLink
-                      passHref
-                      variant="tertiary"
-                      external
-                      href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}
-                    >
+                    <NextLink variant="tertiary" external href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}>
                       Om Sundsvall Elnät
                     </NextLink>
                   </Footer.ListItem>
                 )}
                 <Footer.ListItem>
                   <NextLink
-                    passHref
                     variant="tertiary"
                     external
                     href={
@@ -130,24 +123,23 @@ export function Layout({ title, children }: { title: string; children: React.Rea
               <Footer.List>
                 <Footer.ListItem className="text-label-medium">Om innehållet</Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref variant="tertiary" href={'/om-webbplatsen'}>
+                  <NextLink variant="tertiary" href={'/om-webbplatsen'}>
                     Om webbplatsen
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref variant="tertiary" href={'/om-webbplatsen/kakor'}>
+                  <NextLink variant="tertiary" href={'/om-webbplatsen/kakor'}>
                     Kakor (Cookies)
                   </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink passHref variant="tertiary" href={'/om-webbplatsen/tillganglighet'}>
+                  <NextLink variant="tertiary" href={'/om-webbplatsen/tillganglighet'}>
                     Tillgänglighet
                   </NextLink>
                 </Footer.ListItem>
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
                     <NextLink
-                      passHref
                       variant="tertiary"
                       external
                       href={'https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy'}
@@ -159,7 +151,6 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 {customerEngagements.includes('5565027223') && (
                   <Footer.ListItem>
                     <NextLink
-                      passHref
                       variant="tertiary"
                       external
                       href={'https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter'}
@@ -180,7 +171,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
           <p>
             Vi använder kakor, cookies, för att ge dig en förbättrad upplevelse, sammanställa statistik och för att viss
             nödvändig funktionalitet ska fungera på webbplatsen.{' '}
-            <NextLink href="/om-webbplatsen/kakor" variant="tertiary" passHref>
+            <NextLink href="/om-webbplatsen/kakor" variant="tertiary">
               Läs mer om hur vi använder kakor
             </NextLink>
           </p>
