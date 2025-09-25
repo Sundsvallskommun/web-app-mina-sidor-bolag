@@ -47,6 +47,19 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
                   aria-label="Telefonnummer"
                 />
               </Input.Group>
+              {methods.formState.errors?.phoneNumber?.message ? (
+                <div className="my-sm">
+                  <FormErrorMessage className="text-error">
+                    {(methods.formState.errors?.phoneNumber?.message as string) ?? ''}
+                  </FormErrorMessage>
+                </div>
+              ) : methods.formState.errors?.['contactSetting']?.['phoneNumber']?.message ? (
+                <div className="my-sm">
+                  <FormErrorMessage className="text-error">
+                    {(methods.formState.errors?.['contactSetting']?.['phoneNumber']?.message as string) ?? ''}
+                  </FormErrorMessage>
+                </div>
+              ) : null}
               {children}
             </>
           ) : (

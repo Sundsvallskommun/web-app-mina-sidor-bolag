@@ -52,7 +52,7 @@ export const ContactSettings = () => {
                         >
                           E-post
                         </Checkbox>
-                        {watch().email ? null : (
+                        {hasEmail ? null : (
                           <div className="flex items-center gap-6">
                             <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
                             <p className="text-small">
@@ -68,7 +68,7 @@ export const ContactSettings = () => {
                         >
                           Sms
                         </Checkbox>
-                        {watch().phone ? null : (
+                        {hasPhone ? null : (
                           <div className="flex items-center gap-6">
                             <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
                             <p className="text-small">
