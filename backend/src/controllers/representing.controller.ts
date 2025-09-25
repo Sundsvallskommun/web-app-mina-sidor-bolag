@@ -9,6 +9,8 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '../interfaces/representing.interface';
 import { BusinessEngagementController } from './business-engagement.controller';
 import { Engagement } from '@/data-contracts/businessengagements/data-contracts';
+import getDelegatedFacilities from '@services/delegation.service';
+import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
 
 interface ResponseData {
   data: any;
@@ -141,6 +143,13 @@ export class RepresentingController {
     }
 
     req.session.representing = newRepresenting;
+
+    if (getRepresentingPartyId(newRepresenting)) {
+      req.session.cache.delegations = await getDelegatedFacilities(getRepresentingPartyId(newRepresenting)).catch(err => {
+        console.error('Error fetching delegated facilities:', err);
+        return [];
+      });
+    }
 
     return { data: this.getRepresentingToSend(newRepresenting), message: 'success' };
   }

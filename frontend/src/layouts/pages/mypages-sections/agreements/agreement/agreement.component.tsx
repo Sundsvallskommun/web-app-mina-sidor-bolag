@@ -12,9 +12,11 @@ import { User } from '@interfaces/user';
 import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/agreement/facility-information/facility-information.component';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
-export const AgreementComponent = (props: { category: string; facilityId: string }) => {
-  const { category, facilityId } = props;
+export const AgreementComponent = () => {
+  const params = useParams<{ slug: [string, string] }>();
+  const [category, facilityId] = params.slug;
 
   const [facility, setFacility] = useState<InstalledBaseItem>();
 

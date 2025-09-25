@@ -1,12 +1,17 @@
 import { FormControl, FormErrorMessage, FormLabel, Input } from '@sk-web-gui/react';
-import { useFormContext } from 'react-hook-form';
 import React from 'react';
 import { CountryCodeSelect } from '@sk-web-gui/countrycode-select';
+import { useFormContext } from 'react-hook-form';
 
-export const ConnectForm = ({ children }) => {
+interface ConnectFormProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children?: (methods: ReturnType<typeof useFormContext>) => React.ReactElement;
+}
+
+export const ConnectForm: React.FC<ConnectFormProps> = ({ children }) => {
   const methods = useFormContext();
 
-  return children({ ...methods });
+  return typeof children === 'function' ? children({ ...methods }) : null;
 };
 
 interface ConnectFormInputProps {

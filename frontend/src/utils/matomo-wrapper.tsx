@@ -5,7 +5,11 @@ import { init } from '@socialgouv/matomo-next';
 
 import { useLocalStorageValue } from '@react-hookz/web';
 
-export function MatomoWrapper({ children }) {
+interface MatomoWrapperProps {
+  children?: React.ReactNode;
+}
+
+export function MatomoWrapper({ children }: MatomoWrapperProps) {
   const localstorageKey = 'matomoIsActive';
   const { value: matomo } = useLocalStorageValue(localstorageKey, {
     defaultValue: false,

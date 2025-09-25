@@ -4,7 +4,7 @@ import { useApi, useApiService } from '@services/api-service';
 import { useSnackbar } from '@sk-web-gui/react';
 import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
+import { FormProvider, SubmitHandler, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { formatPhoneNumber } from '@utils/format-phone-number';
 
@@ -35,7 +35,8 @@ interface ContactSettingsFormLogicProps {
   formData?: Partial<ClientContactSetting>;
   onSubmit?: (
     values: Partial<ClientContactSetting>,
-    context: UseFormReturn<Partial<ClientContactSetting>, unknown, undefined>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    context: UseFormReturn<Partial<ClientContactSetting>, any, Partial<ClientContactSetting>>
   ) => void;
   onSubmitSuccess?: () => void;
   onSubmitFailed?: () => void;
@@ -44,7 +45,7 @@ interface ContactSettingsFormLogicProps {
 const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
 
 const formSchema = yup
-  .object<ClientContactSetting>({
+  .object<Partial<ClientContactSetting>>({
     name: yup.string().nullable().optional(),
     email: yup.string().email('E-postadress har fel format').nullable().optional(),
     alias: yup.string().nullable().optional(),
@@ -105,7 +106,8 @@ export default function ContactSettingsFormLogic({
     method: 'patch',
   });
 
-  const context = useForm<Partial<ClientContactSetting>>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const context = useForm<Partial<ClientContactSetting>, any, Partial<ClientContactSetting>>({
     resolver: yupResolver(formSchema),
     defaultValues: useMemo(() => formData, [formData]),
     mode: 'onChange',
@@ -126,29 +128,29 @@ export default function ContactSettingsFormLogic({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, reset]);
 
-  const _onSubmit = async (values: Partial<ClientContactSetting>) => {
-    if (onSubmit) {
-      onSubmit(values, context);
+  const _onSubmit: SubmitHandler<Partial<ClientContactSetting>> = async (data) => {
+    if (onSubmit && data) {
+      onSubmit(data, context);
     } else {
       const apiCall = isPatch() ? await patchMutation.mutateAsync : await postMutation.mutateAsync;
-      const data: Partial<ClientContactSetting> = _.merge(formData, {
+      const _data: Partial<ClientContactSetting> = _.merge(formData, {
         id: formData?.id,
-        alias: values.alias,
-        email: values.email,
+        alias: data.alias,
+        email: data.email,
         phone: context.formState?.touchedFields?.phoneNumber
-          ? formatPhoneNumber(values.phoneCountryCode ?? '', values.phoneNumber ?? '')
-          : values.phone,
+          ? formatPhoneNumber(data.phoneCountryCode ?? '', data.phoneNumber ?? '')
+          : data.phone,
         notifications: {
-          email_disabled: !values.notifications?.email_disabled,
-          phone_disabled: !values.notifications?.phone_disabled,
+          email_disabled: !data.notifications?.email_disabled,
+          phone_disabled: !data.notifications?.phone_disabled,
         },
         decicionsAndDocuments: {
-          digitalInbox: values.decicionsAndDocuments?.digitalInbox,
-          myPages: values.decicionsAndDocuments?.myPages,
-          snailmail: values.decicionsAndDocuments?.snailmail,
+          digitalInbox: data.decicionsAndDocuments?.digitalInbox,
+          myPages: data.decicionsAndDocuments?.myPages,
+          snailmail: data.decicionsAndDocuments?.snailmail,
         },
       });
-
+          
       const res = await apiCall(data);
       if (!res.error) {
         reset(formConvertedData(res));

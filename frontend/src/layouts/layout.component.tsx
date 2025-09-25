@@ -14,7 +14,14 @@ export function Layout({ title, children }: { title: string; children: React.Rea
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
 
-  const cookieConsentHandler = (cookies) => {
+  interface ConsentCookie {
+    optional: boolean;
+    displayName: string;
+    description: string;
+    cookieName: string;
+  }
+
+  const cookieConsentHandler = (cookies: ConsentCookie[]) => {
     if (cookies.some((opt) => opt.cookieName === 'stats')) {
       setMatomo(true);
     }

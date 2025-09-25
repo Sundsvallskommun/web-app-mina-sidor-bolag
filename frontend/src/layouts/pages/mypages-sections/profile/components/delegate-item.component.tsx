@@ -72,7 +72,7 @@ export const DelegateItem = ({
   };
 
   const FormComponent = () => {
-    const { formState } = useFormContext();
+    const { formState } = useFormContext<DelegatedContactSetting>();
 
     return (
       <div data-cy="form-component">

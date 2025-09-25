@@ -83,7 +83,7 @@ export default function Charts() {
     dataHandler: statisticsMeasurementDataHandler,
     queryKey: ['statistics', facilityId, getParams()],
     queryOptions: {
-      enabled: !!facilityId && !!toDate && !!fromDate,
+      enabled: !!facilityId && !!toDate && !!fromDate && getParams().includes('category='),
     },
   });
 
@@ -117,7 +117,7 @@ export default function Charts() {
 
   useEffect(() => {
     if (measurementData && previousMeasurementData) {
-      setMergedMeasurementData(mergeMeasurementDataSets(measurementData, previousMeasurementData));
+      setMergedMeasurementData(mergeMeasurementDataSets(measurementData, previousMeasurementData, fromDate));
       setMergedTemperatureData(mergeTemperatureDataSets(measurementData, previousMeasurementData));
     } else {
       setMergedMeasurementData(undefined);

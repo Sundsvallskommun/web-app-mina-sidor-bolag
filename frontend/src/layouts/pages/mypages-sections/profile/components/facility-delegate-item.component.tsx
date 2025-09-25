@@ -19,7 +19,7 @@ export const FacilityDelegateItem = ({
 }: {
   facilityDelegate: ResolvedFacilityDelegation;
   newItem?: boolean;
-  close: () => void;
+  close?: () => void;
 }) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
@@ -105,7 +105,7 @@ export const FacilityDelegateItem = ({
               color="primary"
               type="button"
               onClick={() => {
-                close();
+                close?.();
                 closeHandler();
               }}
               variant="secondary"

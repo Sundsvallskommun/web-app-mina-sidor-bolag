@@ -10,6 +10,7 @@ import {
 } from '@interfaces/facility-delegation';
 import { useSnackbar } from '@sk-web-gui/react';
 import { queryClient, useApi } from '@services/api-service';
+import { AxiosError } from 'axios';
 
 const defaultFacilityDelegateForm = {
   facilities: [],
@@ -22,7 +23,7 @@ interface FacilityDelegationFormLogicProps {
   formData?: FacilityDelegation;
   onSubmit?: (
     values: FacilityDelegation,
-    context: UseFormReturn<Partial<FacilityDelegation>, unknown, undefined>
+    context: UseFormReturn<Partial<FacilityDelegation>, unknown, Partial<FacilityDelegation>>
   ) => void;
   onSubmitSuccess?: () => void;
   onSubmitFailed?: () => void;
@@ -45,7 +46,8 @@ export default function FacilityDelegateFormLogic({
   onSubmitSuccess,
   onSubmitFailed,
 }: Readonly<FacilityDelegationFormLogicProps>) {
-  const context = useForm<Partial<ResolvedFacilityDelegation>>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const context = useForm<Partial<ResolvedFacilityDelegation>, any, Partial<FacilityDelegation>>({
     resolver: yupResolver(formSchema),
     defaultValues: useMemo(() => formData, [formData]),
     mode: 'onChange',
@@ -79,24 +81,31 @@ export default function FacilityDelegateFormLogic({
         : { facilities: values.facilities, delegatedTo: values.delegatedToBirthDate };
 
       const apiCall = isPatch() ? await patchMutation.mutateAsync : await postMutation.mutateAsync;
-      const res = await apiCall(data);
-
-      if (!res.error) {
-        await queryClient.invalidateQueries({
-          queryKey: ['facilityDelegation'],
+      await apiCall(data)
+        .then(async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['facilityDelegation'],
+          });
+          snackBar({
+            message: 'Uppgifterna sparades.',
+            status: 'success',
+          });
+          if (onSubmitSuccess) onSubmitSuccess();
+        })
+        .catch((e: AxiosError) => {
+          if (e.status === 409) {
+            snackBar({
+              message: 'Du kan inte delegera dig själv.',
+              status: 'error',
+            });
+          } else {
+            snackBar({
+              message: 'Det gick inte att spara uppgifterna.',
+              status: 'error',
+            });
+          }
+          if (onSubmitFailed) onSubmitFailed();
         });
-        snackBar({
-          message: 'Uppgifterna sparades.',
-          status: 'success',
-        });
-        if (onSubmitSuccess) onSubmitSuccess();
-      } else {
-        snackBar({
-          message: 'Det gick inte att spara uppgifterna.',
-          status: 'error',
-        });
-        if (onSubmitFailed) onSubmitFailed();
-      }
     }
   };
 

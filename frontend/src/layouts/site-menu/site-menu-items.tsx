@@ -28,7 +28,7 @@ export const useRepresentingSwitch = () => {
     try {
       const res = await representingMutation.mutateAsync(representingDto);
       if (!res.error) {
-        invalidateQueries();
+        await invalidateQueries();
       } else {
         if (representingDto.mode === RepresentingMode.BUSINESS) {
           router.push(`${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/valj-foretag`);
@@ -70,8 +70,8 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
   });
   const { isMinDesktop } = useThemeQueries();
 
-  const setEngagement = async (value) => {
-    const res = await setRepresenting({ organizationNumber: value }) as RepresentingEntity;
+  const setEngagement = async (value?: string) => {
+    const res = (await setRepresenting({ organizationNumber: value })) as RepresentingEntity;
     setRepresentingName(toRepresentingLabel(res));
 
     if (submitCallback) submitCallback();
@@ -98,7 +98,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
                   <PopupMenu.Item key={`${index}`}>
                     <Button
                       rightIcon={<Icon icon={<ArrowRight />} />}
-                      onClick={() => setEngagement(engagement.organizationNumber)}
+                      onClick={() => setEngagement(engagement?.organizationNumber)}
                     >
                       <span className="font-bold">{engagement.organizationName}</span>
                       {engagement.isRepresentative ? <span className="ml-[.5em]">(ombud)</span> : null}

@@ -21,7 +21,7 @@ interface InvoiceTableContentProps {
 export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPending }: InvoiceTableContentProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { representingMode, representingName } = useAppContext();
-  const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>();
+  const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
   const [activePage, setActivePage] = useState(1);
   const [rows, setRows] = useState<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
@@ -83,7 +83,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
     [userData]
   );
 
-  const columns: ManualTableColumn[] = useMemo(
+  const columns: ManualTableColumn<IInvoice>[] = useMemo(
     () => [
       {
         label: 'Leverantör',
@@ -92,7 +92,9 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
         className: 'max-w-[160px]',
         renderColumn: (value, item) => (
           <div className="text-left text-small">
-            <span className="font-bold">{getOrganizationName(item.organizationNumber)}</span>
+            <span className="font-bold">
+              {!!item.organizationNumber && getOrganizationName(item.organizationNumber)}
+            </span>
             <br />
             <span>{value}</span>
           </div>

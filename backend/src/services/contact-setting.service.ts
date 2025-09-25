@@ -29,13 +29,13 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
   const phoneSettings = getPhoneSettingsFromChannels(contactSetting?.contactChannels);
 
   const clientContactSetting: ClientContactSetting = {
-    id: contactSetting.id,
+    id: contactSetting?.id,
     name: null,
     address: null,
     email: emailSettings.email,
     phone: phoneSettings.phone,
-    virtual: contactSetting.virtual,
-    alias: contactSetting.alias,
+    virtual: contactSetting?.virtual ?? false,
+    alias: contactSetting?.alias ?? null,
     notifications: {
       email_disabled: emailSettings.email_disabled,
       phone_disabled: phoneSettings.phone_disabled,
@@ -45,7 +45,7 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
       myPages: true,
       snailmail: false,
     },
-    modified: contactSetting.modified,
+    modified: contactSetting?.modified,
   };
 
   return clientContactSetting;

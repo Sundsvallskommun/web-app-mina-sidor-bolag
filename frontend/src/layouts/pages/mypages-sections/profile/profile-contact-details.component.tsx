@@ -1,19 +1,19 @@
 'use client';
 
+import { FormBox } from '@components/form/form-box.component';
+import { ClientContactSetting, ClientContactSettingAddress } from '@interfaces/contactsettings';
+import { useApi, useApiService } from '@services/api-service';
 import { Button, Divider, Icon, Link } from '@sk-web-gui/react';
 import _ from 'lodash';
 import { Info, Pen } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
-import { ClientContactSetting } from '@interfaces/contactsettings';
-import { useApi, useApiService } from '@services/api-service';
-import { FormBox } from '@components/form/form-box.component';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
 };
 
-const getAddress = (address) => {
+const getAddress = (address?: ClientContactSettingAddress | null) => {
   if (address) {
     return `${address.street ? `${_.capitalize(address.street)}, ` : ''}${address.postcode} ${_.capitalize(address.city)}`;
   } else {

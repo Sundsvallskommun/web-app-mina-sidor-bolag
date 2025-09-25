@@ -11,13 +11,18 @@ import { useEffect, useState } from 'react';
 export const announcementsSource: Announcement[] = [
   {
     id: 0,
-    title: 'Vi skickar våra fakturor digitalt via Kivra',
-    text: 'För att underlätta för våra kunder så skickar vi våra fakturor via Kivra, en tjänst där du både kan se och betala din faktura digitalt. Läs mer på https://kivra.se eller ladda ner Kivra som app i din telefon. Har du inte Kivra? I så fall kommer du få din faktura med brev, och om du valt e-faktura till din internetbank kommer du istället få din faktura dit. Om du har Kivra till andra tjänster, men önskar att dina fakturor från Sundsvall Energi inte ska skickas till hit, så ber vi dig vänligen att kontakta Kivra direkt.',
-    urlTitle: 'Läs mer om Kivra',
-    url: 'https://kivra.se/sv/privat',
-    groups: [AnnouncementGroup.CUSTOMER_SV_ENERGI],
-    image: '/viskickarvarafakturor.jpg',
-    imageAlt: 'Vi skickar våra fakturor digitalt via Kivra',
+    title: 'Välkommen till nya versionen av Mina sidor!',
+    text: 'Mina sidor har fått ett nytt utseende och en tydligare struktur, och nu är det fritt fram för dig att testa den nya versionen. Det mesta är sig likt, men vi har putsat på designen och gjort det enklare att hitta rätt. Under en övergångsperiod kan du själv välja om du vill använda den gamla versionen eller prova den nya. Testa den gärna, klicka runt och lämna dina synpunkter. Din feedback är guld värd och hjälper oss att göra Mina Sidor ännu bättre i vårt fortsatta utvecklingsarbete.',
+    urlTitle: 'Lämna din feedback',
+    url: 'https://minasidor.stadsbacken.se/oversikt/flow/225',
+    groups: [
+      AnnouncementGroup.CUSTOMER_SV_EL,
+      AnnouncementGroup.CUSTOMER_SV_ENERGI,
+      AnnouncementGroup.BUSINESS,
+      AnnouncementGroup.PRIVATE,
+    ],
+    image: '/valkommen-till-nya-mina-sidor.png',
+    imageAlt: 'Välkommen till nya versionen av Mina sidor!',
   },
   {
     id: 1,
@@ -45,7 +50,12 @@ export const announcementsSource: Announcement[] = [
     text: 'Behöver du komma i kontakt med oss? Fyll i formuläret och ange vad du önskar ha hjälp med, så återkommer vi till dig inom tre arbetsdagar. Är ditt ärende mer brådskande ber vi dig istället att ringa in till oss.',
     urlTitle: 'Skicka in ditt ärende här',
     url: 'https://minasidor.stadsbacken.se/oversikt/flow/225',
-    groups: [AnnouncementGroup.CUSTOMER_SV_EL, AnnouncementGroup.CUSTOMER_SV_ENERGI, AnnouncementGroup.BUSINESS, AnnouncementGroup.PRIVATE],
+    groups: [
+      AnnouncementGroup.CUSTOMER_SV_EL,
+      AnnouncementGroup.CUSTOMER_SV_ENERGI,
+      AnnouncementGroup.BUSINESS,
+      AnnouncementGroup.PRIVATE,
+    ],
     image: '/kontaktaoss.jpg',
     imageAlt: 'Kontakta oss',
   },
@@ -116,14 +126,13 @@ export const Announcements = () => {
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  
+
   useEffect(() => {
     const customerEngagements = relations?.map((r) => r.organizationNumber ?? '') ?? [];
-    const groups = [
-      getRepresentingGroup(representingEntity),
-      ...getCustomerGroups(customerEngagements),
-    ];
-    setAnnouncements(announcementsSource.filter(announcement => groups.some(group => announcement.groups.includes(group))));
+    const groups = [getRepresentingGroup(representingEntity), ...getCustomerGroups(customerEngagements)];
+    setAnnouncements(
+      announcementsSource.filter((announcement) => groups.some((group) => announcement.groups.includes(group)))
+    );
   }, [representingEntity, relations, setAnnouncements]);
 
   const doneFetching = representingEntity && relations;
@@ -135,7 +144,7 @@ export const Announcements = () => {
     <section className="pt-80">
       <h3>Nyheter</h3>
       <div className="flex flex-col gap-24 my-24">
-        { doneFetching ? (
+        {doneFetching ? (
           <>
             {announcements.map((announcement, index) => {
               return (
@@ -156,12 +165,17 @@ export const Announcements = () => {
                         {announcement.urlTitle}
                       </Link>
                     )}
+                    {index === 0 ? (
+                      <Link external className="font-bold text-dark underline" href="https://minasidor.stadsbacken.se/">
+                        Gå tillbaka till gamla versionen av Mina sidor
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
               );
             })}
           </>
-        ): (
+        ) : (
           <Spinner />
         )}
       </div>

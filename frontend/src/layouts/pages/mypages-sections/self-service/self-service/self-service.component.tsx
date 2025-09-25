@@ -5,8 +5,10 @@ import { ExternalLinkCard } from '@layouts/pages/mypages-sections/self-service/e
 import { User } from '@interfaces/user';
 import { useApi } from '@services/api-service';
 import { useMemo } from 'react';
+import { useAppContext } from '@contexts/app.context';
 
 export default function SelfService() {
+  const { representingMode } = useAppContext();
   const { data } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const facilityTypes = useMemo(() => {
     if (!data?.facilities) return new Set();
@@ -16,7 +18,7 @@ export default function SelfService() {
     <div>
       <h1 className="pb-40">Självservice</h1>
 
-      {selfServices.map((service, index) => {
+      {selfServices(representingMode).map((service, index) => {
         return typeof service.category === 'undefined' || facilityTypes.has(service.category) ? (
           <div key={`service-category-${index}`} className="lg:pb-64 pb-24">
             <h3 className="pb-24">

@@ -99,7 +99,6 @@ class ApiService {
           logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
           logger.error(`Error data: ${error.response.config.data?.slice(0, 1500)}`);
           logger.error(`Error method: ${error.response.config.method}`);
-          logger.error(`Error headers: ${error.response.config.headers}`);
           throw new HttpException(404, 'Not found');
         } else if (axios.isAxiosError(error) && (error as AxiosError).response?.data) {
           logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
@@ -107,7 +106,6 @@ class ApiService {
           logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
           logger.error(`Error data: ${error.response.config.data?.slice(0, 1500)}`);
           logger.error(`Error method: ${error.response.config.method}`);
-          logger.error(`Error headers: ${error.response.config.headers}`);
           throw new HttpException(error.response.status ?? 500, 'API request failed');
         } else {
           logger.error(`Unknown error: ${error}`);

@@ -53,7 +53,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
             return {
               fromDate: dayjs(measurement.timestamp).format('YYYY-MM-DD HH:mm'),
               toDate: dayjs(measurement?.timestamp)
-                .endOf(data?.aggregatedOn as OpUnitType)
+                .endOf(data?.aggregatedOn as unknown as OpUnitType)
                 .format('YYYY-MM-DD HH:ss'),
               consumption: measurement.value,
               previousConsumption: 'previousValue' in measurement ? measurement?.previousValue : '',

@@ -37,7 +37,7 @@ interface DelegatedContactSettingsFormLogicProps {
   formData?: Partial<DelegatedContactSetting>;
   onSubmit?: (
     values: Partial<DelegatedContactSetting>,
-    context: UseFormReturn<Partial<DelegatedContactSetting>, unknown, undefined>
+    context: UseFormReturn<Partial<DelegatedContactSetting>, unknown, Partial<DelegatedContactSetting>>
   ) => void;
   onSubmitSuccess?: () => void;
   onSubmitFailed?: () => void;
@@ -115,7 +115,8 @@ export default function DelegatedContactSettingsFormLogic({
     method: 'patch',
   });
 
-  const context = useForm<Partial<DelegatedContactSetting>>({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const context = useForm<Partial<DelegatedContactSetting>, any, Partial<DelegatedContactSetting>>({
     resolver: yupResolver(formSchema),
     defaultValues: useMemo(() => formData, [formData]),
     mode: 'onChange',
