@@ -1230,7 +1230,7 @@
   dependencies:
     tslib "2"
 
-"@headlessui/react@^2.2.7":
+"@headlessui/react@^2.2.0", "@headlessui/react@^2.2.7":
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-2.2.8.tgz#9c29b90efb827bfde75f4dc8c127b946640f2d0c"
   integrity sha512-vkiZulDC0lFeTrZTbA4tHvhZHvkUb2PFh5xJ1BvWAZdRK0fayMKO1QEO4inWkXxK1i0I1rcwwu1d6mo0K7Pcbw==
@@ -2237,6 +2237,24 @@
     "@sk-web-gui/badge" "1.2.0"
     "@sk-web-gui/forms" "2.6.1"
     "@sk-web-gui/utils" "2.2.2"
+
+"@sk-web-gui/forms@2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@sk-web-gui/forms/-/forms-2.4.5.tgz#2a1cbd526856eb5f3bda788d3f7e0c10bf899942"
+  integrity sha512-KJOLTPvUDaeE7XrnJ2jLm/xop3VGlkjmnscn89A91+qXFJY0e8TRILA39mmiUaIvlk1vw824ySSEf1kcBCrtaQ==
+  dependencies:
+    "@sk-web-gui/button" "2.1.6"
+    "@sk-web-gui/divider" "1.1.5"
+    "@sk-web-gui/icon" "3.1.2"
+    "@sk-web-gui/link" "1.2.5"
+    "@sk-web-gui/modal" "2.2.6"
+    "@sk-web-gui/popup-menu" "3.1.6"
+    "@sk-web-gui/theme" "2.5.1"
+    "@sk-web-gui/utils" "2.2.2"
+    lucide-react "^0.471.1"
+    react-hook-form "^7.54.2"
+    usehooks-ts "^3.1.1"
+    uuid "11.0.5"
 
 "@sk-web-gui/forms@2.6.1":
   version "2.6.1"
@@ -3963,7 +3981,7 @@ country-flag-emoji-polyfill@^0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/country-flag-emoji-polyfill/-/country-flag-emoji-polyfill-0.1.8.tgz#d2cfb23dd2f949b80d83eb9822b613bf62957173"
   integrity sha512-Mbah52sADS3gshUYhK5142gtUuJpHYOXlXtLFI3Ly4RqgkmPMvhX9kMZSTqDM8P7UqtSW99eHKFphhQSGXA3Cg==
-  
+
 crc-32@~1.2.0, crc-32@~1.2.1:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/crc-32/-/crc-32-1.2.2.tgz#3cad35a934b8bf71f25ca524b6da51fb7eace2ff"
@@ -6579,19 +6597,7 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
-lru-cache@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-6.0.0.tgz#6d6fe6570ebd96aaf90fcad1dafa3b2566db3a94"
-  integrity sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
-  dependencies:
-    yallist "^4.0.0"
-
-lru-cache@^7.7.1:
-  version "7.18.3"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.18.3.tgz#f793896e0fd0e954a59dfdd82f0773808df6aa89"
-  integrity sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==
-
-lucide-react@^0.471.0, lucide-react@^0.471.1:
+lucide-react@^0.471.1:
   version "0.471.2"
   resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.471.2.tgz#817ead897ea630e982cb45e3429ee7f786dc3acb"
   integrity sha512-A8fDycQxGeaSOTaI7Bm4fg8LBXO7Qr9ORAX47bDRvugCsjLIliugQO0PkKFoeAD57LIQwlWKd3NIQ3J7hYp84g==
@@ -7370,15 +7376,15 @@ react-dom@^19.1.1:
   dependencies:
     scheduler "^0.26.0"
 
+react-hook-form@^7.54.2, react-hook-form@^7.63.0:
+  version "7.63.0"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.63.0.tgz#ff601754989bdd5cfc19fcbb02a3c0d4fbb29284"
+  integrity sha512-ZwueDMvUeucovM2VjkCf7zIHcs1aAlDimZu2Hvel5C5907gUzMpm4xCrQXtRzCvsBqFjonB4m3x4LzCFI1ZKWA==
+
 react-hook-form@^7.62.0:
   version "7.62.0"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.62.0.tgz#2d81e13c2c6b6d636548e440818341ca753218d0"
   integrity sha512-7KWFejc98xqG/F4bAxpL41NB3o1nnvQO1RWZT3TqRZYL8RryQETGfEdVnJN2fy1crCiBLLjkRBVK05j24FxJGA==
-
-react-hook-form@^7.63.0:
-  version "7.63.0"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.63.0.tgz#ff601754989bdd5cfc19fcbb02a3c0d4fbb29284"
-  integrity sha512-ZwueDMvUeucovM2VjkCf7zIHcs1aAlDimZu2Hvel5C5907gUzMpm4xCrQXtRzCvsBqFjonB4m3x4LzCFI1ZKWA==
 
 react-i18next@^15.7.3:
   version "15.7.3"
