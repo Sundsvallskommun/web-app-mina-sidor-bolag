@@ -4,7 +4,7 @@ import Statistics from '@layouts/pages/mypages-sections/statistics.component';
 
 export async function generateMetadata() {
   return {
-    title: `Statistik - Företag - ${appName()}`,
+    title: `Statistik - Organisation - ${appName()}`,
   };
 }
 

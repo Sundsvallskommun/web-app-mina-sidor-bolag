@@ -10,6 +10,7 @@ import { RepresentingEntity, RepresentingEntityDto, RepresentingMode } from '../
 import { useApi, useApiService } from '../../services/api-service';
 import { getRepresentingModeRoute, newRepresentingModePathname } from '../../utils/representingModeRoute';
 import { toRepresentingLabel } from '@utils/to-representing-label';
+import React from 'react';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -49,12 +50,12 @@ export const MyPagesToggle = () => {
   const pathname = usePathname();
 
   return (
-    <MenuBar showBackground current={representingMode}>
+    <MenuBar showBackground current={representingMode === 1 ? 0 : 1}>
+      <MenuBar.Item menuIndex={RepresentingMode.BUSINESS}>
+        <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>Organisation</NextLink>
+      </MenuBar.Item>
       <MenuBar.Item menuIndex={RepresentingMode.PRIVATE}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>Privat</NextLink>
-      </MenuBar.Item>
-      <MenuBar.Item menuIndex={RepresentingMode.BUSINESS}>
-        <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>Företag</NextLink>
       </MenuBar.Item>
     </MenuBar>
   );
@@ -110,7 +111,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
           </PopupMenu>
         ) : (
           <>
-            <div className="w-full mb-4">Byt företag</div>
+            <div className="w-full mb-4">Byt organisation</div>
             <Select
               value={representingEntity?.BUSINESS?.organizationNumber}
               className="w-full"

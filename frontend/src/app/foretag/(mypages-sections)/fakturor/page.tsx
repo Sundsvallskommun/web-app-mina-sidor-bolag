@@ -4,7 +4,7 @@ import { appName } from '@utils/app-name';
 
 export async function generateMetadata() {
   return {
-    title: `Fakturor - Företag - ${appName()}`,
+    title: `Fakturor - Organisation - ${appName()}`,
   };
 }
 
