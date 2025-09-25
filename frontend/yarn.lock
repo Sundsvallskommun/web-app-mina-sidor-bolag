@@ -2384,6 +2384,21 @@
     "@sk-web-gui/utils" "2.2.2"
     lucide-react "^0.537.0"
 
+"@sk-web-gui/next-link@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@sk-web-gui/next-link/-/next-link-1.1.0.tgz#3e444a30aafffe0c41a725f1441fd3738d02f4b8"
+  integrity sha512-cTHdtJd+lctckArA5XvJWdO43a6F13FOOEJNlJ+mrdzrlevT14NVabvJLbHTaKQLjJQkZnoRRmZ3PlrLCyJs8A==
+  dependencies:
+    "@sk-web-gui/link" "1.2.7"
+    "@sk-web-gui/utils" "2.2.2"
+
+"@sk-web-gui/next@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@sk-web-gui/next/-/next-1.1.0.tgz#2ff1485818a1c219eda33da48c55b011f3b6d83b"
+  integrity sha512-yIsWVPGnjN2tUevfzyLHVlbotLwgtrQVZxehCg5SWDWJ153pWdTVbadvNZpm3Ag85qUH5LzGq9NcaAb6S+NALQ==
+  dependencies:
+    "@sk-web-gui/next-link" "1.1.0"
+
 "@sk-web-gui/pagination@1.1.9":
   version "1.1.9"
   resolved "https://registry.yarnpkg.com/@sk-web-gui/pagination/-/pagination-1.1.9.tgz#f23caffe24d66b81e827d216b8ab8a409a92bf1c"
