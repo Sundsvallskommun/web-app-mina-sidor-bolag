@@ -3,9 +3,10 @@ import { ClientContactSetting } from '@interfaces/contactsettings';
 import { useApi, useApiService } from '@services/api-service';
 import { useSnackbar } from '@sk-web-gui/react';
 import _ from 'lodash';
-import { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, SubmitHandler, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { formatPhoneNumber } from '@utils/format-phone-number';
 
 const defaultContactSettingsForm: Partial<ClientContactSetting> = {
   name: undefined,
@@ -41,7 +42,7 @@ interface ContactSettingsFormLogicProps {
   onSubmitFailed?: () => void;
 }
 
-const phoneRegExp = /^(?:\+46\d{9})?$/;
+const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
 
 const formSchema = yup
   .object<Partial<ClientContactSetting>>({
@@ -49,7 +50,9 @@ const formSchema = yup
     email: yup.string().email('E-postadress har fel format').nullable().optional(),
     alias: yup.string().nullable().optional(),
     virtual: yup.boolean().optional(),
-    phone: yup.string().matches(phoneRegExp, 'Mobilnummer har fel format').nullable().optional(),
+    phoneCountryCode: yup.string().optional(),
+    phoneNumber: yup.string().matches(phoneRegExp, 'Fyll i ett giltigt mobilnummer').optional(),
+    phone: yup.string().nullable().optional(),
     notifications: yup
       .object({
         email_disabled: yup.boolean(),
@@ -134,7 +137,9 @@ export default function ContactSettingsFormLogic({
         id: formData?.id,
         alias: data.alias,
         email: data.email,
-        phone: data.phone,
+        phone: context.formState?.touchedFields?.phoneNumber
+          ? formatPhoneNumber(data.phoneCountryCode ?? '', data.phoneNumber ?? '')
+          : data.phone,
         notifications: {
           email_disabled: !data.notifications?.email_disabled,
           phone_disabled: !data.notifications?.phone_disabled,
@@ -145,6 +150,7 @@ export default function ContactSettingsFormLogic({
           snailmail: data.decicionsAndDocuments?.snailmail,
         },
       });
+
       const res = await apiCall(_data);
       if (!res.error) {
         reset(formConvertedData(res));

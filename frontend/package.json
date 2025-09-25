@@ -21,6 +21,7 @@
     "test:coverage": "yarn cypress:headless"
   },
   "dependencies": {
+    "@sk-web-gui/countrycode-select": "^1.1.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/bundle-analyzer": "15.5.3",
     "@react-hookz/web": "^25.1.1",

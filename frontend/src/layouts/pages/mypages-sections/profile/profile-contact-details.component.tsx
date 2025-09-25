@@ -6,7 +6,7 @@ import { useApi, useApiService } from '@services/api-service';
 import { Button, Divider, Icon, Link } from '@sk-web-gui/react';
 import _ from 'lodash';
 import { Info, Pen } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 
 const EmptyField = (text: string) => {
@@ -59,12 +59,12 @@ export const ContactDetails = () => {
       <ContactSettingsFormLogic onSubmitSuccess={() => setIsEditFalse()} formData={contactsettings}>
         <>
           <FormBox header="Namn">
-            <div data-cy="form-box-name">{contactsettings?.name ?? EmptyField('Inget namn tillagt')}</div>{' '}
+            <div data-cy="form-box-name">{contactsettings?.name ?? EmptyField('Inget namn tillagt')}</div>
           </FormBox>
           <Divider className="my-16" />
           <FormBox header="Adress">
             <div data-cy="form-box-address">
-              {getAddress(contactsettings?.address) ?? EmptyField('Ingen address tillagd')}
+              {getAddress(contactsettings?.address) ?? EmptyField('Ingen adress tillagd')}
             </div>
           </FormBox>
           <Divider className="my-16" />
@@ -81,9 +81,7 @@ export const ContactDetails = () => {
               </div>
             ) : (
               <>
-                <div data-cy="form-box-email">
-                  {contactsettings?.email ?? EmptyField('Ingen e-postaddress tillagd')}
-                </div>
+                <div data-cy="form-box-email">{contactsettings?.email ?? EmptyField('Ingen e-postadress tillagd')}</div>
                 <Button
                   size="md"
                   variant="secondary"

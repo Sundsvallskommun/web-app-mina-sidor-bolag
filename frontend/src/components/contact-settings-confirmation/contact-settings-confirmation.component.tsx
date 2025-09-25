@@ -60,7 +60,7 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
         >
           <Icon icon={<Mail />} size={56} />
         </div>
-        <div>
+        <div className="w-full">
           <FormBox name="email" header={'E-postadress'} isEdit={isInitial || isEdit}>
             {isInitial || isEdit ? null : (getValues()?.email ?? 'Ingen e-postadress tillagd')}
           </FormBox>

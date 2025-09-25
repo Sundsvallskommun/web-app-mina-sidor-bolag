@@ -12,7 +12,7 @@ export const FormBox: React.FC<{
   inputProps?: React.ComponentPropsWithRef<typeof Input.Component>;
 }> = ({ header, children, name, isEdit, input, inputProps }) => {
   return (
-    <div className="max-w-[29.6rem] flex flex-col">
+    <div className="max-w-[33.8rem] w-full flex flex-col">
       {name && isEdit ? (
         <ConnectFormInput name={name} header={header} inputProps={inputProps}>
           <>
