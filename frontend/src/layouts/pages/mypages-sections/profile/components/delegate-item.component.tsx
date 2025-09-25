@@ -85,8 +85,8 @@ export const DelegateItem = ({
         </FormBox>
         <FormBox name="contactSetting.phone" header="Mobilnummer" isEdit>
           <div className="mb-40">
-            {formState.errors?.contactSetting?.['phone'] && (
-              <p className="text-small text-error">{formState.errors?.contactSetting?.['phone']?.message}</p>
+            {formState.errors?.contactSetting?.['phoneNumber'] && (
+              <p className="text-small text-error">{formState.errors?.contactSetting?.['phoneNumber']?.message}</p>
             )}
           </div>
         </FormBox>

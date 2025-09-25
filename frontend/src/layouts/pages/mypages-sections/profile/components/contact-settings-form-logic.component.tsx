@@ -150,8 +150,8 @@ export default function ContactSettingsFormLogic({
           snailmail: data.decicionsAndDocuments?.snailmail,
         },
       });
-          
-      const res = await apiCall(data);
+
+      const res = await apiCall(_data);
       if (!res.error) {
         reset(formConvertedData(res));
         queryClient.invalidateQueries({
