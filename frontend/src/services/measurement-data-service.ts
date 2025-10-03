@@ -76,7 +76,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
   temperatureData.forEach((series) =>
     series.measurementPoints?.forEach((measurement) =>
-      measurement.value ? (measurement.value = toFixedNumber(measurement.value ?? 0, 2)) : undefined
+      measurement.value ? toFixedNumber(measurement.value ?? 0, 2) : undefined
     )
   );
 
@@ -337,8 +337,8 @@ export const mergeTemperatureDataSets = (
       ...rest,
       timestamp: currentDate,
       chartTimestamp: (index + 1).toString(),
-      value: value !== 0 ? value : undefined,
-      previousValue: previousMeasurement?.value !== 0 ? previousMeasurement?.value : undefined,
+      value: value,
+      previousValue: previousMeasurement?.value,
     };
   });
 
