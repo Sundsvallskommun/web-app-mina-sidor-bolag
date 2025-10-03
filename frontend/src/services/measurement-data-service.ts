@@ -75,7 +75,9 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
   temperatureData.forEach(addTimestamps);
 
   temperatureData.forEach((series) =>
-    series.measurementPoints?.forEach((measurement) => (measurement.value = toFixedNumber(measurement.value ?? 0, 2)))
+    series.measurementPoints?.forEach((measurement) =>
+      measurement.value ? (measurement.value = toFixedNumber(measurement.value ?? 0, 2)) : undefined
+    )
   );
 
   return {
@@ -224,6 +226,45 @@ export const translateAggregateOn = (aggregateOn?: Aggregation) => {
   }
 };
 
+const getDataLength = (aggregation: string, fromDate: string) => {
+  switch (aggregation) {
+    case Aggregation.HOUR:
+      return 24;
+    case Aggregation.DAY:
+      return dayjs(fromDate).daysInMonth();
+    case Aggregation.MONTH:
+      return 12;
+    default:
+      return 0;
+  }
+};
+
+const getCurrentDate = (index: number, fromDate: string, aggregation: string) => {
+  const oldDate = dayjs(fromDate);
+  switch (aggregation) {
+    case Aggregation.HOUR:
+      return `${oldDate.format('YYYY-MM-DD')}T${index < 10 ? '0' + index : index}:00:00`;
+    case Aggregation.DAY:
+      return `${oldDate.startOf('month').add(index, 'day').format('YYYY-MM-DD')}T00:00:00`;
+    case Aggregation.MONTH:
+      return `${oldDate.startOf('year').add(index, 'month').format('YYYY-MM-DD')}T00:00:00`;
+    default:
+      return '';
+  }
+};
+const getDateFindFormat = (aggregation: string) => {
+  switch (aggregation) {
+    case Aggregation.HOUR:
+      return 'HH';
+    case Aggregation.DAY:
+      return 'DD';
+    case Aggregation.MONTH:
+      return 'MM';
+    default:
+      return 'DD';
+  }
+};
+
 export const mergeMeasurementDataSets = (
   current: StatisticsMeasurementData,
   previous: StatisticsMeasurementData,
@@ -234,50 +275,11 @@ export const mergeMeasurementDataSets = (
     return;
   }
 
-  const getDataLength = () => {
-    switch (aggregation) {
-      case Aggregation.HOUR:
-        return 24;
-      case Aggregation.DAY:
-        return dayjs(fromDate).daysInMonth();
-      case Aggregation.MONTH:
-        return 12;
-      default:
-        return 0;
-    }
-  };
-
-  const getCurrentDate = (index: number) => {
-    const oldDate = dayjs(fromDate);
-    switch (aggregation) {
-      case Aggregation.HOUR:
-        return `${oldDate.format('YYYY-MM-DD')}T${index < 10 ? '0' + index : index}:00:00`;
-      case Aggregation.DAY:
-        return `${oldDate.startOf('month').add(index, 'day').format('YYYY-MM-DD')}T00:00:00`;
-      case Aggregation.MONTH:
-        return `${oldDate.startOf('year').add(index, 'month').format('YYYY-MM-DD')}T00:00:00`;
-      default:
-        return '';
-    }
-  };
-  const getDateFindFormat = () => {
-    switch (aggregation) {
-      case Aggregation.HOUR:
-        return 'HH';
-      case Aggregation.DAY:
-        return 'DD';
-      case Aggregation.MONTH:
-        return 'MM';
-      default:
-        return 'DD';
-    }
-  };
-
-  const array = Array.from(new Array(getDataLength()));
+  const array = Array.from(new Array(getDataLength(aggregation, fromDate)));
 
   const measurementPoints: MergedMeasurementPoints[] = array.map((_, index) => {
-    const currentDate = getCurrentDate(index);
-    const format = getDateFindFormat();
+    const currentDate = getCurrentDate(index, fromDate, aggregation);
+    const format = getDateFindFormat(aggregation);
 
     const currentMeasurement = current.measurementData?.[0]?.measurementPoints?.find(
       (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
@@ -308,18 +310,45 @@ export const mergeMeasurementDataSets = (
   }
 };
 
-export const mergeTemperatureDataSets = (current: StatisticsMeasurementData, previous: StatisticsMeasurementData) => {
-  if (current?.temperatureData?.[0]?.measurementPoints && previous?.measurementData) {
+export const mergeTemperatureDataSets = (
+  current: StatisticsMeasurementData,
+  previous: StatisticsMeasurementData,
+  fromDate: string
+) => {
+  const aggregation = current.aggregatedOn;
+  if (!fromDate || !aggregation) {
+    return;
+  }
+
+  const array = Array.from(new Array(getDataLength(aggregation, fromDate)));
+
+  const measurementPoints: MergedMeasurementPoints[] = array.map((_, index) => {
+    const currentDate = getCurrentDate(index, fromDate, aggregation);
+    const format = getDateFindFormat(aggregation);
+
+    const currentMeasurement = current.temperatureData?.[0]?.measurementPoints?.find(
+      (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
+    );
+    const previousMeasurement = previous.temperatureData?.[0]?.measurementPoints?.find(
+      (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
+    );
+    const { value, ...rest } = currentMeasurement || {};
+    return {
+      ...rest,
+      timestamp: currentDate,
+      chartTimestamp: (index + 1).toString(),
+      value: value !== 0 ? value : undefined,
+      previousValue: previousMeasurement?.value !== 0 ? previousMeasurement?.value : undefined,
+    };
+  });
+
+  if (current && measurementPoints?.length > 0) {
     return {
       ...current,
       temperatureData: [
         {
-          ...current.temperatureData[0],
-          measurementPoints: current.temperatureData[0].measurementPoints.map((measurement, index) => {
-            if (previous?.temperatureData?.[0]?.measurementPoints?.[index]) {
-              return { ...measurement, previousValue: previous.temperatureData[0].measurementPoints[index].value };
-            }
-          }),
+          ...current.temperatureData?.[0],
+          measurementPoints,
         },
       ],
     } as MergedStatisticsMeasurementData;

@@ -118,7 +118,7 @@ export default function Charts() {
   useEffect(() => {
     if (measurementData && previousMeasurementData) {
       setMergedMeasurementData(mergeMeasurementDataSets(measurementData, previousMeasurementData, fromDate));
-      setMergedTemperatureData(mergeTemperatureDataSets(measurementData, previousMeasurementData));
+      setMergedTemperatureData(mergeTemperatureDataSets(measurementData, previousMeasurementData, fromDate));
     } else {
       setMergedMeasurementData(undefined);
       setMergedTemperatureData(undefined);
