@@ -45,7 +45,7 @@ export const ContactSettings = () => {
                       </FormLabel>
                       <Checkbox.Group>
                         <Checkbox
-                          {...register('notifications.email_disabled')}
+                          {...register('notifications.email_enabled')}
                           data-cy="notification-channel-email-checkbox"
                           className="mt-8"
                           disabled={!hasEmail}
@@ -62,7 +62,7 @@ export const ContactSettings = () => {
                         )}
 
                         <Checkbox
-                          {...register('notifications.phone_disabled')}
+                          {...register('notifications.phone_enabled')}
                           data-cy="notification-channel-sms-checkbox"
                           disabled={!hasPhone}
                         >
@@ -87,8 +87,8 @@ export const ContactSettings = () => {
                       </h3>
                       <p>
                         {getContactWayString(
-                          getValues('notifications.phone_disabled'),
-                          getValues('notifications.email_disabled')
+                          getValues('notifications.phone_enabled'),
+                          getValues('notifications.email_enabled')
                         )}
                       </p>
                     </div>
