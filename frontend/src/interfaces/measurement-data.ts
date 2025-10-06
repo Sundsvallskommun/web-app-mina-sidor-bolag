@@ -86,11 +86,11 @@ export interface MergedStatisticsMeasurementData extends Omit<StatisticsMeasurem
 }
 
 export interface MergedMeasurementPoints {
-  value: number;
+  value: number | undefined;
   timestamp: string;
   chartTimestamp?: string;
   metaData?: MetaData[];
-  previousValue: number;
+  previousValue: number | undefined;
 }
 
 export interface MergedMeasurementSeries {
