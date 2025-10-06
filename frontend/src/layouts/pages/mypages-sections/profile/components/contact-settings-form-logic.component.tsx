@@ -15,8 +15,8 @@ const defaultContactSettingsForm: Partial<ClientContactSetting> = {
   virtual: false,
   phone: undefined,
   notifications: {
-    email_disabled: false,
-    phone_disabled: false,
+    email_enabled: false,
+    phone_enabled: false,
   },
   address: {
     street: '',
@@ -79,16 +79,6 @@ const formSchema = yup
   })
   .required();
 
-const formConvertedData = (data: Partial<ClientContactSetting>) => {
-  const newDefaultValues = Object.assign(data, {
-    notifications: {
-      email_disabled: !data?.notifications?.email_disabled,
-      phone_disabled: !data?.notifications?.phone_disabled,
-    },
-  });
-  return newDefaultValues;
-};
-
 export default function ContactSettingsFormLogic({
   children,
   formData = defaultContactSettingsForm,
@@ -123,7 +113,7 @@ export default function ContactSettingsFormLogic({
   useEffect(() => {
     const newFormData = { ...formData };
     if (JSON.stringify(newFormData) !== JSON.stringify(context.formState.defaultValues)) {
-      reset(formConvertedData(newFormData));
+      reset(newFormData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, reset]);
@@ -141,8 +131,8 @@ export default function ContactSettingsFormLogic({
           ? formatPhoneNumber(data.phoneCountryCode ?? '', data.phoneNumber ?? '')
           : data.phone,
         notifications: {
-          email_disabled: !data.notifications?.email_disabled,
-          phone_disabled: !data.notifications?.phone_disabled,
+          email_enabled: data.notifications?.email_enabled,
+          phone_enabled: data.notifications?.phone_enabled,
         },
         decicionsAndDocuments: {
           digitalInbox: data.decicionsAndDocuments?.digitalInbox,
@@ -153,7 +143,7 @@ export default function ContactSettingsFormLogic({
 
       const res = await apiCall(_data);
       if (!res.error) {
-        reset(formConvertedData(res));
+        reset(res);
         queryClient.invalidateQueries({
           queryKey: ['contactsettings'],
         });

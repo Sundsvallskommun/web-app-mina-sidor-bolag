@@ -30,8 +30,8 @@ export const DelegatedContactDetails = () => {
       virtual: true,
       phone: '',
       notifications: {
-        email_disabled: true,
-        phone_disabled: false,
+        email_enabled: true,
+        phone_enabled: false,
       },
     },
     delegate: {

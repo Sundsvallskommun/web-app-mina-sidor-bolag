@@ -20,8 +20,8 @@ const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
     phoneCountryCode: '+46',
     phoneNumber: '',
     notifications: {
-      email_disabled: true,
-      phone_disabled: false,
+      email_enabled: true,
+      phone_enabled: false,
     },
   },
   delegate: {

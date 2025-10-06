@@ -12,13 +12,13 @@ export const getContactSettingChannels = (userData: ClientContactSetting) => {
   const emailSettings: ContactSettingChannel = {
     contactMethod: ContactMethod.EMAIL,
     destination: userData.email,
-    disabled: userData.notifications.email_disabled,
+    disabled: !userData.notifications.email_enabled,
     alias: 'default',
   };
   const phoneSettings: ContactSettingChannel = {
     contactMethod: ContactMethod.SMS,
     destination: userData.phone,
-    disabled: userData.notifications.phone_disabled,
+    disabled: !userData.notifications.phone_enabled,
     alias: 'default',
   };
   return [...(userData.email ? [emailSettings] : []), ...(userData.phone ? [phoneSettings] : [])];
@@ -37,8 +37,8 @@ export const makeClientContactSetting = (contactSetting: ContactSetting): Client
     virtual: contactSetting?.virtual ?? false,
     alias: contactSetting?.alias ?? 'default',
     notifications: {
-      email_disabled: emailSettings.email_disabled,
-      phone_disabled: phoneSettings.phone_disabled,
+      email_enabled: !emailSettings.email_disabled,
+      phone_enabled: !phoneSettings.phone_disabled,
     },
     decicionsAndDocuments: {
       digitalInbox: true,

@@ -7,9 +7,9 @@ import { Delegate as IDelegate, Filter as IFilter, Rule as IRule, Operator } fro
 
 export class ClientContactSettingNotifications {
   @IsBoolean()
-  email_disabled: boolean;
+  email_enabled: boolean;
   @IsBoolean()
-  phone_disabled: boolean;
+  phone_enabled: boolean;
 }
 
 export class ClientContactSettingDecicionsAndDocuments {
