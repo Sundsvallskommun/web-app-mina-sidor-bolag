@@ -28,7 +28,7 @@ const pendingStatuses = [
 export class InvoicesController {
   private apiService = new ApiService();
   private apiBase = getApiBase('invoices');
-  private invoiceFromDate = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
+  private invoiceDateFrom = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
 
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
@@ -63,7 +63,7 @@ export class InvoicesController {
       const params = {
         partyId,
         facilityId,
-        invoiceDateFrom: this.invoiceFromDate,
+        invoiceDateFrom: this.invoiceDateFrom,
         page,
         limit,
       };
@@ -132,7 +132,7 @@ export class InvoicesController {
         const params = {
           partyId,
           facilityId,
-          invoiceDateFrom: this.invoiceFromDate,
+          invoiceDateFrom: this.invoiceDateFrom,
           invoiceStatus,
           page,
           limit,
