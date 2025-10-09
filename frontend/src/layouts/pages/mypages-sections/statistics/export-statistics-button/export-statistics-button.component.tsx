@@ -12,6 +12,7 @@ import { useFormContext } from 'react-hook-form';
 import { utils, writeFile } from 'xlsx';
 import dayjs, { OpUnitType } from 'dayjs';
 import { translateAggregateOn } from '@services/measurement-data-service';
+import { useTranslation } from 'react-i18next';
 
 export interface ExportStatisticsButtonProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -20,6 +21,7 @@ export interface ExportStatisticsButtonProps {
 export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   const { data, isFetching } = props;
   const { getValues } = useFormContext();
+  const { t } = useTranslation('statistics');
 
   const exportStatistics = () => {
     if (data?.measurementData) {
@@ -83,7 +85,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
       className="sm:w-auto w-full"
       data-cy="export-statistics-button"
     >
-      Exportera statistik
+      {t('statistics:export')}
     </Button>
   );
 };

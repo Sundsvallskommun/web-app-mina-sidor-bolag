@@ -11,6 +11,7 @@ import { useApi, useApiService } from '../../services/api-service';
 import { getRepresentingModeRoute, newRepresentingModePathname } from '../../utils/representingModeRoute';
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -48,14 +49,19 @@ export const useRepresentingSwitch = () => {
 export const MyPagesToggle = () => {
   const { representingMode } = useAppContext();
   const pathname = usePathname();
+  const { t } = useTranslation('common');
 
   return (
     <MenuBar showBackground current={representingMode === 1 ? 0 : 1}>
       <MenuBar.Item menuIndex={RepresentingMode.BUSINESS}>
-        <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>Organisation</NextLink>
+        <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>
+          {t('common:organization')}
+        </NextLink>
       </MenuBar.Item>
       <MenuBar.Item menuIndex={RepresentingMode.PRIVATE}>
-        <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>Privat</NextLink>
+        <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>
+          {t('common:private')}
+        </NextLink>
       </MenuBar.Item>
     </MenuBar>
   );
@@ -70,6 +76,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
     method: 'get',
   });
   const { isMinDesktop } = useThemeQueries();
+  const { t } = useTranslation('common');
 
   const setEngagement = async (value?: string) => {
     const res = (await setRepresenting({ organizationNumber: value })) as RepresentingEntity;
@@ -88,10 +95,12 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
             <PopupMenu.Button
               variant="secondary"
               className="bg-transparent"
-              aria-label={`Byt organisation, nuvarande: ${representingEntity?.BUSINESS?.organizationName}`}
+              aria-label={t('common:switchOrganizationAriaLabel', {
+                current: representingEntity?.BUSINESS?.organizationName,
+              })}
               rightIcon={<Icon icon={<ChevronDownCircle />} />}
             >
-              Byt organisation
+              {t('common:switchOrganization')}
             </PopupMenu.Button>
             <PopupMenu.Panel className="z-50">
               <PopupMenu.Items>
@@ -102,7 +111,9 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
                       onClick={() => setEngagement(engagement?.organizationNumber)}
                     >
                       <span className="font-bold">{engagement.organizationName}</span>
-                      {engagement.isRepresentative ? <span className="ml-[.5em]">(ombud)</span> : null}
+                      {engagement.isRepresentative ? (
+                        <span className="ml-[.5em]">{t('common:isRepresentative')}</span>
+                      ) : null}
                     </Button>
                   </PopupMenu.Item>
                 ))}
@@ -111,7 +122,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
           </PopupMenu>
         ) : (
           <>
-            <div className="w-full mb-4">Byt organisation</div>
+            <div className="w-full mb-4">{t('common:switchOrganization')}</div>
             <Select
               value={representingEntity?.BUSINESS?.organizationNumber}
               className="w-full"
@@ -133,6 +144,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
 
 export const useSiteMenuItems = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   return [
     <Button
@@ -142,7 +154,7 @@ export const useSiteMenuItems = () => {
       variant="tertiary"
       leftIcon={<Icon icon={<LogOut />} />}
     >
-      Logga ut
+      {t('common:logout.logout')}
     </Button>,
   ];
 };

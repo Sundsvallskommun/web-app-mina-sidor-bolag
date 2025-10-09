@@ -7,6 +7,7 @@ import { useApi } from '@services/api-service';
 import { Image, Link, Spinner } from '@sk-web-gui/react';
 import { getCustomerGroups } from '@utils/app-organizations';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const announcementsSource: Announcement[] = [
   {
@@ -193,6 +194,7 @@ export const Announcements = () => {
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const { t } = useTranslation('overview');
 
   useEffect(() => {
     const customerEngagements = relations?.map((r) => r.organizationNumber ?? '') ?? [];
@@ -209,7 +211,7 @@ export const Announcements = () => {
 
   return (
     <section className="pt-80">
-      <h3>Nyheter</h3>
+      <h3>{t('overview:announcements.title')}</h3>
       <div className="flex flex-col gap-24 my-24">
         {doneFetching ? (
           <>

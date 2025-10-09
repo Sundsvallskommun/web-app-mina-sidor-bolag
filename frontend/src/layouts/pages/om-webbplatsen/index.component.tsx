@@ -3,6 +3,8 @@
 import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.component';
 import { Icon } from '@sk-web-gui/react';
 import { ExternalLink } from 'lucide-react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ContentCardProps {
   title?: string;
@@ -28,36 +30,38 @@ const ContentCard: React.FC<ContentCardProps> = ({ title, text, href, external }
 };
 
 export default function OmWebbplatsen() {
+  const { t } = useTranslation('about');
+
   return (
     <PagesBreadcrumbsLayout>
-      <h1>Om webbplatsen</h1>
+      <h1>{t('about:title')}</h1>
 
       <div className="mt-56 grid grid-cols-1 large-device:grid-cols-4 gap-24 justify-start">
         <ContentCard
-          title="Kakor (cookies)"
-          text="Information om spårningsteknik och om annan användning av personuppgifter på minasidor.stadsbacken.se."
-          href="/om-webbplatsen/kakor"
+          title={t('about:cookies.title')}
+          text={t('about:cookies.text')}
+          href={t('about:cookies.url')}
           external={false}
         />
 
         <ContentCard
-          title="Tillgänglighet"
-          text="Information om hur webbplatsen uppfyller lagen om tillgänglighet till digital offentlig service."
-          href="/om-webbplatsen/tillganglighet"
+          title={t('about:accessibility.title')}
+          text={t('about:accessibility.text')}
+          href={t('about:accessibility.url')}
           external={false}
         />
 
         <ContentCard
-          title="Personuppgifter Sundsvall Energi"
-          text="Samlad information om hur vi behandlar dina personuppgifter när du använder Sundsvall Energis tjänster."
-          href="https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
+          title={t('about:5564786647.title')}
+          text={t('about:5564786647.text')}
+          href={t('about:5564786647.url')}
           external={true}
         />
 
         <ContentCard
-          title="Personuppgifter Sundsvall Elnät"
-          text="Samlad information om hur vi behandlar dina personuppgifter när du använder Sundsvall Elnäts tjänster."
-          href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
+          title={t('about:5565027223.title')}
+          text={t('about:5565027223.text')}
+          href={t('about:5565027223.url')}
           external={true}
         />
       </div>

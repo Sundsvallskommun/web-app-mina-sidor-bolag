@@ -7,6 +7,7 @@ import { User } from '@interfaces/user';
 import { FacilityDelegation, ResolvedFacilityDelegation } from '@interfaces/facility-delegation';
 import FacilityDelegateFormLogic from '@layouts/pages/mypages-sections/profile/components/facility-delegate-form-logic.component';
 import { FacilityDelegateFilter } from '@layouts/pages/mypages-sections/profile/components/facility-delegate-filter.component';
+import { useTranslation } from 'react-i18next';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
@@ -32,6 +33,7 @@ export const FacilityDelegateItem = ({
   const { showConfirmation } = useConfirm();
   const toastMessage = useSnackbar();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { t } = useTranslation('profile');
 
   const openHandler = () => {
     setIsOpen(true);
@@ -54,12 +56,12 @@ export const FacilityDelegateItem = ({
 
     return (
       <div data-cy="form-component">
-        <FormLabel>Personnummer</FormLabel>
+        <FormLabel>{t('profile:personNumber')}</FormLabel>
         <Input className="block w-2/3" {...register('delegatedToBirthDate')} readOnly={!newItem} />
         {formState.errors['delegatedToBirthDate'] ? (
-          <p className="text-small text-error">Ogiltigt personnummer</p>
+          <p className="text-small text-error">{t('profile:invalidPersonNumber')}</p>
         ) : (
-          <p className="text-small w-2/3">Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).</p>
+          <p className="text-small w-2/3">{t('profile:addPersonNumber')}</p>
         )}
 
         <FacilityDelegateFilter />
@@ -73,10 +75,10 @@ export const FacilityDelegateItem = ({
             leftIcon={<Icon icon={<Trash />} />}
             onClick={() => {
               showConfirmation(
-                'Ta bort behörighet',
-                'Vill du ta bort denna behörighet?',
-                'Ta bort',
-                'Avbryt',
+                t('profile:delegates.remove.title'),
+                t('profile:delegates.remove.message'),
+                t('profile:remove'),
+                t('profile:cancel'),
                 'error'
               ).then(async (confirm: boolean) => {
                 if (confirm) {
@@ -85,7 +87,7 @@ export const FacilityDelegateItem = ({
                     queryKey: ['facilityDelegation'],
                   });
                   toastMessage({
-                    message: 'Behörigheten togs bort.',
+                    message: t('profile:delegates.remove.success'),
                     status: 'success',
                   });
                 }
@@ -95,7 +97,7 @@ export const FacilityDelegateItem = ({
             data-cy="remove-contact-person-button"
             inverted
           >
-            Ta bort behörighet
+            {t('profile:delegates.remove.title')}
           </Button>
         )}
 
@@ -111,11 +113,11 @@ export const FacilityDelegateItem = ({
               variant="secondary"
               data-cy="cancel-delegate-form-button"
             >
-              Avbryt
+              {t('profile:cancel')}
             </Button>
 
             <Button type="submit" data-cy="save-delegate-button">
-              {newItem ? 'Lägg till' : 'Spara'}
+              {newItem ? t('profile:add') : t('profile:save')}
             </Button>
           </div>
         </Modal.Footer>
@@ -135,16 +137,18 @@ export const FacilityDelegateItem = ({
           className="mt-8 sm:w-auto w-full"
           data-cy="add-delegate-button"
         >
-          Lägg till behörighet
+          {t('profile:delegates.add')}
         </Button>
       ) : (
         <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards sm:flex sm:items-center sm:justify-between">
           <div className="sm:pb-0 pb-16" data-cy="delegate-alias">
             <p>
-              {facilityDelegate?.delegatedToName ?? EmptyField('Inget alias tillagt')},
+              {facilityDelegate?.delegatedToName ?? EmptyField(t('profile:noAlias'))},
               {facilityDelegate.delegatedToBirthDate}
             </p>
-            <p className="text-secondary">Behörig för anläggning: {filteredDelegationFacilities()}</p>
+            <p className="text-secondary">
+              {t('profile:delegates.eligibleForFacility')} {filteredDelegationFacilities()}
+            </p>
           </div>
           <Button
             size="md"
@@ -155,14 +159,14 @@ export const FacilityDelegateItem = ({
             className="sm:w-auto w-full"
             data-cy="edit-delegate"
           >
-            Redigera
+            {t('profile:edit')}
           </Button>
         </div>
       )}
 
       <Modal
         className="sm:w-[52rem] w-auto sm:bottom-auto sm:left-auto sm:rounded-cards sm:relative bottom-0 fixed left-0 rounded-b-0"
-        label={newItem ? 'Lägg till behörighet' : 'Redigera behörighet'}
+        label={newItem ? t('profile:delegates.add') : t('profile:delegates.edit')}
         show={isOpen}
         onClose={closeHandler}
       >

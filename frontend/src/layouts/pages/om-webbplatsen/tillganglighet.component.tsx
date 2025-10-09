@@ -1,100 +1,75 @@
 'use client';
 
-import { Breadcrumb, Link } from '@sk-web-gui/react';
-import NextLink from 'next/link';
+import { Breadcrumb } from '@sk-web-gui/react';
 import { PagesBreadcrumbsLayout } from '../../../layouts/pages-breadcrumbs-layout.component';
-const pageName = 'Tillgänglighet';
+import { Trans, useTranslation } from 'react-i18next';
+import React from 'react';
+import { NextLink } from '@sk-web-gui/next';
 
 export default function Tillganglighet() {
+  const { t } = useTranslation(['about', 'accessibility']);
+
   return (
     <PagesBreadcrumbsLayout
       breadcrumbs={
-        <Breadcrumb className="">
+        <Breadcrumb>
           <Breadcrumb.Item>
-            <NextLink href="/om-webbplatsen">
-              <Breadcrumb.Link variant="body" as="span" href="/om-webbplatsen">
-                Om webbplatsen
+            <NextLink href={t('about:url')}>
+              <Breadcrumb.Link variant="tertiary" as="span" href={t('about:url')}>
+                {t('about:title')}
               </Breadcrumb.Link>
             </NextLink>
           </Breadcrumb.Item>
 
           <Breadcrumb.Item currentPage>
-            <Breadcrumb.Link href="/om-webbplatsen/tillganglighet">{pageName}</Breadcrumb.Link>
+            <Breadcrumb.Link href={t('accessibility:pageLink')}>{t('accessibility:title')}</Breadcrumb.Link>
           </Breadcrumb.Item>
         </Breadcrumb>
       }
     >
       <div className="text-content">
-        <h1>{pageName}</h1>
+        <h1>{t('accessibility:title')}</h1>
         <div className="flex flex-col gap-y-40">
-          <div className="text-lead">Här hittar du tillgänglighetsredogörelsen för Stadsbackens Mina sidor.</div>
+          <div className="text-lead">{t('accessibility:description')}</div>
           <div>
-            <h2 className="text-h4-md">Tillgänglighet för minasidor.stadsbacken.se</h2>
-            <p>
-              Tillgänglighetsredogörelsen beskriver hur minasidor.stadsbacken.se uppfyller lagen om tillgänglighet till
-              digital offentlig service, eventuella kända tillgänglighetsproblem och hur du kan rapportera brister till
-              oss så att vi kan åtgärda dem.
-            </p>
-            <p>Webbplatsen offentliggjordes den 25 juni 2025.</p>
+            <h2 className="text-h4-md">{t('accessibility:subTitle')}</h2>
+            <p>{t('accessibility:subDescription')}</p>
+            <p>{t('accessibility:publishDate')}</p>
           </div>
           <div>
-            <h2 className="text-h4-md">Hur tillgänglig är webbplatsen?</h2>
-            <p>
-              Vi är medvetna om att delar av webbplatsen inte är helt tillgängliga. Bristerna åtgärdas löpande och
-              ambitionen är att ha åtgärdat de viktigaste kända tillgänglighetsproblem senast den 31 december 2025.{' '}
-            </p>
-            {/* <p>
-              Länkarna nedan leder till avsnitt som beskriver vilka problem att uppfatta, hantera eller förstå
-              webbplatsen du kan möta i olika situationer.
-            </p>
-            <ul>
-              <li>
-                <span className="underline">Utan synförmåga</span>
-              </li>
-              <li>
-                <span className="underline">Utan synförmåga</span>
-              </li>
-              <li>
-                <span className="underline">Utan synförmåga</span>
-              </li>
-              <li>
-                <span className="underline">Utan synförmåga</span>
-              </li>
-              <li>
-                <span className="underline">Utan synförmåga</span>
-              </li>
-            </ul> */}
+            <h2 className="text-h4-md">{t('accessibility:howAccessible')}</h2>
+            <p>{t('accessibility:howAccessibleDescription')}</p>
           </div>
           <div>
-            <h2 className="text-h4-md">Rapportera brister i webbplatsens tillgänglighet</h2>
+            <h2 className="text-h4-md">{t('accessibility:reportTitle')}</h2>
             <p className="my-16">
-              Om du upptäcker problem som inte är beskrivna på den här sidan, eller om du anser att vi inte uppfyller
-              lagens krav,{' '}
-              <Link external href="https://minasidor.stadsbacken.se/oversikt/flow/225">
-                lämna synpunkt här
-              </Link>{' '}
-              så att vi får veta att problemet finns.
+              <Trans
+                i18nKey="accessibility:reportDescription"
+                components={{
+                  Link: <NextLink href={t('accessibility:reportDescriptionUrl')} external />,
+                }}
+              />
             </p>
-            <p>Du kan också kontakta oss om digital tillgänglighet via:</p>
-            <ul>
-              <li>
-                E-post: <Link href="mailto:minasidor@stadsbacken.se">minasidor@stadsbacken.se</Link>
-              </li>
-            </ul>
+            <p>{t('accessibility:digitalReportContactTitle')}</p>
+            <p>
+              <Trans
+                i18nKey="accessibility:digitalReportContactLink"
+                components={{
+                  Link: <NextLink href={t('accessibility:digitalReportContactUrl')} external />,
+                }}
+              />
+            </p>
           </div>
           <div>
-            <h2 className="text-h4-md">Tillsyn</h2>
+            <h2 className="text-h4-md">{t('accessibility:oversight')}</h2>
+            <p>{t('accessibility:oversightDescription')}</p>
             <p>
-              Myndigheten för digital förvaltning har ansvaret för tillsyn över lagen om tillgänglighet till digital
-              offentlig service.
-            </p>
-            <p>
-              Om du inte är nöjd med hur vi hanterar ditt påpekande om bristande webbtillgänglighet eller din begäran om
-              tillgängliggörande av innehåll kan du{' '}
-              <Link external href="https://www.digg.se/tdosanmalan">
-                anmäla till Myndigheten för digital förvaltning
-              </Link>
-              .
+              <Trans
+                i18nKey="accessibility:overSightLink"
+                components={{
+                  Link: <NextLink href={t('accessibility:oversightUrl')} external />,
+                }}
+              />
             </p>
           </div>
         </div>

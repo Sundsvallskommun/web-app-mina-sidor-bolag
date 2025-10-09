@@ -1,6 +1,7 @@
 import { ResolvedFacilityDelegation } from '@interfaces/facility-delegation';
 import { FacilityDelegateItem } from '@layouts/pages/mypages-sections/profile/components/facility-delegate-item.component';
 import { useApi } from '@services/api-service';
+import { useTranslation } from 'react-i18next';
 
 const emptyFacilityDelegate: ResolvedFacilityDelegation = {
   facilities: [],
@@ -11,6 +12,8 @@ const emptyFacilityDelegate: ResolvedFacilityDelegation = {
 };
 
 export const FacilityDelegates = () => {
+  const { t } = useTranslation('profile');
+
   const { data: facilityDelegations } = useApi<ResolvedFacilityDelegation[]>({
     url: `facility/delegations`,
     method: 'get',
@@ -19,14 +22,11 @@ export const FacilityDelegates = () => {
 
   return (
     <div className="pt-24">
-      <p>
-        Du kan ge en person behörighet till dina avtal och dokument. Kom ihåg att du själv måste ta bort behörigheten om
-        personen inte längre ska kunna se eller göra ändringar i avtalen.
-      </p>
+      <p>{t('profile:delegates.information')}</p>
 
       {facilityDelegations?.length ? (
         <div className="pt-40">
-          <strong>Tillagda behörigheter</strong>
+          <strong>{t('profile:delegates.subTitle')}</strong>
           {facilityDelegations.map((facilityDelegate: ResolvedFacilityDelegation) => (
             <FacilityDelegateItem facilityDelegate={facilityDelegate} key={facilityDelegate?.id} />
           ))}

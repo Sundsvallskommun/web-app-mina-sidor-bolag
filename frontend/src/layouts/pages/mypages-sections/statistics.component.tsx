@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { Button, Modal, Spinner } from '@sk-web-gui/react';
+import { useTranslation } from 'react-i18next';
 
 export interface StatisticsForm {
   category: string;
@@ -26,6 +27,7 @@ export interface StatisticsForm {
 
 export default function Statistics() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { t } = useTranslation('statistics');
 
   const context = useForm<StatisticsForm>({
     mode: 'onChange',
@@ -52,9 +54,9 @@ export default function Statistics() {
     <div>
       <FormProvider {...context}>
         <div className="md:flex md:justify-between">
-          <h1 className="mb-40">Din statistik</h1>
+          <h1 className="mb-40">{t('statistics:title')}</h1>
           <Button className="sm:hidden block" onClick={openHandler}>
-            Filter
+            {t('statistics:filter')}
           </Button>
         </div>
 

@@ -1,0 +1,24 @@
+{
+  "title" : "Om webbplatsen",
+  "url" : "/om-webbplatsen",
+  "cookies" : {
+    "title" : "Kakor (cookies)",
+    "text" : "Information om spårningsteknik och om annan användning av personuppgifter på minasidor.stadsbacken.se.",
+    "url" : "/om-webbplatsen/kakor"
+  },
+  "accessibility" : {
+    "title" : "Tillgänglighet",
+    "text" : "Information om hur webbplatsen uppfyller lagen om tillgänglighet till digital offentlig service.",
+    "url" : "/om-webbplatsen/tillganglighet"
+  },
+  "5564786647" : {
+    "title" : "Personuppgifter Sundsvall Energi",
+    "text" : "Samlad information om hur vi behandlar dina personuppgifter när du använder Sundsvall Energis tjänster.",
+    "url" : "https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
+  },
+  "5565027223" : {
+    "title" : "Personuppgifter Sundsvall Elnät",
+    "text" : "Samlad information om hur vi behandlar dina personuppgifter när du använder Sundsvall Elnäts tjänster.",
+    "url" : "https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
+  }
+}

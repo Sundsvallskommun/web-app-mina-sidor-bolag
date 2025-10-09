@@ -1,0 +1,49 @@
+{
+  "title": "Din profil och inställningar",
+  "save" : "Spara",
+  "cancel" : "Avbryt",
+  "edit" : "Redigera",
+  "add" : "Lägg till",
+  "remove" : "Ta bort",
+  "noAlias" : "Inget alias tillagt",
+  "name" : "Namn",
+  "noName" : "Inget namn tillagt",
+  "noAddress" : "Ingen adress tillagd",
+  "phone" : "Mobilnummer",
+  "editPhone" : "Ändra mobilnummer",
+  "noPhone" : "Inget mobilnummer tillagt",
+  "email" : "E-postadress",
+  "noEmail" : "Ingen e-postadress tillagd",
+  "editEmail" : "Ändra e-postadress",
+  "personNumber" : "Personnummer",
+  "invalidPersonNumber" : "Ogiltigt personnummer",
+  "addPersonNumber" : "Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).",
+  "error" : {
+    "save" : "Det gick inte att spara uppgifterna.",
+    "requiredOption" : "Minst ett alternativ måste väljas."
+  },
+  "success" : {
+    "save" : "Uppgifterna sparades."
+  },
+  "contactSetting" : {
+    "title": "Kontaktuppgifter",
+    "description" : "Uppdatera dina kontaktuppgifter så att vi kan nå dig.",
+    "information" : "Vi hämtar namn och adress från Skatteverket. Stämmer inte uppgifterna kan du ändra dem på <Link href=\\\"https://www.skatteverket.se/\\\">Skatteverkets hemsida</Link>",
+    "taxAgencyUrl" : "https://www.skatteverket.se/"
+  },
+  "delegates" : {
+    "title" : "Behörigheter",
+    "description" : "Hantera dina behörigheter för Mina sidor.",
+    "information" : "Du kan ge en person behörighet till dina avtal och dokument. Kom ihåg att du själv måste ta bort behörigheten om personen inte längre ska kunna se eller göra ändringar i avtalen.",
+    "subTitle" : "Tillagda behörigheter",
+    "add" : "Lägg till behörighet",
+    "edit" : "Redigera behörighet",
+    "remove" : {
+      "title" : "Ta bort behörighet",
+      "message" : "Vill du ta bort denna behörighet?",
+      "success" : "Behörigheten togs bort."
+    },
+    "conflictError" : "Du kan inte delegera dig själv.",
+    "eligibleForFacility" : "Behörig för anläggning: "
+  }
+}
