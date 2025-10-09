@@ -69,7 +69,7 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
       </div>
     );
 
-  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>{t('invoice:noData')}</p>;
+  if (isFetched && !rows.length) return emptyComponent ?? <p>{t('invoice:noData')}</p>;
 
   const canFetch = rows.length < totalCount.current;
 
