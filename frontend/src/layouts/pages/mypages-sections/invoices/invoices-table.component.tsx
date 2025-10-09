@@ -166,7 +166,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
       </div>
     );
 
-  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>{t('invoice:noData')}</p>;
+  if (isFetched && !rows.length) return emptyComponent ?? <p>{t('invoice:noData')}</p>;
 
   const pageCount = Math.ceil(totalCount.current / pageSize);
 
