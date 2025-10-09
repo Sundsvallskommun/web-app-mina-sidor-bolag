@@ -1,31 +1,31 @@
 {
-  "title" : "Kakor (cookies)",
-  "areStored" : "När du besöker minasidor.stadsbacken.se lagras kakor på din dator.",
-  "whatIs" : "En kaka är en textfil som används för att förenkla ditt besök på vår webbplats och göra det möjligt att använda vissa funktioner. minasidor.stadsbacken.se använder inga kakor som sparar personlig information om dig.",
-  "onVisit" : "När du besöker minasidor.stadsbacken.se lagras kakor på din dator. Sundsvalls kommun använder två olika typer av kakor: Nödvändiga och analytiska kakor.",
-  "necessary" : "Nödvändiga kakor lagras tillfälligt i din dator och förbättrar din användarupplevelse. Dessa kakor kallas för sessionskakor och försvinner när du stänger webbläsaren.",
-  "analytic" : "Analytiska kakor används för att analysera och förstå hur du använder webbplatsen. Dessa kakor sparar vi bara om vi får ditt samtycke. Dessa kakor kan lagras under en längre tid på din dator, en så kallad permanent kaka.",
-  "functionality" : "minasidor.stadsbacken.se använder funktionalitet från externa webbplatser som i sin tur lagrar kakor när du besöker dessa sidor. Dessa sidor och dess funktionalitet är följande;",
+  "title": "Kakor (cookies)",
+  "areStored": "När du besöker minasidor.stadsbacken.se lagras kakor på din dator.",
+  "whatIs": "En kaka är en textfil som används för att förenkla ditt besök på vår webbplats och göra det möjligt att använda vissa funktioner. minasidor.stadsbacken.se använder inga kakor som sparar personlig information om dig.",
+  "onVisit": "När du besöker minasidor.stadsbacken.se lagras kakor på din dator. Sundsvalls kommun använder två olika typer av kakor: Nödvändiga och analytiska kakor.",
+  "necessary": "Nödvändiga kakor lagras tillfälligt i din dator och förbättrar din användarupplevelse. Dessa kakor kallas för sessionskakor och försvinner när du stänger webbläsaren.",
+  "analytic": "Analytiska kakor används för att analysera och förstå hur du använder webbplatsen. Dessa kakor sparar vi bara om vi får ditt samtycke. Dessa kakor kan lagras under en längre tid på din dator, en så kallad permanent kaka.",
+  "functionality": "minasidor.stadsbacken.se använder funktionalitet från externa webbplatser som i sin tur lagrar kakor när du besöker dessa sidor. Dessa sidor och dess funktionalitet är följande;",
   "necessaryCookies": {
-    "title" : "Våra nödvändiga kakor",
-    "skCookie" : {
+    "title": "Våra nödvändiga kakor",
+    "skCookie": {
       "name": "Namn: SKCookieConsent.",
-      "usedBy" : "Används av: minasidor.stadsbacken.se.",
-      "type" : "Typ av kaka: Ett års kaka.",
-      "description" : "Den här kakan sätts när du accepterar kakor på minasidor.stadsbacken.se och används för att hålla reda på\n              att du godkänt kakor."
+      "usedBy": "Används av: minasidor.stadsbacken.se.",
+      "type": "Typ av kaka: Ett års kaka.",
+      "description": "Den här kakan sätts när du accepterar kakor på minasidor.stadsbacken.se och används för att hålla reda på\n              att du godkänt kakor."
     },
-    "sid" : {
+    "sid": {
       "name": "Namn: connect.sid.",
-      "userBy" : "Används av: minasidor.stadsbacken.se.",
-      "type" : "Typ av kaka: Sessionskaka.",
-      "description" : "Används för att hålla reda på användarbehörigheter."
+      "userBy": "Används av: minasidor.stadsbacken.se.",
+      "type": "Typ av kaka: Sessionskaka.",
+      "description": "Används för att hålla reda på användarbehörigheter."
     }
   },
-  "handle" : "Hantera kakor",
-  "handleText" : "Du kan ta bort kakor i din webbläsare eller via nedan länk 'Hantera kakor (cookies)'",
-  "handleButtonText" : "Hantera kakor (cookies)",
-  "necessaryTitle" : "Våra nödvändiga kakor",
-  "consent" : {
+  "handle": "Hantera kakor",
+  "handleText": "Du kan ta bort kakor i din webbläsare eller via nedan länk 'Hantera kakor (cookies)'",
+  "handleButtonText": "Hantera kakor (cookies)",
+  "necessaryTitle": "Våra nödvändiga kakor",
+  "consent": {
     "title": "Kakor på minasidor.stadsbacken.se",
     "body": "Vi använder kakor, cookies, för att ge dig en förbättrad upplevelse, sammanställa statistik och för att viss nödvändig funktionalitet ska fungera på webbplatsen. ",
     "readMore": "<Link href=\"/om-webbplatsen/kakor\">Läs mer om hur vi använder kakor</Link>",

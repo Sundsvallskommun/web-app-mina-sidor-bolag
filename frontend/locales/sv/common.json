@@ -2,22 +2,22 @@
   "person": "Privatperson",
   "private": "Privat",
   "organization": "Organisation",
-  "switchOrganization" : "Byt organisation",
-  "switchOrganizationAriaLabel" : "Byt organisation, nuvarande: {{current}}",
-  "isRepresentative" : "(ombud)",
-  "unknown" : "Okänd",
+  "switchOrganization": "Byt organisation",
+  "switchOrganizationAriaLabel": "Byt organisation, nuvarande: {{current}}",
+  "isRepresentative": "(ombud)",
+  "unknown": "Okänd",
   "address": "Adress",
-  "unknownAddress" : "Okänd adress",
+  "unknownAddress": "Okänd adress",
   "logIn": "Logga in",
-  "overview" : "översikt",
-  "agreement" : "avtal",
-  "statistics" : "statistik",
-  "invoices" : "fakturor",
-  "selfService" : "Självservice",
-  "profile" : "profil och inställningar",
-  "stadsbacken" : {
-    "about" : "<Link href=\"https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab\">Om Stadsbacken</Link>",
-    "aboutUrl" : "https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab"
+  "overview": "översikt",
+  "agreement": "avtal",
+  "statistics": "statistik",
+  "invoices": "fakturor",
+  "selfService": "Självservice",
+  "profile": "profil och inställningar",
+  "stadsbacken": {
+    "about": "<Link href=\"https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab\">Om Stadsbacken</Link>",
+    "aboutUrl": "https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab"
   },
   "login": {
     "title": "Välkommen till våra gemensamma Mina sidor",
@@ -31,7 +31,7 @@
     }
   },
   "logout": {
-    "logout" : "Logga ut",
+    "logout": "Logga ut",
     "title": "Du är nu utloggad",
     "description": "Tack för besöket! Du kan alltid läsa mer hos <LinkOne href=\\\"https://sundsvallenergi.se/\\\">Sundsvall Energi</LinkOne> eller <LinkTwo href=\\\"https://sundsvallelnat.se/\\\">Sundsvall Elnät</LinkTwo>",
     "loginAgain": "Logga in igen"
