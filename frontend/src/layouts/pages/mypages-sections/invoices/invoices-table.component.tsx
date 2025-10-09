@@ -10,6 +10,7 @@ import { User } from '@interfaces/user';
 import { useAppContext } from '@contexts/app.context';
 import { isEqual } from 'lodash';
 import { RepresentingMode } from '@interfaces/app';
+import { useTranslation } from 'react-i18next';
 
 interface InvoiceTableContentProps {
   pageSize: number;
@@ -25,6 +26,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
   const [activePage, setActivePage] = useState(1);
   const [rows, setRows] = useState<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
+  const { t } = useTranslation(['common', 'invoice']);
 
   const previousActivePage = useRef<number>(-1);
   const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
@@ -77,16 +79,17 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
       (organizationNumber: string): string => {
         return (
           userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? 'Okänd'
+            ?.organizationName ?? t('common:unknown')
         );
       },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [userData]
   );
 
   const columns: ManualTableColumn<IInvoice>[] = useMemo(
     () => [
       {
-        label: 'Leverantör',
+        label: t('invoice:contractor'),
         sticky: true,
         property: 'invoiceDescription',
         className: 'max-w-[160px]',
@@ -101,7 +104,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
         ),
       },
       {
-        label: 'Status',
+        label: t('invoice:status'),
         property: 'invoiceStatus.label',
         className: 'max-w-[140px]',
         renderColumn: (value, item) => (
@@ -113,17 +116,17 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
         ),
       },
       {
-        label: 'Fakturadatum',
+        label: t('invoice:date'),
         property: 'invoiceDate',
         className: 'max-w-[120px]',
       },
       {
-        label: 'Förfallodatum',
+        label: t('invoice:dueDate'),
         property: 'dueDate',
         className: 'max-w-[120px]',
       },
       {
-        label: 'Belopp',
+        label: t('invoice:amount'),
         sticky: false,
         property: 'totalAmount',
         className: 'max-w-[100px]',
@@ -131,38 +134,39 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
         renderColumn: (value) => <div className="text-left">{`${value} kr`}</div>,
       },
       {
-        label: 'Fakturanummer',
+        label: t('invoice:number'),
         property: 'ocrNumber',
         className: 'max-w-[146px]',
       },
       {
-        label: 'Adress',
+        label: t('common:address'),
         property: 'invoiceAddress.street',
         className: 'max-w-[146px]',
       },
       {
-        label: 'Hämta faktura',
+        label: t('invoice:fetch'),
         property: 'dueDate',
         className: 'max-w-[146px]',
         screenReaderOnly: true,
-        renderColumn: (value, item: IInvoice) => (
+        renderColumn: (_value, item: IInvoice) => (
           <div className="text-left">
             <GetPdfButton isLoading={pdfIsLoading} setIsLoading={setPdfIsLoading} item={item} />
           </div>
         ),
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [pdfIsLoading, setPdfIsLoading, getOrganizationName]
   );
 
   if ((!isFetched && !rows.length) || representingModeChanged)
     return (
       <div className="w-full flex justify-center p-md">
-        <Spinner aria-label="Hämtar fakturor" />
+        <Spinner aria-label={t('invoice:fetching')} />
       </div>
     );
 
-  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>Inga fakturor</p>;
+  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>{t('invoice:noData')}</p>;
 
   const pageCount = Math.ceil(totalCount.current / pageSize);
 

@@ -9,6 +9,7 @@ import { useApi } from '@services/api-service';
 import { ClientContactSetting } from '@interfaces/contactsettings';
 import ContactSettingsFormLogic from '@layouts/pages/mypages-sections/profile/components/contact-settings-form-logic.component';
 import { useLocalStorageValue } from '@react-hookz/web';
+import { useTranslation } from 'react-i18next';
 
 interface ContactSettingsConfirmationContentProps {
   isInitial: boolean;
@@ -24,6 +25,7 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
   const methods = useFormContext();
   const { getValues, reset } = methods;
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const { t } = useTranslation(['confirmation', 'profile']);
 
   const handleToggleEdit = useCallback(() => {
     if (isEdit) {
@@ -32,11 +34,9 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
     setIsEdit(!isEdit);
   }, [isEdit, setIsEdit, reset]);
 
-  const title = isInitial ? 'Välkommen till Mina sidor' : 'Bekräfta kontaktuppgifter';
+  const title = isInitial ? t('confirmation:initialTitle') : t('confirmation:title');
 
-  const description = isInitial
-    ? 'Här får du en samlad överblick över dina avtal, fakturor och din förbrukning från Sundsvall Elnät och Sundsvall Energi.'
-    : 'Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer uppgifterna nedan?';
+  const description = isInitial ? t('confirmation:initialDescription') : t('confirmation:description');
 
   return (
     <Modal.Content className="px-0 lg:px-56 gap-32 md:gap-40">
@@ -49,8 +49,8 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
 
       {isInitial ? (
         <div>
-          <h2 className="!text-[18px]">Lägg till dina kontaktuppgifter</h2>
-          <p>Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser.</p>
+          <h2 className="!text-[18px]">{t('confirmation:addInformation')}</h2>
+          <p>{t('confirmation:addInformationDescription')}</p>
         </div>
       ) : null}
 
@@ -61,8 +61,8 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
           <Icon icon={<Mail />} size={56} />
         </div>
         <div className="w-full">
-          <FormBox name="email" header={'E-postadress'} isEdit={isInitial || isEdit}>
-            {isInitial || isEdit ? null : (getValues()?.email ?? 'Ingen e-postadress tillagd')}
+          <FormBox name="email" header={t('profile:email')} isEdit={isInitial || isEdit}>
+            {isInitial || isEdit ? null : (getValues()?.email ?? t('profile:noEmail'))}
           </FormBox>
         </div>
       </div>
@@ -74,8 +74,8 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
           <Icon icon={<Smartphone />} size={56} />
         </div>
         <div>
-          <FormBox name="phone" header={'Mobilnummer'} isEdit={isInitial || isEdit}>
-            {isInitial || isEdit ? null : (getValues()?.phone ?? 'Inget mobilnummer tillagt')}
+          <FormBox name="phone" header={t('profile:phone')} isEdit={isInitial || isEdit}>
+            {isInitial || isEdit ? null : (getValues()?.phone ?? t('profile:noPhone'))}
           </FormBox>
         </div>
       </div>
@@ -83,12 +83,8 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
       <div>
         <Divider className="py-0 my-0" />
         <Accordion>
-          <Accordion.Item header="Hantering av personuppgifter">
-            <p className="pb-16">
-              Vi använder din e-postadress och ditt mobilnummer för att kunna skicka viktig information, bekräftelser
-              och påminnelser som rör dina avtal. Sundsvall Elnät och Sundsvall Energi är personuppgiftsansvarig och
-              behandlar dina uppgifter enligt dataskyddsförordningen (GDPR).
-            </p>
+          <Accordion.Item header={t('confirmation:personalData.title')}>
+            <p className="pb-16">{t('confirmation:personalData.description')}</p>
             <p>
               <Link
                 href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
@@ -96,7 +92,7 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
                 variant="tertiary"
                 external
               >
-                Läs mer om hur Sundsvall Elnät hanterar dina personuppgifter
+                {t('confirmation:personalData.sundsvallElnatLinkText')}
               </Link>
             </p>
             <p>
@@ -106,7 +102,7 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
                 variant="tertiary"
                 external
               >
-                Läs mer om hur Sundsvall Energi hanterar dina personuppgifter
+                {t('confirmation:personalData.sundsvallEnergiLinkText')}
               </Link>
             </p>
           </Accordion.Item>
@@ -118,28 +114,28 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
         {isInitial ? (
           <>
             <Button variant="secondary" onClick={onClose}>
-              Lägg till senare
+              {t('confirmation:addLater')}
             </Button>
             <Button type="submit" onClick={onClose}>
-              Spara uppgifter
+              {t('confirmation:save')}
             </Button>
           </>
         ) : isEdit ? (
           <>
             <Button variant="secondary" onClick={handleToggleEdit}>
-              Avbryt
+              {t('profile:cancel')}
             </Button>
             <Button type="submit" onClick={onClose}>
-              Spara uppgifter
+              {t('confirmation:save')}
             </Button>
           </>
         ) : (
           <>
             <Button variant="secondary" onClick={handleToggleEdit}>
-              Nej, ändra
+              {t('confirmation:edit')}
             </Button>
             <Button type="submit" onClick={onClose}>
-              Ja, bekräfta
+              {t('confirmation:confirm')}
             </Button>
           </>
         )}

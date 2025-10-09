@@ -9,6 +9,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { formatPhoneNumber } from '@utils/format-phone-number';
+import { useTranslation } from 'react-i18next';
 
 const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
   contactSetting: {
@@ -96,6 +97,8 @@ export default function DelegatedContactSettingsFormLogic({
   onSubmitFailed = () => {},
 }: Readonly<DelegatedContactSettingsFormLogicProps>) {
   const snackBar = useSnackbar();
+  const { t } = useTranslation('common');
+
   const postContactSettingMutation = useApi<ClientContactSetting>({
     url: '/contactsettings',
     method: 'post',
@@ -204,7 +207,7 @@ export default function DelegatedContactSettingsFormLogic({
           queryKey: ['delegates'],
         });
         snackBar({
-          message: 'Uppgifterna sparades.',
+          message: t('profile:success.save'),
           status: 'success',
         });
         onSubmitSuccess();
@@ -212,11 +215,11 @@ export default function DelegatedContactSettingsFormLogic({
         snackBar(
           (delegateResult.error as AxiosError).status === 471
             ? {
-                message: 'Minst ett alternativ måste väljas.',
+                message: t('profile:error.requiredOption'),
                 status: 'warning',
               }
             : {
-                message: 'Det gick inte att spara uppgifterna.',
+                message: t('profile:error.save'),
                 status: 'error',
               }
         );

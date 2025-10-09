@@ -9,6 +9,7 @@ import { queryClient, useApi } from '@services/api-service';
 import { useFormContext } from 'react-hook-form';
 import { User } from '@interfaces/user';
 import { pagedAgreementsHandler } from '@services/agreement-service';
+import { useTranslation } from 'react-i18next';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
@@ -24,6 +25,7 @@ export const DelegateItem = ({
   close: () => void;
 }) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+
   const deleteDelegate = useApi<DelegatedContactSetting>({
     url: `/delegates/${delegatedContactSetting?.delegate?.id ?? ''}`,
     queryKey: ['delegates', delegatedContactSetting?.delegate?.id ?? ''],
@@ -43,6 +45,7 @@ export const DelegateItem = ({
   const { showConfirmation } = useConfirm();
   const message = useSnackbar();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { t } = useTranslation(['profile', 'notifications']);
 
   const openHandler = () => {
     setIsOpen(true);
@@ -76,14 +79,14 @@ export const DelegateItem = ({
 
     return (
       <div data-cy="form-component">
-        <FormBox name="contactSetting.alias" header="Namn på kontakt" isEdit>
+        <FormBox name="contactSetting.alias" header={t('notifications:customized.contactName')} isEdit>
           <div className="mb-40">
             {formState.errors?.contactSetting?.['alias'] && (
               <p className="text-small text-error">{formState.errors?.contactSetting?.['alias']?.message}</p>
             )}
           </div>
         </FormBox>
-        <FormBox name="contactSetting.phone" header="Mobilnummer" isEdit>
+        <FormBox name="contactSetting.phone" header={t('profile:phone')} isEdit>
           <div className="mb-40">
             {formState.errors?.contactSetting?.['phoneNumber'] && (
               <p className="text-small text-error">{formState.errors?.contactSetting?.['phoneNumber']?.message}</p>
@@ -91,11 +94,11 @@ export const DelegateItem = ({
           </div>
         </FormBox>
 
-        <p className="text-label-medium mb-0">Välj när sms ska skickas</p>
+        <p className="text-label-medium mb-0">{t('notifications:customized.whenToSendSms')}</p>
 
         {[
-          { label: 'Strömavbrott', category: 'ELECTRICITY' as const },
-          { label: 'Avbrott fjärrvärme', category: 'DISTRICT_HEATING' as const },
+          { label: t('notifications:customized.powerOutage'), category: 'ELECTRICITY' as const },
+          { label: t('notifications:customized.districtHeatingOutage'), category: 'DISTRICT_HEATING' as const },
         ]
           .filter(categoryAndAgreementExists)
           .map(({ label, category }) => (
@@ -116,10 +119,10 @@ export const DelegateItem = ({
             leftIcon={<Icon icon={<Trash />} />}
             onClick={() => {
               showConfirmation(
-                'Ta bort kontaktperson',
-                'Vill du ta bort denna kontaktperson?',
-                'Ta bort',
-                'Avbryt',
+                t('notifications:customized.removeContact.title'),
+                t('notifications:customized.removeContact.message'),
+                t('notifications:customized.removeContact.remove'),
+                t('profile:cancel'),
                 'error'
               ).then(async (confirm: boolean) => {
                 if (confirm) {
@@ -132,7 +135,7 @@ export const DelegateItem = ({
                     queryKey: ['contactsettings'],
                   });
                   message({
-                    message: 'Kontakten togs bort.',
+                    message: t('notifications:customized.removeContact.success'),
                     status: 'success',
                   });
                 }
@@ -142,7 +145,7 @@ export const DelegateItem = ({
             data-cy="remove-contact-person-button"
             inverted
           >
-            Ta bort kontaktperson
+            {t('notifications:customized.removeContact.title')}
           </Button>
         )}
       </div>
@@ -163,12 +166,12 @@ export const DelegateItem = ({
           className="mt-8 sm:w-auto w-full"
           data-cy="add-delegate-button"
         >
-          Lägg till kontaktperson
+          {t('notifications:customized.add')}
         </Button>
       ) : (
         <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards sm:flex sm:items-center sm:justify-between">
           <div className="sm:pb-0 pb-16" data-cy="delegate-alias">
-            {delegatedContactSetting?.contactSetting?.alias ?? EmptyField('Inget alias tillagt')}
+            {delegatedContactSetting?.contactSetting?.alias ?? EmptyField(t('profile:noAlias'))}
           </div>
           <Button
             size="md"
@@ -181,14 +184,14 @@ export const DelegateItem = ({
             className="sm:w-auto w-full"
             data-cy="edit-delegate"
           >
-            Redigera
+            {t('profile:edit')}
           </Button>
         </div>
       )}
 
       <Modal
         className="sm:w-[52rem] w-full sm:bottom-auto sm:left-auto sm:rounded-cards sm:relative bottom-0 fixed left-0 rounded-b-0"
-        label={newItem ? 'Lägg till kontaktperson' : 'Redigera kontaktperson'}
+        label={newItem ? t('notifications:customized.add') : t('notifications:customized.edit')}
         show={isOpen}
         onClose={closeHandler}
       >
@@ -217,11 +220,11 @@ export const DelegateItem = ({
                 variant="secondary"
                 data-cy="cancel-delegate-form-button"
               >
-                Avbryt
+                {t('profile:cancel')}
               </Button>
 
               <Button type="submit" data-cy="save-delegate-button">
-                {newItem ? 'Lägg till' : 'Spara'}
+                {newItem ? t('profile:add') : t('profile:save')}
               </Button>
             </div>
           </Modal.Footer>

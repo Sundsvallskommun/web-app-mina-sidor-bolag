@@ -1,0 +1,13 @@
+{
+  "goToContent" : "Hoppa till innehåll",
+  "contact" : "Kontakt",
+  "about" : "Om bolagen",
+  "aboutContent" : "Om innehållet",
+  "aboutContentUrl" : "",
+  "aboutWeb" : "<Link href=\"/om-webbplatsen\">Om webbplatsen</Link>",
+  "aboutWebUrl" : "/om-webbplatsen",
+  "aboutCookies" : "<Link href=\"/om-webbplatsen/kakor\">Kakor (Cookies)</Link>",
+  "aboutCookiesUrl" : "/om-webbplatsen/kakor",
+  "aboutAccessibility" : "<Link href=\"/om-webbplatsen/tillganglighet\">Tillgänglighet</Link>",
+  "aboutAccessibilityUrl" : "/om-webbplatsen/tillganglighet"
+}

@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { pagedAgreementsHandler } from '@services/agreement-service';
 import { RefinedAgreement } from '@interfaces/agreement';
 import { FacilityAddress } from '@interfaces/facility-address';
+import { useTranslation } from 'react-i18next';
 
 export const Consumption = () => {
   const { data: user, isFetching: isUserFetching } = useApi<User>({
@@ -27,6 +28,7 @@ export const Consumption = () => {
   const [address, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
+  const { t } = useTranslation(['common', 'overview']);
 
   const hasAgreement = (a: FacilityAddress) => Boolean(a.address && agreements?.[a.address]?.length);
 
@@ -67,19 +69,17 @@ export const Consumption = () => {
     user && facilities?.length ? (
       <div>
         <p className="text-large mb-32">
-          Visar din förbrukning och produktion för {thisMonth.format('MMMM YYYY').toLowerCase()}.
+          {t('overview:consumption.description', { month: thisMonth.format('MMMM YYYY').toLowerCase() })}
         </p>
         {user.addresses?.filter(hasAgreement).length > 1 && (
           <div className="sm:flex sm:flex-row flex-nowrap items-center pb-24 gap-16 block">
-            <strong>Adress</strong>
+            <strong>{t('common:address')}</strong>
             <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
-              {user.addresses
-                ?.filter(hasAgreement)
-                .map((address) => (
-                  <Select.Option key={address?.address ?? 'unknown'}>
-                    {address?.address ? address.address : 'Okänd adress'}
-                  </Select.Option>
-                ))}
+              {user.addresses?.filter(hasAgreement).map((address) => (
+                <Select.Option key={address?.address ?? 'unknown'}>
+                  {address?.address ? address.address : t('common:unknownAddress')}
+                </Select.Option>
+              ))}
             </Select>
           </div>
         )}
@@ -90,12 +90,12 @@ export const Consumption = () => {
         </div>
       </div>
     ) : (
-      <p>Det finns ingen förbrukning att visa.</p>
+      <p>{t('overview:consumption.noConsumption')}</p>
     );
 
   return (
     <section className="pb-80 visible">
-      <h1>Aktuell förbrukning och produktion</h1>
+      <h1>{t('overview:consumption.title')}</h1>
 
       {isUserFetching || isAgreementsFetching || isFiltering ? <Spinner className="mx-auto" /> : consumption}
     </section>

@@ -9,6 +9,7 @@ import { translateAggregateOn } from '@services/measurement-data-service';
 import { useFormContext } from 'react-hook-form';
 import dayjs from 'dayjs';
 import { toFixedNumber } from '@react-stately/utils';
+import { useTranslation } from 'react-i18next';
 
 export interface MeasurementDataTableProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -18,6 +19,7 @@ export interface MeasurementDataTableProps {
 export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   const { data, isConsumption } = props;
   const { getValues } = useFormContext();
+  const { t } = useTranslation('statistics');
 
   const formatDate = (timestamp: string) => {
     switch (data?.aggregatedOn) {
@@ -28,7 +30,7 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
       case 'MONTH':
         return dayjs(timestamp).format('MMMM');
       default:
-        return 'Datum saknas';
+        return t('statistics:missingDate');
     }
   };
 
@@ -39,10 +41,16 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
             <Table.Column>
               <p className="font-bold">{formatDate(measurement.timestamp ?? '')} </p>
             </Table.Column>
-            <Table.Column>{toFixedNumber(measurement.value ?? 0, 2)} kWh</Table.Column>
+            <Table.Column>
+              {t('statistics:consumption.amount', {
+                consumption: toFixedNumber(measurement.value ?? 0, 2),
+              })}
+            </Table.Column>
             {getValues().year && (
               <Table.Column>
-                {toFixedNumber((measurement as MergedMeasurementPoints)?.previousValue ?? 0, 2)} kWh
+                {t('statistics:consumption.amount', {
+                  consumption: toFixedNumber((measurement as MergedMeasurementPoints)?.previousValue ?? 0, 2),
+                })}
               </Table.Column>
             )}
           </Table.Row>
@@ -54,9 +62,17 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
             <Table.Column>
               <p className="font-bold">{formatDate(temperature.timestamp ?? '')} </p>
             </Table.Column>
-            <Table.Column>{temperature.value}°C</Table.Column>
+            <Table.Column>
+              {t('statistics:consumption.temperature', {
+                temperature: toFixedNumber(temperature.value ?? 0, 2),
+              })}
+            </Table.Column>
             {getValues().year && (
-              <Table.Column>{(temperature as MergedMeasurementPoints).previousValue}°C</Table.Column>
+              <Table.Column>
+                {t('statistics:consumption.temperature', {
+                  temperature: toFixedNumber((temperature as MergedMeasurementPoints).previousValue ?? 0, 2),
+                })}
+              </Table.Column>
             )}
           </Table.Row>
         );

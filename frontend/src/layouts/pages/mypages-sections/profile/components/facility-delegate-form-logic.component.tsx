@@ -11,6 +11,7 @@ import {
 import { useSnackbar } from '@sk-web-gui/react';
 import { queryClient, useApi } from '@services/api-service';
 import { AxiosError } from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const defaultFacilityDelegateForm = {
   facilities: [],
@@ -55,6 +56,7 @@ export default function FacilityDelegateFormLogic({
 
   const { handleSubmit, getValues } = context;
   const snackBar = useSnackbar();
+  const { t } = useTranslation('profile');
 
   const postMutation = useApi<FacilityCreateDelegation>({
     url: '/delegations',
@@ -87,7 +89,7 @@ export default function FacilityDelegateFormLogic({
             queryKey: ['facilityDelegation'],
           });
           snackBar({
-            message: 'Uppgifterna sparades.',
+            message: t('profile:success'),
             status: 'success',
           });
           if (onSubmitSuccess) onSubmitSuccess();
@@ -95,12 +97,12 @@ export default function FacilityDelegateFormLogic({
         .catch((e: AxiosError) => {
           if (e.status === 409) {
             snackBar({
-              message: 'Du kan inte delegera dig själv.',
+              message: t('profile:delegates.conflictError'),
               status: 'error',
             });
           } else {
             snackBar({
-              message: 'Det gick inte att spara uppgifterna.',
+              message: t('profile:error.save'),
               status: 'error',
             });
           }

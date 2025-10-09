@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { getCategoryAsNumber, pagedAgreementsHandler } from '@services/agreement-service';
 import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
+import { useTranslation } from 'react-i18next';
 
 export default function PagedAgreements() {
   const { data: agreements, isLoading: agreementsIsLoading } = useApi({
@@ -16,6 +17,7 @@ export default function PagedAgreements() {
 
   const [data, setData] = useState(agreements);
   const [term, setTerm] = useState<string>('');
+  const { t } = useTranslation(['common', 'agreement']);
 
   useEffect(() => {
     setData(agreements);
@@ -44,14 +46,14 @@ export default function PagedAgreements() {
   if (!agreementsIsLoading && agreements && Object.keys(agreements).length < 1) {
     return (
       <div>
-        <h1>Dina avtal</h1>
-        <p>Du har inga avtal än, men så fort det finns avtal kan du se dem här.</p>
+        <h1>{t('agreement:title')}</h1>
+        <p>{t('agreement:noAgreements')}</p>
       </div>
     );
   } else if (data && agreements) {
     return (
       <div>
-        <h1 className="mb-40">Dina avtal</h1>
+        <h1 className="mb-40">{t('agreement:title')}</h1>
 
         {Object.keys(agreements).length > 1 && (
           <SearchField
@@ -61,7 +63,7 @@ export default function PagedAgreements() {
             onChange={onChangeHandler}
             onReset={onResetHandler}
             showSearchButton={false}
-            placeholder="Sök efter anläggning"
+            placeholder={t('agreement:searchFacility')}
             data-cy="agreement-search-field"
           />
         )}
@@ -70,7 +72,7 @@ export default function PagedAgreements() {
           return (
             agreements?.length !== 0 && (
               <div className="pb-64" key={`site-${index}`}>
-                <h3 className="text-h3-lg pb-24">{address ? address : 'Okänd adress'}</h3>
+                <h3 className="text-h3-lg pb-24">{address ? address : t('common:unknownAddress')}</h3>
                 {agreements?.map((val, index) => {
                   return (
                     <AgreementListItem
@@ -90,7 +92,7 @@ export default function PagedAgreements() {
           );
         })}
 
-        {Object.values(data).flat().length === 0 && <p>Inga avtal matchar din sökning</p>}
+        {Object.values(data).flat().length === 0 && <p>{t('agreement:noMatch')}</p>}
       </div>
     );
   }

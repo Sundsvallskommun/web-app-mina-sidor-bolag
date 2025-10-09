@@ -13,11 +13,13 @@ import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import { capitalize } from 'lodash';
 
 export const AgreementComponent = () => {
   const params = useParams<{ slug: [string, string] }>();
   const [category, facilityId] = params.slug;
-
+  const { t } = useTranslation(['common', 'agreement']);
   const [facility, setFacility] = useState<InstalledBaseItem>();
 
   const { data: agreement } = useApi({
@@ -51,17 +53,17 @@ export const AgreementComponent = () => {
 
   const getAdditionalAgreementIcon = (description: string) => {
     switch (description) {
-      case 'Bra miljöval':
+      case t('agreement:additionalAgreement.environmentFriendly'):
         return <Icon.Padded icon={<Leaf />} size={30} inverted color="gronsta" />;
-      case 'Klimatneutral fjärrvärme':
+      case t('agreement:additionalAgreement.climateNeutralDistrictHeating'):
         return <Icon.Padded icon={<Waves />} className="rotate-90" size={30} inverted color="gronsta" />;
-      case 'Serviceavtal Företag':
+      case t('agreement:additionalAgreement.companyService'):
         return <Icon.Padded icon={<Wrench />} size={30} inverted />;
-      case '100% återvunnet':
+      case t('agreement:additionalAgreement.recycled'):
         return <Icon.Padded icon={<Recycle />} size={30} inverted color="gronsta" />;
-      case 'Mätvärdesavtal':
+      case t('agreement:additionalAgreement.measurement'):
         return <Icon.Padded icon={<ChartNoAxesCombined />} size={30} inverted />;
-      case 'Serviceavtal Privat':
+      case t('agreement:additionalAgreement.service'):
         return <Icon.Padded icon={<Wrench />} size={30} inverted />;
       default:
         return <Icon.Padded icon={<Wrench />} size={30} inverted />;
@@ -75,13 +77,15 @@ export const AgreementComponent = () => {
           <Breadcrumb>
             <Breadcrumb.Item>
               <NextLink href="../">
-                <Breadcrumb.Link variant="body" as="span" href="../avtal">
-                  {agreement && 'Avtal'}
+                <Breadcrumb.Link variant="body" as="span" href={t('agreement:breadcrumbUrl')}>
+                  {agreement && capitalize(t('common:agreement'))}
                 </Breadcrumb.Link>
               </NextLink>
             </Breadcrumb.Item>
             <Breadcrumb.Item currentPage>
-              <Breadcrumb.Link href="./">{agreement[0].category.label} avtal</Breadcrumb.Link>
+              <Breadcrumb.Link href="./">
+                {agreement[0].category.label} {t('common:agreement')}
+              </Breadcrumb.Link>
             </Breadcrumb.Item>
           </Breadcrumb>
         ) : null
@@ -100,8 +104,10 @@ export const AgreementComponent = () => {
 
                         <div>
                           <h3 className="md:text-h3-lg text-h3-sm" data-cy="agreement-label">
-                            {a.category.label}
-                            {a.production ? ' produktion ' : null} avtal
+                            {t('agreement:item.title', {
+                              label: a.category.label,
+                              production: a.production ? t('agreement:item.production') : null,
+                            })}
                           </h3>
                           <p>{a.siteAddress}</p>
                         </div>
@@ -113,7 +119,9 @@ export const AgreementComponent = () => {
                           variant="secondary"
                           data-cy="agreement-to-statistics-button"
                         >
-                          <Link href={`../../statistik?installation=${a.facilityId}`}>Visa statistik</Link>
+                          <Link href={t('agreement:item.statisticsUrl', { facilityId: a.facilityId })}>
+                            {t('agreement:item.showStatistics')}
+                          </Link>
                         </Button>
                       )}
                     </div>
@@ -121,44 +129,45 @@ export const AgreementComponent = () => {
                     {!a.active && (
                       <div className="rounded-cards border-1 border-error-surface-primary p-16 mt-16 mb-56">
                         <Label color="error" inverted rounded>
-                          Frånkopplad
+                          {t('agreement:item.inactive')}
                         </Label>
                         <p className="pt-16 m-0">
-                          Avtalet är frånkopplat och din anläggning har därför ingen strömförsörjning. Kontakta{' '}
-                          {a.category.contractor}s kundtjänst för mer information.
+                          {t('agreement:item.inactiveDescription', { contractor: a.category.contractor })}
                         </p>
                       </div>
                     )}
 
                     <div>
-                      <Divider.Section>Huvudavtal</Divider.Section>
+                      <Divider.Section>{t('agreement:item.mainAgreement')}</Divider.Section>
                       <div className="md:flex justify-between pt-24">
                         <div className="md:pb-0 pb-32">
-                          <strong>Avtalsgivare</strong>
+                          <strong>{t('agreement:item.contractor')}</strong>
                           <p>{a.category.contractor}</p>
                         </div>
                         <div className="md:pb-0 pb-32">
-                          <strong>Anläggnings-ID</strong>
+                          <strong>{t('agreement:item.facilityId')}</strong>
                           <p>{a.facilityId}</p>
                         </div>
                         <div className="md:pb-0 pb-32">
-                          <strong>Typ</strong>
+                          <strong>{t('agreement:item.type')}</strong>
                           <p>{a.description}</p>
                         </div>
                         <div className="md:pb-0 pb-32">
-                          <strong>Prismodell</strong>
-                          <p>{a.binding ? 'Fast pris' : 'Rörligt pris'}</p>
+                          <strong>{t('agreement:item.priceModel')}</strong>
+                          <p>{a.binding ? t('agreement:item.fixedPrice') : t('agreement:item.floatingPrice')}</p>
                         </div>
                         <div className="md:pb-0">
-                          <strong>Avtalsperiod</strong>
+                          <strong>{t('agreement:item.period')}</strong>
                           <p>
-                            {a.fromDate} – {a.toDate ? a.toDate : 'Löpande'}
+                            {a.fromDate} – {a.toDate ? a.toDate : t('agreement:item.ongoing')}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {agreement.length > 1 ? <h4 className="text-h4-sm mb-12 mt-64">Tilläggsavtal</h4> : null}
+                    {agreement.length > 1 ? (
+                      <h4 className="text-h4-sm mb-12 mt-64">{t('agreement:additionalAgreement.title')}</h4>
+                    ) : null}
                   </div>
                 );
               } else {
@@ -177,8 +186,8 @@ export const AgreementComponent = () => {
                       </div>
 
                       <div className="md:pl-16 md:flex block">
-                        <strong className="pr-8">Avtalsperiod</strong>
-                        {a.fromDate} – {a.toDate ? a.toDate : 'Löpande'}
+                        <strong className="pr-8">{t('agreement:item.period')}</strong>
+                        {a.fromDate} – {a.toDate ? a.toDate : t('agreement:item.ongoing')}
                       </div>
                     </div>
                   </div>

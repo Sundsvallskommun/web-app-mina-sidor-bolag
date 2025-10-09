@@ -4,8 +4,9 @@ import { User } from '@interfaces/user';
 import { pagedAgreementsHandler } from '@services/agreement-service';
 import { useApi } from '@services/api-service';
 import { Checkbox, FormControl } from '@sk-web-gui/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const DelegateFilter = (props: {
   delegatedContactSetting: DelegatedContactSetting;
@@ -13,6 +14,7 @@ export const DelegateFilter = (props: {
   isEdit?: boolean;
 }) => {
   const { getValues, setValue } = useFormContext();
+  const { t } = useTranslation(['notifications', 'category']);
   const { data: user } = useApi<User>({ url: '/me', method: 'get' });
   const { data: agreements } = useApi({
     url: `/paged/agreements`,
@@ -22,12 +24,13 @@ export const DelegateFilter = (props: {
 
   const prettyType = useMemo(() => {
     if (props.category === 'ELECTRICITY') {
-      return 'El';
+      return t('category:electricity');
     } else if (props.category === 'DISTRICT_HEATING') {
-      return 'Fjärrvärme';
+      return t('category:districtHeating');
     } else {
-      return 'Okänd kategori';
+      return t('category:unknown');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.category]);
 
   const [delegatedContactSetting, setDelegatedContactSetting] = useState({ ...props.delegatedContactSetting });
@@ -76,7 +79,10 @@ export const DelegateFilter = (props: {
     if (e.target.checked) {
       // Add a new filter if it doesn't exist
       const newFilter = {
-        alias: `Filter för ${prettyType} - ${props.category}`,
+        alias: t('notifications:customized.filterCategoryAlias', {
+          type: prettyType,
+          category: props.category,
+        }),
         channel: process.env.NEXT_PUBLIC_DELEGATE_CHANNEL,
         rules: [{ attributeName: 'category', operator: 'EQUALS' as Operator, attributeValue: props.category }],
       };
@@ -111,7 +117,11 @@ export const DelegateFilter = (props: {
       // Add a filter for each facilityId on the address
       const newFilters = facilitiesOfType.map((facilityId) => {
         return {
-          alias: `Filter för ${prettyType} - ${props.category} - ${a.address}`,
+          alias: t('notifications:customized.filterAddressAlias', {
+            type: prettyType,
+            category: props.category,
+            address: a.address,
+          }),
           channel: process.env.NEXT_PUBLIC_DELEGATE_CHANNEL,
           rules: [
             {
@@ -150,7 +160,7 @@ export const DelegateFilter = (props: {
             checked={categoryIsEnabled}
             data-cy="delegation-all-addresses-checkbox"
           >
-            Alla adresser (gäller även framtida adresser)
+            {t('notifications:customized.allAddresses')}
           </Checkbox>
         </FormControl>
       ) : null}

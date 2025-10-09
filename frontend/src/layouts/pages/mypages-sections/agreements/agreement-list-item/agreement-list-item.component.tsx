@@ -4,6 +4,7 @@ import { Label, Button } from '@sk-web-gui/react';
 import { ChevronRight } from 'lucide-react';
 import { PaddedListIcon } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/padded-list-icon/padded-list-icon.component';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 interface AgreementListItemProps {
   agreementSlug: string;
@@ -18,6 +19,7 @@ interface AgreementListItemProps {
 export const AgreementListItem = (props: AgreementListItemProps) => {
   const { agreementSlug, category, facilityId, area, description, production, active } = props;
   const router = useRouter();
+  const { t } = useTranslation(['common', 'agreement']);
 
   const handleClick = () => {
     router.push(`./avtal/${agreementSlug}`);
@@ -34,20 +36,24 @@ export const AgreementListItem = (props: AgreementListItemProps) => {
 
         <div>
           <p className="md:text-large font-bold">
-            {category.label}
-            {production ? ' produktion ' : null} avtal
+            {t('agreement:item.title', {
+              label: category.label,
+              production: production ? t('agreement:item.production') : null,
+            })}
           </p>
 
           {!active ? (
             <Label className="md:hidden visible my-10 md:mr-64 mr-16" color="error" inverted rounded>
-              Frånkopplad
+              {t('agreement:item.inactive')}
             </Label>
           ) : null}
 
           <div className="lg:flex items-center text-small">
-            <strong className="pr-6">Anläggnings-ID</strong> <p className="lg:pb-0 pb-16 pr-24">{facilityId}</p>
-            <strong className="pr-6">Nätområde</strong> <p className="lg:pb-0 pb-16 pr-24">{area}</p>
-            <strong className="pr-6">Typ</strong> <p className="pr-24">{description}</p>
+            <strong className="pr-6">{t('agreement:item.facilityId')}</strong>
+            <p className="lg:pb-0 pb-16 pr-24">{facilityId}</p>
+            <strong className="pr-6">{t('agreement:item.netArea')}</strong>
+            <p className="lg:pb-0 pb-16 pr-24">{area}</p>
+            <strong className="pr-6">{t('agreement:item.type')}</strong> <p className="pr-24">{description}</p>
           </div>
         </div>
       </div>
@@ -55,7 +61,7 @@ export const AgreementListItem = (props: AgreementListItemProps) => {
       <div className="md:flex block md:items-center md:mt-0 mt-8">
         {!active ? (
           <Label className="mr-64 md:flex hidden" color="error" inverted rounded>
-            Frånkopplad
+            {t('agreement:item.inactive')}
           </Label>
         ) : null}
 

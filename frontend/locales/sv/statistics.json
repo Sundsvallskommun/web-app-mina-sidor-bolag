@@ -1,0 +1,36 @@
+{
+  "title" : "Din statistik",
+  "filter" : "Filter",
+  "agreementType" : "Avtalstyp",
+  "showBy" : "Visa statistik per",
+  "year" : "År",
+  "month" : "Månad",
+  "day" : "Dag",
+  "compareYear" : "Jämför med år",
+  "chooseYear" : "Välj år",
+  "use" : "Använd",
+  "chart" : "Graf",
+  "table" : "Tabell",
+  "noData" : "Det finns ingen data att visa för vald kategori och period",
+  "missingDate" : "Datum saknas",
+  "consumption" : {
+    "production" : "produktion",
+    "consumption" : "förbrukning",
+    "amount" : "{{consumption}} kWh",
+    "temperature" : "{{temperature}}°C",
+    "electricityProduction" : "Elproduktion",
+    "total" : "Total {{label}}",
+    "highest" : "Högsta {{label}}",
+    "average" : "Genomsnittlig {{label}}",
+    "peakEffect" : "Högsta effekt",
+    "peakEffectAmount" : "{{amount}} W"
+  },
+  "temperature" : {
+    "title": "Utetemperatur"
+  },
+  "export" : "Exportera statistik",
+  "onlyTrade" : {
+    "unknownNetOwner" : "Okänd elnätsägare",
+    "text" : "Din {{consumption}} ser du hos ditt elnätsbolag. För denna anläggning ser vi att du har {{netOwner}}."
+  }
+}

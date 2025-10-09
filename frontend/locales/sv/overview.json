@@ -1,0 +1,27 @@
+{
+  "consumption": {
+    "title": "Aktuell förbrukning och produktion",
+    "description": "Visar din förbrukning och produktion för {{month}}.",
+    "noConsumption" : "Det finns ingen förbrukning att visa.",
+    "card" : {
+      "noData" : "Det går inte att hitta någon data för perioden.",
+      "unit" : "kWh",
+      "diff" : "{{diff}}%",
+      "positiveDiff" : "+{{diff}}%",
+      "negativeDiff" : "-{{diff}}%",
+      "comparison" : "jämfört med {{date}} ({{consumption}} kWh)"
+    }
+  },
+  "todo": {
+    "title": "Att göra",
+    "description" : "Aktuella fakturor att betala",
+    "invoices" : "fakturor",
+    "currentInvoices" : "Du har {{count}} fakturor att betala.",
+    "noTodos" : "Du har inget du behöver ta hand om.",
+    "fetching" : "Hämtar ohanterade uppgifter",
+    "showInvoices" : "Visa fakturor"
+  },
+  "announcements": {
+    "title": "Nyheter"
+  }
+}
