@@ -1,6 +1,5 @@
 'use client';
 
-import { NextLink } from '@sk-web-gui/next';
 import { Button, FormErrorMessage, Icon } from '@sk-web-gui/react';
 import { ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -12,12 +11,14 @@ import { EntryLayout } from '../../layouts/entry-layout.component';
 import Main from '../../layouts/main.component';
 import { appURL } from '../../utils/app-url';
 import { getAdjustedPathname, getRepresentingModeRoute } from '../../utils/representingModeRoute';
-import { RepresentingMode } from '@interfaces/app';
+import { Trans, useTranslation } from 'react-i18next';
+import { NextLink } from '@sk-web-gui/next';
 
 function Login() {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState('');
   const searchParams = useSearchParams();
+  const { t } = useTranslation(['common', 'organization']);
 
   const { t } = useTranslation(['common', 'organization']);
 
@@ -54,16 +55,12 @@ function Login() {
             break;
           case 'SAML_MISSING_GROUP':
             setErrorMessage(t('common:login.error.missingGroups'));
-            break;
           case 'SAML_MISSING_ATTRIBUTES':
             setErrorMessage(t('common:login.error.missingAttributes'));
-            break;
           case 'MISSING_PERMISSIONS':
             setErrorMessage(t('common:login.error.missingPermissions'));
-            break;
           default:
             setErrorMessage(t('common:login.error.login'));
-            break;
           //
         }
       }
@@ -129,17 +126,7 @@ function Login() {
                         onClick={() => onLogin(RepresentingMode.BUSINESS)}
                       >
                         {t('common:organization')}
-                      </Button> */}
-                      <a
-                        className="sk-btn sk-btn-lg sk-btn-secondary flex-grow"
-                        href="https://e-tjanster.stadsbacken.se/foretag"
-                        target="_blank"
-                      >
-                        <Button.Content>
-                          {t('common:organization')}
-                          <Icon icon={<ArrowRight />} />
-                        </Button.Content>
-                      </a>
+                      </Button>
                     </div>
                     {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
                   </div>

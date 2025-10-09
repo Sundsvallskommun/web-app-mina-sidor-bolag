@@ -7,7 +7,6 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import { ArrowDownRight, ArrowUpRight, Lightbulb, Waves } from 'lucide-react';
 import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
 export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayjs }) => {
   const { facility, date } = props;

@@ -8,8 +8,6 @@ import { useFormContext } from 'react-hook-form';
 import { useApi } from '@services/api-service';
 import ContactSettingsFormLogic from '@layouts/pages/mypages-sections/profile/components/contact-settings-form-logic.component';
 import { useLocalStorageValue } from '@react-hookz/web';
-import { useTranslation } from 'react-i18next';
-import { ClientContactSetting } from '@data-contracts/backend/data-contracts';
 
 interface ContactSettingsConfirmationContentProps {
   isInitial: boolean;

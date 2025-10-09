@@ -72,7 +72,7 @@ export default function PagedAgreements() {
           return (
             agreements?.length !== 0 && (
               <div className="pb-64" key={`site-${index}`}>
-                <h3 className="text-h3-lg pb-24">{address ?? t('common:unknownAddress')}</h3>
+                <h3 className="text-h3-lg pb-24">{address ? address : t('common:unknownAddress')}</h3>
                 {agreements?.map((val, index) => {
                   return (
                     <AgreementListItem

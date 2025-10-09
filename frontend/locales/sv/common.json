@@ -1,25 +1,12 @@
 {
-  "continue": "Fortsätt",
-  "name:": "Name",
   "person": "Privatperson",
   "private": "Privat",
-  "noOrganizations": "Inga organisationer hittades",
   "organization": "Organisation",
-  "organizationNumber": "Organisationsnummer",
-  "select": "Välj",
-  "selectOrganization": "Välj organisation",
-  "selectOrganizationToRepresent": "Välj organisationen du vill företräda",
   "switchOrganization": "Byt organisation",
   "switchOrganizationAriaLabel": "Byt organisation, nuvarande: {{current}}",
   "isRepresentative": "(ombud)",
   "unknown": "Okänd",
   "address": "Adress",
-  "minutes_zero": "{{count}} minuter",
-  "minutes_one": "{{count}} minut",
-  "minutes_other": "{{count}} minuter",
-  "seconds_zero": "{{count}} sekunder",
-  "seconds_one": "{{count}} sekund",
-  "seconds_other": "{{count}} sekunder",
   "unknownAddress": "Okänd adress",
   "logIn": "Logga in",
   "overview": "översikt",
@@ -28,7 +15,6 @@
   "invoices": "fakturor",
   "selfService": "Självservice",
   "profile": "profil och inställningar",
-  "eligibility" : "medgivanden",
   "stadsbacken": {
     "about": "<Link href=\"https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab\">Om Stadsbacken</Link>",
     "aboutUrl": "https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab"
@@ -49,8 +35,5 @@
     "title": "Du är nu utloggad",
     "description": "Tack för besöket! Du kan alltid läsa mer hos <LinkOne href=\\\"https://sundsvallenergi.se/\\\">Sundsvall Energi</LinkOne> eller <LinkTwo href=\\\"https://sundsvallelnat.se/\\\">Sundsvall Elnät</LinkTwo>",
     "loginAgain": "Logga in igen"
-  },
-  "left": "kvar",
-  "ok": "Okej",
-  "close": "Stäng"
+  }
 }

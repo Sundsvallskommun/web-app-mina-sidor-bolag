@@ -11,8 +11,6 @@ import { getRepresentingModeRoute, newRepresentingModePathname } from '../../uti
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { RepresentingEntity, RepresentsDto } from '@data-contracts/backend/data-contracts';
-import { RepresentingMode } from '@interfaces/app';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -53,18 +51,18 @@ export const MyPagesToggle = () => {
   const { t } = useTranslation('common');
 
   return (
-    <NavigationBar showBackground current={representingMode === 1 ? 0 : 1}>
-      <NavigationBar.Item data-cy="representing-business-menu-item" menuIndex={RepresentingMode.BUSINESS}>
+    <MenuBar showBackground current={representingMode === 1 ? 0 : 1}>
+      <MenuBar.Item menuIndex={RepresentingMode.BUSINESS}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>
           {t('common:organization')}
         </NextLink>
-      </NavigationBar.Item>
-      <NavigationBar.Item data-cy="representing-private-menu-item" menuIndex={RepresentingMode.PRIVATE}>
+      </MenuBar.Item>
+      <MenuBar.Item menuIndex={RepresentingMode.PRIVATE}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>
           {t('common:private')}
         </NextLink>
-      </NavigationBar.Item>
-    </NavigationBar>
+      </MenuBar.Item>
+    </MenuBar>
   );
 };
 
@@ -111,7 +109,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
                       rightIcon={<Icon icon={<ArrowRight />} />}
                       onClick={() => setEngagement(engagement?.organizationNumber as string)}
                     >
-                      <span className="font-bold">{engagement.name}</span>
+                      <span className="font-bold">{engagement.organizationName}</span>
                       {engagement.isRepresentative ? (
                         <span className="ml-[.5em]">{t('common:isRepresentative')}</span>
                       ) : null}
@@ -144,4 +142,21 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
       </div>
     </label>
   );
+};
+
+export const useSiteMenuItems = () => {
+  const router = useRouter();
+  const { t } = useTranslation('common');
+
+  return [
+    <Button
+      key={`site-menu-items-0`}
+      onClick={() => router.push('/logout')}
+      showBackground={false}
+      variant="tertiary"
+      leftIcon={<Icon icon={<LogOut />} />}
+    >
+      {t('common:logout.logout')}
+    </Button>,
+  ];
 };

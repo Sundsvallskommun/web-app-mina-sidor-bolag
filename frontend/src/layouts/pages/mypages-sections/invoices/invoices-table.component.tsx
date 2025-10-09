@@ -5,6 +5,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
+import { useAppContext } from '@contexts/app.context';
+import { isEqual } from 'lodash';
+import { RepresentingMode } from '@interfaces/app';
 import { useTranslation } from 'react-i18next';
 
 export const InvoicesTable = ({
@@ -23,7 +26,36 @@ export const InvoicesTable = ({
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
   const [rows, setRows] = useState<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
-  const { t } = useTranslation(['common', 'invoice', 'organization']);
+  const { t } = useTranslation(['common', 'invoice']);
+
+  const previousActivePage = useRef<number>(-1);
+  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
+  const previousFacilityIds = useRef<string[] | undefined>(undefined);
+
+  const searchParams = new URLSearchParams({});
+  searchParams.append('limit', pageSize.toString());
+  searchParams.append('page', activePage.toString());
+  if (facilityIds?.length) {
+    searchParams.append('facilityId', facilityIds.toString());
+  }
+  if (userData?.facilities?.length) {
+    searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
+  }
+
+  const paginationChanged = activePage !== previousActivePage.current;
+  const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
+  const representingModeChanged = representingMode !== previousRepresentingMode.current;
+
+  const base = onlyPending ? '/invoices/pending' : '/invoices';
+  const { data = emptyInvoicesList, isFetched } = useApi<InvoicesResponse, Error, InvoicesData>({
+    queryKey: [base, searchParams.toString()],
+    url: `${base}?${searchParams.toString()}`,
+    method: 'get',
+    queryOptions: {
+      enabled: paginationChanged || facilityIdsChanged,
+    },
+    dataHandler: invoicesHandler,
+  });
 
   useEffect(() => {
     previousActivePage.current = -1;
@@ -44,19 +76,11 @@ export const InvoicesTable = ({
     () =>
       (organizationNumber: string): string => {
         return (
-          userData?.relations.customerRelations?.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
+          userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
+            ?.organizationName ?? t('common:unknown')
         );
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userData]
-  );
-
-  const getInvoiceAddress = useMemo(
-    () =>
-      (facilityId: string): string => {
-        return userData?.addresses.find((address) => address.facilityIds.includes(facilityId))?.address ?? '';
-      },
     [userData]
   );
 
@@ -114,7 +138,7 @@ export const InvoicesTable = ({
       },
       {
         label: t('common:address'),
-        property: 'invoiceAddress',
+        property: 'invoiceAddress.street',
         className: 'max-w-[146px]',
         renderColumn: (_value, item) => (
           <div className="text-left text-small">
@@ -145,7 +169,7 @@ export const InvoicesTable = ({
       </div>
     );
 
-  if (isFetched && !rows.length) return emptyComponent ?? <p>{t('invoice:noData')}</p>;
+  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>{t('invoice:noData')}</p>;
 
   const pageCount = Math.ceil(totalCount.current / pageSize);
 

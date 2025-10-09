@@ -9,8 +9,6 @@ import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { formatPhoneNumber } from '@utils/format-phone-number';
 import { useTranslation } from 'react-i18next';
-import { DelegatedContactSetting, ExtendedClientContactSetting } from '@interfaces/contactsettings';
-import { ClientDelegate, Filter, Rule } from '@data-contracts/backend/data-contracts';
 
 const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
   contactSetting: {
@@ -100,7 +98,7 @@ export default function DelegatedContactSettingsFormLogic({
   const snackBar = useSnackbar();
   const { t } = useTranslation('common');
 
-  const postContactSettingMutation = useApi<ExtendedClientContactSetting>({
+  const postContactSettingMutation = useApi<ClientContactSetting>({
     url: '/contactsettings',
     method: 'post',
   });

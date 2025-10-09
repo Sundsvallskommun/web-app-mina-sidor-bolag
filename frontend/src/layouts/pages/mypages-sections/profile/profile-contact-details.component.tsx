@@ -9,7 +9,6 @@ import React, { useEffect, useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { Trans, useTranslation } from 'react-i18next';
 import { NextLink } from '@sk-web-gui/next';
-import { ClientContactSetting, ClientContactSettingAddress } from '@data-contracts/backend/data-contracts';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;

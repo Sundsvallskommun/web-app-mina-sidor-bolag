@@ -4,8 +4,6 @@ import { useApi, useApiService } from '@services/api-service';
 import { useEffect, useState } from 'react';
 import { DelegateItem } from './components/delegate-item.component';
 import { useTranslation } from 'react-i18next';
-import { ClientContactSetting } from '@data-contracts/backend/data-contracts';
-import { DelegatedContactSetting } from '@interfaces/contactsettings';
 
 export const DelegatedContactDetails = () => {
   const queryClient = useApiService((s) => s.queryClient);

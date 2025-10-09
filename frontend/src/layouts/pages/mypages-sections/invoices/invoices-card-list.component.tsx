@@ -4,23 +4,29 @@ import { useApi } from '@services/api-service';
 import { InvoicesCardEntry } from './invoices-card-entry.component';
 import { Button, Spinner } from '@sk-web-gui/react';
 import { User } from '@interfaces/user';
+import { useAppContext } from '@contexts/app.context';
+import { RepresentingMode } from '@interfaces/app';
+import { isEqual } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
-export const InvoicesCardList = ({
-  data,
-  isFetched,
-  activePage,
-  setActivePage,
-  previousActivePage,
-  representingName,
-  representingModeChanged,
-  facilityIds,
-  emptyComponent,
-}: InvoiceBaseProps) => {
+interface InvoiceTableContentProps {
+  pageSize: number;
+  facilityIds?: string[];
+  emptyComponent?: ReactNode;
+  onlyPending?: boolean;
+}
+
+export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPending }: InvoiceTableContentProps) => {
+  const { representingMode, representingName } = useAppContext();
+  const [activePage, setActivePage] = useState<number>(1);
   const [rows, setRows] = useState<IInvoice[]>([]);
   const previousRows = useRef<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
   const { t } = useTranslation(['common', 'invoice']);
+
+  const previousActivePage = useRef<number>(-1);
+  const previousFacilityIds = useRef<string[] | undefined>(undefined);
+  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
@@ -46,10 +52,11 @@ export const InvoicesCardList = ({
     () =>
       (organizationNumber: string): string => {
         return (
-          userData?.relations.customerRelations?.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
+          userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
+            ?.organizationName ?? t('common:unknown')
         );
       },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [userData]
   );
@@ -58,10 +65,11 @@ export const InvoicesCardList = ({
     return (
       <div className="w-full flex justify-center p-md">
         <Spinner aria-label={t('invoice:fetching')} />
+        <Spinner aria-label={t('invoice:fetching')} />
       </div>
     );
 
-  if (isFetched && !rows.length) return emptyComponent ?? <p>{t('invoice:noData')}</p>;
+  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>{t('invoice:noData')}</p>;
 
   const canFetch = rows.length < totalCount.current;
 
@@ -81,6 +89,9 @@ export const InvoicesCardList = ({
       <span className="text-small text-center text-secondary mt-lg">
         {t('invoice:showing', { count: rows.length, total: totalCount.current })}
       </span>
+      <span className="text-small text-center text-secondary mt-lg">
+        {t('invoice:showing', { count: rows.length, total: totalCount.current })}
+      </span>
       {canFetch ? (
         <Button
           className="m-auto mt-[1.2rem]"
@@ -89,6 +100,7 @@ export const InvoicesCardList = ({
           onClick={() => setActivePage(activePage + 1)}
           loading={!isFetched}
         >
+          {t('invoice:showMore')}
           {t('invoice:showMore')}
         </Button>
       ) : undefined}

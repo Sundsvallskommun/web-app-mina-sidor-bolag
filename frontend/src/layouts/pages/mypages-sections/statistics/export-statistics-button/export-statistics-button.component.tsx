@@ -13,10 +13,6 @@ import { utils, writeFile } from 'xlsx';
 import dayjs, { OpUnitType } from 'dayjs';
 import { translateAggregateOn } from '@services/measurement-data-service';
 import { useTranslation } from 'react-i18next';
-import { Event } from '@data-contracts/backend/data-contracts';
-import { queryClient, useApi } from '@services/api-service';
-import { getEventCategory } from '@utils/facility';
-import { CreateLogEventData } from '@interfaces/event';
 
 export interface ExportStatisticsButtonProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -25,13 +21,7 @@ export interface ExportStatisticsButtonProps {
 export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   const { data, isFetching } = props;
   const { getValues } = useFormContext();
-  const { t } = useTranslation(['statistics', 'event']);
-  const toastMessage = useSnackbar();
-
-  const logExport = useApi<Event>({
-    url: '/event/create',
-    method: 'post',
-  });
+  const { t } = useTranslation('statistics');
 
   const exportStatistics = () => {
     if (data?.measurementData && data?.aggregatedOn) {
