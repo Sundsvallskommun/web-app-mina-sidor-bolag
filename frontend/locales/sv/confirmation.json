@@ -1,0 +1,18 @@
+{
+  "title": "Bekräfta kontaktuppgifter",
+  "initialTitle": "Välkommen till Mina sidor",
+  "description": "Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser. Stämmer uppgifterna nedan?",
+  "initialDescription": "Här får du en samlad överblick över dina avtal, fakturor och din förbrukning från Sundsvall Elnät och Sundsvall Energi.",
+  "addInformation": "Lägg till dina kontaktuppgifter",
+  "addInformationDescription": "Vi behöver dina kontaktuppgifter för att skicka viktig information, bekräftelser och påminnelser.",
+  "addLater": "Lägg till senare",
+  "edit": "Nej, ändra",
+  "confirm": "Ja, bekräfta",
+  "save": "Spara uppgifter",
+  "personalData": {
+    "title": "Hantering av personuppgifter",
+    "description": "Vi använder din e-postadress och ditt mobilnummer för att kunna skicka viktig information, bekräftelser och påminnelser som rör dina avtal. Sundsvall Elnät och Sundsvall Energi är personuppgiftsansvarig och behandlar dina uppgifter enligt dataskyddsförordningen (GDPR).",
+    "sundsvallEnergiLinkText": "Läs mer om hur Sundsvall Energi hanterar dina personuppgifter",
+    "sundsvallElnatLinkText": "Läs mer om hur Sundsvall Elnät hanterar dina personuppgifter"
+  }
+}

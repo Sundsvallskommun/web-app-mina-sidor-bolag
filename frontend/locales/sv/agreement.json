@@ -1,0 +1,35 @@
+{
+  "title": "Dina avtal",
+  "noAgreements": "Du har inga avtal än, men så fort det finns avtal kan du se dem här.",
+  "noMatch": "Inga avtal matchar din sökning",
+  "searchFacility": "Sök efter anläggning",
+  "item": {
+    "title": "{{label}} {{production}} avtal",
+    "breadcrumbUrl": "../avtal",
+    "mainAgreement": "Huvudavtal",
+    "production": "produktion",
+    "inactive": "Frånkopplad",
+    "inactiveDescription": "Avtalet är frånkopplat och din anläggning har därför ingen strömförsörjning. Kontakta {{contractor}}s kundtjänst för mer information.",
+    "facilityId": "Anläggnings-ID",
+    "netArea": "Nätområde",
+    "type": "Typ",
+    "contractor": "Avtalsgivare",
+    "priceModel": "Prismodell",
+    "fixedPrice": "Fast pris",
+    "floatingPrice": "Rörligt pris",
+    "period": "Avtalsperiod",
+    "ongoing": "Löpande",
+    "showStatistics": "Visa statistik",
+    "statisticsUrl": "../../statistik?installation={{facilityId}}",
+    "facilityInformation": "Anläggningsinformation"
+  },
+  "additionalAgreement": {
+    "title": "Tilläggsavtal",
+    "environmentFriendly": "Bra miljöval",
+    "climateNeutralDistrictHeating": "Klimatneutral fjärrvärme",
+    "service": "Serviceavtal Privat",
+    "companyService": "Serviceavtal Företag",
+    "measurement": "Mätvärdesavtal",
+    "recycled": "100% återvunnet"
+  }
+}

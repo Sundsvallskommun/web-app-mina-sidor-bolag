@@ -1,0 +1,24 @@
+{
+  "title": "Dina fakturor",
+  "byAddress": "Visa fakturor per adress",
+  "chooseAddress": "Välj adress",
+  "unhandled": "Ohanterade fakturor",
+  "all": "Alla fakturor",
+  "contractor": "Leverantör",
+  "status": "Status",
+  "date": "Fakturadatum",
+  "dueDate": "Förfallodatum",
+  "amount": "Belopp",
+  "number": "Fakturanummer",
+  "fetch": "Hämta faktura",
+  "fetching": "Hämtar fakturor",
+  "noData": "Inga fakturor",
+  "showMore": "Visa fler",
+  "showing": "Visar {{count}} av {{total}}",
+  "pdf": {
+    "fetch": "Hämta pdf",
+    "fetching": "Hämtar pdf",
+    "fetchInvoice": "Hämta faktura {{invoice}}",
+    "error": "Det gick inte att hämta filen."
+  }
+}

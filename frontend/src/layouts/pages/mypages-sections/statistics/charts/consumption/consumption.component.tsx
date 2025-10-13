@@ -8,6 +8,7 @@ import { BarChart3Icon, TableIcon } from 'lucide-react';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
 import dayjs from 'dayjs';
 import { useDarkMode } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
 export interface ElectricityConsumptionProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -20,6 +21,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
   const [current, setCurrent] = useState<number>(0);
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
+  const { t } = useTranslation('statistics');
 
   return (
     <div>
@@ -64,7 +66,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                         stroke={isDarkMode ? '#FAE9E7' : '#600724'}
                       />
                     </svg>
-                    <p className="pl-8"> {getValues().year}</p>
+                    <p className="pl-8">{getValues().year}</p>
                   </div>
                 </div>
               )}
@@ -73,12 +75,12 @@ export default function Consumption(props: ElectricityConsumptionProps) {
             <MenuBar className="md:w-auto w-full md:mt-0 mt-40" showBackground>
               <MenuBar.Item className="md:w-auto w-full">
                 <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted={current === 0}>
-                  <Icon icon={<BarChart3Icon />} className="mr-8" /> Graf
+                  <Icon icon={<BarChart3Icon />} className="mr-8" /> {t('statistics:chart')}
                 </Button>
               </MenuBar.Item>
               <MenuBar.Item className="md:w-auto w-full">
                 <Button className="md:w-auto w-full" onClick={() => setCurrent(1)} inverted={current === 1}>
-                  <Icon icon={<TableIcon />} className="mr-8" /> Tabell
+                  <Icon icon={<TableIcon />} className="mr-8" /> {t('statistics:table')}
                 </Button>
               </MenuBar.Item>
             </MenuBar>
@@ -88,7 +90,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         </div>
       ) : (
         <div data-cy="empty-response-container" className="w-full text-center my-56">
-          <p className="font-bold">Det finns ingen data att visa för vald kategori och period</p>
+          <p className="font-bold">{t('statistics:noData')}</p>
         </div>
       )}
     </div>

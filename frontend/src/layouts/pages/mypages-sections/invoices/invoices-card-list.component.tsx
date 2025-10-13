@@ -9,6 +9,7 @@ import { User } from '@interfaces/user';
 import { useAppContext } from '@contexts/app.context';
 import { RepresentingMode } from '@interfaces/app';
 import { isEqual } from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 interface InvoiceTableContentProps {
   pageSize: number;
@@ -23,6 +24,7 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
   const [rows, setRows] = useState<IInvoice[]>([]);
   const previousRows = useRef<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
+  const { t } = useTranslation(['common', 'invoice']);
 
   const previousActivePage = useRef<number>(-1);
   const previousFacilityIds = useRef<string[] | undefined>(undefined);
@@ -80,20 +82,21 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
       (organizationNumber: string): string => {
         return (
           userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? 'Okänd'
+            ?.organizationName ?? t('common:unknown')
         );
       },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [userData]
   );
 
   if ((!isFetched && !rows.length) || representingModeChanged)
     return (
       <div className="w-full flex justify-center p-md">
-        <Spinner aria-label="Hämtar fakturor" />
+        <Spinner aria-label={t('invoice:fetching')} />
       </div>
     );
 
-  if (isFetched && !rows.length) return emptyComponent ? emptyComponent : <p>Inga fakturor</p>;
+  if (isFetched && !rows.length) return emptyComponent ?? <p>{t('invoice:noData')}</p>;
 
   const canFetch = rows.length < totalCount.current;
 
@@ -110,7 +113,9 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
           );
         })}
       </div>
-      <span className="text-small text-center text-secondary mt-lg">{`Visar ${rows.length} av ${totalCount.current}`}</span>
+      <span className="text-small text-center text-secondary mt-lg">
+        {t('invoice:showing', { count: rows.length, total: totalCount.current })}
+      </span>
       {canFetch ? (
         <Button
           className="m-auto mt-[1.2rem]"
@@ -119,7 +124,7 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
           onClick={() => setActivePage(activePage + 1)}
           loading={!isFetched}
         >
-          Visa fler
+          {t('invoice:showMore')}
         </Button>
       ) : undefined}
     </div>

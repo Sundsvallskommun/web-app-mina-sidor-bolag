@@ -5,21 +5,22 @@ import { ContactSettings } from './profile-contact-settings.component';
 import { ContactDetails } from './profile-contact-details.component';
 import { Disclosure, Divider } from '@sk-web-gui/react';
 import { FacilityDelegates } from '@layouts/pages/mypages-sections/profile/profile-facility-delegates.component';
+import { useTranslation } from 'react-i18next';
 
 export const Profile = () => {
+  const { t } = useTranslation('profile');
+
   return (
     <div className="flex flex-col gap-24">
-      <h1 className="mb-16">Din profil och inställningar</h1>
+      <h1 className="mb-16">{t('profile:title')}</h1>
 
       <Disclosure
         className="bg-background-content rounded-cards shadow-50 md:py-8 px-24"
         data-cy="contact-information-disclosure"
         header={
           <>
-            <h4 className="text-h4-md">Kontaktuppgifter</h4>
-            <p className="sm:text-base font-normal mb-0 text-small">
-              Uppdatera dina kontaktuppgifter så att vi kan nå dig.
-            </p>
+            <h4 className="text-h4-md">{t('profile:contactSetting.title')}</h4>
+            <p className="sm:text-base font-normal mb-0 text-small">{t('profile:contactSetting.description')}</p>
           </>
         }
       >
@@ -31,10 +32,8 @@ export const Profile = () => {
         data-cy="notifications-disclosure"
         header={
           <>
-            <h4 className="text-h4-md">Aviseringar</h4>
-            <p className="sm:text-base font-normal mb-0 text-small">
-              Välj hur du vill ha aviseringar och lägg till fler kontaktpersoner.
-            </p>
+            <h4 className="text-h4-md">{t('notifications:title')}</h4>
+            <p className="sm:text-base font-normal mb-0 text-small">{t('notifications:description')}</p>
           </>
         }
       >
@@ -50,8 +49,8 @@ export const Profile = () => {
         data-cy="facility-delegates-disclosure"
         header={
           <>
-            <h4 className="text-h4-md">Behörigheter</h4>
-            <p className="text-base font-normal mb-0">Hantera dina behörigheter för Mina sidor.</p>
+            <h4 className="text-h4-md">{t('profile:delegates.title')}</h4>
+            <p className="text-base font-normal mb-0">{t('profile:delegates.description')}</p>
           </>
         }
       >

@@ -1,0 +1,39 @@
+{
+  "person": "Privatperson",
+  "private": "Privat",
+  "organization": "Organisation",
+  "switchOrganization": "Byt organisation",
+  "switchOrganizationAriaLabel": "Byt organisation, nuvarande: {{current}}",
+  "isRepresentative": "(ombud)",
+  "unknown": "Okänd",
+  "address": "Adress",
+  "unknownAddress": "Okänd adress",
+  "logIn": "Logga in",
+  "overview": "översikt",
+  "agreement": "avtal",
+  "statistics": "statistik",
+  "invoices": "fakturor",
+  "selfService": "Självservice",
+  "profile": "profil och inställningar",
+  "stadsbacken": {
+    "about": "<Link href=\"https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab\">Om Stadsbacken</Link>",
+    "aboutUrl": "https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab"
+  },
+  "login": {
+    "title": "Välkommen till våra gemensamma Mina sidor",
+    "description": "Logga in och ta del av våra samlade tjänster från Sundsvall Energi och Sundsvall Elnät",
+    "loginAs": "Logga in som",
+    "error": {
+      "login": "Det gick inte att logga in, försök igen senare.",
+      "missingGroups": "Användaren saknar rätt grupper",
+      "missingAttributes": "Användaren saknar rätt attribut",
+      "missingPermissions": "Användaren saknar rättigheter"
+    }
+  },
+  "logout": {
+    "logout": "Logga ut",
+    "title": "Du är nu utloggad",
+    "description": "Tack för besöket! Du kan alltid läsa mer hos <LinkOne href=\\\"https://sundsvallenergi.se/\\\">Sundsvall Energi</LinkOne> eller <LinkTwo href=\\\"https://sundsvallelnat.se/\\\">Sundsvall Elnät</LinkTwo>",
+    "loginAgain": "Logga in igen"
+  }
+}
