@@ -1,4 +1,4 @@
-# Mina sidor Bolagen
+# Mina sidor Bolag
 
 ## APIer som används
 
