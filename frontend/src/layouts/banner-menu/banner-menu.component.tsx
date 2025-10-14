@@ -1,6 +1,6 @@
 'use client';
 
-import { MenuBar, cx, useThemeQueries } from '@sk-web-gui/react';
+import { NavigationBar, cx, useThemeQueries } from '@sk-web-gui/react';
 import { usePathname } from 'next/navigation';
 import { useBannerMenuItems } from './banner-menu-items';
 import { useAppContext } from '@contexts/app.context';
@@ -25,17 +25,17 @@ export const BannerMenu: React.FC = () => {
             {representingMode === RepresentingMode.PRIVATE ? titleCase(representingLabel) : representingLabel}
           </span>
           {isMinDesktop && (
-            <MenuBar className="self-stretch" aria-label={`Undersidor ${representingLabel}`}>
+            <NavigationBar className="self-stretch" aria-label={`Undersidor ${representingLabel}`}>
               {bannerMenuItems.map((item, index) => (
-                <MenuBar.Item
+                <NavigationBar.Item
                   key={`${index}`}
                   className="flex items-center justify-center grow"
                   current={pathname?.includes(item.props.href)}
                 >
                   {item}
-                </MenuBar.Item>
+                </NavigationBar.Item>
               ))}
-            </MenuBar>
+            </NavigationBar>
           )}
         </div>
       </div>
