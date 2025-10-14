@@ -7,9 +7,6 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/se';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import utc from 'dayjs/plugin/utc';
-import { i18n as i18nType } from 'i18next';
-import { useEffect, useState } from 'react';
-import initLocalization from 'src/app/i18n';
 import '../../../tailwind.scss';
 import { LoginGuard } from './login-guard';
 
@@ -38,18 +35,9 @@ dayjs.updateLocale('se', {
 interface MyAppLayoutProps {
   children?: React.ReactNode;
   locale: string;
-  namespaces: string[];
 }
 
-export const MyAppLayout: React.FC<MyAppLayoutProps> = ({ children, locale, namespaces }) => {
-  const [i18n, seti18n] = useState<i18nType | null>(null);
-
-  useEffect(() => {
-    initLocalization(locale, namespaces).then((res) => {
-      seti18n(res.i18n);
-    });
-  }, [locale, namespaces]);
-
+export const MyAppLayout: React.FC<MyAppLayoutProps> = ({ children, locale }) => {
   const theme = extendTheme({
     colorSchemes: {
       light: {
@@ -71,13 +59,13 @@ export const MyAppLayout: React.FC<MyAppLayoutProps> = ({ children, locale, name
     },
   });
   return (
-    <html lang="sv">
+    <html lang={locale}>
       <body>
         <GuiProvider theme={theme}>
           <ConfirmationDialogContextProvider>
             <AppWrapper>
               <LoginGuard>
-                <MatomoWrapper>{!!i18n && children}</MatomoWrapper>
+                <MatomoWrapper>{children}</MatomoWrapper>
               </LoginGuard>
             </AppWrapper>
           </ConfirmationDialogContextProvider>

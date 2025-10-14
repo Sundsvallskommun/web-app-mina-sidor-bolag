@@ -4,7 +4,7 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import { User } from '@interfaces/user';
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import { useApi } from '@services/api-service';
-import { Button, FormLabel, MenuBar, Select } from '@sk-web-gui/react';
+import { Button, FormLabel, NavigationBar, Select } from '@sk-web-gui/react';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -148,13 +148,13 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
             <div className="block w-full lg:pt-0 pt-16">
               <FormLabel>{t('statistics:showBy')}</FormLabel>
-              <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
+              <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
                 {[
                   { value: 'year', label: t('statistics:year') },
                   { value: 'month', label: t('statistics:month') },
                   { value: 'day', label: t('statistics:day') },
                 ].map((item, index) => (
-                  <MenuBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
+                  <NavigationBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
                     <Button
                       className="lg:w-auto w-full !h-[12px] !py-0"
                       size="sm"
@@ -166,9 +166,9 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                     >
                       {item.label}
                     </Button>
-                  </MenuBar.Item>
+                  </NavigationBar.Item>
                 ))}
-              </MenuBar>
+              </NavigationBar>
             </div>
           </div>
           {mode === 'year' && <StatisticsFilterYear />}

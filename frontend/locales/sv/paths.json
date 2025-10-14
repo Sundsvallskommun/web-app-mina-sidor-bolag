@@ -1,0 +1,54 @@
+{
+  "login": {
+    "title": "Logga in",
+    "description": "Logga in"
+  },
+  "valj-foretag": {
+    "title": "Välj organisation",
+    "description": "Välj organisation"
+  },
+  "om-webbplatser": {
+    "title": "Om webbplatsen",
+    "description": "Om webbplatsen"
+  },
+  "kakor": {
+    "title": "Kakor",
+    "description": "Kakor"
+  },
+  "tillganglighet": {
+    "title": "Tillgänglighet",
+    "description": "Tillgänglighet"
+  },
+  "foretag": {
+    "title": "Organisation",
+    "description": "Organisation"
+  },
+  "privat": {
+    "title": "Privat",
+    "description": "Privat"
+  },
+  "avtal": {
+    "title": "Avtal",
+    "description": "Avtal"
+  },
+  "fakturor": {
+    "title": "Fakturor",
+    "description": "Fakturor"
+  },
+  "oversikt": {
+    "title": "Översikt",
+    "description": "Översikt"
+  },
+  "profil": {
+    "title": "Profil",
+    "description": "Profil"
+  },
+  "sjalvservice": {
+    "title": "Självservice",
+    "description": "Självservice"
+  },
+  "statistik": {
+    "title": "Statistik",
+    "description": "Statistik"
+  }
+}
