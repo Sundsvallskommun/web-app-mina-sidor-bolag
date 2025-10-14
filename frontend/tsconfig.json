@@ -16,6 +16,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
+      "@app/*": ["src/app/*"],
       "@layouts/*": ["src/layouts/*"],
       "@components/*": ["src/components/*"],
       "@data-contracts/*": ["../backend/src/data-contracts/*"],
