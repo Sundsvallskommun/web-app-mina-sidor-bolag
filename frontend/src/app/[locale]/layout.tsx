@@ -12,7 +12,6 @@ const namespaces = [
   'common',
   'confirmation',
   'cookies',
-  'citizen',
   'invoice',
   'layout',
   'notifications',
@@ -21,9 +20,6 @@ const namespaces = [
   'paths',
   'profile',
   'statistics',
-  'bankid',
-  'event',
-  'eligibility',
 ];
 
 export interface LocalizationLayoutProps {

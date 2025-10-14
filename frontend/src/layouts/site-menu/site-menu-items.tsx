@@ -3,7 +3,7 @@
 import { useAppContext } from '@contexts/app.context';
 import { useCombinedBusinessEngagements } from '@services/organisation-service';
 import { Button, Icon, NavigationBar, PopupMenu, Select, cx, useThemeQueries } from '@sk-web-gui/react';
-import { ArrowRight, ChevronDownCircle } from 'lucide-react';
+import { ArrowRight, ChevronDownCircle, LogOut } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApi, useApiService } from '../../services/api-service';
@@ -51,18 +51,18 @@ export const MyPagesToggle = () => {
   const { t } = useTranslation('common');
 
   return (
-    <MenuBar showBackground current={representingMode === 1 ? 0 : 1}>
-      <MenuBar.Item menuIndex={RepresentingMode.BUSINESS}>
+    <NavigationBar showBackground current={representingMode === 1 ? 0 : 1}>
+      <NavigationBar.Item menuIndex={RepresentingMode.BUSINESS}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>
           {t('common:organization')}
         </NextLink>
-      </MenuBar.Item>
-      <MenuBar.Item menuIndex={RepresentingMode.PRIVATE}>
+      </NavigationBar.Item>
+      <NavigationBar.Item menuIndex={RepresentingMode.PRIVATE}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>
           {t('common:private')}
         </NextLink>
-      </MenuBar.Item>
-    </MenuBar>
+      </NavigationBar.Item>
+    </NavigationBar>
   );
 };
 

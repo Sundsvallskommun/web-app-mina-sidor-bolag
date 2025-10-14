@@ -7,6 +7,7 @@ import { useFormContext } from 'react-hook-form';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { ChartStyleSelector } from '../chart-style-selector.component';
 
 export interface OutdoorTemperatureProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -49,18 +50,7 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
                 )}
               </div>
 
-              <MenuBar className="md:w-auto w-full md:mt-0 mt-40" showBackground>
-                <MenuBar.Item className="md:w-auto w-full">
-                  <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted={current === 0}>
-                    <Icon icon={<BarChart3Icon />} className="mr-8" /> {t('statistics:chart')}
-                  </Button>
-                </MenuBar.Item>
-                <MenuBar.Item className="md:w-auto w-full">
-                  <Button className="md:w-auto w-full" onClick={() => setCurrent(1)} inverted={current === 1}>
-                    <Icon icon={<TableIcon />} className="mr-8" /> {t('statistics:table')}
-                  </Button>
-                </MenuBar.Item>
-              </MenuBar>
+              <ChartStyleSelector current={current} onChangeCurrent={setCurrent} />
             </div>
 
             {current === 0 ? (

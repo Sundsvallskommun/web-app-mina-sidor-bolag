@@ -3,12 +3,11 @@
 import { useEffect, useState } from 'react';
 import FullscreenMainSpinner from '../../../../components/spinner/fullscreen-main-spinner.component';
 import { useAppContext } from '../../../../contexts/app.context';
-import { RepresentingMode } from '../../../../interfaces/app';
+import { RepresentingEntity, RepresentingMode } from '../../../../interfaces/app';
 import { DefaultLayout } from '../../../../layouts/default-layout.component';
 import { useApi } from '../../../../services/api-service';
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import { useParams } from 'next/navigation';
-import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
 
 interface DefaultLayoutProps {
   children?: React.ReactNode;
