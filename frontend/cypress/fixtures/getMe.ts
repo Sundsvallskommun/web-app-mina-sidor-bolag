@@ -14,12 +14,14 @@ export const getMe: ApiResponse<User> = {
         organizationNumber: '5564786647',
         organizationName: 'Sundsvall Energi AB',
         active: true,
+        moveInDate: '2025-01-01',
       },
       {
         customerNumber: '1',
         organizationNumber: '5565027223',
         organizationName: 'Sundsvall Elnät',
         active: true,
+        moveInDate: '2025-01-01',
       },
     ],
     addresses: [

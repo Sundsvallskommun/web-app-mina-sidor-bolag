@@ -1,11 +1,8 @@
-import { setIntercepts } from '../support/e2e';
-import { RepresentingMode } from '@interfaces/app';
 import { getMe } from '../fixtures/getMe';
 import { getPendingInvoices } from '../fixtures/getInvoices';
 
 describe('Översikt', () => {
   beforeEach(() => {
-    setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/oversikt');
   });
 
