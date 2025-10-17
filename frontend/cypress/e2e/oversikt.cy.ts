@@ -5,8 +5,6 @@ import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Översikt', () => {
   beforeEach(() => {
-    setIntercepts(RepresentingMode.PRIVATE);
-    cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
     cy.visit('/privat/oversikt');
   });
 

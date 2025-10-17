@@ -52,12 +52,12 @@ export const MyPagesToggle = () => {
 
   return (
     <NavigationBar showBackground current={representingMode === 1 ? 0 : 1}>
-      <NavigationBar.Item menuIndex={RepresentingMode.BUSINESS}>
+      <NavigationBar.Item data-cy="representing-business-menu-item" menuIndex={RepresentingMode.BUSINESS}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>
           {t('common:organization')}
         </NextLink>
       </NavigationBar.Item>
-      <NavigationBar.Item menuIndex={RepresentingMode.PRIVATE}>
+      <NavigationBar.Item data-cy="representing-private-menu-item" menuIndex={RepresentingMode.PRIVATE}>
         <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>
           {t('common:private')}
         </NextLink>

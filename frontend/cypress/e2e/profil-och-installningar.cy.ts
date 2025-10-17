@@ -6,12 +6,9 @@ import {
   patchFacilityDelegate,
   postFacilityDelegate,
 } from '../fixtures/getFacilityDelegates';
-import { setIntercepts } from '../support/e2e';
-import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Profil och inställningar', () => {
   beforeEach(() => {
-    setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/profil');
   });
 
@@ -147,6 +144,55 @@ describe('Profil och inställningar', () => {
     cy.get('[data-cy="delegate-alias"]').should('exist').contains('Kontaktperson');
     cy.get('[data-cy="edit-delegate"]').should('exist').click({ multiple: true });
     cy.get('[data-cy="remove-contact-person-button"]').should('exist').click({ multiple: true });
+    cy.get('.sk-dialog-buttons > .sk-btn-primary').should('have.text', 'Ta bort').click();
+  });
+
+  it('should render facility delegates correctly', () => {
+    cy.get('[data-cy="facility-delegates-disclosure"]').should('exist').should('include.text', 'Behörigheter').click();
+
+    cy.get('[data-cy="edit-notification-channel-button"]').should('exist');
+    cy.get('[data-cy="delegatedToName"]').should('exist').contains('Testperson Delegerade anläggningar');
+    cy.get('[data-cy="edit-delegate"]').should('exist');
+    cy.get('[data-cy="add-delegate-button"]').should('exist');
+  });
+
+  it('can add facility delegate', () => {
+    cy.intercept('POST', '**/api/delegations', postFacilityDelegate());
+
+    cy.get('[data-cy="facility-delegates-disclosure"]').should('exist').should('include.text', 'Behörigheter').click();
+
+    cy.get('[data-cy="add-delegate-button"]').should('exist').contains('Lägg till behörighet').click();
+    cy.get('input[name="delegatedToBirthDate"]').should('exist').type('19500101****');
+
+    cy.get('[data-cy="facility-id-111"]').should('exist').check({ force: true });
+    cy.get('[data-cy="facility-id-222"]').should('exist').check({ force: true });
+
+    cy.get('[data-cy="save-delegate-button"]').should('exist').click();
+  });
+
+  it('can edit facility delegate', () => {
+    cy.intercept('PATCH', '**/api/delegations/**', patchFacilityDelegate());
+
+    cy.get('[data-cy="facility-delegates-disclosure"]').should('exist').should('include.text', 'Behörigheter').click();
+    cy.get('[data-cy="delegatedToName"]').should('exist').contains('Testperson Delegerade anläggningar');
+
+    cy.get('[data-cy="edit-facility-delegate"]').should('exist').contains('Redigera').click({ force: true });
+
+    cy.get('input[name="delegatedToBirthDate"]').should('exist').should('have.attr', 'readonly', 'readonly');
+    cy.get('[data-cy="facility-id-222"]').should('exist').should('be.checked').click({ force: true, multiple: true });
+    cy.get('[data-cy="facility-id-222"]').should('exist').should('not.be.checked');
+
+    cy.get('[data-cy="save-delegate-button"]').should('exist').click();
+  });
+
+  it('can remove facility delegate', () => {
+    cy.intercept('DELETE', '**/api/delegations/**', deleteFacilityDelegate());
+
+    cy.get('[data-cy="facility-delegates-disclosure"]').should('exist').should('include.text', 'Behörigheter').click();
+    cy.get('[data-cy="delegatedToName"]').should('exist').contains('Testperson Delegerade anläggningar');
+
+    cy.get('[data-cy="edit-facility-delegate"]').should('exist').click({ multiple: true });
+    cy.get('[data-cy="remove-facility-delegate-button"]').should('exist').click({ multiple: true });
     cy.get('.sk-dialog-buttons > .sk-btn-primary').should('have.text', 'Ta bort').click();
   });
 

@@ -20,16 +20,3 @@ export const getMyRelations: ApiResponse<CustomerRelation[]> = {
   ],
   message: 'success',
 };
-
-export const getMyRelationsOnlyTrade: ApiResponse<CustomerRelation[]> = {
-  data: [
-    {
-      customerNumber: '1',
-      organizationNumber: '5565027223',
-      organizationName: 'Sundsvall Elnät',
-      active: true,
-      moveInDate: '2025-01-01',
-    },
-  ],
-  message: 'success',
-};

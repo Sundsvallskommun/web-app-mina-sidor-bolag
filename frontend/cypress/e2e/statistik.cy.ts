@@ -11,9 +11,10 @@ import { createEvent, getEvents } from '../fixtures/getExportEvents';
 describe('Statistik', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-  });
+    cy.visit('/privat/statistik');
+    cy.get('#content').should('exist');
+    cy.get('h1').should('exist').should('contain.text', 'Din statistik');
 
-  const statisticsDataIntercept = () => {
     cy.intercept(
       'GET',
       `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=**&toDate=**&aggregateOn=DAY`,
@@ -183,17 +184,18 @@ describe('Statistik', () => {
     cy.intercept('POST', '**/api/event/create**', createEvent());
 
     const downloadsFolder = Cypress.config('downloadsFolder');
-    const exportFileName = path.join(
-      downloadsFolder,
-      `Export-${getMe.data.facilities[0].address?.street}-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`
-    );
+    const exportFileName = `${downloadsFolder}\\Export-${getMe.data.facilities[0].address?.street}-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`;
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.readFile(exportFileName);
   });
 
   it('can handle empty data response', () => {
-    emptyStatisticsDataIntercept();
+    cy.intercept(
+      'GET',
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=DAY`,
+      { fixture: null }
+    );
 
     cy.get('[data-cy="empty-response-container"]').should('exist');
     cy.get('[data-cy="export-statistics-button"]').should('be.disabled');
