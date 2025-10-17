@@ -89,7 +89,7 @@ export default function FacilityDelegateFormLogic({
             queryKey: ['facilityDelegation'],
           });
           snackBar({
-            message: t('profile:success'),
+            message: t('profile:success.save'),
             status: 'success',
           });
           if (onSubmitSuccess) onSubmitSuccess();
