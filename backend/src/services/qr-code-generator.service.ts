@@ -1,8 +1,8 @@
-import { GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
+import { SignResponse } from '@/interfaces/bankid.interface';
 import { createHmac } from 'node:crypto';
 
 export class QRGenerator {
-  public createQRData(sign: GrpInitiateResponseWithStartTime): string | null {
+  public createQRData(sign: SignResponse & { startTime: number }): string | null {
     try {
       const qrTime = Math.floor((Date.now() - sign.startTime) / 1000).toString();
 

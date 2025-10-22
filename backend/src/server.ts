@@ -14,10 +14,6 @@ import { DelegateController } from './controllers/delegate.controller';
 import { NetOwnerController } from './controllers/netowner.controller';
 import { FacilityDelegationController } from '@controllers/facility-delegation.controller';
 import { SignController } from './controllers/sign.controller';
-import { MandateController } from './controllers/mandate.controller';
-import { CitizenController } from './controllers/citizen.controller';
-import EventLogController from '@controllers/event-log.controller';
-import { BFUSController } from './controllers/bfus.controller';
 
 validateEnv();
 
@@ -36,10 +32,6 @@ const app = new App([
   NetOwnerController,
   FacilityDelegationController,
   SignController,
-  MandateController,
-  CitizenController,
-  EventLogController,
-  BFUSController,
 ]);
 
 app.listen();
