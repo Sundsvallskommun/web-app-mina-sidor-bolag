@@ -4,32 +4,50 @@ import { getStatisticsData } from '../fixtures/getMeasurementData';
 import dayjs from 'dayjs';
 import { getMe } from '../fixtures/getMe';
 import { Aggregation, Category } from '@interfaces/measurement-data';
+import { getNetOwner } from '../fixtures/getNetOwner';
 
 describe('Statistik', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.visit('/privat/statistik');
-    cy.get('#content').should('exist');
-    cy.get('h1').should('exist').should('contain.text', 'Din statistik');
+  });
 
-    const fromDate = dayjs().startOf('month').format('YYYY');
-    const toDate = dayjs().format('YYYY');
-
+  const statisticsDataIntercept = () => {
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=DAY`,
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=**&toDate=**&aggregateOn=DAY`,
       getStatisticsData(
         dayjs().startOf('month').format('YYYY-MM-DD'),
         dayjs().format('YYYY-MM-DD'),
-        Category.ELECTRICITY,
+        Category.DISTRICT_HEATING,
         Aggregation.DAY
       )
-    ).as('getStatisticsData');
-  });
+    );
+    cy.intercept('POST', '**/api/netowner', getNetOwner());
+
+    cy.visit('/privat/statistik');
+    cy.get('#content').should('exist');
+    cy.get('h1').should('exist').should('contain.text', 'Din statistik');
+  };
+
+  const emptyStatisticsDataIntercept = () => {
+    cy.intercept(
+      'GET',
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=DAY`,
+      { fixture: null }
+    );
+
+    cy.intercept('POST', '**/api/netowner', getNetOwner());
+
+    cy.visit('/privat/statistik');
+    cy.get('#content').should('exist');
+    cy.get('h1').should('exist').should('contain.text', 'Din statistik');
+  };
 
   it('should render components correctly', () => {
+    statisticsDataIntercept();
     cy.get('[data-cy="statistics-filter"]').should('exist');
     cy.get('[data-cy="consumption-chart"]').should('exist');
+    cy.get('[data-cy="contract-select"]').should('exist').contains('Fjärrvärme (333)');
     cy.get('[data-cy="outdoor-temperature-chart"]').should('exist');
     cy.get('[data-cy="export-statistics-button"]').should('exist');
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled');
@@ -37,16 +55,20 @@ describe('Statistik', () => {
   });
 
   it('should render filters correctly', () => {
+    statisticsDataIntercept();
+
     cy.get('[data-cy="address-select"]').should('exist').should('have.text', getMe.data.addresses[0].address);
     cy.get('[data-cy="contract-select"]').should('exist').should('include.text', getMe.data.facilities[0].facilityId);
     cy.get('[data-cy="date-toggle"]').should('exist');
-    cy.get('[data-cy="year-select"]').should('exist');
-    cy.get('[data-cy="month-select"]').should('exist');
-    cy.get('[data-cy="day-select"]').should('exist');
+    cy.get('[data-cy="date-toggle-year-button"]').should('exist');
+    cy.get('[data-cy="date-toggle-month-button"]').should('exist');
+    cy.get('[data-cy="date-toggle-day-button"]').should('exist');
     cy.get('[data-cy="compare-year-select"]').should('exist');
   });
 
   it('should render consumption information correctly', () => {
+    statisticsDataIntercept();
+
     cy.get('[data-cy="address"]').should('exist').should('have.text', getMe.data.addresses[0].address);
     cy.get('[data-cy="total-consumption-value"]').should('exist');
     cy.get('[data-cy="highest-consumption-value"]').should('exist');
@@ -54,6 +76,8 @@ describe('Statistik', () => {
   });
 
   it('can change category', () => {
+    statisticsDataIntercept();
+
     const fromDate = dayjs().startOf('month').toISOString();
     const toDate = dayjs().toISOString();
 
@@ -61,26 +85,33 @@ describe('Statistik', () => {
       'GET',
       `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=DAY`,
       getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.DAY)
-    ).as('getStatisticsData');
+    );
+    cy.intercept(
+      'GET',
+      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=*&toDate=*&aggregateOn=DAY`,
+      getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.DAY)
+    );
 
     cy.get('[data-cy="contract-select"]').should('exist').select(2);
     cy.get('[data-cy="contract-select"]').should('exist').should('include.text', getMe.data.facilities[2].facilityId);
   });
 
   it('can display statistics by year, month and day', () => {
+    statisticsDataIntercept();
+
     const fromDate = dayjs().startOf('month').toISOString();
     const toDate = dayjs().toISOString();
 
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=*&toDate=*&aggregateOn=HOUR`,
-      getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.HOUR)
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=HOUR`,
+      getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.HOUR)
     ).as('getStatisticsData');
 
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=*&toDate=*&aggregateOn=MONTH`,
-      getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.MONTH)
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=MONTH`,
+      getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.MONTH)
     ).as('getStatisticsData');
 
     cy.get('[data-cy="date-toggle"]').should('exist');
@@ -90,16 +121,18 @@ describe('Statistik', () => {
   });
 
   it('requests and receives correct dates when comparing statistics', () => {
+    statisticsDataIntercept();
+
     const fromDate = dayjs().startOf('month').subtract(1, 'year').format('YYYY');
     const toDate = dayjs().subtract(1, 'year').format('YYYY');
 
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=DAY`,
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=DAY`,
       getStatisticsData(
         dayjs().startOf('month').subtract(1, 'year').format('YYYY-MM-DD'),
         dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
-        Category.ELECTRICITY,
+        Category.DISTRICT_HEATING,
         Aggregation.DAY
       )
     ).as('getStatisticsDataToCompare');
@@ -126,19 +159,17 @@ describe('Statistik', () => {
   });
 
   it('can export statistics', () => {
+    statisticsDataIntercept();
+
     const downloadsFolder = Cypress.config('downloadsFolder');
-    const exportFileName = `${downloadsFolder}\\Export-${getMe.data.facilities[0].address?.street}-Elförbrukning-${dayjs().format('YYYY-MM-DD')}.xlsx`;
+    const exportFileName = `${downloadsFolder}\\Export-${getMe.data.facilities[0].address?.street}-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`;
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.readFile(exportFileName);
   });
 
   it('can handle empty data response', () => {
-    cy.intercept(
-      'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=*&toDate=*&aggregateOn=DAY`,
-      { fixture: null }
-    );
+    emptyStatisticsDataIntercept();
 
     cy.get('[data-cy="empty-response-container"]').should('exist');
     cy.get('[data-cy="export-statistics-button"]').should('be.disabled');

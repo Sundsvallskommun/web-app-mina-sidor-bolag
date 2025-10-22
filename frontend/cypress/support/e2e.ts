@@ -15,6 +15,8 @@ import {
   getOverviewElectricityData,
   getOverviewElectricityProductionData,
 } from '../fixtures/getMeasurementData';
+import { getDelegates } from '../fixtures/getDelegates';
+import { getFacilityDelegates } from '../fixtures/getFacilityDelegates';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -30,15 +32,17 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
   cy.intercept('GET', '**/api/me', getMe).as('getUser');
   interceptRepresentingMode(representingMode);
   cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
-  cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
-  cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
-
-  cy.intercept('GET', '**/api/myrelations', getMyRelations()).as('getMyRelations');
+  cy.intercept('GET', '**/api/myrelations', getMyRelations).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
+  cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
+  cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
 
   cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
 
-  const fromDate = dayjs().startOf('month').subtract(12, 'months').toISOString();
+  cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');
+  cy.intercept('GET', '**/api/facility/delegations', getFacilityDelegates()).as('getFacilityDelegates');
+
+  const fromDate = dayjs().subtract(1, 'year').startOf('month').toISOString();
   const toDate = dayjs().endOf('month').toISOString();
 
   cy.intercept(
@@ -62,5 +66,4 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
 beforeEach(() => {
   cy.setCookie(CookieConsentUtils.defaultCookieConsentName, DEFAULT_COOKIE_VALUE);
   cy.viewport('macbook-16');
-  setIntercepts(representingModeDefault);
 });

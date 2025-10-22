@@ -94,7 +94,7 @@ export const FacilityDelegateItem = ({
               });
             }}
             className="my-16"
-            data-cy="remove-contact-person-button"
+            data-cy="remove-facility-delegate-button"
             inverted
           >
             {t('profile:delegates.remove.title')}
@@ -141,7 +141,7 @@ export const FacilityDelegateItem = ({
         </Button>
       ) : (
         <div className="my-16 p-16 bg-background-color-mixin-1 rounded-cards sm:flex sm:items-center sm:justify-between">
-          <div className="sm:pb-0 pb-16" data-cy="delegate-alias">
+          <div className="sm:pb-0 pb-16" data-cy="delegatedToName">
             <p>
               {facilityDelegate?.delegatedToName ?? EmptyField(t('profile:noAlias'))},
               {facilityDelegate.delegatedToBirthDate}
@@ -157,7 +157,7 @@ export const FacilityDelegateItem = ({
             leftIcon={<Icon icon={<Pen />} />}
             onClick={() => openHandler()}
             className="sm:w-auto w-full"
-            data-cy="edit-delegate"
+            data-cy="edit-facility-delegate"
           >
             {t('profile:edit')}
           </Button>

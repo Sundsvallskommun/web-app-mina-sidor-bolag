@@ -1,7 +1,13 @@
 import { CookieConsentUtils } from '@sk-web-gui/react';
 import { DEFAULT_COOKIE_VALUE } from 'cypress/support/e2e';
+import { setIntercepts } from '../support/e2e';
+import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Om webbplatsen', () => {
+  beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
+  });
+
   it('should render om webbplatsen', () => {
     cy.visit('/om-webbplatsen');
     cy.get('#content').should('exist');

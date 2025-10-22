@@ -37,8 +37,8 @@ export const patchContactSettings: () => ApiResponse<ClientContactSetting> = () 
     virtual: false,
     alias: 'default',
     notifications: {
-      email_disabled: true,
-      phone_disabled: true,
+      email_enabled: true,
+      phone_enabled: true,
     },
     decicionsAndDocuments: {
       digitalInbox: true,
