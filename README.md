@@ -16,6 +16,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Installedbase       |     3.1 |
 | Agreement           |     4.1 |
 | MeasurementData     |     2.0 |
+| MyRepresentatives   |     4.0 |
 
 Appen använder dessutom BankIds öppna api. Se [https://developers.bankid.com/](https://developers.bankid.com/)
 
