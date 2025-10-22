@@ -43,4 +43,5 @@ export const {
   BANK_ID_CERT,
   BANK_ID_KEY,
   BANK_ID_DEV_PERSONAL_NUMBER,
+  NAMESPACE,
 } = process.env;

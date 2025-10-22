@@ -12,6 +12,8 @@ import { IsDateString, IsInt, IsOptional, IsString, ValidateNested } from 'class
 
 export class SignMandateDetails implements SignMandate {
   @IsString()
+  grantorId: string;
+  @IsString()
   granteeId: string;
   @IsDateString()
   activeFrom: string;
@@ -47,5 +49,5 @@ export class MandatePaginationDto implements SearchMandateParameters {
 
 export class CreateMandateDto {
   @IsString()
-  transactionId: string;
+  bankIdRef: string;
 }

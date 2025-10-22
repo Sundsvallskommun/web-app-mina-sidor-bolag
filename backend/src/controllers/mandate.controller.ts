@@ -1,6 +1,5 @@
 import { MUNICIPALITY_ID, NAMESPACE } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import {
   CreateMandate,
   MandateDetails,
@@ -10,14 +9,14 @@ import {
 import { CreateMandateDto, MandatePaginationDto } from '@/dtos/mandate.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { GrpCollectResponseWithRef, GrpStatus } from '@/interfaces/grp.interface';
-import { MandatePopulated, SignMandateCache } from '@/interfaces/mandates.interface';
+import { SignCollectResponse, SignStatus } from '@/interfaces/bankid.interface';
+import { SignMandate } from '@/interfaces/mandates.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
-import mandateMiddleware from '@/middlewares/mandate.middleware';
-import { MandateApiResponse, MandatesApiResponse, PopulatedMandatesApiResponse } from '@/responses/mandates.response';
+import { MandateApiResponse, MandatesApiResponse } from '@/responses/mandates.response';
 import ApiService, { ApiResponse } from '@/services/api.service';
 import { handleSignCache } from '@/utils/handleSignCache';
 import { logger } from '@/utils/logger';
+import dayjs from 'dayjs';
 import { Response } from 'express';
 import { Body, Controller, Delete, Get, Param, Post, QueryParams, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
@@ -27,7 +26,6 @@ import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 export class MandateController {
   private readonly apiService = new ApiService();
   private readonly apiBase = `${getApiBase('myrepresentatives')}/${MUNICIPALITY_ID}/${NAMESPACE}`;
-  private readonly citizenApiBase = `${getApiBase('citizen')}/${MUNICIPALITY_ID}`;
 
   @Get('/mandates/personal')
   @OpenAPI({ summary: 'Get all mandates given to me' })
@@ -52,59 +50,23 @@ export class MandateController {
     }
   }
 
-  @Get('/mandates/org')
-  @OpenAPI({ summary: 'Get all mandates for current organization' })
-  @ResponseSchema(PopulatedMandatesApiResponse)
+  @Get('/mandates/org/:partyid')
+  @OpenAPI({ summary: 'Get all mandates for an organization' })
+  @ResponseSchema(MandatesApiResponse)
   async getOrgMandates(
     @Req() req: RequestWithUser,
+    @Param('partyid') id: string,
     @QueryParams() queryParams: MandatePaginationDto,
-    @Res() res: Response<PopulatedMandatesApiResponse>,
-  ): Promise<Response<PopulatedMandatesApiResponse>> {
+    @Res() res: Response<MandatesApiResponse>,
+  ): Promise<Response<MandatesApiResponse>> {
     const url = `${this.apiBase}/mandates`;
-    const partyId = req.session.representing.BUSINESS?.partyId;
-    if (!partyId) {
-      throw new HttpException(400, 'Not representing an organization');
-    }
     const params: SearchMandateParameters = {
       ...queryParams,
-      grantorPartyId: partyId,
+      grantorPartyId: id,
     };
     try {
       const result = await this.apiService.get<Mandates>({ url, params }, req.user);
-      const mandates: MandatePopulated[] = [];
-
-      for (let mandate of result.data.mandateDetailsList) {
-        try {
-          const grantorDetails = this.apiService.get<CitizenExtended>(
-            { url: `${this.citizenApiBase}/${mandate.grantorDetails.signatoryPartyId}` },
-            req.user,
-          );
-          const granteeDetails = this.apiService.get<CitizenExtended>(
-            { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}` },
-            req.user,
-          );
-          const granteePersonNumber = this.apiService.get<number>(
-            { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}/personnumber` },
-            req.user,
-          );
-          const mandateDetails = await Promise.all([grantorDetails, granteeDetails, granteePersonNumber]);
-          mandates.push({
-            id: mandate.id,
-            activeFrom: mandate.activeFrom,
-            inactiveAfter: mandate.inactiveAfter,
-            created: mandate.created,
-            status: mandate.status,
-            grantor: { name: `${mandateDetails[0].data.givenname} ${mandateDetails[0].data.lastname}` },
-            grantee: {
-              name: `${mandateDetails[1].data.givenname} ${mandateDetails[1].data.lastname}`,
-              personNumber: mandateDetails[2].data?.toString().slice(0, -4).concat('****'),
-            },
-          });
-        } catch (error) {
-          logger.error('Error getting details for mandate', error);
-        }
-      }
-      return res.send({ message: 'success', ...result.data._meta, data: mandates });
+      return res.send({ message: 'success', ...result.data._meta, data: result.data.mandateDetailsList });
     } catch (error) {
       logger.error('Error getting org mandates: ', error);
       throw new HttpException(500, 'Error getting mandates');
@@ -113,7 +75,6 @@ export class MandateController {
 
   @Post('/mandates')
   @OpenAPI({ summary: 'Create new mandate from completed BankId sign' })
-  @UseBefore(mandateMiddleware)
   @ResponseSchema(MandateApiResponse)
   async createMandate(
     @Req() req: RequestWithUser,
@@ -124,43 +85,35 @@ export class MandateController {
     const url = `${this.apiBase}/mandates`;
     try {
       const cacheHandler = handleSignCache(req);
-      const { granteeId, grantorId, ...mandate } = cacheHandler.get<SignMandateCache>('mandates', body.transactionId);
-      const sign: GrpCollectResponseWithRef = cacheHandler.get('completed', body.transactionId);
+      const { granteeId, grantorId, ...mandate } = cacheHandler.get<SignMandate>('mandates', body.bankIdRef);
+      const grantorDetails = req.session.representingBusinessChoices.find(org => org.organizationId === grantorId);
+      const sign: SignCollectResponse = cacheHandler.get('completed', body.bankIdRef);
 
-      const grantorDetails = req.session.representing?.BUSINESS;
-
+      if (!grantorDetails) {
+        throw new HttpException(422, 'Can not find organization for user');
+      }
       if (!mandate || !sign) {
         throw new HttpException(422, 'Can not find BankId sign details');
       }
-
-      if (sign.progressStatus.status !== GrpStatus.Complete) {
+      if (sign.status !== SignStatus.Completed) {
         throw new HttpException(403, 'Mandate is not signed');
       }
 
       const data: CreateMandate = {
         ...mandate,
         grantorDetails: {
-          grantorPartyId: grantorDetails.partyId,
+          grantorPartyId: grantorId,
           name: grantorDetails.organizationName,
           signatoryPartyId: partyId,
         },
         signingInfo: {
-          orderRef: sign.refId,
-          externalTransactionId: sign.transactionId,
+          ...sign,
           completionData: {
-            signature: sign.validationInfo.signature,
-            ocspResponse: sign.validationInfo.ocspResponse ?? '',
-            user: {
-              name: sign.userInfo.displayName,
-              givenName: sign.userInfo.givenName,
-              surname: sign.userInfo.sn,
-              personalNumber: sign.userInfo.tin,
-            },
-            device: {
-              ipAddress: sign.userInfo.ipAddress,
-            },
+            ...sign.completionData,
+            bankIdIssueDate: dayjs(sign.completionData.bankIdIssueDate).format('YYYY-MM-DD'),
+            risk: sign.completionData?.risk ?? 'low',
+            stepUp: sign.completionData.stepUp ?? { mrtd: false },
           },
-          status: sign.progressStatus.status,
         },
         granteeDetails: {
           partyId: granteeId,
@@ -168,22 +121,12 @@ export class MandateController {
       };
 
       const result = await this.apiService.post<MandateDetails, CreateMandate>({ url, data }, req.user);
-      cacheHandler.remove('details', body.transactionId);
-      cacheHandler.remove('completed', body.transactionId);
-      return res.send({
-        message: 'success',
-        data: {
-          granteeDetails: result.data.granteeDetails,
-          grantorDetails: result.data.grantorDetails,
-          activeFrom: result.data.activeFrom,
-          inactiveAfter: result.data.inactiveAfter,
-          id: result.data.id,
-          status: result.data.status,
-        },
-      });
+      cacheHandler.remove('details', body.bankIdRef);
+      cacheHandler.remove('completed', body.bankIdRef);
+      return res.send({ message: 'success', data: result.data });
     } catch (error) {
       logger.error('Error creating mandates: ', error);
-      throw new HttpException(error?.httpCode ?? 500, error?.message ?? 'Error creating mandates');
+      throw new HttpException(500, 'Error creating mandates');
     }
   }
 
