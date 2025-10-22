@@ -24,7 +24,10 @@ export const OnlyTrade: React.FC<{ facility?: InstalledBaseItem }> = ({ facility
   }, [facility]);
 
   return (
-    <article className="grow md:min-w-[338px] max-w-[520px] min-h-[165px] bg-background-content p-16 lg:my-0 mb-24">
+    <article
+      className="grow md:min-w-[338px] max-w-[520px] min-h-[165px] bg-background-content p-16 lg:my-0 mb-24"
+      data-cy="only-trade"
+    >
       <div>
         <p className="text-small whitespace-normal">
           {t('statistics:onlyTrade.text', {

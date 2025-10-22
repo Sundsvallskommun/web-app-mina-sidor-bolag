@@ -234,3 +234,26 @@ export const getProductionAgreement: () => ApiResponse<Agreement[]> = () => ({
   ],
   message: 'success',
 });
+
+export const getAgreementOnlyTrade: () => ApiResponse<Agreement[]> = () => ({
+  data: [
+    {
+      customerId: '000001',
+      agreementId: '1',
+      billingId: '000001',
+      category: 'ELECTRICITY_TRADE',
+      description: 'Handelsavtal',
+      facilityId: '111',
+      mainAgreement: true,
+      binding: false,
+      bindingRule: 'Rörligt pris',
+      placementStatus: 'Tillkopplad',
+      netAreaId: 'Sundsvall',
+      siteAddress: 'Storgatan 1',
+      production: false,
+      fromDate: '2025-01-01',
+      active: true,
+    },
+  ],
+  message: 'success',
+});

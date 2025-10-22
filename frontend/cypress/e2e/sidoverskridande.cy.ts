@@ -2,6 +2,10 @@ import { RepresentingMode } from '@interfaces/app';
 import { setIntercepts } from 'cypress/support/e2e';
 
 describe('Sidöverskridande', () => {
+  beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
+  });
+
   it('Set focus to main', () => {
     cy.visit('/');
     cy.contains('h1', 'Aktuell förbrukning och produktion');
