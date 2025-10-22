@@ -1,8 +1,11 @@
 import { getMe } from '../fixtures/getMe';
 import { getPendingInvoices } from '../fixtures/getInvoices';
+import { setIntercepts } from '../support/e2e';
+import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Översikt', () => {
   beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/oversikt');
   });
 

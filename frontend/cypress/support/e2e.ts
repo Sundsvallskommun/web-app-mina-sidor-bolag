@@ -66,5 +66,4 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
 beforeEach(() => {
   cy.setCookie(CookieConsentUtils.defaultCookieConsentName, DEFAULT_COOKIE_VALUE);
   cy.viewport('macbook-16');
-  setIntercepts(representingModeDefault);
 });

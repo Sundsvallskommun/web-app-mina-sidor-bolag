@@ -289,3 +289,69 @@ export const getMe: ApiResponse<User> = {
   },
   message: 'success',
 };
+
+export const getMeOnlyTrade: ApiResponse<User> = {
+  data: {
+    name: 'Förnamn Efternamn',
+    userSettings: {
+      feedbackLifespan: FeedbackLifespan.oneMonth,
+      readNotificationsClearedDate: '2025-01-01',
+    },
+    relations: [
+      {
+        customerNumber: '1',
+        organizationNumber: '5565027223',
+        organizationName: 'Sundsvall Elnät',
+        active: true,
+        moveInDate: '2025-01-01',
+      },
+    ],
+    addresses: [
+      {
+        address: 'Storgatan 1',
+        facilityIds: ['111'],
+      },
+    ],
+    facilities: [
+      {
+        type: 'Elhandel',
+        facilityId: '111',
+        placementId: -2,
+        facilityCommitmentStartDate: '2025-01-01',
+        address: {
+          careOf: 'Förnamn Efternamn',
+          street: 'Storgatan 1',
+          postalCode: '111 22',
+          city: 'SUNDSVALL',
+        },
+        metaData: [
+          {
+            key: 'issmallproduction',
+            value: 'true',
+            type: 'bool',
+            displayName: 'Småskalig produktion',
+          },
+          {
+            key: 'netarea',
+            value: 'Sundsvall tätort',
+            type: 'location',
+            displayName: 'Nätområde',
+          },
+          {
+            key: 'netareaid',
+            value: 'SUV',
+            type: 'location',
+            displayName: 'NätområdesID',
+          },
+          {
+            key: 'siteStatus',
+            value: 'Normal',
+            type: 'string',
+            displayName: 'Sitestatus',
+          },
+        ],
+      },
+    ],
+  },
+  message: 'success',
+};
