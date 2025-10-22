@@ -40,9 +40,15 @@ export const APIS = [
     name: 'simulatorserver',
     version: '2.0',
   },
+  {
+    name: 'myrepresentatives',
+    version: '4.0',
+  },
 ] as const;
 
-export const getApiBase = (name: string) => {
+type ApiName = (typeof APIS)[number]['name'];
+
+export const getApiBase = (name: ApiName) => {
   const api = APIS.find(api => api.name === name);
   return `${api?.name}/${api?.version}`;
 };

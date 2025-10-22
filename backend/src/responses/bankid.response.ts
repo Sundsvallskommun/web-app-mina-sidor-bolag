@@ -1,7 +1,17 @@
-import { QrCode, SignCollectResponse, SignResponse, SignStatus } from '@/interfaces/bankid.interface';
+import {
+  QrCode,
+  SignCollectResponse,
+  SignCompletionData,
+  SignCompletionDataDevice,
+  SignCompletionDataStepUp,
+  SignCompletionDataUser,
+  SignResponse,
+  SignRisk,
+  SignStatus,
+} from '@/interfaces/bankid.interface';
 import { ApiResponse } from '@/services/api.service';
 import { Type } from 'class-transformer';
-import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class Sign implements Pick<SignResponse, 'orderRef' | 'autoStartToken'>, QrCode {
   @IsString()
@@ -11,6 +21,49 @@ export class Sign implements Pick<SignResponse, 'orderRef' | 'autoStartToken'>, 
   @IsString()
   @IsOptional()
   qrCode?: string;
+}
+
+class User implements SignCompletionDataUser {
+  @IsString()
+  personalNumber: string;
+  @IsString()
+  name: string;
+  @IsString()
+  givenName: string;
+  @IsString()
+  surname: string;
+}
+
+class StepUp implements SignCompletionDataStepUp {
+  @IsBoolean()
+  mrtd: boolean;
+}
+
+class Device implements SignCompletionDataDevice {
+  @IsString()
+  ipAddress: string;
+  @IsString()
+  uhi: string;
+}
+export class CompletionData implements SignCompletionData {
+  @ValidateNested()
+  @Type(() => User)
+  user: User;
+  @ValidateNested()
+  @Type(() => Device)
+  device: Device;
+  @ValidateNested()
+  @Type(() => StepUp)
+  stepUp: StepUp;
+  @IsDateString()
+  bankIdIssueDate: string;
+  @IsString()
+  signature: string;
+  @IsString()
+  ocspResponse: string;
+  @IsEnum(SignRisk)
+  @IsOptional()
+  risk: SignRisk;
 }
 
 export class SignCollect implements SignCollectResponse, QrCode {
