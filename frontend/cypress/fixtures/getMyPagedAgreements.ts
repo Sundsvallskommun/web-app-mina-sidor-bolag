@@ -253,7 +253,6 @@ export const getAgreementOnlyTrade: () => ApiResponse<Agreement[]> = () => ({
       production: false,
       fromDate: '2025-01-01',
       active: true,
-      toDate: '',
     },
   ],
   message: 'success',

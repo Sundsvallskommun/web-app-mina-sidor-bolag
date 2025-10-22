@@ -1,8 +1,11 @@
 import { getAgreement, getMyPagedAgreements, getProductionAgreement } from '../fixtures/getMyPagedAgreements';
 import { Agreement } from '../../src/interfaces/agreement';
+import { setIntercepts } from '../support/e2e';
+import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Avtal', () => {
   beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/avtal');
   });
 

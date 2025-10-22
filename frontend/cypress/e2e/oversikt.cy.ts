@@ -5,6 +5,7 @@ import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Översikt', () => {
   beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/oversikt');
   });
 

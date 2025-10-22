@@ -6,9 +6,12 @@ import {
   patchFacilityDelegate,
   postFacilityDelegate,
 } from '../fixtures/getFacilityDelegates';
+import { setIntercepts } from '../support/e2e';
+import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Profil och inställningar', () => {
   beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/profil');
   });
 
