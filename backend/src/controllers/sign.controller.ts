@@ -82,7 +82,7 @@ export class SignController {
   }
 
   @Get('/sign/:ref')
-  @OpenAPI({ summary: 'Get BankID signing. If not completed, returns status. When completed, returns forderRef:result.orderRef' })
+  @OpenAPI({ summary: 'Get BankID signing. If not completed, returns status.' })
   @ResponseSchema(SignCollectApiResponse)
   async check(
     @Req() req: RequestWithUser,
