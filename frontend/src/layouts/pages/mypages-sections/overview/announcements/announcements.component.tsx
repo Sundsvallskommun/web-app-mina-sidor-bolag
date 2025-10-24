@@ -17,7 +17,7 @@ export const announcementsSource: Announcement[] = [
     url: 'https://sundsvallelnat.se/min-anslutning/priser-och-avtalsvillkor/sundsvall-elnat-byter-faktureringssystem',
     groups: [AnnouncementGroup.CUSTOMER_SV_EL],
     image: '/elnat-nytt-faktureringssystem.png',
-    imageAlt: 'Sundsvall Elnät byter faktureringssystem',
+    imageAlt: '',
   },
   {
     id: 1,
@@ -27,7 +27,7 @@ export const announcementsSource: Announcement[] = [
     url: 'https://sundsvallenergi.se/kundservice/nytt-utseende-for-vara-fakturor',
     groups: [AnnouncementGroup.CUSTOMER_SV_ENERGI],
     image: '/seab-nytt-utseende-fakturor.png',
-    imageAlt: 'Nytt utseende på våra fakturor',
+    imageAlt: '',
   },
   {
     id: 2,
@@ -42,7 +42,7 @@ export const announcementsSource: Announcement[] = [
       AnnouncementGroup.PRIVATE,
     ],
     image: '/valkommen-till-nya-mina-sidor.png',
-    imageAlt: 'Välkommen till nya versionen av Mina sidor!',
+    imageAlt: '',
   },
   {
     id: 3,
@@ -52,7 +52,7 @@ export const announcementsSource: Announcement[] = [
     url: 'https://sundsvallelnat.se/stromavbrott/avbrottsersattning-och-skadestand/',
     groups: [AnnouncementGroup.CUSTOMER_SV_EL],
     image: '/avbrottsersattning.png',
-    imageAlt: 'Avbrottsersättning och skadestånd',
+    imageAlt: '',
   },
   {
     id: 4,
@@ -62,7 +62,7 @@ export const announcementsSource: Announcement[] = [
     url: 'https://sundsvallenergi.se/kundservice/fakturor',
     groups: [AnnouncementGroup.CUSTOMER_SV_ENERGI],
     image: '/hardufragor.jpg',
-    imageAlt: 'Har du frågor om din elhandelsfaktura?',
+    imageAlt: '',
   },
   {
     id: 5,
@@ -77,7 +77,7 @@ export const announcementsSource: Announcement[] = [
       AnnouncementGroup.PRIVATE,
     ],
     image: '/kontaktaoss.jpg',
-    imageAlt: 'Kontakta oss',
+    imageAlt: '',
   },
   {
     id: 6,
@@ -87,7 +87,7 @@ export const announcementsSource: Announcement[] = [
     url: '',
     groups: [AnnouncementGroup.CUSTOMER_SV_EL, AnnouncementGroup.CUSTOMER_SV_ENERGI, AnnouncementGroup.PRIVATE],
     image: '/dagsattflytta.jpg',
-    imageAlt: 'Dags att flytta? Vi hjälper dig!',
+    imageAlt: '',
   },
   {
     id: 7,
@@ -97,7 +97,7 @@ export const announcementsSource: Announcement[] = [
     url: '',
     groups: [AnnouncementGroup.CUSTOMER_SV_EL],
     image: '/driftavbrottsavisering.jpg',
-    imageAlt: 'Vill du registrera dig för driftavbrottsavisering?',
+    imageAlt: '',
   },
   {
     id: 8,
@@ -107,7 +107,7 @@ export const announcementsSource: Announcement[] = [
     url: '',
     groups: [AnnouncementGroup.BUSINESS],
     image: '/fjarrkyla.jpg',
-    imageAlt: 'Fjärrkyla',
+    imageAlt: '',
   },
   {
     id: 9,
@@ -117,7 +117,7 @@ export const announcementsSource: Announcement[] = [
     url: '',
     groups: [AnnouncementGroup.BUSINESS],
     image: '/laddning.jpg',
-    imageAlt: 'Laddtjänster för företag och brf',
+    imageAlt: '',
   },
   {
     id: 10,
@@ -127,7 +127,7 @@ export const announcementsSource: Announcement[] = [
     url: 'https://sundsvallenergi.se/laddboxar-for-hemmet/',
     groups: [AnnouncementGroup.CUSTOMER_SV_ENERGI],
     image: '/laddning.jpg',
-    imageAlt: 'Ladda din elbil snabbt och smidigt',
+    imageAlt: '',
   },
 ];
 
@@ -147,7 +147,7 @@ const TemporaryDisturbanceArticle = () => {
     <div className="bg-background-content shadow-50 rounded-cards max-w-[106rem] min-h-[30rem] flex flex-col sm:flex-row sm:min-w-[36rem]">
       <Image
         src="/tillfalligt-uppehall-matvarden-fakturor.png"
-        alt="Tillfälligt uppehåll i visning av mätvärden och fakturor"
+        alt=""
         className="rounded-t-cards sm:rounded-r-0 sm:rounded-l-cards object-cover grow w-full md:max-h-[60vw] sm:w-[32rem] sm:max-w-[35vw]"
       />
       <div className="p-24 flex flex-col gap-16">
