@@ -5,6 +5,7 @@ import { CaseStatusResponse } from '@/data-contracts/casestatus/data-contracts';
 import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { Delegation, InstalledBaseItem } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
+import { SignCollectResponse, SignResponse } from '@/interfaces/bankid.interface';
 
 declare module 'express-session' {
   interface Session {
@@ -26,6 +27,12 @@ declare module 'express-session' {
       addresses?: FacilityAddress[];
       facilities?: InstalledBaseItem[];
       delegations?: Delegation[];
+    };
+    signs: {
+      // eslint-disable-next-line no-explicit-any
+      details: Record<string, any>;
+      pending: Record<string, SignResponse & { startTime: number }>;
+      completed: Record<string, SignCollectResponse>;
     };
   }
 }
