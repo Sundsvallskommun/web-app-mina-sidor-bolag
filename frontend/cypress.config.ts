@@ -22,6 +22,7 @@ export default defineConfig({
     // pass when suddenly the tenth, eleventh, or.. fails.
     chromeWebSecurity: false,
     defaultCommandTimeout: 10000,
+    retries: 5,
     setupNodeEvents(on, config) {
       codeCoverageTask(on, config);
       // It's IMPORTANT to return the config object
