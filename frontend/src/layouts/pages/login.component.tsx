@@ -55,12 +55,16 @@ function Login() {
             break;
           case 'SAML_MISSING_GROUP':
             setErrorMessage(t('common:login.error.missingGroups'));
+            break;
           case 'SAML_MISSING_ATTRIBUTES':
             setErrorMessage(t('common:login.error.missingAttributes'));
+            break;
           case 'MISSING_PERMISSIONS':
             setErrorMessage(t('common:login.error.missingPermissions'));
+            break;
           default:
             setErrorMessage(t('common:login.error.login'));
+            break;
           //
         }
       }

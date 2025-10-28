@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { getMe } from '../fixtures/getMe';
 import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
-import path from 'node:path';
+import path from 'path';
 
 describe('Statistik', () => {
   beforeEach(() => {
