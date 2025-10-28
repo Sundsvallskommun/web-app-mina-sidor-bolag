@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { getMe } from '../fixtures/getMe';
 import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
+import path from 'node:path';
 
 describe('Statistik', () => {
   beforeEach(() => {
@@ -162,7 +163,10 @@ describe('Statistik', () => {
     statisticsDataIntercept();
 
     const downloadsFolder = Cypress.config('downloadsFolder');
-    const exportFileName = `${downloadsFolder}\\Export-${getMe.data.facilities[0].address?.street}-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`;
+    const exportFileName = path.join(
+      downloadsFolder,
+      `Export-${getMe.data.facilities[0].address?.street}-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`
+    );
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.readFile(exportFileName);
