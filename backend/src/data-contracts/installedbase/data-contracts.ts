@@ -57,7 +57,7 @@ export interface Facility {
    * Organization number of the company owning the facility
    * @example "5591628136"
    */
-  businessEngagementOrgId?: string;
+  businessEngagementOrgId: string;
 }
 
 export interface ConstraintViolationProblem {

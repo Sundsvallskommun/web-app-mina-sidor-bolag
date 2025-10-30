@@ -1,8 +1,8 @@
-import { SignResponse } from '@/interfaces/bankid.interface';
+import { SignResponseWithStartTime } from '@/interfaces/bankid.interface';
 import { createHmac } from 'node:crypto';
 
 export class QRGenerator {
-  public createQRData(sign: SignResponse & { startTime: number }): string | null {
+  public createQRData(sign: SignResponseWithStartTime): string | null {
     try {
       const qrTime = Math.floor((Date.now() - sign.startTime) / 1000).toString();
 

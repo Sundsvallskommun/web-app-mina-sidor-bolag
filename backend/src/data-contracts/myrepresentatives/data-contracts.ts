@@ -9,40 +9,176 @@
  * ---------------------------------------------------------------
  */
 
-/** Mandate Template information. Contains details about mandate templates. */
-export interface MandateTemplate {
-  /**
-   * Code for the specific template
-   * @example "bf1a690b-33d6-4a3e-b407-e7346fa1c97c"
-   */
-  code?: string;
-  /**
-   * Title for the specific template
-   * @example "Fullmakt för att göra och hantera anmälan"
-   */
-  title?: string;
-  /**
-   * Description for the specific template
-   * @example "Behörigheten ger fullmaktshavaren rätt att upprätta anmälan, ta del av eget utrymme och ändra uppgifter gällande åtgärden samt på annat sätt företräda byggherren i åtgärder enligt 6 kap. 5 § plan- och byggförordningen (2011:338). Behörigheten omfattar även rätt att upprätta, se och ändra uppgifter gällande start- och slutbesked enligt 10 kap. 3 och 4 §§ plan- och bygglagen (2010:900)."
-   */
-  description?: string;
-}
-
 export interface Problem {
+  title?: string;
+  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
   parameters?: Record<string, object>;
   status?: StatusType;
-  title?: string;
-  detail?: string;
 }
 
 export interface StatusType {
   /** @format int32 */
   statusCode?: number;
   reasonPhrase?: string;
+}
+
+/** Information about the user and the completed order */
+export interface CompletionData {
+  /**
+   * When the BankID was issued
+   * @format date
+   * @example "2020-01-02"
+   */
+  bankIdIssueDate: string;
+  /**
+   * The signature made by the receiving party
+   * @minLength 1
+   * @example "YmFzZTY0LWVuY29kZWQgZGF0YQ=="
+   */
+  signature: string;
+  /**
+   * Online certificate status protocol for the signing order
+   * @minLength 1
+   * @example "YmFzZTY0LWVuY29kZWQgZGF0YQ=="
+   */
+  ocspResponse: string;
+  /**
+   * Indicates the risk level of the order based on data available in the order
+   * @minLength 1
+   * @example "low"
+   */
+  risk: string;
+  /** Information regarding the signing party */
+  user: User;
+  /** Information regarding the device used for the signing order */
+  device: Device;
+  /** Information about possible additional verifications that were part of the signing order */
+  stepUp: StepUp;
+}
+
+/** CreateMandate model */
+export interface CreateMandate {
+  /** GrantorDetails model */
+  grantorDetails: GrantorDetails;
+  /** GranteeDetails model */
+  granteeDetails: GranteeDetails;
+  /**
+   * The date when the mandate becomes effective
+   * @format date
+   * @example "2025-08-01"
+   */
+  activeFrom: string;
+  /**
+   * The date after which the mandate is no longer valid, if not provided it will be set to activeFrom + 36 months
+   * @format date
+   * @example "2025-12-31"
+   */
+  inactiveAfter?: string;
+  /** SigningInfo model */
+  signingInfo: SigningInfo;
+}
+
+/** Information regarding the device used for the signing order */
+export interface Device {
+  /**
+   * Ip address used when the letter was signed
+   * @minLength 1
+   * @example "192.168.1.1"
+   */
+  ipAddress: string;
+  /**
+   * The Unique Hardware Identifier for the user’s device holding the BankID
+   * @minLength 1
+   * @example "OZvYM9VvyiAmG7NA5jU5zqGcVpo="
+   */
+  uhi: string;
+}
+
+/** GranteeDetails model */
+export interface GranteeDetails {
+  /**
+   * PartyId of the grantee
+   * @example "fb2f0290-3820-11ed-a261-0242ac120004"
+   */
+  partyId: string;
+}
+
+/** GrantorDetails model */
+export interface GrantorDetails {
+  /**
+   * The name of the granting organization or person
+   * @example "Ankeborgs Margarinfabrik"
+   */
+  name?: string;
+  /**
+   * The partyId of the issuing organization or person
+   * @example "fb2f0290-3820-11ed-a261-0242ac120002"
+   */
+  grantorPartyId: string;
+  /**
+   * PartyId of the issuing person / signatory
+   * @example "fb2f0290-3820-11ed-a261-0242ac120003"
+   */
+  signatoryPartyId: string;
+}
+
+/** SigningInfo model */
+export interface SigningInfo {
+  /**
+   * Reference for the signing order
+   * @minLength 1
+   * @example "131daac9-16c6-4618-beb0-365768f37288"
+   */
+  orderRef: string;
+  /**
+   * Status of the signing order
+   * @minLength 1
+   * @example "complete"
+   */
+  status: string;
+  /** Information about the user and the completed order */
+  completionData: CompletionData;
+}
+
+/** Information about possible additional verifications that were part of the signing order */
+export interface StepUp {
+  /**
+   * Whether an MRTD check was performed before the order was completed
+   * @example true
+   */
+  mrtd: boolean;
+}
+
+/** Information regarding the signing party */
+export interface User {
+  /**
+   * Personal identity number for the signing party
+   * @minLength 1
+   * @example "200001012384"
+   */
+  personalNumber: string;
+  /**
+   * Full name of the signing party
+   * @minLength 1
+   * @example "John Wick"
+   */
+  name: string;
+  /**
+   * First name of the signing party
+   * @minLength 1
+   * @example "John"
+   */
+  givenName: string;
+  /**
+   * Last name of the signing party
+   * @minLength 1
+   * @example "Wick"
+   */
+  surname: string;
 }
 
 export interface ConstraintViolationProblem {
@@ -64,10 +200,10 @@ export interface ConstraintViolationProblem {
   violations?: Violation[];
   title?: string;
   message?: string;
+  detail?: string;
   /** @format uri */
   instance?: string;
   parameters?: Record<string, object>;
-  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -100,14 +236,14 @@ export interface ThrowableProblem {
     nativeMethod?: boolean;
   }[];
   message?: string;
+  title?: string;
+  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
   parameters?: Record<string, object>;
   status?: StatusType;
-  title?: string;
-  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -131,37 +267,109 @@ export interface Violation {
   message?: string;
 }
 
-/** Mandate information model. */
-export interface Mandate {
-  /** Base response information for the issuer of mandates / authorities */
-  mandateIssuer?: ResponseIssuer;
-  mandateAcquirers?: ResponseAcquirer[];
+/** SearchMandateParameters model */
+export interface SearchMandateParameters {
   /**
-   * If the issuer is an organization or private person
-   * @example "ORGANIZATION"
+   * Page number
+   * @format int32
+   * @min 1
+   * @default 1
+   * @example 1
    */
-  mandateRole?: MandateMandateRoleEnum;
+  page?: number;
   /**
-   * Date when the mandate was issued
+   * Result size per page. Maximum allowed value is dynamically configured
+   * @format int32
+   * @min 1
+   * @example 15
+   */
+  limit?: number;
+  /**
+   * The partyId of the issuing organization or person
+   * @example "fb2f0290-3820-11ed-a261-0242ac120002"
+   */
+  grantorPartyId?: string;
+  /**
+   * PartyId of the grantee
+   * @example "fb2f0290-3820-11ed-a261-0242ac120004"
+   */
+  granteePartyId?: string;
+  /**
+   * PartyId of the issuing person / signatory
+   * @example "fb2f0290-3820-11ed-a261-0242ac120003"
+   */
+  signatoryPartyId?: string;
+}
+
+/**
+ * The sort order direction
+ * @example "ASC"
+ */
+export enum Direction {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
+/** MandateDetails model */
+export interface MandateDetails {
+  /**
+   * Id of the mandate
+   * @example "123e4567-e89b-12d3-a456-426614174000"
+   */
+  id?: string;
+  /** GrantorDetails model */
+  grantorDetails?: GrantorDetails;
+  /** GranteeDetails model */
+  granteeDetails?: GranteeDetails;
+  /**
+   * MunicipalityId where the mandate was created
+   * @example "2281"
+   */
+  municipalityId?: string;
+  /** The namespace in which the mandate is valid */
+  namespace?: string;
+  /**
+   * The date and time when the mandate was created
    * @format date-time
    */
-  issuedDate?: string;
+  created?: string;
   /**
-   * Map of UUIDs to lists of permissions.
-   * @example {"3bfb975d-c2a9-4f16-b8e5-11c22a318fad":[{"code":"db0023d9-3d19-482f-b43c-47e0073484a2"}]}
+   * The date and time when the mandate was changed
+   * @format date-time
+   * @example "2025-11-22T15:30:00+02:00"
    */
-  permissions?: Record<string, Permission[]>;
+  updated?: string;
+  /**
+   * The date when the mandate becomes effective
+   * @format date
+   * @example "2025-01-01"
+   */
+  activeFrom?: string;
+  /**
+   * The date after which the mandate is no longer valid
+   * @format date
+   * @example "2025-12-31"
+   */
+  inactiveAfter?: string;
+  /**
+   * Indicates whether the mandate is active or not
+   * @example "ACTIVE | INACTIVE | EXPIRED | DELETED"
+   */
+  status?: string;
+  /** SigningInfo model */
+  signingInfo?: SigningInfo;
 }
 
-/** Mandate response model */
-export interface MandatesResponse {
-  mandates?: Mandate[];
-  /** Metadata model */
-  _meta?: MetaData;
+/** Paginated response containing a list of mandate details */
+export interface Mandates {
+  /** List of mandates */
+  mandateDetailsList?: MandateDetails[];
+  /** PagingAndSortingMetaData model */
+  _meta?: PagingAndSortingMetaData;
 }
 
-/** Metadata model */
-export interface MetaData {
+/** PagingAndSortingMetaData model */
+export interface PagingAndSortingMetaData {
   /**
    * Current page
    * @format int32
@@ -175,6 +383,12 @@ export interface MetaData {
    */
   limit?: number;
   /**
+   * Displayed objects on current page
+   * @format int32
+   * @example 13
+   */
+  count?: number;
+  /**
    * Total amount of hits based on provided search parameters
    * @format int64
    * @example 98
@@ -186,174 +400,7 @@ export interface MetaData {
    * @example 23
    */
   totalPages?: number;
-}
-
-/**
- * Map of UUIDs to lists of permissions.
- * @example {"3bfb975d-c2a9-4f16-b8e5-11c22a318fad":[{"code":"db0023d9-3d19-482f-b43c-47e0073484a2"}]}
- */
-export interface Permission {
-  /**
-   * Code for the specific permission
-   * @example "bf1a690b-33d6-4a3e-b407-e7346fa1c97c"
-   */
-  code?: string;
-  /**
-   * Description for the specific permission
-   * @example "Fullmakt för att hantera ansökan om strandskyddsdispens"
-   */
-  description?: string;
-}
-
-/** Base response information for the acquirer of mandates / authorities */
-export interface ResponseAcquirer {
-  /**
-   * PartyId for the sole trader or organization
-   * @example "fb2f0290-3820-11ed-a261-0242ac120002"
-   */
-  partyId?: string;
-  /**
-   * Type, private person (pnr) or sole trader / organization (orgnr)
-   * @example "pnr"
-   */
-  type?: string;
-  /** Name of company / person */
-  name?: string;
-  /** LegalId for person, sole trader or organization */
-  legalId?: string;
-}
-
-/** Base response information for the issuer of mandates / authorities */
-export interface ResponseIssuer {
-  /**
-   * PartyId for the sole trader or organization
-   * @example "fb2f0290-3820-11ed-a261-0242ac120002"
-   */
-  partyId?: string;
-  /** Type, private person (pnr) or sole trader / organization (orgnr) */
-  type?: string;
-  /** Name of company / person */
-  name?: string;
-  /** LegalId for person, sole trader or organization */
-  legalId?: string;
-}
-
-/** Simple representation of the JSON Web Key Set (JWKS). */
-export interface Jwks {
-  keys?: Record<string, object>[];
-}
-
-/** Mandate response model */
-export interface AuthoritiesResponse {
-  authorities?: Authority[];
-  /** Metadata model */
-  _meta?: MetaData;
-}
-
-/** Authority information model. */
-export interface Authority {
-  /** Base response information for the issuer of mandates / authorities */
-  authorityIssuer?: ResponseIssuer;
-  authorityAcquirers?: ResponseAcquirer[];
-  /**
-   * If the issuer is an organization or private person
-   * @example "ORGANIZATION"
-   */
-  authorityRole?: AuthorityAuthorityRoleEnum;
-  /**
-   * Reference number intended as a reference between client and third party
-   * @example "MOF1234567890"
-   */
-  referenceNumber?: string;
-  /**
-   * Status of the authority
-   * @example "ACTIVE"
-   */
-  status?: AuthorityStatusEnum;
-  /**
-   * Unique ID for the authority
-   * @example "bf31188a-bfbb-4f23-a60a-89c75d009b53"
-   */
-  id?: string;
-  /** What the authority represents */
-  description?: string;
-  /**
-   * Date when the authority was issued
-   * @format date-time
-   */
-  issuedDate?: string;
-  /**
-   * Date from when the authority is valid
-   * @format date
-   */
-  validFrom?: string;
-  /**
-   * Date to when the authority ceased to be valid
-   * @format date
-   */
-  validTo?: string;
-}
-
-/**
- * If the issuer is an organization or private person
- * @example "ORGANIZATION"
- */
-export enum MandateMandateRoleEnum {
-  PRIVATE = 'PRIVATE',
-  ORGANIZATION = 'ORGANIZATION',
-}
-
-/**
- * If the issuer is an organization or private person
- * @example "ORGANIZATION"
- */
-export enum AuthorityAuthorityRoleEnum {
-  PRIVATE = 'PRIVATE',
-  ORGANIZATION = 'ORGANIZATION',
-}
-
-/**
- * Status of the authority
- * @example "ACTIVE"
- */
-export enum AuthorityStatusEnum {
-  ACTUAL = 'ACTUAL',
-  VALID = 'VALID',
-  HISTORICAL = 'HISTORICAL',
-}
-
-/**
- * Type, private person (pnr) or sole trader / organization (orgnr)
- * @example "pnr"
- */
-export enum GetMandatesParamsMandateIssuerTypeEnum {
-  Pnr = 'pnr',
-  Orgnr = 'orgnr',
-}
-
-/**
- * Type, private person (pnr) or sole trader / organization (orgnr)
- * @example "pnr"
- */
-export enum GetMandatesParamsMandateAcquirerTypeEnum {
-  Pnr = 'pnr',
-  Orgnr = 'orgnr',
-}
-
-/**
- * Type, private person (pnr) or sole trader / organization (orgnr)
- * @example "pnr"
- */
-export enum GetAuthoritiesParamsAuthorityIssuerTypeEnum {
-  Pnr = 'pnr',
-  Orgnr = 'orgnr',
-}
-
-/**
- * Type, private person (pnr) or sole trader / organization (orgnr)
- * @example "pnr"
- */
-export enum GetAuthoritiesParamsAuthorityAcquirerTypeEnum {
-  Pnr = 'pnr',
-  Orgnr = 'orgnr',
+  sortBy?: string[];
+  /** The sort order direction */
+  sortDirection?: Direction;
 }

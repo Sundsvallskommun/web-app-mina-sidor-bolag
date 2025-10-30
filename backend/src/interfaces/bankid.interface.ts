@@ -111,6 +111,96 @@ export interface SignResponse {
   qrStartSecret: string;
 }
 
+export type SignResponseWithStartTime = SignResponse & { startTime: number };
+export interface SignCompletionData {
+  /**
+   * Information related to the user.
+   */
+  user: SignCompletionDataUser;
+  /**
+   * Information related to the device.
+   */
+  device: SignCompletionDataDevice;
+  /**
+   * Information about additional verifications that were part of the order.
+   */
+  stepUp: SignCompletionDataStepUp;
+  /**
+   * The date the BankID was issued to the user.
+   * The issue date is expressed using ISO 8601 date format with a UTC time zone offset.
+   */
+  bankIdIssueDate?: string;
+  /**
+   * The signature that is the result of the order.
+   * This is a base 64 encoded XML signature string.
+   */
+  signature: string;
+  /**
+   * The OCSP response.
+   * This is a base 64 encoded OCSP response.
+   *
+   * The OCSP response is signed by a certificate that has the same issuer as the certificate being verified, and it has a nonce extension. The nonce is calculated as:
+   * - SHA-1 hash over the base 64 XML signature encoded as UTF-8.
+   * - 12 random bytes added after the hash.
+   * The nonce is 32 bytes (20 + 12).
+   */
+  ocspResponse: string;
+  /**
+   * Indicates the risk level of the order based on data available in the order.
+   * The possible values have the following meaning:
+   * - low: No or low risk identified in the available order data.
+   * - moderate: Might require further action, investigation or follow-up by you based on the order data.
+   * - high: The order should be blocked or cancelled by you and needs further action, investigation or follow-up. This value will only be returned if you have requested to have the risk assement to be provided, but not supplied a risk condition.
+   * This is only returned if requested in the order, and it may be absent if the risk could not be calculated.
+   *
+   * If you have sent the correct endUserIp and additional data, a risk indication with the value "high" means there are signs of the channel binding being compromised, or other highly concerning circumstances.
+   */
+  risk?: SignRisk;
+}
+
+export interface SignCompletionDataUser {
+  /**
+   * The ID number of the user.
+   * The ID number is a Swedish national identification number (12 digits).
+   */
+  personalNumber: string;
+  /**
+   * The first and last name of the user.
+   */
+  name: string;
+  /**
+   * The first name of the user.
+   */
+  givenName: string;
+  /**
+   * The surname of the user.
+   */
+  surname: string;
+}
+export interface SignCompletionDataDevice {
+  /**
+   * The IP address of the user agent as the BankID server sees it.
+   * When an order is started with autoStartToken you can check that it matches the IP you service observes to ensure session fixation.
+   */
+  ipAddress: string;
+  /**
+   * Unique hardware identifier for the user's device.
+   */
+  uhi: string;
+}
+
+export interface SignCompletionDataStepUp {
+  /**
+   * Whether an MRTD check was performed before the order was completed.
+   */
+  mrtd: boolean;
+}
+
+export enum SignRisk {
+  Low = 'low',
+  Moderate = 'moderate',
+  High = 'high',
+}
 export interface SignCancelBody {
   /**
    * A reference ID for an order.
@@ -141,12 +231,17 @@ export interface SignCollectResponse {
    * When an order is pending, you should use the hintCode to provide the user with details and instructions and keep calling collect until order fails or is complete.
    */
   hintCode?: string;
+  /**
+   * Information about the user and the completed order.
+   * The user has completed the order. completionData includes the signature, user information and the OCSP response. You should verify user information to proceed. You should retain completion data for future reference, compliance and audit purposes.
+   */
+  completionData?: SignCompletionData;
 }
 
 export enum SignStatus {
   Pending = 'pending',
   Failed = 'failed',
-  Completed = 'completed',
+  Completed = 'complete',
 }
 
 export interface QrCode {
