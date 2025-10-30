@@ -119,16 +119,6 @@ export const announcementsSource: Announcement[] = [
     image: '/laddning.jpg',
     imageAlt: '',
   },
-  {
-    id: 10,
-    title: 'Ladda din elbil snabbt och smidigt',
-    text: 'En laddbox ger dig snabbare och säkrare laddning. I vårt sortiment av produkter för laddning i hemmet erbjuder vi laddboxar och installationstjänst i samarbete mellan Sundsvall Energi och Mer.',
-    urlTitle: 'Läs mer',
-    url: 'https://sundsvallenergi.se/laddboxar-for-hemmet/',
-    groups: [AnnouncementGroup.CUSTOMER_SV_ENERGI],
-    image: '/laddning.jpg',
-    imageAlt: '',
-  },
 ];
 
 const getRepresentingGroup = (representingEntity?: RepresentingEntity): AnnouncementGroup => {
