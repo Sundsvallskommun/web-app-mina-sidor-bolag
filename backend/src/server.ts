@@ -1,6 +1,5 @@
 import App from '@/app';
 import { BusinessEngagementController } from '@controllers/business-engagement.controller';
-import { FeedbackController } from '@controllers/feedback.controller';
 import { IndexController } from '@controllers/index.controller';
 import { NotificationsController } from '@controllers/notifications.controller';
 import { RepresentingController } from '@controllers/representing.controller';
@@ -25,7 +24,6 @@ const app = new App([
   RepresentingController,
   UserController,
   NotificationsController,
-  FeedbackController,
   InvoicesController,
   HealthController,
   ContactSettingsController,
