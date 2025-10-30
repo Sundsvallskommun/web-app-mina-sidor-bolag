@@ -7,6 +7,12 @@
   "isRepresentative": "(ombud)",
   "unknown": "Okänd",
   "address": "Adress",
+  "minutes_zero": "{{count}} minuter",
+  "minutes_one": "{{count}} minut",
+  "minutes_other": "{{count}} minuter",
+  "seconds_zero": "{{count}} sekunder",
+  "seconds_one": "{{count}} sekund",
+  "seconds_other": "{{count}} sekunder",
   "unknownAddress": "Okänd adress",
   "logIn": "Logga in",
   "overview": "översikt",
@@ -35,5 +41,8 @@
     "title": "Du är nu utloggad",
     "description": "Tack för besöket! Du kan alltid läsa mer hos <LinkOne href=\\\"https://sundsvallenergi.se/\\\">Sundsvall Energi</LinkOne> eller <LinkTwo href=\\\"https://sundsvallelnat.se/\\\">Sundsvall Elnät</LinkTwo>",
     "loginAgain": "Logga in igen"
-  }
+  },
+  "left": "kvar",
+  "ok": "Okej",
+  "close": "Stäng"
 }

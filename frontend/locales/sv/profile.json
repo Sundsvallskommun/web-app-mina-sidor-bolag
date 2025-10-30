@@ -9,6 +9,8 @@
   "name": "Namn",
   "noName": "Inget namn tillagt",
   "noAddress": "Ingen adress tillagd",
+  "validDuration": "Giltighetstid",
+  "validDurationInformation": "Välj start- och slutdatum. Fullmakten kan gälla i högst 36 månader.",
   "phone": "Mobilnummer",
   "editPhone": "Ändra mobilnummer",
   "noPhone": "Inget mobilnummer tillagt",
@@ -16,6 +18,7 @@
   "noEmail": "Ingen e-postadress tillagd",
   "editEmail": "Ändra e-postadress",
   "personNumber": "Personnummer",
+  "personNumberLayout": "ååååmmddxxxx",
   "invalidPersonNumber": "Ogiltigt personnummer",
   "addPersonNumber": "Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).",
   "error": {
@@ -45,5 +48,52 @@
     },
     "conflictError": "Du kan inte delegera dig själv.",
     "eligibleForFacility": "Behörig för anläggning: "
-  }
+  },
+  "mandates": {
+    "title": "Fullmakter",
+    "description": "Hantera dina fullmakter för Mina sidor.",
+    "information": "Du kan ge en person behörighet till dina avtal och dokument. Kom ihåg att du själv måste ta bort behörigheten om personen inte längre ska kunna se eller göra ändringar i avtalen.",
+    "bullets": {
+      "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Mina sidor, men inte ge ut fullmakt till någon annan.",
+      "2": "Personen måste ha ett svenskt personnummer.",
+      "3": "Du ansvarar själv för att ta bort behörigheten när den inte längre behövs.",
+      "4": "Sundsvalls Energi och Sundsvalls Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
+    },
+    "create_information": "Skapa en ny fullmakt för en person som du vill ska representera ditt företag. Fullmakten gäller endast på Sundsvalls Energis och Sundsvalls Elnäts Mina sidor.",
+    "properties": {
+      "grantee": "Fullmaktshavare",
+      "activeFrom": "Gäller från och med",
+      "inactiveAfter": "Gäller till och med",
+      "agree": "Jag har läst och godkänner villkoren"
+    },
+    "success": {
+      "save": "Fullmakt signerad och skapad!"
+    },
+    "errors": {
+      "save": "Kunde inte skapa fullmakt",
+      "409": "En fullmakt är redan utställd på den personen",
+      "500": "Ett okänt fel uppstod. Försök igen.",
+      "grantee": "Fyll i en fullmaktshavare.",
+      "activeFrom": "Ange ett startdatum.",
+      "inactiveAfter": {
+        "tooBig": "Fullmakten får ej gälla längre än 3 år",
+        "tooSmall": "Fullmakten måste sluta gälla senare än startdatum"
+      },
+      "agree": "Godkänn villkoren."
+    },
+    "agreement": {
+      "bullets": {
+        "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Sundsvalls Energis och Sundsvalls Elnäts Mina sidor.",
+        "2": "Du ansvarar själv för att ta bort behörigheten när den inte längre behövs.",
+        "3": "Sundsvalls Energi och Sundsvalls Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
+      },
+      "bankid": {
+        "title": "Signera fullmakt",
+        "information": "Jag godkänner härmed följande fullmakt till *Mina sidor* för *Sundsvalls Energi* och *Sundsvall Elnät*.\n\n| | |\n|-|-|\n| *Företag*: | {{org}} |\n| *Fullmaktstagare:* | {{name}} |\n| *Startdatum:* | {{startdate}} |\n| *Slutdatum:* | {{enddate}} |\n"
+      }
+    }
+  },
+  "mandates.create_new": "Skapa ny fullmakt",
+  "signWithBankId": "Signera med BankID",
+  "autoclose": "Den här rutan kommer stänga automatiskt om"
 }
