@@ -15,6 +15,7 @@ import {
 } from '../fixtures/getMeasurementData';
 import { getDelegates } from '../fixtures/getDelegates';
 import { getFacilityDelegates } from '../fixtures/getFacilityDelegates';
+import { getCitizen } from '../fixtures/getCitizen';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -50,6 +51,8 @@ export const setIntercepts = (
 
   cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');
   cy.intercept('GET', '**/api/facility/delegations', getFacilityDelegates()).as('getFacilityDelegates');
+
+  cy.intercept('**/api/citizen/**', getCitizen).as('getCitizen');
 
   const fromDate = dayjs().subtract(1, 'year').startOf('month').toISOString();
   const toDate = dayjs().endOf('month').toISOString();

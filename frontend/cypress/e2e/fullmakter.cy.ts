@@ -6,7 +6,7 @@ import {
   getStatusPending,
   getStatusSigning,
 } from '../fixtures/getBankId';
-import { getMandate, getOrgMandates } from '../fixtures/getMandate';
+import { getMandate } from '../fixtures/getMandate';
 import { setIntercepts } from '../support/e2e';
 
 describe('Profil och inställningar', () => {
@@ -14,12 +14,6 @@ describe('Profil och inställningar', () => {
     setIntercepts(RepresentingMode.BUSINESS);
 
     cy.visit('/foretag/profil');
-  });
-
-  it("doesn't show mandates for companies without signing rights", () => {
-    setIntercepts(RepresentingMode.BUSINESS, 1);
-    cy.visit('/foretag/profil');
-    cy.get('[data-cy="mandate-disclosure"]').should('not.exist');
   });
 
   it('creates a new mandate', () => {
@@ -86,36 +80,5 @@ describe('Profil och inställningar', () => {
     cy.get('[data-cy="create-mandate-modal"]').within(() => {
       cy.contains('Fullmakt signerad och skapad!');
     });
-  });
-
-  it('lists and deletes mandates', () => {
-    cy.intercept('DELETE', '**/api/mandates/**', { data: true }).as('getOrgMandates');
-    cy.get('[data-cy="mandate-disclosure"]').click();
-    cy.get('[data-cy="list-mandate-active"]').find('ul').children().should('have.length', 1);
-    cy.get('[data-cy="list-mandate-inactive"]').find('ul').children().should('have.length', 3);
-    cy.get('[data-cy="list-mandate-inactive"]')
-      .find('ul')
-      .children()
-      .each(($el, index) => {
-        const labels = ['Inaktiv', 'Borttagen', 'Löpt ut'];
-        cy.wrap($el).get('[data-cy="mandate-list-inactive-label"]').should('include.text', labels[index]);
-      });
-
-    const newMandates = { ...getOrgMandates };
-    newMandates.data[0].status = 'DELETED';
-    cy.intercept('GET', '**/api/mandates/org', newMandates).as('getNewMandates');
-    cy.get('[data-cy="list-mandate-active"]').find('[data-cy="mandate-list-delete.button"]').click();
-    cy.get('article.sk-modal-dialog').within(() => {
-      cy.get('h1').should('have.text', 'Ta bort fullmakt för Grantee Testsson');
-      cy.get('button').contains('Ta bort fullmakt').click();
-    });
-    cy.get('.sk-snackbar-text').contains('Fullmakten togs bort');
-    cy.wait('@getNewMandates');
-    cy.get('[data-cy="list-mandate-inactive"]').find('ul').children().should('have.length', 4);
-    cy.get('[data-cy="list-mandate-active"]')
-      .find('ul')
-      .children()
-      .first()
-      .should('have.text', 'Inga fullmakter funna');
   });
 });

@@ -18,7 +18,7 @@ const main = async () => {
   await execAsync(`curl -o "${SWAGGER_PATH}" ${process.env.NEXT_PUBLIC_API_URL}/swagger.json`);
 
   await execAsync(
-    `npx swagger-typescript-api generate --path "${SWAGGER_PATH}" --output "${PATH_TO_OUTPUT_DIR}/backend" --modular --no-client `
+    `npx swagger-typescript-api generate --path "${SWAGGER_PATH}" --output "${PATH_TO_OUTPUT_DIR}/backend" --modular --no-client`
   );
 
   fs.unlinkSync(SWAGGER_PATH);

@@ -12,7 +12,7 @@ import { BankIdSignFooter } from './components/bankid-sign-footer.component';
 interface BankIdSignModalProps {
   open: boolean;
   data: Sign;
-  onClose: (status?: SignCollect['progressStatus']['status']) => void;
+  onClose: (status?: SignCollect['status']) => void;
   onRenew: () => void;
 }
 
@@ -22,8 +22,8 @@ export const BankIdSignModal: React.FC<BankIdSignModalProps> = (props) => {
   const { open, onClose, data, onRenew } = props;
 
   const [qrCode, setQrCode] = useState<string | undefined>();
-  const [status, setStatus] = useState<SignCollect['progressStatus']['status'] | undefined>();
-  const [hintCode, setHintCode] = useState<string | null>(null);
+  const [status, setStatus] = useState<SignCollect['status'] | undefined>();
+  const [hintCode, setHintCode] = useState<string | undefined>();
 
   // NOTE: Time in seconds until
   const [timeLeft, setTimeLeft] = useState<number>(INITIAL_TIME);
@@ -36,15 +36,15 @@ export const BankIdSignModal: React.FC<BankIdSignModalProps> = (props) => {
 
   const cancel = async () => {
     try {
-      await apiService.post(`/sign/cancel/${data.transactionId}`);
-    } catch {
-      console.error('Failed to cancel BankID signing process');
+      await apiService.post(`/sign/cancel/${data.orderRef}`);
+    } catch (error) {
+      console.error('Failed to cancel BankID signing process', error);
     }
   };
 
-  const handleClose = async (currentstatus?: SignCollect['progressStatus']['status']) => {
+  const handleClose = async (currentstatus?: SignCollect['status']) => {
     const _status = currentstatus ?? status;
-    if (_status === 'PENDING' && data?.transactionId) {
+    if (_status === 'pending' && data?.orderRef) {
       await cancel();
     }
     clearInterval(intervalRef.current!);
@@ -60,62 +60,61 @@ export const BankIdSignModal: React.FC<BankIdSignModalProps> = (props) => {
   useEffect(() => {
     const stop = async () => {
       clearInterval(intervalRef.current!);
-      if (status === 'PENDING' && hintCode === 'outstandingTransaction') {
+      if (status === 'pending' && hintCode === 'outstandingTransaction') {
         await cancel();
-        setStatus('FAILED');
+        setStatus('failed');
         setHintCode('timeout');
       }
     };
     if (!timeLeft) {
       stop();
-    } else if (timeSinceStart > 27 && status === 'PENDING' && hintCode === 'outstandingTransaction') {
+    } else if (timeSinceStart > 27 && status === 'pending' && hintCode === 'outstandingTransaction') {
       renew();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeSinceStart, timeLeft]);
 
   const handleRenew = () => {
     setQrCode(undefined);
-    setHintCode(null);
+    setHintCode(undefined);
     setStatus(undefined);
     setTimeLeft(INITIAL_TIME);
     onRenew();
   };
 
   const checkStatus = () => {
-    if (data?.transactionId) {
+    if (data?.orderRef) {
       apiService
-        .get<SignCollectApiResponse>('/sign/' + data.transactionId)
+        .get<SignCollectApiResponse>('/sign/' + data.orderRef)
         .then(async (response) => {
-          const data = response.data.data;
-          setStatus(data.progressStatus.status);
-          setHintCode(data.progressStatus.substatus);
-          if (data.progressStatus.status === 'PENDING' && data.progressStatus.substatus === 'outstandingTransaction') {
-            setQrCode(data.qrCode);
+          setStatus(response.data.data.status);
+          setHintCode(response.data.data.hintCode);
+          if (response.data.data.status === 'pending' && response.data.data.hintCode === 'outstandingTransaction') {
+            setQrCode(response.data.data.qrCode);
           } else {
             setQrCode(undefined);
           }
-          if (data.progressStatus.status === 'COMPLETE') {
+          if (response.data.data.status === 'complete') {
             setQrCode(undefined);
             clearInterval(intervalRef.current!);
-            handleClose('COMPLETE');
+            handleClose('complete');
           }
-          if (data.progressStatus.status === 'FAILED') {
+          if (response.data.data.status === 'failed') {
             setQrCode(undefined);
             clearInterval(intervalRef.current!);
           }
         })
-        .catch(() => {
-          setStatus('FAILED');
-          setHintCode(null);
+        .catch((e) => {
+          console.log(e);
+          setStatus('failed');
+          setHintCode(undefined);
         });
     }
   };
 
   useEffect(() => {
-    if (open && data.transactionId) {
+    if (open && data.orderRef) {
       setTimeSinceStart(0);
-      setStatus('PENDING');
+      setStatus('pending');
       setQrCode(data.qrCode);
       intervalRef.current = setInterval(() => {
         checkStatus();
@@ -127,20 +126,20 @@ export const BankIdSignModal: React.FC<BankIdSignModalProps> = (props) => {
       clearInterval(intervalRef.current!);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, data.transactionId]);
+  }, [open, data.orderRef]);
 
   return (
     <Modal
       data-cy="bankid-sign-modal"
       className={cx('w-full max-h-full', 'bg-background-100', {
-        ['bg-error-background-100']: status === 'FAILED',
+        ['bg-error-background-100']: status === 'failed',
         ['sm:max-w-[52rem] md:mx-0']: !isDevice,
         ['max-md:w-screen max-md:h-screen max-md:-ml-16 max-md:-mr-16 max-md:rounded-0']: isDevice,
       })}
       show={open && !!data}
       onClose={handleClose}
     >
-      {status === 'FAILED' ? (
+      {status === 'failed' ? (
         <BankIdFail onClose={handleClose} onRetry={handleRenew} hintCode={hintCode} />
       ) : (
         <>

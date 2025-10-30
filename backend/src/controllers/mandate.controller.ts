@@ -10,8 +10,9 @@ import { CreateMandateDto, MandatePaginationDto } from '@/dtos/mandate.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { SignCollectResponse, SignStatus } from '@/interfaces/bankid.interface';
-import { SignMandate } from '@/interfaces/mandates.interface';
+import { SignMandateCache } from '@/interfaces/mandates.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
+import mandateMiddleware from '@/middlewares/mandate.middleware';
 import { MandateApiResponse, MandatesApiResponse } from '@/responses/mandates.response';
 import ApiService, { ApiResponse } from '@/services/api.service';
 import { handleSignCache } from '@/utils/handleSignCache';
@@ -75,6 +76,7 @@ export class MandateController {
 
   @Post('/mandates')
   @OpenAPI({ summary: 'Create new mandate from completed BankId sign' })
+  @UseBefore(mandateMiddleware)
   @ResponseSchema(MandateApiResponse)
   async createMandate(
     @Req() req: RequestWithUser,
@@ -85,13 +87,11 @@ export class MandateController {
     const url = `${this.apiBase}/mandates`;
     try {
       const cacheHandler = handleSignCache(req);
-      const { granteeId, grantorId, ...mandate } = cacheHandler.get<SignMandate>('mandates', body.bankIdRef);
-      const grantorDetails = req.session.representingBusinessChoices.find(org => org.organizationId === grantorId);
-      const sign: SignCollectResponse = cacheHandler.get('completed', body.bankIdRef);
+      const { granteeId, grantorId, ...mandate } = cacheHandler.get<SignMandateCache>('mandates', body.bankIdRef);
 
-      if (!grantorDetails) {
-        throw new HttpException(422, 'Can not find organization for user');
-      }
+      const sign: SignCollectResponse = cacheHandler.get('completed', body.bankIdRef);
+      const grantorDetails = req.session.representing?.BUSINESS;
+
       if (!mandate || !sign) {
         throw new HttpException(422, 'Can not find BankId sign details');
       }
@@ -102,7 +102,7 @@ export class MandateController {
       const data: CreateMandate = {
         ...mandate,
         grantorDetails: {
-          grantorPartyId: grantorId,
+          grantorPartyId: grantorDetails.partyId,
           name: grantorDetails.organizationName,
           signatoryPartyId: partyId,
         },
@@ -126,7 +126,7 @@ export class MandateController {
       return res.send({ message: 'success', data: result.data });
     } catch (error) {
       logger.error('Error creating mandates: ', error);
-      throw new HttpException(500, 'Error creating mandates');
+      throw new HttpException(error?.httpCode ?? 500, error?.message ?? 'Error creating mandates');
     }
   }
 

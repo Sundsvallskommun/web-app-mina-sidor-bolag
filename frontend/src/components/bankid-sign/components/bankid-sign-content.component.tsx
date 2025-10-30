@@ -7,7 +7,7 @@ import { TimeLeft } from './timeleft.component';
 import { useTranslation } from 'react-i18next';
 
 interface BankIdSignContentProps {
-  hintCode: string | null;
+  hintCode?: string;
   showQrCode?: boolean;
   qrCode?: string;
   timeLeft: number;

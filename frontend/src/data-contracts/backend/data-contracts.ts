@@ -10,34 +10,8 @@
  * ---------------------------------------------------------------
  */
 
-export interface PersonEngagement {
-  organizationNumber: string | null;
-  name: string | null;
-  isAuthorizedSignatory?: boolean | null;
-  isSoleTrader?: boolean | null;
-}
-
-export interface BusinessEngagementsApiResponse {
-  data: PersonEngagement[];
-  message: string;
-}
-
-export interface LegalEntityAdress {
-  addressArea: string | null;
-  adressNumber: string | null;
-  city: string | null;
-  postalCode: string | null;
-  municipality: string | null;
-  county: string | null;
-}
-
-export interface BusinessInformation {
-  address: LegalEntityAdress;
-}
-
-export interface BusinessInformationApiResponse {
-  data: BusinessInformation;
-  message: string;
+export interface FeedbackDto {
+  body: string;
 }
 
 export interface CreateReadNotificationsDto {
@@ -50,37 +24,8 @@ export interface RepresentsDto {
   mode?: 'PRIVATE' | 'BUSINESS' | 0 | 1;
 }
 
-export interface ContactSettingChannel {
-  contactMethod: string;
-  destination: string;
-  disabled?: boolean;
-  alias: string;
-}
-
-export interface Meta {
-  page: number;
-  limit: number;
-  count: number;
-  totalRecords: number;
-  totalPages: number;
-  sortBy: string[];
-  sortDirection: 'ASC' | 'DESC';
-}
-
-export interface ContactSetting {
-  id: string;
-  partyId: string;
-  contactChannels: ContactSettingChannel[];
-  created: string;
-  modified: string;
-  virtual: boolean;
-  alias: string;
-  municipalityId: string;
-}
-
-export interface UpdateContactSettingsDto {
-  id: string;
-  contactChannels: ContactSettingChannel[];
+export interface PatchUserSettingsDto {
+  feedbackLifespan: 'untilRemoved' | 'oneMonth' | 'twoWeeks';
 }
 
 export interface ClientContactSettingNotifications {
@@ -106,11 +51,11 @@ export interface ClientContactSetting {
   name?: string;
   email?: string | null;
   phone?: string | null;
-  address?: ClientContactSettingAddress | null;
-  notifications?: ClientContactSettingNotifications;
-  decicionsAndDocuments?: ClientContactSettingDecicionsAndDocuments;
-  virtual?: boolean;
-  alias?: string | null;
+  address?: ClientContactSettingAddress[] | null;
+  notifications?: ClientContactSettingNotifications[];
+  decicionsAndDocuments?: ClientContactSettingDecicionsAndDocuments[];
+  virtual: boolean;
+  alias: string | null;
   municipalityId?: string | null;
   modified?: string;
 }
@@ -139,36 +84,64 @@ export interface Rule {
   attributeValue: string;
 }
 
-export interface RepresentingPrivateEntity {
+export interface Sign {
+  orderRef: string;
+  autoStartToken: string;
+  qrCode?: string;
+}
+
+export interface User {
+  personalNumber: string;
   name: string;
-  personNumber?: string;
-  information?: Information;
+  givenName: string;
+  surname: string;
 }
 
-export interface RepresentingBusinessEntity {
-  organizationName: string;
-  organizationNumber: string;
-  isAuthorizedSignatory?: boolean;
-  information: Information;
+export interface StepUp {
+  mrtd: boolean;
 }
 
-export interface Information {
-  address: ClientContactSettingAddress;
+export interface Device {
+  ipAddress: string;
+  uhi: string;
 }
 
-export interface RepresentingEntity {
-  BUSINESS?: RepresentingBusinessEntity;
-  PRIVATE?: RepresentingPrivateEntity;
-  mode: 'PRIVATE' | 'BUSINESS' | 0 | 1;
+export interface CompletionData {
+  user: User;
+  device: Device;
+  stepUp: StepUp;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  bankIdIssueDate: string;
+  signature: string;
+  ocspResponse: string;
+  risk?: 'low' | 'moderate' | 'high';
 }
 
-export interface ClientRepresentingApiResponse {
-  data: RepresentingEntity;
+export interface SignCollect {
+  orderRef: string;
+  status: 'pending' | 'failed' | 'complete';
+  hintCode: string;
+  qrCode?: string;
+}
+
+export interface SignApiResponse {
+  data: Sign;
   message: string;
 }
 
-export interface PatchUserSettingsDto {
-  feedbackLifespan: 'untilRemoved' | 'oneMonth' | 'twoWeeks';
+export interface SignCollectApiResponse {
+  data: SignCollect;
+  message: string;
+}
+
+export interface Meta {
+  page: number;
+  limit: number;
+  count: number;
+  totalRecords: number;
+  totalPages: number;
+  sortBy: string[];
+  sortDirection: 'ASC' | 'DESC';
 }
 
 export interface Grantor {
@@ -181,84 +154,32 @@ export interface Grantee {
   partyId: string;
 }
 
-export interface MandatePart {
-  name: string;
-  personNumber?: number;
-}
-
-export interface CompletionDataUser {
-  personalNumber: string;
-  name?: string;
-  givenName: string;
-  surname: string;
-}
-
-export interface CompletionDataDevice {
-  ipAddress: string;
-  uhi: string;
-}
-
-export interface CompletionData {
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  bankIdIssueDate: string;
-  signature: string;
-  ocspResponse: string;
-  risk?: string;
-  user: CompletionDataUser;
-  device: CompletionDataDevice;
-}
-
 export interface SigningInfo {
   orderRef: string;
-  status: 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'PENDING';
+  status: 'pending' | 'failed' | 'complete';
   completionData: CompletionData;
 }
 
-export interface MandateDefaults {
-  id: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created?: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  updated?: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  activeFrom: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  inactiveAfter?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DELETED';
-}
-
 export interface Mandate {
+  id: string;
   grantorDetails?: Grantor;
   granteeDetails?: Grantee;
-  id: string;
+  municipalityId?: string;
+  namespace?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created?: string;
+  created: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  updated?: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  activeFrom: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  inactiveAfter?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DELETED';
-}
-
-export interface MandatePopulated {
-  grantee: MandatePart;
-  grantor: MandatePart;
-  id: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created?: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  updated?: string;
+  updated: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DELETED';
+  signingInfo: SigningInfo;
 }
 
 export interface MandatesApiResponse {
-  data: Mandate[];
+  data: any[];
   message: string;
   page: number;
   limit: number;
@@ -270,12 +191,7 @@ export interface MandatesApiResponse {
 }
 
 export interface MandateApiResponse {
-  data: Mandate;
-  message: string;
-}
-
-export interface PopulatedMandatesApiResponse {
-  data: MandatePopulated[];
+  data: any;
   message: string;
   page: number;
   limit: number;
@@ -310,70 +226,27 @@ export interface MandatePaginationDto {
 }
 
 export interface CreateMandateDto {
-  transactionId: string;
+  bankIdRef: string;
+}
+
+export interface SignWeb {
+  deviceIdentifier?: string;
+  referringDomain?: string;
+  userAgent?: string;
 }
 
 export interface SignDto {
-  visible: string;
-  format: 'PLAIN_TEXT' | 'MARKDOWN' | 'HTML';
+  userVisibleData: string;
+  userVisibleDataFormat: 'plaintext' | 'simpleMarkdownV1';
+  web?: SignWeb;
   details?: object;
 }
 
 export interface SignMandateDto {
-  visible: string;
-  format: 'PLAIN_TEXT' | 'MARKDOWN' | 'HTML';
+  userVisibleData: string;
+  userVisibleDataFormat: 'plaintext' | 'simpleMarkdownV1';
+  web?: SignWeb;
   mandate: SignMandateDetails;
-}
-
-export interface Sign {
-  transactionId: string;
-  autoStartToken: string;
-  qrCode?: string;
-}
-
-export interface SubjectIdentifier {
-  value: string;
-  type: 'TIN' | 'EMAIL';
-}
-
-export interface User {
-  subjectIdentifier: SubjectIdentifier;
-  displayName?: string;
-  givenName: string;
-  sn: string;
-  tin: string;
-  ipAddress: string;
-}
-
-export interface Status {
-  status: 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'PENDING';
-  substatus: string | null;
-  message: string;
-}
-
-export interface ValidationInfo {
-  signature: string;
-  signatureFormat: 'xmldsig' | 'pkcs7' | 'jws';
-  ocspResponse?: string;
-}
-
-export interface SignCollect {
-  progressStatus: Status;
-  attributes?: object;
-  userInfo?: User;
-  validationInfo?: ValidationInfo;
-  transactionId: string;
-  qrCode?: string;
-}
-
-export interface SignApiResponse {
-  data: Sign;
-  message: string;
-}
-
-export interface SignCollectApiResponse {
-  data: SignCollect;
-  message: string;
 }
 
 export interface Citizen {
@@ -385,53 +258,4 @@ export interface Citizen {
 export interface CitizenApiResponse {
   data: Citizen;
   message: string;
-}
-
-export interface MetaData {
-  key: string;
-  value: string;
-}
-
-export interface Event {
-  logKey?: string;
-  type: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'ACCESS' | 'EXECUTE' | 'CANCEL' | 'DROP';
-  municipalityId?: string;
-  message?: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  expires?: string | null;
-  owner: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created?: string;
-  historyReference?: string | null;
-  sourceType?: string | null;
-  metadata: MetaData[];
-}
-
-export interface SortObject {
-  unsorted?: boolean;
-  empty?: boolean;
-  sorted?: boolean;
-}
-
-export interface PageableObject {
-  unpaged?: boolean;
-  offset?: number;
-  sort: SortObject;
-  paged?: boolean;
-  pageNumber?: number;
-  pageSize?: number;
-}
-
-export interface PagedEvents {
-  totalPages?: number;
-  totalElements?: number;
-  size?: number;
-  content: Event[];
-  number?: number;
-  sort: SortObject;
-  first?: boolean;
-  last?: boolean;
-  numberOfElements?: number;
-  pageable: PageableObject;
-  empty?: boolean;
 }
