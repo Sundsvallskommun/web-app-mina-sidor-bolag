@@ -40,7 +40,7 @@ const defaultOptions = {
 const get = <T>(url: string, options?: { [key: string]: unknown }) =>
   axios.get<T>(apiURL(url), { ...defaultOptions, ...options });
 
-const post = <T>(url: string, data: unknown = undefined, options?: { [key: string]: unknown }) => {
+const post = <T, D = unknown>(url: string, data?: D, options?: { [key: string]: unknown }) => {
   return axios.post<T>(apiURL(url), data, { ...defaultOptions, ...options });
 };
 
@@ -48,11 +48,11 @@ const remove = <T>(url: string, options?: { [key: string]: unknown }) => {
   return axios.delete<T>(apiURL(url), { ...defaultOptions, ...options });
 };
 
-const patch = <T>(url: string, data: unknown = undefined, options?: { [key: string]: unknown }) => {
+const patch = <T, D = unknown>(url: string, data?: D, options?: { [key: string]: unknown }) => {
   return axios.patch<T>(apiURL(url), data, { ...defaultOptions, ...options });
 };
 
-const put = <T>(url: string, data: unknown = undefined, options?: { [key: string]: unknown }) => {
+const put = <T, D = unknown>(url: string, data?: D, options?: { [key: string]: unknown }) => {
   return axios.put<T>(apiURL(url), data, { ...defaultOptions, ...options });
 };
 

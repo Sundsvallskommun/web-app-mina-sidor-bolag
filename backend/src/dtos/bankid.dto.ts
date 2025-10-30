@@ -6,13 +6,13 @@ import { SignMandateDetails } from './mandate.dto';
 export class SignWeb implements SignWebType {
   @IsString()
   @IsOptional()
-  deviceIdentifier: string;
+  deviceIdentifier?: string;
   @IsString()
   @IsOptional()
-  referringDomain: string;
+  referringDomain?: string;
   @IsString()
   @IsOptional()
-  userAgent: string;
+  userAgent?: string;
 }
 
 export class SignDto implements Omit<SignBody, 'endUserIp'> {
