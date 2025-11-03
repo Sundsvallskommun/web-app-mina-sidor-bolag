@@ -12,8 +12,6 @@ import { IsDateString, IsInt, IsOptional, IsString, ValidateNested } from 'class
 
 export class SignMandateDetails implements SignMandate {
   @IsString()
-  grantorId: string;
-  @IsString()
   granteeId: string;
   @IsDateString()
   activeFrom: string;

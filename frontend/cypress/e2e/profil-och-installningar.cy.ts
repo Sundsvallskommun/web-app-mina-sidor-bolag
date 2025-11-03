@@ -198,4 +198,8 @@ describe('Profil och inställningar', () => {
     cy.get('[data-cy="remove-facility-delegate-button"]').should('exist').click({ multiple: true });
     cy.get('.sk-dialog-buttons > .sk-btn-primary').should('have.text', 'Ta bort').click();
   });
+
+  it('does not show mandates as private', () => {
+    cy.get('[data-cy="mandate-disclosure"]').should('not.exist');
+  });
 });

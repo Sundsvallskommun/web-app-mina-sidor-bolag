@@ -11,9 +11,8 @@ import {
   SignResponseWithStartTime,
   SignStatus,
 } from '@/interfaces/bankid.interface';
-import { SignMandate } from '@/interfaces/mandates.interface';
+import { SignMandateCache } from '@/interfaces/mandates.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
-import mandateMiddleware from '@/middlewares/mandate.middleware';
 import { Sign, SignApiResponse, SignCollectApiResponse } from '@/responses/bankid.response';
 import { ApiResponse } from '@/services/api.service';
 import BankIdApiService from '@/services/bankid-api.service';
@@ -33,12 +32,17 @@ export class SignController {
   private readonly initiateSign = async (req: RequestWithUser, body: Omit<SignBody, 'endUserIp'>): Promise<Sign> => {
     const endUserIp = req.ip;
     const { personNumber } = req.user;
+
     const data: SignBody = {
       endUserIp,
       requirement: {
         personalNumber: NODE_ENV === 'development' ? BANK_ID_DEV_PERSONAL_NUMBER : personNumber,
       },
       ...body,
+      web: {
+        ...body?.web,
+        referringDomain: req.headers.host?.split(':')[0],
+      },
     };
     try {
       const response = await this.apiService.post<SignResponse, SignBody>({
@@ -79,7 +83,6 @@ export class SignController {
   }
 
   @Post('/sign/mandate')
-  @UseBefore(mandateMiddleware)
   @OpenAPI({ summary: 'Initiate BankID signing process' })
   @ResponseSchema(SignApiResponse)
   async signMandate(
@@ -88,12 +91,12 @@ export class SignController {
     @Res() res: Response<SignApiResponse>,
   ): Promise<Response<SignApiResponse>> {
     const { mandate, ...rest } = body;
-
+    const grantorId = req.session.representing?.BUSINESS?.partyId;
     try {
       const cacheHandler = handleSignCache(req);
       const response = await this.initiateSign(req, rest);
 
-      cacheHandler.set<SignMandate>('mandates', response.orderRef, mandate);
+      cacheHandler.set<SignMandateCache>('mandates', response.orderRef, { ...mandate, grantorId });
 
       return res.send({ message: 'success', data: response });
     } catch (error) {

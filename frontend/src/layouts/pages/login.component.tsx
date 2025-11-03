@@ -1,9 +1,11 @@
 'use client';
 
+import { NextLink } from '@sk-web-gui/next';
 import { Button, FormErrorMessage, Icon } from '@sk-web-gui/react';
 import { ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { CardElevated } from '../../components/cards/card-elevated.component';
 import { RepresentingMode } from '../../interfaces/app';
 import { CenterDiv } from '../../layouts/center-div.component';
@@ -11,13 +13,12 @@ import { EntryLayout } from '../../layouts/entry-layout.component';
 import Main from '../../layouts/main.component';
 import { appURL } from '../../utils/app-url';
 import { getAdjustedPathname, getRepresentingModeRoute } from '../../utils/representingModeRoute';
-import { Trans, useTranslation } from 'react-i18next';
-import { NextLink } from '@sk-web-gui/next';
 
 function Login() {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState('');
   const searchParams = useSearchParams();
+
   const { t } = useTranslation(['common', 'organization']);
 
   const isLoggedOut = searchParams?.get('loggedout') === '';
