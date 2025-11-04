@@ -10,10 +10,6 @@
  * ---------------------------------------------------------------
  */
 
-export interface FeedbackDto {
-  body: string;
-}
-
 export interface CreateReadNotificationsDto {
   caseId: string;
 }
@@ -154,18 +150,19 @@ export interface Grantee {
   partyId: string;
 }
 
+export interface MandatePart {
+  name: string;
+  personNumber?: string;
+}
+
 export interface SigningInfo {
   orderRef: string;
   status: "pending" | "failed" | "complete";
   completionData: CompletionData;
 }
 
-export interface Mandate {
+export interface MandateDefaults {
   id: string;
-  grantorDetails?: Grantor;
-  granteeDetails?: Grantee;
-  municipalityId?: string;
-  namespace?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   created: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
@@ -175,11 +172,43 @@ export interface Mandate {
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
   status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
+}
+
+export interface Mandate {
+  grantorDetails?: Grantor;
+  granteeDetails?: Grantee;
+  municipalityId?: string;
+  namespace?: string;
   signingInfo: SigningInfo;
+  id: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  created: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  updated: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  activeFrom: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  inactiveAfter?: string;
+  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
+}
+
+export interface MandatePopulated {
+  grantee: MandatePart;
+  grantor: MandatePart;
+  id: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  created: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  updated: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  activeFrom: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  inactiveAfter?: string;
+  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
 }
 
 export interface MandatesApiResponse {
-  data: any[];
+  data: Mandate[];
   message: string;
   page: number;
   limit: number;
@@ -191,7 +220,19 @@ export interface MandatesApiResponse {
 }
 
 export interface MandateApiResponse {
-  data: any;
+  data: Mandate;
+  message: string;
+  page: number;
+  limit: number;
+  count: number;
+  totalRecords: number;
+  totalPages: number;
+  sortBy: string[];
+  sortDirection: "ASC" | "DESC";
+}
+
+export interface PopulatedMandatesApiResponse {
+  data: MandatePopulated[];
   message: string;
   page: number;
   limit: number;

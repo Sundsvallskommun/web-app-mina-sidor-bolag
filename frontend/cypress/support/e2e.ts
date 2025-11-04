@@ -1,6 +1,5 @@
 import '@cypress/code-coverage/support';
 
-import { RepresentingMode } from '@interfaces/app';
 import { CookieConsentUtils } from '@sk-web-gui/react';
 import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
@@ -18,6 +17,8 @@ import {
 import { getDelegates } from '../fixtures/getDelegates';
 import { getFacilityDelegates } from '../fixtures/getFacilityDelegates';
 import { getCitizen } from '../fixtures/getCitizen';
+import { getOrgMandates } from 'cypress/fixtures/getMandate';
+import { RepresentingMode } from '@interfaces/app';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -43,7 +44,8 @@ export const setIntercepts = (representingMode: RepresentingMode = representingM
   cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');
   cy.intercept('GET', '**/api/facility/delegations', getFacilityDelegates()).as('getFacilityDelegates');
 
-  cy.intercept('**/api/citizen/**', getCitizen).as('getCitizen');
+  cy.intercept('GET', '**/api/citizen/**', getCitizen).as('getCitizen');
+  cy.intercept('GET', '**/api/mandates/org', getOrgMandates).as('getOrgMandates');
 
   const fromDate = dayjs().subtract(1, 'year').startOf('month').toISOString();
   const toDate = dayjs().endOf('month').toISOString();
