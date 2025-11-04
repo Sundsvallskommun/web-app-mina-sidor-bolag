@@ -64,15 +64,23 @@
       "grantee": "Fullmaktshavare",
       "activeFrom": "Gäller från och med",
       "inactiveAfter": "Gäller till och med",
-      "agree": "Jag har läst och godkänner villkoren"
+      "agree": "Jag har läst och godkänner villkoren",
+      "status": {
+        "ACTIVE": "Aktiv",
+        "EXPIRED": "Löpt ut",
+        "DELETED": "Borttagen",
+        "INACTIVE": "Inaktiv"
+      }
     },
     "success": {
-      "save": "Fullmakt signerad och skapad!"
+      "save": "Fullmakt signerad och skapad!",
+      "delete": "Fullmakten togs bort"
     },
     "errors": {
-      "save": "Kunde inte skapa fullmakt",
       "409": "En fullmakt är redan utställd på den personen",
       "500": "Ett okänt fel uppstod. Försök igen.",
+      "save": "Kunde inte skapa fullmakt",
+      "delete": "Kunde inte ta bort fullmakt",
       "grantee": "Fyll i en fullmaktshavare.",
       "activeFrom": "Ange ett startdatum.",
       "inactiveAfter": {
@@ -95,5 +103,15 @@
   },
   "mandates.create_new": "Skapa ny fullmakt",
   "signWithBankId": "Signera med BankID",
-  "autoclose": "Den här rutan kommer stänga automatiskt om"
+  "autoclose": "Den här rutan kommer stänga automatiskt om",
+  "mandates.signedBy": "Signerad av {{name}} {{date}}",
+  "mandates.validUntil": "Giltighetstid",
+  "mandates.activeMandates": "Aktuella fullmakter",
+  "mandates.activeMandatesDescription": "Här ser du företagets aktuella fullmakter. Du kan när som ta bort fullmakten.",
+  "mandates.inactiveMandates": "Avslutade fullmakter",
+  "mandates.inactiveMandatesDescription": "Här ser du fullmakter som företaget har haft.",
+  "mandates.deleteMandate": "Ta bort fullmakt",
+  "mandates.deleteMandateFor": "Ta bort fullmakt för {{name}}",
+  "mandates.deleteMandateInfo": "Om du tar bort fullmakten har {{name}} inte längre behörighet att företräda företaget på Mina sidor.",
+  "mandates.noMandates": "Inga fullmakter funna"
 }
