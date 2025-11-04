@@ -5,7 +5,7 @@ import {
   PagingAndSortingMetaData,
 } from '@/data-contracts/myrepresentatives/data-contracts';
 import { SignCollectResponse, SignStatus } from '@/interfaces/bankid.interface';
-import { MandateStatus } from '@/interfaces/mandates.interface';
+import { MandatePopulated as MandatePopulatedType, MandateStatus, MandateUser } from '@/interfaces/mandates.interface';
 import { ApiResponse } from '@/services/api.service';
 import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
@@ -27,6 +27,14 @@ export class Grantee implements GranteeDetails {
   partyId: string;
 }
 
+export class MandatePart implements MandateUser {
+  @IsString()
+  name: string;
+  @IsString()
+  @IsOptional()
+  personNumber?: string;
+}
+
 export class SigningInfo implements SignCollectResponse {
   @IsString()
   orderRef: string;
@@ -37,9 +45,23 @@ export class SigningInfo implements SignCollectResponse {
   completionData;
 }
 
-export class Mandate implements MandateDetails {
+class MandateDefaults implements Pick<MandateDetails, 'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status'> {
   @IsString()
   id: string;
+  @IsDateString()
+  created?: string;
+  @IsDateString()
+  updated?: string;
+  @IsDateString()
+  activeFrom?: string;
+  @IsDateString()
+  @IsOptional()
+  inactiveAfter?: string;
+  @IsEnum(MandateStatus)
+  status?: string;
+}
+
+export class Mandate extends MandateDefaults implements MandateDetails {
   @ValidateNested()
   @Type(() => Grantor)
   @IsOptional()
@@ -54,31 +76,39 @@ export class Mandate implements MandateDetails {
   @IsString()
   @IsOptional()
   namespace?: string;
-  @IsDateString()
-  created?: string;
-  @IsDateString()
-  updated?: string;
-  @IsDateString()
-  activeFrom?: string;
-  @IsDateString()
-  @IsOptional()
-  inactiveAfter?: string;
-  @IsEnum(MandateStatus)
-  status?: string;
   @ValidateNested()
   @Type(() => SigningInfo)
   signingInfo?: SigningInfo;
 }
 
+export class MandatePopulated extends MandateDefaults implements MandatePopulatedType {
+  @ValidateNested()
+  @Type(() => MandatePart)
+  grantee: MandateUser;
+  @ValidateNested()
+  @Type(() => MandatePart)
+  grantor: MandateUser;
+}
+
 export class MandatesApiResponse extends Meta implements ApiResponse<MandateDetails[]>, PagingAndSortingMetaData {
   @ValidateNested({ each: true })
+  @Type(() => Mandate)
   data: MandateDetails[];
   @IsString()
   message: string;
 }
 export class MandateApiResponse extends Meta implements ApiResponse<MandateDetails> {
   @ValidateNested()
+  @Type(() => Mandate)
   data: MandateDetails;
+  @IsString()
+  message: string;
+}
+
+export class PopulatedMandatesApiResponse extends Meta implements ApiResponse<MandatePopulatedType[]>, PagingAndSortingMetaData {
+  @ValidateNested({ each: true })
+  @Type(() => MandatePopulated)
+  data: MandatePopulatedType[];
   @IsString()
   message: string;
 }

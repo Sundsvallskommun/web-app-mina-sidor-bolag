@@ -1,4 +1,5 @@
 import CountdownTimer from '@components/countdown/countdown-timer.component';
+import { useApi } from '@services/api-service';
 import { Button, Icon, Modal } from '@sk-web-gui/react';
 import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -9,8 +10,13 @@ interface CreateMandateSuccessProps {
 }
 
 export const CreateMandateSuccess: React.FC<CreateMandateSuccessProps> = ({ onClose }) => {
+  const { refetch } = useApi({ url: '/mandates/org', method: 'get' });
   const { t } = useTranslation();
   const [time, setTime] = useState<number>(10);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   useEffect(() => {
     if (time === 0) {

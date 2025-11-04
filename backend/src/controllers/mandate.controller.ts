@@ -1,5 +1,6 @@
 import { MUNICIPALITY_ID, NAMESPACE } from '@/config';
 import { getApiBase } from '@/config/api-config';
+import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import {
   CreateMandate,
   MandateDetails,
@@ -10,10 +11,10 @@ import { CreateMandateDto, MandatePaginationDto } from '@/dtos/mandate.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { SignCollectResponse, SignStatus } from '@/interfaces/bankid.interface';
-import { SignMandateCache } from '@/interfaces/mandates.interface';
+import { MandatePopulated, SignMandateCache } from '@/interfaces/mandates.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
 import mandateMiddleware from '@/middlewares/mandate.middleware';
-import { MandateApiResponse, MandatesApiResponse } from '@/responses/mandates.response';
+import { MandateApiResponse, MandatesApiResponse, PopulatedMandatesApiResponse } from '@/responses/mandates.response';
 import ApiService, { ApiResponse } from '@/services/api.service';
 import { handleSignCache } from '@/utils/handleSignCache';
 import { logger } from '@/utils/logger';
@@ -27,6 +28,7 @@ import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 export class MandateController {
   private readonly apiService = new ApiService();
   private readonly apiBase = `${getApiBase('myrepresentatives')}/${MUNICIPALITY_ID}/${NAMESPACE}`;
+  private readonly citizenApiBase = `${getApiBase('citizen')}/${MUNICIPALITY_ID}`;
 
   @Get('/mandates/personal')
   @OpenAPI({ summary: 'Get all mandates given to me' })
@@ -51,23 +53,59 @@ export class MandateController {
     }
   }
 
-  @Get('/mandates/org/:partyid')
-  @OpenAPI({ summary: 'Get all mandates for an organization' })
-  @ResponseSchema(MandatesApiResponse)
+  @Get('/mandates/org')
+  @OpenAPI({ summary: 'Get all mandates for current organization' })
+  @ResponseSchema(PopulatedMandatesApiResponse)
   async getOrgMandates(
     @Req() req: RequestWithUser,
-    @Param('partyid') id: string,
     @QueryParams() queryParams: MandatePaginationDto,
-    @Res() res: Response<MandatesApiResponse>,
-  ): Promise<Response<MandatesApiResponse>> {
+    @Res() res: Response<PopulatedMandatesApiResponse>,
+  ): Promise<Response<PopulatedMandatesApiResponse>> {
     const url = `${this.apiBase}/mandates`;
+    const partyId = req.session.representing.BUSINESS?.partyId;
+    if (!partyId) {
+      throw new HttpException(400, 'Not representing an organization');
+    }
     const params: SearchMandateParameters = {
       ...queryParams,
-      grantorPartyId: id,
+      grantorPartyId: partyId,
     };
     try {
       const result = await this.apiService.get<Mandates>({ url, params }, req.user);
-      return res.send({ message: 'success', ...result.data._meta, data: result.data.mandateDetailsList });
+      const mandates: MandatePopulated[] = [];
+
+      for (let mandate of result.data.mandateDetailsList) {
+        try {
+          const grantorDetails = this.apiService.get<CitizenExtended>(
+            { url: `${this.citizenApiBase}/${mandate.grantorDetails.signatoryPartyId}` },
+            req.user,
+          );
+          const granteeDetails = this.apiService.get<CitizenExtended>(
+            { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}` },
+            req.user,
+          );
+          const granteePersonNumber = this.apiService.get<string>(
+            { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}/personnumber` },
+            req.user,
+          );
+          const mandateDetails = await Promise.all([grantorDetails, granteeDetails, granteePersonNumber]);
+          mandates.push({
+            id: mandate.id,
+            activeFrom: mandate.activeFrom,
+            inactiveAfter: mandate.inactiveAfter,
+            created: mandate.created,
+            status: mandate.status,
+            grantor: { name: `${mandateDetails[0].data.givenname} ${mandateDetails[0].data.lastname}` },
+            grantee: {
+              name: `${mandateDetails[1].data.givenname} ${mandateDetails[1].data.lastname}`,
+              personNumber: mandateDetails[2].data,
+            },
+          });
+        } catch (error) {
+          logger.error('Error getting details for mandate', error);
+        }
+      }
+      return res.send({ message: 'success', ...result.data._meta, data: mandates });
     } catch (error) {
       logger.error('Error getting org mandates: ', error);
       throw new HttpException(500, 'Error getting mandates');
