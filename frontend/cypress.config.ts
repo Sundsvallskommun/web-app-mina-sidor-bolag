@@ -20,6 +20,7 @@ export default defineConfig({
     // fetch from real backend instead, resulting in a 401 (since cypress is not
     // authorized). The error occurs seldomly and several tests in a suite may
     // pass when suddenly the tenth, eleventh, or.. fails.
+    experimentalRunAllSpecs: true,
     chromeWebSecurity: false,
     defaultCommandTimeout: 10000,
     retries: 5,

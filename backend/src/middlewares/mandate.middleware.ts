@@ -10,7 +10,7 @@ const mandateMiddleware = async (req: RequestWithUser, res: Response, next: Next
   const body: CreateMandateDto = req.body;
   try {
     const cacheHandler = handleSignCache(req);
-    const { grantorId } = cacheHandler.get<SignMandateCache>('mandates', body.bankIdRef);
+    const { grantorId } = cacheHandler.get<SignMandateCache>('mandates', body.transactionId);
     if (req.session.representing.BUSINESS.partyId === grantorId) {
       next();
     } else {

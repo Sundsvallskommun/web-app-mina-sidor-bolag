@@ -18,7 +18,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | MeasurementData     |     2.0 |
 | MyRepresentatives   |     4.0 |
 
-Appen använder dessutom BankIds öppna api. Se [https://developers.bankid.com/](https://developers.bankid.com/)
+Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 
 ## Utveckling
 
