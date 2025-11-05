@@ -2,11 +2,11 @@ import { Engagement } from '@/data-contracts/businessengagements/data-contracts'
 import { CaseStatusResponse } from '@/data-contracts/casestatus/data-contracts';
 import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { Delegation, InstalledBaseItem } from '@/data-contracts/installedbase/data-contracts';
-import { SignCollectResponse, SignResponseWithStartTime } from '@/interfaces/bankid.interface';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { User } from '@/interfaces/users.interface';
 import { RepresentingEntity } from '../interfaces/representing.interface';
-import { SignMandate, SignMandateCache } from '@/interfaces/mandates.interface';
+import { SignMandateCache } from '@/interfaces/mandates.interface';
+import { GrpCollectResponse, GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
 
 declare module 'express-session' {
   interface Session {
@@ -32,8 +32,8 @@ declare module 'express-session' {
     signs: {
       // eslint-disable-next-line no-explicit-any
       details: Record<string, any>;
-      pending: Record<string, SignResponseWithStartTime>;
-      completed: Record<string, SignCollectResponse>;
+      pending: Record<string, GrpInitiateResponseWithStartTime>;
+      completed: Record<string, GrpCollectResponseWithRef>;
       mandates: Record<string, SignMandateCache>;
     };
   }

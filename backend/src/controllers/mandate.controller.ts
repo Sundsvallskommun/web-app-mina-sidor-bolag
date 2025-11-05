@@ -10,7 +10,7 @@ import {
 import { CreateMandateDto, MandatePaginationDto } from '@/dtos/mandate.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { SignCollectResponse, SignStatus } from '@/interfaces/bankid.interface';
+import { GrpCollectResponseWithRef, GrpStatus } from '@/interfaces/grp.interface';
 import { MandatePopulated, SignMandateCache } from '@/interfaces/mandates.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
 import mandateMiddleware from '@/middlewares/mandate.middleware';
@@ -84,7 +84,7 @@ export class MandateController {
             { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}` },
             req.user,
           );
-          const granteePersonNumber = this.apiService.get<string>(
+          const granteePersonNumber = this.apiService.get<number>(
             { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}/personnumber` },
             req.user,
           );
@@ -125,15 +125,16 @@ export class MandateController {
     const url = `${this.apiBase}/mandates`;
     try {
       const cacheHandler = handleSignCache(req);
-      const { granteeId, grantorId, ...mandate } = cacheHandler.get<SignMandateCache>('mandates', body.bankIdRef);
+      const { granteeId, grantorId, ...mandate } = cacheHandler.get<SignMandateCache>('mandates', body.transactionId);
+      const sign: GrpCollectResponseWithRef = cacheHandler.get('completed', body.transactionId);
 
-      const sign: SignCollectResponse = cacheHandler.get('completed', body.bankIdRef);
       const grantorDetails = req.session.representing?.BUSINESS;
 
       if (!mandate || !sign) {
         throw new HttpException(422, 'Can not find BankId sign details');
       }
-      if (sign.status !== SignStatus.Completed) {
+
+      if (sign.progressStatus.status !== GrpStatus.Complete) {
         throw new HttpException(403, 'Mandate is not signed');
       }
 
@@ -145,13 +146,24 @@ export class MandateController {
           signatoryPartyId: partyId,
         },
         signingInfo: {
-          ...sign,
+          orderRef: sign.refId,
           completionData: {
-            ...sign.completionData,
-            bankIdIssueDate: dayjs(sign.completionData.bankIdIssueDate).format('YYYY-MM-DD'),
-            risk: sign.completionData?.risk ?? 'low',
-            stepUp: sign.completionData.stepUp ?? { mrtd: false },
+            signature: sign.validationInfo.signature,
+            ocspResponse: sign.validationInfo.ocspResponse ?? '',
+            risk: 'low',
+            user: {
+              name: sign.userInfo.displayName,
+              givenName: sign.userInfo.givenName,
+              surname: sign.userInfo.sn,
+              personalNumber: sign.userInfo.tin,
+            },
+            device: {
+              ipAddress: sign.userInfo.ipAddress,
+              uhi: sign.transactionId,
+            },
+            bankIdIssueDate: dayjs().format('YYYY-MM-DD'),
           },
+          status: sign.progressStatus.status,
         },
         granteeDetails: {
           partyId: granteeId,
@@ -159,9 +171,19 @@ export class MandateController {
       };
 
       const result = await this.apiService.post<MandateDetails, CreateMandate>({ url, data }, req.user);
-      cacheHandler.remove('details', body.bankIdRef);
-      cacheHandler.remove('completed', body.bankIdRef);
-      return res.send({ message: 'success', data: result.data });
+      cacheHandler.remove('details', body.transactionId);
+      cacheHandler.remove('completed', body.transactionId);
+      return res.send({
+        message: 'success',
+        data: {
+          granteeDetails: result.data.granteeDetails,
+          grantorDetails: result.data.grantorDetails,
+          activeFrom: result.data.activeFrom,
+          inactiveAfter: result.data.inactiveAfter,
+          id: result.data.id,
+          status: result.data.status,
+        },
+      });
     } catch (error) {
       logger.error('Error creating mandates: ', error);
       throw new HttpException(error?.httpCode ?? 500, error?.message ?? 'Error creating mandates');

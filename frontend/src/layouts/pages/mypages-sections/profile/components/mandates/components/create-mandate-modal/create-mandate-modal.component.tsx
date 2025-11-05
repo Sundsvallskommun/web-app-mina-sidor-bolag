@@ -11,6 +11,8 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
+  CreateMandateDto,
+  MandateApiResponse,
   Sign,
   SignApiResponse,
   SignCollect,
@@ -61,19 +63,16 @@ export const CreateMandateModal: React.FC<CreateMandateModalProps> = ({ open, on
 
   const initiateBankId = (data: Partial<SignMandateDetails>) => {
     const bankidmessage = `# ${t('profile:mandates.agreement.bankid.title')}\n${t('profile:mandates.agreement.bankid.information', { name: watch('name'), org: representingEntity?.BUSINESS?.organizationName, startdate: watch('activeFrom'), enddate: watch('inactiveAfter') })}\n\n+ ${t('profile:mandates.agreement.bullets.1')}\n+ ${t('profile:mandates.agreement.bullets.2')}\n+ ${t('profile:mandates.agreement.bullets.3')}\n`;
-    const userVisibleData = Buffer.from(bankidmessage).toString('base64');
+    const visible = Buffer.from(bankidmessage).toString('base64');
     if (data?.granteeId && data?.activeFrom) {
       apiService
         .post<SignApiResponse, SignMandateDto>('/sign/mandate', {
-          userVisibleData,
-          userVisibleDataFormat: 'simpleMarkdownV1',
+          visible,
+          format: 'MARKDOWN',
           mandate: {
             granteeId: data.granteeId,
             activeFrom: data.activeFrom,
             inactiveAfter: data.inactiveAfter,
-          },
-          web: {
-            userAgent: navigator?.userAgent,
           },
         })
         .then((response) => {
@@ -91,25 +90,27 @@ export const CreateMandateModal: React.FC<CreateMandateModalProps> = ({ open, on
   };
 
   const createMandate = () => {
-    apiService
-      .post('/mandates', { bankIdRef: sign?.orderRef })
-      .then(() => {
-        setSaved(true);
-        setSign(null);
-      })
-      .catch((e: AxiosError) => {
-        setSign(null);
-        setFailCode(e.status ?? 500);
-      });
+    if (sign?.transactionId) {
+      apiService
+        .post<MandateApiResponse, CreateMandateDto>('/mandates', { transactionId: sign.transactionId })
+        .then(() => {
+          setSaved(true);
+          setSign(null);
+        })
+        .catch((e: AxiosError) => {
+          setSign(null);
+          setFailCode(e.status ?? 500);
+        });
+    }
   };
 
-  const handleCloseBankid = (status?: SignCollect['status']) => {
+  const handleCloseBankid = (status?: SignCollect['progressStatus']['status']) => {
     setShowBankId(false);
     switch (status) {
-      case 'complete':
+      case 'COMPLETE':
         createMandate();
         break;
-      case 'failed':
+      case 'FAILED':
         onClose();
         break;
       default:

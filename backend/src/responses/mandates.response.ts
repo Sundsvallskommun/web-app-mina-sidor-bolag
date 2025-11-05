@@ -1,15 +1,17 @@
 import {
+  CompletionData as CompletionDataType,
+  Device,
   GranteeDetails,
   GrantorDetails,
   MandateDetails,
   PagingAndSortingMetaData,
+  User,
 } from '@/data-contracts/myrepresentatives/data-contracts';
-import { SignCollectResponse, SignStatus } from '@/interfaces/bankid.interface';
+import { GrpStatus } from '@/interfaces/grp.interface';
 import { MandatePopulated as MandatePopulatedType, MandateStatus, MandateUser } from '@/interfaces/mandates.interface';
 import { ApiResponse } from '@/services/api.service';
 import { Type } from 'class-transformer';
-import { IsDateString, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { CompletionData } from './bankid.response';
+import { IsDateString, IsEnum, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Meta } from './common.response';
 
 export class Grantor implements GrantorDetails {
@@ -30,27 +32,69 @@ export class Grantee implements GranteeDetails {
 export class MandatePart implements MandateUser {
   @IsString()
   name: string;
+  @IsInt()
+  @IsOptional()
+  personNumber?: number;
+}
+
+class CompletionDataUser implements User {
+  @IsString()
+  personalNumber: string;
   @IsString()
   @IsOptional()
-  personNumber?: string;
+  name?: string;
+  @IsString()
+  @IsOptional()
+  givenName?: string;
+  @IsString()
+  @IsOptional()
+  surname?: string;
 }
 
-export class SigningInfo implements SignCollectResponse {
+class CompletionDataDevice implements Device {
+  @IsString()
+  ipAddress: string;
+  @IsString()
+  uhi: string;
+}
+class CompletionData implements CompletionDataType {
+  @IsDateString()
+  bankIdIssueDate: string;
+  @IsString()
+  signature: string;
+  @IsString()
+  ocspResponse: string;
+  @IsString()
+  @IsOptional()
+  risk?: string;
+  @ValidateNested()
+  @Type(() => CompletionDataUser)
+  user: User;
+  @ValidateNested()
+  @Type(() => CompletionDataDevice)
+  device: Device;
+}
+
+export class SigningInfo {
   @IsString()
   orderRef: string;
-  @IsEnum(SignStatus)
-  status: SignStatus;
+  @IsEnum(GrpStatus)
+  status: GrpStatus;
   @ValidateNested()
   @Type(() => CompletionData)
-  completionData;
+  completionData: CompletionDataType;
 }
 
-class MandateDefaults implements Pick<MandateDetails, 'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status'> {
+class MandateDefaults
+  implements Pick<MandateDetails, 'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status'>
+{
   @IsString()
   id: string;
   @IsDateString()
+  @IsOptional()
   created?: string;
   @IsDateString()
+  @IsOptional()
   updated?: string;
   @IsDateString()
   activeFrom?: string;
@@ -70,15 +114,6 @@ export class Mandate extends MandateDefaults implements MandateDetails {
   @Type(() => Grantee)
   @IsOptional()
   granteeDetails?: GranteeDetails;
-  @IsString()
-  @IsOptional()
-  municipalityId?: string;
-  @IsString()
-  @IsOptional()
-  namespace?: string;
-  @ValidateNested()
-  @Type(() => SigningInfo)
-  signingInfo?: SigningInfo;
 }
 
 export class MandatePopulated extends MandateDefaults implements MandatePopulatedType {
@@ -97,15 +132,18 @@ export class MandatesApiResponse extends Meta implements ApiResponse<MandateDeta
   @IsString()
   message: string;
 }
-export class MandateApiResponse extends Meta implements ApiResponse<MandateDetails> {
+export class MandateApiResponse implements ApiResponse<Mandate> {
   @ValidateNested()
   @Type(() => Mandate)
-  data: MandateDetails;
+  data: Mandate;
   @IsString()
   message: string;
 }
 
-export class PopulatedMandatesApiResponse extends Meta implements ApiResponse<MandatePopulatedType[]>, PagingAndSortingMetaData {
+export class PopulatedMandatesApiResponse
+  extends Meta
+  implements ApiResponse<MandatePopulatedType[]>, PagingAndSortingMetaData
+{
   @ValidateNested({ each: true })
   @Type(() => MandatePopulated)
   data: MandatePopulatedType[];
