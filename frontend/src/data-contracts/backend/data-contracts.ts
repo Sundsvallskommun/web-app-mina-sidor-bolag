@@ -80,56 +80,6 @@ export interface Rule {
   attributeValue: string;
 }
 
-export interface Sign {
-  orderRef: string;
-  autoStartToken: string;
-  qrCode?: string;
-}
-
-export interface User {
-  personalNumber: string;
-  name: string;
-  givenName: string;
-  surname: string;
-}
-
-export interface StepUp {
-  mrtd: boolean;
-}
-
-export interface Device {
-  ipAddress: string;
-  uhi: string;
-}
-
-export interface CompletionData {
-  user: User;
-  device: Device;
-  stepUp: StepUp;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  bankIdIssueDate: string;
-  signature: string;
-  ocspResponse: string;
-  risk?: "low" | "moderate" | "high";
-}
-
-export interface SignCollect {
-  orderRef: string;
-  status: "pending" | "failed" | "complete";
-  hintCode: string;
-  qrCode?: string;
-}
-
-export interface SignApiResponse {
-  data: Sign;
-  message: string;
-}
-
-export interface SignCollectApiResponse {
-  data: SignCollect;
-  message: string;
-}
-
 export interface Meta {
   page: number;
   limit: number;
@@ -152,21 +102,43 @@ export interface Grantee {
 
 export interface MandatePart {
   name: string;
-  personNumber?: string;
+  personNumber?: number;
+}
+
+export interface CompletionDataUser {
+  personalNumber: string;
+  name?: string;
+  givenName?: string;
+  surname?: string;
+}
+
+export interface CompletionDataDevice {
+  ipAddress: string;
+  uhi: string;
+}
+
+export interface CompletionData {
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  bankIdIssueDate: string;
+  signature: string;
+  ocspResponse: string;
+  risk?: string;
+  user: CompletionDataUser;
+  device: CompletionDataDevice;
 }
 
 export interface SigningInfo {
   orderRef: string;
-  status: "pending" | "failed" | "complete";
+  status: "COMPLETE" | "FAILED" | "CANCELLED" | "PENDING";
   completionData: CompletionData;
 }
 
 export interface MandateDefaults {
   id: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created: string;
+  created?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  updated: string;
+  updated?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
@@ -177,14 +149,11 @@ export interface MandateDefaults {
 export interface Mandate {
   grantorDetails?: Grantor;
   granteeDetails?: Grantee;
-  municipalityId?: string;
-  namespace?: string;
-  signingInfo: SigningInfo;
   id: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created: string;
+  created?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  updated: string;
+  updated?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
@@ -197,9 +166,9 @@ export interface MandatePopulated {
   grantor: MandatePart;
   id: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created: string;
+  created?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  updated: string;
+  updated?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
@@ -222,13 +191,6 @@ export interface MandatesApiResponse {
 export interface MandateApiResponse {
   data: Mandate;
   message: string;
-  page: number;
-  limit: number;
-  count: number;
-  totalRecords: number;
-  totalPages: number;
-  sortBy: string[];
-  sortDirection: "ASC" | "DESC";
 }
 
 export interface PopulatedMandatesApiResponse {
@@ -267,27 +229,70 @@ export interface MandatePaginationDto {
 }
 
 export interface CreateMandateDto {
-  bankIdRef: string;
-}
-
-export interface SignWeb {
-  deviceIdentifier?: string;
-  referringDomain?: string;
-  userAgent?: string;
+  transactionId: string;
 }
 
 export interface SignDto {
-  userVisibleData: string;
-  userVisibleDataFormat: "plaintext" | "simpleMarkdownV1";
-  web?: SignWeb;
+  visible: string;
+  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
   details?: object;
 }
 
 export interface SignMandateDto {
-  userVisibleData: string;
-  userVisibleDataFormat: "plaintext" | "simpleMarkdownV1";
-  web?: SignWeb;
+  visible: string;
+  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
   mandate: SignMandateDetails;
+}
+
+export interface Sign {
+  transactionId: string;
+  autoStartToken: string;
+  qrCode?: string;
+}
+
+export interface SubjectIdentifier {
+  value: string;
+  type: "TIN" | "EMAIL";
+}
+
+export interface User {
+  subjectIdentifier: SubjectIdentifier;
+  displayName?: string;
+  givenName: string;
+  sn: string;
+  tin: string;
+  ipAddress: string;
+}
+
+export interface Status {
+  status: "COMPLETE" | "FAILED" | "CANCELLED" | "PENDING";
+  substatus: string | null;
+  message: string;
+}
+
+export interface ValidationInfo {
+  signature: string;
+  signatureFormat: "xmldsig" | "pkcs7" | "jws";
+  ocspResponse?: string;
+}
+
+export interface SignCollect {
+  progressStatus: Status;
+  attributes?: object;
+  userInfo?: User;
+  validationInfo?: ValidationInfo;
+  transactionId: string;
+  qrCode?: string;
+}
+
+export interface SignApiResponse {
+  data: Sign;
+  message: string;
+}
+
+export interface SignCollectApiResponse {
+  data: SignCollect;
+  message: string;
 }
 
 export interface Citizen {

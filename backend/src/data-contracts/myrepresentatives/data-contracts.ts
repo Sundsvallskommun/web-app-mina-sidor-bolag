@@ -48,16 +48,15 @@ export interface CompletionData {
   ocspResponse: string;
   /**
    * Indicates the risk level of the order based on data available in the order
-   * @minLength 1
    * @example "low"
    */
-  risk: string;
+  risk?: string;
   /** Information regarding the signing party */
   user: User;
   /** Information regarding the device used for the signing order */
   device: Device;
   /** Information about possible additional verifications that were part of the signing order */
-  stepUp: StepUp;
+  stepUp?: StepUp;
 }
 
 /** CreateMandate model */
@@ -150,7 +149,7 @@ export interface StepUp {
    * Whether an MRTD check was performed before the order was completed
    * @example true
    */
-  mrtd: boolean;
+  mrtd?: boolean;
 }
 
 /** Information regarding the signing party */
@@ -163,22 +162,19 @@ export interface User {
   personalNumber: string;
   /**
    * Full name of the signing party
-   * @minLength 1
    * @example "John Wick"
    */
-  name: string;
+  name?: string;
   /**
    * First name of the signing party
-   * @minLength 1
    * @example "John"
    */
-  givenName: string;
+  givenName?: string;
   /**
    * Last name of the signing party
-   * @minLength 1
    * @example "Wick"
    */
-  surname: string;
+  surname?: string;
 }
 
 export interface ConstraintViolationProblem {
@@ -299,6 +295,8 @@ export interface SearchMandateParameters {
    * @example "fb2f0290-3820-11ed-a261-0242ac120003"
    */
   signatoryPartyId?: string;
+  /** List of mandate statuses */
+  statuses?: string[];
 }
 
 /**
