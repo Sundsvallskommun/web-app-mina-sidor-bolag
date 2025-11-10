@@ -44,11 +44,9 @@ class CompletionDataUser implements User {
   @IsOptional()
   name?: string;
   @IsString()
-  @IsOptional()
-  givenName?: string;
+  givenName: string;
   @IsString()
-  @IsOptional()
-  surname?: string;
+  surname: string;
 }
 
 class CompletionDataDevice implements Device {
