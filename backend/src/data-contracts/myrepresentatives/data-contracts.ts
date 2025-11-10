@@ -33,7 +33,7 @@ export interface CompletionData {
    * @format date
    * @example "2020-01-02"
    */
-  bankIdIssueDate: string;
+  bankIdIssueDate?: string;
   /**
    * The signature made by the receiving party
    * @minLength 1
@@ -42,10 +42,9 @@ export interface CompletionData {
   signature: string;
   /**
    * Online certificate status protocol for the signing order
-   * @minLength 1
    * @example "YmFzZTY0LWVuY29kZWQgZGF0YQ=="
    */
-  ocspResponse: string;
+  ocspResponse?: string;
   /**
    * Indicates the risk level of the order based on data available in the order
    * @example "low"
@@ -91,10 +90,9 @@ export interface Device {
   ipAddress: string;
   /**
    * The Unique Hardware Identifier for the user’s device holding the BankID
-   * @minLength 1
    * @example "OZvYM9VvyiAmG7NA5jU5zqGcVpo="
    */
-  uhi: string;
+  uhi?: string;
 }
 
 /** GranteeDetails model */
@@ -134,6 +132,12 @@ export interface SigningInfo {
    */
   orderRef: string;
   /**
+   * External transactionId
+   * @minLength 1
+   * @example "87b53852-df66-4eab-bed1-873f927a2dcc"
+   */
+  externalTransactionId: string;
+  /**
    * Status of the signing order
    * @minLength 1
    * @example "complete"
@@ -167,14 +171,16 @@ export interface User {
   name?: string;
   /**
    * First name of the signing party
+   * @minLength 1
    * @example "John"
    */
-  givenName?: string;
+  givenName: string;
   /**
    * Last name of the signing party
+   * @minLength 1
    * @example "Wick"
    */
-  surname?: string;
+  surname: string;
 }
 
 export interface ConstraintViolationProblem {
