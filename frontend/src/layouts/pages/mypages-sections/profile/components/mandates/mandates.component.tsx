@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CreateMandateModal } from './components/create-mandate-modal/create-mandate-modal.component';
+import { ListMandates } from './components/list-mandates/list-mandates.component';
 
 export const Mandates: React.FC = () => {
   const [showCreate, setShowCreate] = useState(false);
@@ -48,6 +49,7 @@ export const Mandates: React.FC = () => {
           >
             {t('profile:mandates.create_new')}
           </Button>
+          <ListMandates />
         </div>
       </div>
     </Disclosure>
