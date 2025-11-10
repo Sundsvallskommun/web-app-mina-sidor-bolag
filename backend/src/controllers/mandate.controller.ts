@@ -13,7 +13,6 @@ import { MandateApiResponse, MandatesApiResponse, PopulatedMandatesApiResponse }
 import ApiService, { ApiResponse } from '@/services/api.service';
 import { handleSignCache } from '@/utils/handleSignCache';
 import { logger } from '@/utils/logger';
-import dayjs from 'dayjs';
 import { Response } from 'express';
 import { Body, Controller, Delete, Get, Param, Post, QueryParams, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
@@ -136,10 +135,10 @@ export class MandateController {
         },
         signingInfo: {
           orderRef: sign.refId,
+          externalTransactionId: sign.transactionId,
           completionData: {
             signature: sign.validationInfo.signature,
             ocspResponse: sign.validationInfo.ocspResponse ?? '',
-            risk: 'low',
             user: {
               name: sign.userInfo.displayName,
               givenName: sign.userInfo.givenName,
@@ -148,9 +147,7 @@ export class MandateController {
             },
             device: {
               ipAddress: sign.userInfo.ipAddress,
-              uhi: sign.transactionId,
             },
-            bankIdIssueDate: dayjs().format('YYYY-MM-DD'),
           },
           status: sign.progressStatus.status,
         },

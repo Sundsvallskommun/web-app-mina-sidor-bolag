@@ -42,7 +42,7 @@ export const APIS = [
   },
   {
     name: 'myrepresentatives',
-    version: '4.0',
+    version: '4.2',
   },
 ] as const;
 
