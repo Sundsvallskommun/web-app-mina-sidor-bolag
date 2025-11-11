@@ -47,5 +47,5 @@ export class MandatePaginationDto implements SearchMandateParameters {
 
 export class CreateMandateDto {
   @IsString()
-  bankIdRef: string;
+  transactionId: string;
 }
