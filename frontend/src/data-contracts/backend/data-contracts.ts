@@ -108,8 +108,8 @@ export interface MandatePart {
 export interface CompletionDataUser {
   personalNumber: string;
   name?: string;
-  givenName?: string;
-  surname?: string;
+  givenName: string;
+  surname: string;
 }
 
 export interface CompletionDataDevice {

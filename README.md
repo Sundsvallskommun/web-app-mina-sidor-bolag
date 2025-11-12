@@ -16,7 +16,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Installedbase       |     3.1 |
 | Agreement           |     4.1 |
 | MeasurementData     |     2.0 |
-| MyRepresentatives   |     4.0 |
+| MyRepresentatives   |     4.2 |
 
 Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 
