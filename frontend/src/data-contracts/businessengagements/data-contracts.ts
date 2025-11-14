@@ -383,21 +383,19 @@ export interface BusinessEngagementsResponse {
 
 /** Represents a persons business engagement. */
 export interface Engagement {
-  /**
-   * Name of the organization
-   * @example "Styrbjörns båtar"
-   */
-  organizationName?: string;
-  /**
-   * Organization number, may also be personal number in case of enskild firma
-   * @example "2021005448"
-   */
-  organizationNumber?: string;
-  /**
-   * Unique id for the organization (UUID)
-   * @example "bab17d8b-af38-4531-967c-083f15ca1571"
-   */
-  organizationId?: string;
+  organizationNumber?: string | null;
+  name?: string | null;
+  form?: string | null;
+  formShort?: string | null;
+  roles?: EngagementRole[] | null;
+  isAuthorizedSignatory?: boolean | null;
+  isSoleTrader?: boolean | null;
+  source?: string | null;
+}
+
+export interface EngagementRole {
+  description?: string | null;
+  code?: string | null;
 }
 
 /**
