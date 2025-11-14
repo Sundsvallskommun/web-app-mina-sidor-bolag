@@ -10,6 +10,37 @@
  * ---------------------------------------------------------------
  */
 
+export interface PersonEngagementResponse {
+  organizationNumber: string;
+  name: string;
+  form: string;
+  formShort: string;
+  roles: Role[];
+}
+
+export interface Role {
+  description: string;
+  code: string;
+}
+
+export interface BusinessEngagementsApiResponse {
+  data: PersonEngagementResponse[];
+  message: string;
+}
+
+export interface InformationResponse {
+  information: CompanyLocationWrap;
+}
+
+export interface CompanyLocationWrap {
+  address?: any;
+}
+
+export interface BusinessInformationApiResponse {
+  data: InformationResponse;
+  message: string;
+}
+
 export interface CreateReadNotificationsDto {
   caseId: string;
 }
