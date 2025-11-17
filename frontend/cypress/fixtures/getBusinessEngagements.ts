@@ -4,11 +4,11 @@ import { ApiResponse } from '@services/api-service';
 export const getBusinessEngagements: ApiResponse<Engagement[]> = {
   data: [
     {
-      organizationName: 'Styrbjörns båtar',
+      name: 'Styrbjörns båtar',
       organizationNumber: '2021005448',
     },
     {
-      organizationName: 'Styrbjörns cyklar',
+      name: 'Styrbjörns cyklar',
       organizationNumber: '2021005449',
     },
   ],
