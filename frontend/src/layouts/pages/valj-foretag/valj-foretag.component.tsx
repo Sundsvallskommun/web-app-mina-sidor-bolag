@@ -108,7 +108,7 @@ export default function ValjForetag() {
                       <Table.Body>
                         {engagements?.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((e) => (
                           <Table.Row
-                            key={`org-${e.organizationNumber}-${e.organizationName}`}
+                            key={`org-${e.organizationNumber}-${e.name}`}
                             className={cx('[&>td]:text-base [&>td]:cursor-default', !isMinDesktop && '[&>td]:h-full')}
                             onClick={() => onChoice(e)}
                           >
@@ -119,11 +119,11 @@ export default function ValjForetag() {
                                     onChange={() => ({})}
                                     checked={e.organizationNumber === choosen}
                                     name="entity"
-                                    aria-label={`${e.organizationName}, välj organisation`}
+                                    aria-label={`${e.name}, välj organisation`}
                                   />
                                 </Table.Column>
                                 <Table.Column className="w-[210px]">
-                                  <span className="font-bold">{e.organizationName}</span>
+                                  <span className="font-bold">{e.name}</span>
                                   {e.isRepresentative ? <span className="ml-[.5em]">(ombud)</span> : null}
                                 </Table.Column>
                                 <Table.Column className="max-w-[210px]">{e.organizationNumber}</Table.Column>
@@ -135,12 +135,12 @@ export default function ValjForetag() {
                                     onChange={() => ({})}
                                     checked={e.organizationNumber === choosen}
                                     name="entity"
-                                    aria-label={`${e.organizationName}, välj organisation`}
+                                    aria-label={`${e.name}, välj organisation`}
                                   />
                                   <div className="grow flex flex-col gap-8">
                                     <div className="flex flex-col gap-y-4">
                                       <div className="font-bold">
-                                        <span className="font-bold">{e.organizationName}</span>
+                                        <span className="font-bold">{e.name}</span>
                                         {e.isRepresentative ? <span className="ml-[.5em]">(ombud)</span> : null}
                                       </div>
                                     </div>

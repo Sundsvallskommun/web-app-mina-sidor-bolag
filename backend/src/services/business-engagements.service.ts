@@ -3,16 +3,12 @@ import { BusinessEngagementsResponse, BusinessEngagementsResponseStatusEnum } fr
 import ApiService from './api.service';
 import { getApiBase } from '@/config/api-config';
 
-const getBusinessEngagements = async (partyId, name) => {
-  if (!partyId) {
-    throw new Error('Bad Request: partyId is required');
+const getBusinessEngagements = async (personalNumber: string) => {
+  if (!personalNumber) {
+    throw new Error('Bad Request: personalNumber is required');
   }
-  const apiBase = getApiBase('businessengagements');
-  const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/${partyId}`;
-  const params = {
-    personalName: name,
-    serviceName: 'Mina Sidor',
-  };
+  const apiBase = getApiBase('legalentity');
+  const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/person/${personalNumber}`;
 
   let res: { data: BusinessEngagementsResponse };
   if (ENVIRONMENT === 'TEST' && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER && MOCK_ORGANIZATION_ID) {
@@ -31,7 +27,7 @@ const getBusinessEngagements = async (partyId, name) => {
     };
   } else {
     const apiService = new ApiService();
-    res = await apiService.get<BusinessEngagementsResponse>({ url, params }, { username: 'unknown' });
+    res = await apiService.get<BusinessEngagementsResponse>({ url }, { username: 'unknown' });
   }
   return res.data.engagements ?? [];
 };
