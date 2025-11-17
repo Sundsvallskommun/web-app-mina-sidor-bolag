@@ -21,14 +21,14 @@ interface InformationResponse {
 @Controller()
 export class BusinessEngagementController {
   private apiService = new ApiService();
-  private apiBase = getApiBase('legalentity');
+  private readonly apiBase = getApiBase('legalentity');
 
   @Get('/businessengagements')
   @OpenAPI({ summary: 'Return a list of business engagements for current logged in user' })
   @ResponseSchema(BusinessEngagementsApiResponse)
   @UseBefore(authMiddleware)
   async businessEngagments(@Req() req: RequestWithUser): Promise<ApiResponse<PersonEngagement[]>> {
-    const { personNumber } = req?.user;
+    const { personNumber } = req.user;
 
     if (!personNumber) {
       throw new HttpException(400, 'Bad Request');
@@ -72,7 +72,7 @@ export class BusinessEngagementController {
     }
 
     // NOTE: set representing to session so we can use it to lookup later
-    req.session.representingBusinessChoices = res.data && res.data ? res.data : [];
+    req.session.representingBusinessChoices = res.data ? res.data : [];
 
     return { data: res.data, message: 'success' };
   }
