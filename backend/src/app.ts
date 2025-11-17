@@ -308,102 +308,13 @@ class App {
             }
           }
 
-          const queries = new URLSearchParams(failureRedirect?.searchParams);
-
-          if (queries) {
-            if (req.session.messages?.length > 0) {
-              queries.append('failMessage', req.session.messages[0]);
-            } else {
-              queries.append('failMessage', 'SAML_UNKNOWN_ERROR');
-            }
-          }
-
-          if (failureRedirect) {
-            res.redirect(failureRedirect.toString());
-          } else {
-            res.redirect(successRedirect.toString());
-          }
-        });
-      },
-    );
-
-    this.app.post(
-      `${BASE_URL_PREFIX}/saml/login/callback`,
-      samlLimiter,
-      bodyParser.urlencoded({ extended: false }),
-      (req, res, next) => {
-        const relay = typeof req?.body?.RelayState === 'string' ? JSON.parse(req.body.RelayState) : null;
-
-        let successRedirect;
-        if (
-          typeof relay === 'object' &&
-          relay?.returnTo &&
-          isValidUrl(relay?.returnTo) &&
-          isValidOrigin(relay?.returnTo)
-        ) {
-          successRedirect = relay.returnTo;
-        } else if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
-          successRedirect = req.body.RelayState;
-        } else {
-          successRedirect = SAML_SUCCESS_REDIRECT;
-        }
-
-        let failureRedirect;
-        if (req.session.messages?.length > 0) {
-          failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
-        } else {
-          failureRedirect = successRedirect + `?failMessage=SAML_UNKNOWN_ERROR`;
-        }
-
-        // Authenticate before saving state to session, since otherwise state may be overwritten
-        passport.authenticate(
-          'saml',
-          {
-            failureRedirect,
-            failureMessage: true,
-          },
-          (err, user) => {
-            if (err) return next(err);
-            if (!user) return res.redirect(failureRedirect);
-
-            req.logIn(user, async err => {
-              if (err) return next(err);
-
-              if (req.body.RelayState) {
-                try {
-                  const relay = JSON.parse(req.body.RelayState);
-                  if (relay.representingMode != null) {
-                    const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
-                    req.session.representing = {
-                      mode,
-                      PRIVATE: {
-                        partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
-                        personNumber: req.user.personNumber,
-                        name: req.user.name,
-                      },
-                    };
-                  }
-                } catch {}
-              }
-
-              await getBusinessEngagements(user.personNumber)
-                .then(engagements => {
-                  req.session.representingBusinessChoices = engagements;
-                })
-                .catch(err => {
-                  console.error('Error fetching business engagements:', err);
-                  req.session.representingBusinessChoices = [];
-                });
-
-              req.session.cache ??= {};
-              const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
-                console.error('Error fetching delegated facilities:', err);
-                return [];
-              });
-              req.session.cache.delegations = delegations;
-              req.session.save(saveErr => {
-                if (saveErr) return next(saveErr);
-                res.redirect(successRedirect);
+            await getBusinessEngagements(user.personalNumber)
+              .then(engagements => {
+                req.session.representingBusinessChoices = engagements;
+              })
+              .catch(err => {
+                console.error('Error fetching business engagements:', err);
+                req.session.representingBusinessChoices = [];
               });
             });
           },

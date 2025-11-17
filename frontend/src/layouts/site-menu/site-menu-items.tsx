@@ -78,6 +78,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
   const { t } = useTranslation('common');
 
   const setEngagement = async (value?: string) => {
+    console.log(value);
     const res = (await setRepresenting({ organizationNumber: value })) as RepresentingEntity;
     setRepresentingName(toRepresentingLabel(res));
 
@@ -109,7 +110,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
                       rightIcon={<Icon icon={<ArrowRight />} />}
                       onClick={() => setEngagement(engagement?.organizationNumber as string)}
                     >
-                      <span className="font-bold">{engagement.organizationName}</span>
+                      <span className="font-bold">{engagement.name}</span>
                       {engagement.isRepresentative ? (
                         <span className="ml-[.5em]">{t('common:isRepresentative')}</span>
                       ) : null}
@@ -127,11 +128,8 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
               className="w-full"
               onSelectValue={(organizationNumber) => setEngagement(organizationNumber)}
             >
-              {engagements?.map((engagement) => (
-                <Select.Option
-                  key={`${engagement.name}-${engagement.organizationNumber}`}
-                  value={engagement.organizationNumber as string}
-                >
+              {engagements?.map((engagement, index) => (
+                <Select.Option key={`${index}`} value={engagement.organizationNumber as string}>
                   {engagement.name}
                   {engagement.isRepresentative ? ` (ombud)` : null}
                 </Select.Option>

@@ -9,13 +9,12 @@ import { Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
 import { logger } from '@/utils/logger';
 import { HttpError } from 'routing-controllers';
 
-export const getBusinessEngagements = async (user: User): Promise<PersonEngagement[]> => {
-  if (!user.personNumber) {
+const getBusinessEngagements = async (personalNumber: string) => {
+  if (!personalNumber) {
     throw new Error('Bad Request: personalNumber is required');
   }
   const apiBase = getApiBase('legalentity');
-  const apiService = new ApiService();
-  const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/person/${user.personNumber}`;
+  const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/person/${personalNumber}`;
 
   let res: { data: PersonEngagement[] };
   if (ENVIRONMENT === 'TEST' && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER) {
@@ -39,12 +38,8 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
       ],
     };
   } else {
-    try {
-      res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
-    } catch (error) {
-      logger.error('Could not get engagements', error);
-      res = { data: [] };
-    }
+    const apiService = new ApiService();
+    res = await apiService.get<BusinessEngagementsResponse>({ url }, { username: 'unknown' });
   }
 
   await addEngagementFromMandate(user, apiService, apiBase, res);

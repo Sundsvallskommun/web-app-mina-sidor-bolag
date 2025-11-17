@@ -1,24 +1,37 @@
+import { MOCK_ORGANIZATION_ID, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPALITY_ID } from '@/config';
+import { getApiBase } from '@/config/api-config';
+import { BusinessInformation, Engagement } from '@/data-contracts/businessengagements/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { BusinessEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
 import { getBusinessEngagements, getBusinessInformation } from '@/services/business-engagements.service';
 import { logger } from '@/utils/logger';
 import authMiddleware from '@middlewares/auth.middleware';
-import { Response } from 'express';
-import { Controller, Get, Req, Res, UseBefore } from 'routing-controllers';
+import { Controller, Get, QueryParam, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
+import { ENVIRONMENT } from '@config';
+import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
+import { BusinessEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legalEntity.response';
+
+interface InformationResponse {
+  information: {
+    companyLocation: BusinessInformation['companyLocation'];
+  };
+}
 
 @Controller()
 export class BusinessEngagementController {
+  private apiService = new ApiService();
+  private apiBase = getApiBase('legalentity');
+
   @Get('/businessengagements')
   @OpenAPI({ summary: 'Return a list of business engagements for current logged in user' })
   @ResponseSchema(BusinessEngagementsApiResponse)
   @UseBefore(authMiddleware)
-  async businessEngagments(
-    @Req() req: RequestWithUser,
-    @Res() res: Response<BusinessEngagementsApiResponse>,
-  ): Promise<Response<BusinessEngagementsApiResponse>> {
-    if (!req.user.personNumber) {
+  async businessEngagments(@Req() req: RequestWithUser): Promise<ApiResponse<PersonEngagement[]>> {
+    const { personNumber } = req?.user;
+
+    if (!personNumber) {
       throw new HttpException(400, 'Bad Request');
     }
 
@@ -30,24 +43,41 @@ export class BusinessEngagementController {
     try {
       let engagements = req.session.representingBusinessChoices;
 
-      if (!engagements || engagements.length <= 0) {
-        engagements = await getBusinessEngagements(req.user);
-        if (!engagements) {
-          throw new HttpException(404, 'Not Found');
-        }
-        req.session.representingBusinessChoices = engagements ?? [];
-      }
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/engagements/person/${personNumber}`;
 
-      const data = engagements.map(engagement => {
-        const { organizationNumber, name, isAuthorizedSignatory, isSoleTrader } = engagement;
-        return { organizationNumber, name, isAuthorizedSignatory, isSoleTrader };
-      });
-
-      return res.send({ data, message: 'success' });
-    } catch (error) {
-      logger.error('Error getting business engagements', error);
-      throw new HttpException(500, 'Internal server error');
+    let res: { data: PersonEngagement[] };
+    if (ENVIRONMENT === 'TEST' && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER && MOCK_ORGANIZATION_ID) {
+      res = {
+        data: [
+          {
+            organizationNumber: MOCK_ORGANIZATION_NUMBER,
+            name: MOCK_ORGANIZATION_NAME,
+            form: 'Ekonomisk förening',
+            formShort: 'EK',
+            roles: [
+              {
+                description: 'Styrelseledamot',
+                code: 'LE',
+              },
+            ],
+            isAuthorizedSignatory: true,
+            isSoleTrader: null,
+            source: 'Bolagsverket',
+          },
+        ],
+      };
+    } else {
+      res = await this.apiService.get<PersonEngagement[]>({ url }, req.user);
     }
+
+    if (!res.data) {
+      throw new HttpException(404, 'Not Found');
+    }
+
+    // NOTE: set representing to session so we can use it to lookup later
+    req.session.representingBusinessChoices = res.data && res.data ? res.data : [];
+
+    return { data: res.data, message: 'success' };
   }
 
   @Get('/businessinformation')
@@ -56,9 +86,8 @@ export class BusinessEngagementController {
   @UseBefore(authMiddleware)
   async businessInformation(
     @Req() req: RequestWithUser,
-    @Res() res: Response<BusinessInformationApiResponse>,
-  ): Promise<Response<BusinessInformationApiResponse>> {
-    const engagement = req.session.representing?.BUSINESS;
+    @QueryParam('engagement') engagement: PersonEngagement,
+  ): Promise<ApiResponse<InformationResponse>> {
     const controller = new AbortController();
     req.on('aborted', () => {
       controller.abort();
@@ -69,12 +98,22 @@ export class BusinessEngagementController {
       throw new HttpException(500, 'Internal Server Error - Does not exists');
     }
 
-    if (!engagement.organizationNumber) {
+    if (!engagement.name || !engagement.organizationNumber) {
       throw new HttpException(500, 'Internal Server Error - Data not complete');
     }
     const details = await getBusinessInformation(engagement, req.user);
 
-    if (!details) {
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/engagements/organization/${engagement.organizationNumber}`;
+    const params = {
+      organizationName: engagement.name,
+      serviceName: 'Mina Sidor',
+    };
+
+    console.log(params);
+
+    const res = await this.apiService.get<BusinessInformation>({ url, params }, req.user);
+
+    if (!res.data) {
       throw new HttpException(404, 'Not Found');
     }
     const { address } = details;

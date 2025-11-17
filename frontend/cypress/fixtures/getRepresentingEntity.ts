@@ -4,7 +4,7 @@ import { getBusinessEngagements } from './getBusinessEngagements';
 import { getMe } from './getMe';
 import { RepresentingBusinessEntity, RepresentingEntity } from '@data-contracts/backend/data-contracts';
 
-export const getBusinessRepresentFromEngagements = (index: number = 0): RepresentingBusinessEntity => ({
+export const getBusinessRepresentFromEngagements = (index: number = 0) => ({
   organizationName: getBusinessEngagements.data[index].name ?? 'organizationName',
   organizationNumber: getBusinessEngagements.data[index].organizationNumber ?? 'organizationNumber',
   information: {
