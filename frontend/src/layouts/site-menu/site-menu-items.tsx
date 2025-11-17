@@ -128,8 +128,11 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
               className="w-full"
               onSelectValue={(organizationNumber) => setEngagement(organizationNumber)}
             >
-              {engagements?.map((engagement, index) => (
-                <Select.Option key={`${index}`} value={engagement.organizationNumber as string}>
+              {engagements?.map((engagement) => (
+                <Select.Option
+                  key={`${engagement.name}-${engagement.organizationNumber}`}
+                  value={engagement.organizationNumber as string}
+                >
                   {engagement.name}
                   {engagement.isRepresentative ? ` (ombud)` : null}
                 </Select.Option>
