@@ -5,7 +5,7 @@ import { getBusinessEngagements } from './getBusinessEngagements';
 import { getMe } from './getMe';
 
 export const getBusinessRepresentFromEngagements = (index: number = 0) => ({
-  organizationName: getBusinessEngagements.data[index].organizationName ?? 'organizationName',
+  organizationName: getBusinessEngagements.data[index].name ?? 'organizationName',
   organizationNumber: getBusinessEngagements.data[index].organizationNumber ?? 'organizationNumber',
   information: {
     companyLocation: {

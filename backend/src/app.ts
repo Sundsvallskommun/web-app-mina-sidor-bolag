@@ -370,7 +370,7 @@ class App {
               } catch {}
             }
 
-            await getBusinessEngagements(user.partyId, user.name)
+            await getBusinessEngagements(user.personalNumber)
               .then(engagements => {
                 req.session.representingBusinessChoices = engagements;
               })
