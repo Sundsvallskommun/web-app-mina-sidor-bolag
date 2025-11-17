@@ -1,6 +1,6 @@
 import { MOCK_ORGANIZATION_ID, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { BusinessInformation, Engagement } from '@/data-contracts/businessengagements/data-contracts';
+import { BusinessInformation } from '@/data-contracts/businessengagements/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { BusinessEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
@@ -108,8 +108,6 @@ export class BusinessEngagementController {
       organizationName: engagement.name,
       serviceName: 'Mina Sidor',
     };
-
-    console.log(params);
 
     const res = await this.apiService.get<BusinessInformation>({ url, params }, req.user);
 
