@@ -1,19 +1,19 @@
-import { GRP_DEV_PERSONNUMBER, GRP_DISPLAY_NAME, GRP_SERVICE_ID, NODE_ENV } from '@/config';
+import { ENVIRONMENT, GRP_DEV_PERSONNUMBER, GRP_DISPLAY_NAME, GRP_SERVICE_ID } from '@/config';
 import { SignDto, SignMandateDto } from '@/dtos/sign.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 
 import {
-  GrpInitiateResponse,
+  GrpCancelRequest,
+  GrpCancelResponse,
+  GrpCollectRequest,
+  GrpCollectResponse,
   GrpInitiateBody,
   GrpInitiateParameters,
-  GrpSubjectIdentifierType,
+  GrpInitiateResponse,
   GrpInitiateResponseWithStartTime,
-  GrpCollectResponse,
-  GrpCollectRequest,
-  GrpCancelResponse,
-  GrpCancelRequest,
   GrpStatus,
+  GrpSubjectIdentifierType,
 } from '@/interfaces/grp.interface';
 import { SignMandateCache } from '@/interfaces/mandates.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
@@ -48,7 +48,7 @@ export class SignController {
     };
     const data: GrpInitiateBody = {
       subjectIdentifier: {
-        value: NODE_ENV === 'development' ? GRP_DEV_PERSONNUMBER : personNumber,
+        value: ENVIRONMENT === 'TEST' ? GRP_DEV_PERSONNUMBER : personNumber,
         type: GrpSubjectIdentifierType.Tin,
       },
       userMessage,
