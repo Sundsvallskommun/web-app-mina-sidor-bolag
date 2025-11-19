@@ -40,7 +40,6 @@ import { ClientContactSetting } from '../responses/contactsettings.response';
 import { getRepresentingPartyId } from '../utils/getRepresentingPartyId';
 import { getBusinessAddress, getBusinessName } from './contact-settings/utils';
 import { LEAddress } from '@/data-contracts/legalentity/data-contracts';
-import { logger } from '@/utils/logger';
 
 @Controller()
 export class ContactSettingsController {
@@ -80,32 +79,30 @@ export class ContactSettingsController {
     }
 
     const mapAdress = (adress: LEAddress): ContactSettingAddress => ({
-      city: adress?.city,
+      city: adress.city,
       street: !adress.addressArea || !adress.adressNumber ? undefined : `${adress.addressArea} ${adress.adressNumber}`,
       postcode: adress.postalCode,
     });
 
-    try {
-      const clientContactSetting = makeClientContactSetting(res?.data?.[0]);
+    const clientContactSetting = makeClientContactSetting(res?.data?.[0]);
 
-      switch (representing.mode) {
-        case RepresentingMode.BUSINESS:
-          clientContactSetting.name = getBusinessName(representing);
-          clientContactSetting.address = mapAdress(getBusinessAddress(representing));
-          break;
-        case RepresentingMode.PRIVATE:
-          {
-            clientContactSetting.name = user.name;
-            const apiBase = getApiBase('citizen');
-            const url = `${apiBase}/${MUNICIPALITY_ID}/${user.partyId}`;
-            const params = {
-              ShowClassified: false,
-            };
-            const citizenRes = await this.apiService.get<CitizenExtended>({ url, params }, req.user);
-            if (citizenRes.data) {
-              const address = citizenRes.data.addresses?.[0];
-              clientContactSetting.address = address?.city ? mapAdress(clientContactSetting.address) : null;
-            }
+    switch (representing.mode) {
+      case RepresentingMode.BUSINESS:
+        clientContactSetting.name = getBusinessName(representing);
+        clientContactSetting.address = mapAdress(getBusinessAddress(representing));
+        break;
+      case RepresentingMode.PRIVATE:
+        {
+          clientContactSetting.name = user.name;
+          const apiBase = getApiBase('citizen');
+          const url = `${apiBase}/${MUNICIPALITY_ID}/${user.partyId}`;
+          const params = {
+            ShowClassified: false,
+          };
+          const citizenRes = await this.apiService.get<CitizenExtended>({ url, params }, req.user);
+          if (citizenRes.data) {
+            const address = citizenRes.data.addresses?.[0];
+            clientContactSetting.address = address?.city ? mapAdress(clientContactSetting.address) : null;
           }
           break;
         default:
@@ -136,11 +133,10 @@ export class ContactSettingsController {
     };
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/settings`;
-    try {
-      const res = await this.apiService.post<ClientContactSetting, NewContactSettings>(
-        { url, baseURL, data: newContactSettings },
-        req.user,
-      );
+    const res = await this.apiService.post<ClientContactSetting, NewContactSettings>(
+      { url, baseURL, data: newContactSettings },
+      req.user,
+    );
 
       const data: ClientContactSetting = _.merge(userData, {
         id: res.data?.id,
@@ -164,16 +160,15 @@ export class ContactSettingsController {
     if (!userData.id) {
       throw new HttpException(400, 'Bad Request');
     }
-    try {
-      const editedContactSettings: UpdateContactSettings = {
-        alias: userData.alias,
-        contactChannels: getContactSettingChannels(userData),
-      };
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/settings/${userData.id}`;
-      const res = await this.apiService.patch<ClientContactSetting, UpdateContactSettings>(
-        { url, data: editedContactSettings },
-        req.user,
-      );
+    const editedContactSettings: UpdateContactSettings = {
+      alias: userData.alias,
+      contactChannels: getContactSettingChannels(userData),
+    };
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/settings/${userData.id}`;
+    const res = await this.apiService.patch<ClientContactSetting, UpdateContactSettings>(
+      { url, data: editedContactSettings },
+      req.user,
+    );
 
       const data = _.merge(userData, {
         id: res.data?.id,

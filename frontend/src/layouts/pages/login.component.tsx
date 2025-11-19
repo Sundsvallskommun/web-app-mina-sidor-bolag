@@ -12,6 +12,7 @@ import { EntryLayout } from '../../layouts/entry-layout.component';
 import Main from '../../layouts/main.component';
 import { appURL } from '../../utils/app-url';
 import { getAdjustedPathname, getRepresentingModeRoute } from '../../utils/representingModeRoute';
+import { RepresentingMode } from '@interfaces/app';
 
 function Login() {
   const router = useRouter();

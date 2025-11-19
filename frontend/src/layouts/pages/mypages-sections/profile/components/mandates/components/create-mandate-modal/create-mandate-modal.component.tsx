@@ -2,7 +2,6 @@
 
 import { BankIdSignModal } from '@components/bankid-sign/bankid-sign.component';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { RepresentingEntity } from '@interfaces/app';
 import { apiService, useApi } from '@services/api-service';
 import { Button, ColorSchemeMode, cx, Modal, useGui, useSnackbar } from '@sk-web-gui/react';
 import { AxiosError } from 'axios';
@@ -13,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CreateMandateDto,
   MandateApiResponse,
+  RepresentingEntity,
   Sign,
   SignApiResponse,
   SignCollect,

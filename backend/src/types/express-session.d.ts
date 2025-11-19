@@ -1,12 +1,12 @@
-import { Engagement } from '@/data-contracts/businessengagements/data-contracts';
 import { CaseStatusResponse } from '@/data-contracts/casestatus/data-contracts';
 import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { Delegation, InstalledBaseItem } from '@/data-contracts/installedbase/data-contracts';
+import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
-import { User } from '@/interfaces/users.interface';
-import { RepresentingEntity } from '@interfaces/representing.interface';
-import { SignMandateCache } from '@/interfaces/mandates.interface';
 import { GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
+import { SignMandateCache } from '@/interfaces/mandates.interface';
+import { User } from '@/interfaces/users.interface';
+import { RepresentingEntity } from '../interfaces/representing.interface';
 
 declare module 'express-session' {
   interface Session {

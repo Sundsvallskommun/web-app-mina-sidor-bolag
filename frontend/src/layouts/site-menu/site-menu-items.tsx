@@ -11,6 +11,8 @@ import { getRepresentingModeRoute, newRepresentingModePathname } from '../../uti
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { RepresentingEntity, RepresentsDto } from '@data-contracts/backend/data-contracts';
+import { RepresentingMode } from '@interfaces/app';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -78,7 +80,6 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
   const { t } = useTranslation('common');
 
   const setEngagement = async (value?: string) => {
-    console.log(value);
     const res = (await setRepresenting({ organizationNumber: value })) as RepresentingEntity;
     setRepresentingName(toRepresentingLabel(res));
 

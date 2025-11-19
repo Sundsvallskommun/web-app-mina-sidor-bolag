@@ -11,7 +11,10 @@ const mandateMiddleware = async (req: RequestWithUser, res: Response, next: Next
   try {
     const cacheHandler = handleSignCache(req);
     const { grantorId } = cacheHandler.get<SignMandateCache>('mandates', body.transactionId);
-    if (req.session.representing.BUSINESS.partyId === grantorId) {
+    if (
+      req.session.representing.BUSINESS.partyId === grantorId &&
+      req.session.representing.BUSINESS.isAuthorizedSignatory
+    ) {
       next();
     } else {
       next(new HttpException(403, 'You do not have permission to access this resource.'));

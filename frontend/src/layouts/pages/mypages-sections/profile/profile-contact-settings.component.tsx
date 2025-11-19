@@ -7,6 +7,7 @@ import ContactSettingsFormLogic from './components/contact-settings-form-logic.c
 import { ConnectForm } from '@components/form/connect-form.component';
 import { useApi } from '@services/api-service';
 import { useTranslation } from 'react-i18next';
+import { ClientContactSetting } from '@data-contracts/backend/data-contracts';
 
 export const ContactSettings = () => {
   const { data: contactsettings } = useApi<ClientContactSetting>({ url: '/contactsettings', method: 'get' });
