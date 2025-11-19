@@ -71,6 +71,7 @@ export const BankIdSignModal: React.FC<BankIdSignModalProps> = (props) => {
     } else if (timeSinceStart > 27 && status === 'PENDING' && hintCode === 'outstandingTransaction') {
       renew();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeSinceStart, timeLeft]);
 
   const handleRenew = () => {

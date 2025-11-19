@@ -11,8 +11,7 @@ import { DelegatedContactDetails } from './profile-delegate-details.component';
 
 export const Profile = () => {
   const { t } = useTranslation('profile');
-  const { isRepresentingModeBusiness } = useAppContext();
-
+  const { isRepresentingModeBusiness, isRepresentingModePrivate } = useAppContext();
   return (
     <div className="flex flex-col gap-24">
       <h1 className="mb-16">{t('profile:title')}</h1>
@@ -47,18 +46,20 @@ export const Profile = () => {
         <DelegatedContactDetails />
       </Disclosure>
 
-      <Disclosure
-        className="bg-background-content px-24 py-8 rounded-button shadow-50"
-        data-cy="facility-delegates-disclosure"
-        header={
-          <>
-            <h2 className="text-h4-md">{t('profile:delegates.title')}</h2>
-            <p className="text-base font-normal mb-0">{t('profile:delegates.description')}</p>
-          </>
-        }
-      >
-        <FacilityDelegates />
-      </Disclosure>
+      {isRepresentingModePrivate && (
+        <Disclosure
+          className="bg-background-content px-24 py-8 rounded-button shadow-50"
+          data-cy="facility-delegates-disclosure"
+          header={
+            <>
+              <h2 className="text-h4-md">{t('profile:delegates.title')}</h2>
+              <p className="text-base font-normal mb-0">{t('profile:delegates.description')}</p>
+            </>
+          }
+        >
+          <FacilityDelegates />
+        </Disclosure>
+      )}
 
       {isRepresentingModeBusiness && <Mandates />}
     </div>
