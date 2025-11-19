@@ -1,15 +1,16 @@
-import { BusinessInformation } from '@/data-contracts/businessengagements/data-contracts';
+import { PersonEngagement } from '@/responses/legal-entity.response';
+import { ClientBusinessInformation } from './business-engagement';
 
 export enum RepresentingMode {
   PRIVATE,
   BUSINESS,
 }
 
-export interface RepresentingBusinessEntity {
+export interface RepresentingBusinessEntity extends Pick<PersonEngagement, 'isAuthorizedSignatory'> {
   partyId: string;
   organizationName: string;
   organizationNumber: string;
-  information: BusinessInformation;
+  information: ClientBusinessInformation;
 }
 export type RepresentingBusinessEntityClient = Omit<RepresentingBusinessEntity, 'partyId'>;
 

@@ -25,14 +25,24 @@ localStorage.clear();
 
 export const representingModeDefault = RepresentingMode.PRIVATE;
 
-export const interceptRepresentingMode = (representingMode: RepresentingMode = representingModeDefault) => {
-  cy.intercept('GET', '**/api/representing', getRepresentingEntity({ mode: representingMode })).as(`getRepresenting`);
-  cy.intercept('POST', '**/api/representing', getRepresentingEntity({ mode: representingMode })).as(`postRepresenting`);
+export const interceptRepresentingMode = (
+  representingMode: RepresentingMode = representingModeDefault,
+  businessIndex: number = 0
+) => {
+  cy.intercept('GET', '**/api/representing', getRepresentingEntity({ mode: representingMode, businessIndex })).as(
+    `getRepresenting`
+  );
+  cy.intercept('POST', '**/api/representing', getRepresentingEntity({ mode: representingMode, businessIndex })).as(
+    `postRepresenting`
+  );
 };
 
-export const setIntercepts = (representingMode: RepresentingMode = representingModeDefault) => {
+export const setIntercepts = (
+  representingMode: RepresentingMode = representingModeDefault,
+  businessIndex: number = 0
+) => {
   cy.intercept('GET', '**/api/me', getMe).as('getUser');
-  interceptRepresentingMode(representingMode);
+  interceptRepresentingMode(representingMode, businessIndex);
   cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
   cy.intercept('GET', '**/api/myrelations', getMyRelations).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');

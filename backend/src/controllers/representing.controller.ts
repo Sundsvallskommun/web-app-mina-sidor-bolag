@@ -1,37 +1,26 @@
-import { ClientBusinessInformation } from '@/interfaces/business-engagement';
+import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
+import { getBusinessInformation } from '@/services/business-engagements.service';
+import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
 import { RepresentsDto } from '@dtos/represents.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import { validationMiddleware } from '@middlewares/validation.middleware';
-import { Body, Controller, Get, Post, Req, UseBefore } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
-import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '../interfaces/representing.interface';
-import { BusinessEngagementController } from './business-engagement.controller';
-import { Engagement } from '@/data-contracts/businessengagements/data-contracts';
 import getDelegatedFacilities from '@services/delegation.service';
-import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
-
-interface ResponseData {
-  data: any;
-  message: string;
-}
+import { Body, Controller, Get, Post, Req, Res, UseBefore } from 'routing-controllers';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
+import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '../interfaces/representing.interface';
+import { ClientRepresentingApiResponse } from '@/responses/representing.response';
+import { Response } from 'express';
 
 type IntersectByProperties<T, U> = Pick<T & U, Extract<keyof T, keyof U>>;
 
 @Controller()
 export class RepresentingController {
-  getBusinessInformation = async (req, selected) => {
-    const businessController = new BusinessEngagementController();
-    const businessInformationRes = await businessController.businessInformation(req, selected);
-    let businessInformation: ClientBusinessInformation = {};
-    if (businessInformationRes.data?.information) {
-      businessInformation = businessInformationRes.data.information;
-    }
-    return businessInformation;
-  };
-
-  getSelected = <TSelected extends Record<string, any>, MatchKey extends keyof IntersectByProperties<TSelected, RepresentsDto>>(
+  getSelected = <
+    TSelected extends Record<string, any>,
+    MatchKey extends keyof IntersectByProperties<TSelected, RepresentsDto>,
+  >(
     choices: TSelected[],
     selectedRepresenting: RepresentsDto,
     matchKey: MatchKey,
@@ -57,14 +46,19 @@ export class RepresentingController {
 
   getDefaultBUSINESS = async (req: RequestWithUser) => {
     const representingBusinessChoices = req.session?.representingBusinessChoices || [];
-    const selected = this.getSelected<Engagement, 'organizationNumber'>(representingBusinessChoices, req.body, 'organizationNumber');
-    const businessInformation = await this.getBusinessInformation(req, selected);
+    const selected = this.getSelected<PersonEngagement, 'organizationNumber'>(
+      representingBusinessChoices,
+      req.body,
+      'organizationNumber',
+    );
+    const { address, partyId } = await getBusinessInformation(selected, req.user);
 
     return {
-      partyId: this.fixGuid(selected.organizationId),
-      organizationName: selected.organizationName,
+      partyId: this.fixGuid(partyId),
+      organizationName: selected.name,
       organizationNumber: selected.organizationNumber,
-      information: businessInformation,
+      isAuthorizedSignatory: selected.isAuthorizedSignatory,
+      information: { address },
     };
   };
 
@@ -73,6 +67,7 @@ export class RepresentingController {
       ? {
           organizationName: newRepresenting?.BUSINESS?.organizationName,
           organizationNumber: newRepresenting?.BUSINESS?.organizationNumber,
+          isAuthorizedSignatory: newRepresenting?.BUSINESS?.isAuthorizedSignatory,
           information: newRepresenting?.BUSINESS?.information,
         }
       : undefined,
@@ -86,8 +81,12 @@ export class RepresentingController {
 
   @Get('/representing')
   @OpenAPI({ summary: 'Return which entity a logged in user represents' })
+  @ResponseSchema(ClientRepresentingApiResponse)
   @UseBefore(authMiddleware)
-  async getBussinesEngagments(@Req() req: RequestWithUser): Promise<ResponseData> {
+  async getBussinesEngagments(
+    @Req() req: RequestWithUser,
+    @Res() res: Response<ClientRepresentingApiResponse>,
+  ): Promise<Response<ClientRepresentingApiResponse>> {
     const representing = req.session?.representing ?? undefined;
 
     if (!representing) {
@@ -102,14 +101,19 @@ export class RepresentingController {
       throw new HttpException(400, 'Representing not set');
     }
 
-    return { data: this.getRepresentingToSend(req.session.representing), message: 'success' };
+    return res.send({ data: this.getRepresentingToSend(req.session.representing), message: 'success' });
   }
 
   @Post('/representing')
   @UseBefore(validationMiddleware(RepresentsDto, 'body'))
+  @ResponseSchema(ClientRepresentingApiResponse)
   @OpenAPI({ summary: 'Sets which entity a logged in user represents' })
   @UseBefore(authMiddleware)
-  async postBusinessEngagements(@Body() selectedRepresenting: RepresentsDto, @Req() req: RequestWithUser): Promise<ResponseData> {
+  async postBusinessEngagements(
+    @Body() selectedRepresenting: RepresentsDto,
+    @Req() req: RequestWithUser,
+    @Res() res: Response<ClientRepresentingApiResponse>,
+  ): Promise<Response<ClientRepresentingApiResponse>> {
     const representing = req.session?.representing ?? undefined;
     let newRepresenting = representing;
 
@@ -145,12 +149,14 @@ export class RepresentingController {
     req.session.representing = newRepresenting;
 
     if (getRepresentingPartyId(newRepresenting)) {
-      req.session.cache.delegations = await getDelegatedFacilities(getRepresentingPartyId(newRepresenting)).catch(err => {
-        console.error('Error fetching delegated facilities:', err);
-        return [];
-      });
+      req.session.cache.delegations = await getDelegatedFacilities(getRepresentingPartyId(newRepresenting)).catch(
+        err => {
+          console.error('Error fetching delegated facilities:', err);
+          return [];
+        },
+      );
     }
 
-    return { data: this.getRepresentingToSend(newRepresenting), message: 'success' };
+    return res.send({ data: this.getRepresentingToSend(newRepresenting), message: 'success' });
   }
 }

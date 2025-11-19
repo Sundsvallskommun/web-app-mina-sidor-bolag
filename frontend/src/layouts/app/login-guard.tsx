@@ -1,13 +1,14 @@
 'use client';
 
 import { useAppContext } from '@contexts/app.context';
-import { RepresentingEntity, RepresentingMode } from '@interfaces/app';
+import { RepresentingMode } from '@interfaces/app';
 import { getRepresentingModeRoute } from '@utils/representingModeRoute';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { User } from '../../interfaces/user';
 import { useApi } from '../../services/api-service';
 import { useInactivityAlert } from '../../utils/use-inactivity-trigger.hook';
+import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
 
 export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();

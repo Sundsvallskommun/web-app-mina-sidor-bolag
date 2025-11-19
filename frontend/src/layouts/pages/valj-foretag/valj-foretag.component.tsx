@@ -3,8 +3,6 @@
 import { CardElevated } from '@components/cards/card-elevated.component';
 import { NoRepresent } from '@layouts/pages/valj-foretag/no-represent';
 import { useAppContext } from '@contexts/app.context';
-import { Engagement } from '@data-contracts/businessengagements/data-contracts';
-import { RepresentingMode } from '@interfaces/app';
 import { EntryLayout } from '@layouts/entry-layout.component';
 import Main from '@layouts/main.component';
 import { useRepresentingSwitch } from '@layouts/site-menu/site-menu-items';
@@ -14,6 +12,9 @@ import { getAdjustedPathname, getRepresentingModeRoute } from '@utils/representi
 import { ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { PersonEngagement } from '@data-contracts/backend/data-contracts';
+import { useTranslation } from 'react-i18next';
+import { RepresentingMode } from '@interfaces/app';
 
 export default function ValjForetag() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function ValjForetag() {
   const [error, setError] = useState('');
   const { isMinDesktop, isMinSmallDevice } = useThemeQueries();
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   const { engagements, engagementsIsLoading } = useCombinedBusinessEngagements();
   const { setRepresenting } = useRepresentingSwitch();
@@ -33,7 +35,7 @@ export default function ValjForetag() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pages, setPages] = useState<number>(1);
 
-  const onChoice = (engagement: Engagement) => {
+  const onChoice = (engagement: PersonEngagement) => {
     setError('');
     setChoosen(engagement.organizationNumber ?? '');
   };
@@ -80,13 +82,13 @@ export default function ValjForetag() {
               <Main>
                 <div>
                   <h1 className="text-h2-sm desktop:text-h2-lg mb-24 desktop:mb-32">
-                    Välj organisationen du vill företräda
+                    {t('common:selectOrganizationToRepresent')}
                   </h1>
                 </div>
                 <div className="break-words">
                   {engagements?.length === 0 ? (
                     <div className="p-4 gap-2 grid grid-cols-2 bg-gray-lighter">
-                      <div className="row-header-name">Inga organisationer hittades</div>
+                      <div className="row-header-name">{t('common:noOrganizations')}</div>
                     </div>
                   ) : (
                     <Table
@@ -97,12 +99,14 @@ export default function ValjForetag() {
                       <Table.Header className="bg-background-content border-black border-b-1">
                         {isMinDesktop ? (
                           <>
-                            <Table.HeaderColumn className="sr-only">Välj</Table.HeaderColumn>
-                            <Table.HeaderColumn className="w-[210px]">Namn</Table.HeaderColumn>
-                            <Table.HeaderColumn className="max-w-[210px]">Organisationsnummer</Table.HeaderColumn>
+                            <Table.HeaderColumn className="sr-only">{t('common:select')}</Table.HeaderColumn>
+                            <Table.HeaderColumn className="w-[210px]">{t('common:name')}</Table.HeaderColumn>
+                            <Table.HeaderColumn className="max-w-[210px]">
+                              {t('common:organizationNumber')}
+                            </Table.HeaderColumn>
                           </>
                         ) : (
-                          <Table.HeaderColumn>Välj organisation</Table.HeaderColumn>
+                          <Table.HeaderColumn>{t('common:selectOrganization')}</Table.HeaderColumn>
                         )}
                       </Table.Header>
                       <Table.Body>
@@ -177,7 +181,7 @@ export default function ValjForetag() {
                     onClick={() => onContinue()}
                     rightIcon={<Icon icon={<ArrowRight />} />}
                   >
-                    Fortsätt
+                    {t('common:continue')}
                   </Button>
                 </div>
                 {error && <p className="pt-4 pb-4 text-red-500">{error}</p>}

@@ -16,6 +16,12 @@ describe('Profil och inställningar', () => {
     cy.visit('/foretag/profil');
   });
 
+  it("doesn't show mandates for companies without signing rights", () => {
+    setIntercepts(RepresentingMode.BUSINESS, 1);
+    cy.visit('/foretag/profil');
+    cy.get('[data-cy="mandate-disclosure"]').should('not.exist');
+  });
+
   it('creates a new mandate', () => {
     cy.intercept('POST', '**/api/sign/mandate', getSignMandate(0));
     cy.intercept('POST', '**/api/mandates', getMandate);

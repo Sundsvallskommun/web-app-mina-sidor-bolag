@@ -3,20 +3,43 @@ import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import { deleteContactSetting, getContactSettingChannels, makeClientContactSetting } from '@/services/contact-setting.service';
+import {
+  deleteContactSetting,
+  getContactSettingChannels,
+  makeClientContactSetting,
+} from '@/services/contact-setting.service';
 import { apiURL } from '@/utils/util';
 import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
-import { Body, Controller, Delete, Get, HttpCode, OnUndefined, Param, Patch, Post, QueryParam, Req, UseBefore } from 'routing-controllers';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  OnUndefined,
+  Param,
+  Patch,
+  Post,
+  QueryParam,
+  Req,
+  UseBefore,
+} from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { MUNICIPALITY_ID } from '../config';
-import { ContactSetting, NewContactSettings, UpdateContactSettings } from '../interfaces/contact-settings';
+import {
+  ContactSetting,
+  ContactSettingAddress,
+  NewContactSettings,
+  UpdateContactSettings,
+} from '../interfaces/contact-settings';
 import { RepresentingMode } from '../interfaces/representing.interface';
 import { ApiResponse, ResponseData } from '../interfaces/service';
 import { validationMiddleware } from '../middlewares/validation.middleware';
 import { ClientContactSetting } from '../responses/contactsettings.response';
 import { getRepresentingPartyId } from '../utils/getRepresentingPartyId';
 import { getBusinessAddress, getBusinessName } from './contact-settings/utils';
+import { LEAddress } from '@/data-contracts/legalentity/data-contracts';
 
 @Controller()
 export class ContactSettingsController {
@@ -55,12 +78,18 @@ export class ContactSettingsController {
       }
     }
 
+    const mapAdress = (adress: LEAddress): ContactSettingAddress => ({
+      city: adress.city,
+      street: !adress.addressArea || !adress.adressNumber ? undefined : `${adress.addressArea} ${adress.adressNumber}`,
+      postcode: adress.postalCode,
+    });
+
     const clientContactSetting = makeClientContactSetting(res?.data?.[0]);
 
     switch (representing.mode) {
       case RepresentingMode.BUSINESS:
         clientContactSetting.name = getBusinessName(representing);
-        clientContactSetting.address = getBusinessAddress(representing);
+        clientContactSetting.address = mapAdress(getBusinessAddress(representing));
         break;
       case RepresentingMode.PRIVATE:
         {
@@ -73,13 +102,7 @@ export class ContactSettingsController {
           const citizenRes = await this.apiService.get<CitizenExtended>({ url, params }, req.user);
           if (citizenRes.data) {
             const address = citizenRes.data.addresses?.[0];
-            clientContactSetting.address = address?.city
-              ? {
-                  city: address.city,
-                  street: !address.addressArea || !address.addressNumber ? undefined : `${address.addressArea} ${address.addressNumber}`,
-                  postcode: address.postalCode,
-                }
-              : null;
+            clientContactSetting.address = address?.city ? mapAdress(clientContactSetting.address) : null;
           }
         }
         break;
@@ -93,7 +116,10 @@ export class ContactSettingsController {
   @HttpCode(201)
   @OpenAPI({ summary: 'Create contact settings for current logged in user' })
   @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
-  async newContactSettings(@Req() req: RequestWithUser, @Body() userData: ClientContactSetting): Promise<ResponseData<ClientContactSetting>> {
+  async newContactSettings(
+    @Req() req: RequestWithUser,
+    @Body() userData: ClientContactSetting,
+  ): Promise<ResponseData<ClientContactSetting>> {
     const representing = req.session?.representing ?? undefined;
     const newContactSettings: NewContactSettings = {
       alias: userData.alias ?? 'default',
@@ -104,7 +130,10 @@ export class ContactSettingsController {
     };
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/settings`;
-    const res = await this.apiService.post<ClientContactSetting, NewContactSettings>({ url, baseURL, data: newContactSettings }, req.user);
+    const res = await this.apiService.post<ClientContactSetting, NewContactSettings>(
+      { url, baseURL, data: newContactSettings },
+      req.user,
+    );
 
     const data: ClientContactSetting = _.merge(userData, {
       id: res.data?.id,
@@ -117,13 +146,22 @@ export class ContactSettingsController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update contact settings for current logged in user' })
   @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
-  async editContactSettings(@Req() req: RequestWithUser, @Body() userData: ClientContactSetting): Promise<ResponseData<ClientContactSetting>> {
+  async editContactSettings(
+    @Req() req: RequestWithUser,
+    @Body() userData: ClientContactSetting,
+  ): Promise<ResponseData<ClientContactSetting>> {
     if (!userData.id) {
       throw new HttpException(400, 'Bad Request');
     }
-    const editedContactSettings: UpdateContactSettings = { alias: userData.alias, contactChannels: getContactSettingChannels(userData) };
+    const editedContactSettings: UpdateContactSettings = {
+      alias: userData.alias,
+      contactChannels: getContactSettingChannels(userData),
+    };
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/settings/${userData.id}`;
-    const res = await this.apiService.patch<ClientContactSetting, UpdateContactSettings>({ url, data: editedContactSettings }, req.user);
+    const res = await this.apiService.patch<ClientContactSetting, UpdateContactSettings>(
+      { url, data: editedContactSettings },
+      req.user,
+    );
 
     const data = _.merge(userData, {
       id: res.data?.id,
@@ -136,7 +174,10 @@ export class ContactSettingsController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Delete contact setting for current logged in user' })
   @UseBefore(authMiddleware)
-  async _deleteContactSetting(@Req() req: RequestWithUser, @Param('contactSettingId') contactSettingId: string): Promise<ResponseData<boolean>> {
+  async _deleteContactSetting(
+    @Req() req: RequestWithUser,
+    @Param('contactSettingId') contactSettingId: string,
+  ): Promise<ResponseData<boolean>> {
     if (!contactSettingId) {
       throw new HttpException(400, 'Bad Request');
     }

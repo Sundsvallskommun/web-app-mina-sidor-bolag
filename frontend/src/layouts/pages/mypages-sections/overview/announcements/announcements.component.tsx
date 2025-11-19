@@ -1,8 +1,9 @@
 'use client';
 
+import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
 import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { Announcement, AnnouncementGroup } from '@interfaces/announcements';
-import { RepresentingEntity, RepresentingMode } from '@interfaces/app';
+import { RepresentingMode } from '@interfaces/app';
 import { useApi } from '@services/api-service';
 import { Image, Link, Spinner } from '@sk-web-gui/react';
 import { getCustomerGroups } from '@utils/app-organizations';
