@@ -305,3 +305,52 @@ export interface CitizenApiResponse {
   data: Citizen;
   message: string;
 }
+
+export interface MetaData {
+  key: string;
+  value: string;
+}
+
+export interface Event {
+  logKey?: string;
+  type: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'ACCESS' | 'EXECUTE' | 'CANCEL' | 'DROP';
+  municipalityId?: string;
+  message?: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  expires?: string | null;
+  owner: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  created?: string;
+  historyReference?: string | null;
+  sourceType?: string | null;
+  metadata: MetaData[];
+}
+
+export interface SortObject {
+  unsorted?: boolean;
+  empty?: boolean;
+  sorted?: boolean;
+}
+
+export interface PageableObject {
+  unpaged?: boolean;
+  offset?: number;
+  sort: SortObject;
+  paged?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface PagedEvents {
+  totalPages?: number;
+  totalElements?: number;
+  size?: number;
+  content: Event[];
+  number?: number;
+  sort: SortObject;
+  first?: boolean;
+  last?: boolean;
+  numberOfElements?: number;
+  pageable: PageableObject;
+  empty?: boolean;
+}

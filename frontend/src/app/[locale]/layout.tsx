@@ -22,6 +22,7 @@ const namespaces = [
   'profile',
   'statistics',
   'bankid',
+  'event',
 ];
 
 export interface LocalizationLayoutProps {
