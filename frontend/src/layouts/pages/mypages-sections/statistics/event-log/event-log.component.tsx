@@ -37,43 +37,48 @@ export const EventLog = () => {
   return (
     <div className="mt-40">
       <p>{t('event:description')}</p>
-      {!isFetched ? (
-        <Spinner className="mx-auto my-40" />
-      ) : eventData ? (
-        <div>
-          <div className="flex flex-col mt-20 gap-32">
-            {eventData.content?.map((event: StructuredEvent) => {
-              return <EventItem data={event} key={event.created} />;
-            })}
-          </div>
 
-          {eventData.totalElements ? (
-            <div className="flex flex-col mx-auto mt-8">
-              <span className="text-small text-center text-secondary mt-lg" data-cy="page-count">
-                {t('invoice:showing', {
-                  count: pageSize <= eventData.totalElements ? pageSize : eventData.totalElements,
-                  total: eventData.totalElements,
+      {isFetched ? (
+        <>
+          {eventData?.content?.length ? (
+            <div>
+              <div className="flex flex-col mt-20 gap-32">
+                {eventData.content?.map((event: StructuredEvent) => {
+                  return <EventItem data={event} key={event.created} />;
                 })}
-              </span>
-              {eventData.totalElements > pageSize ? (
-                <Button
-                  className="m-auto mt-12"
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => {
-                    setPageSize(pageSize + 4);
-                  }}
-                  loading={isFetching}
-                  data-cy="show-more-events-button"
-                >
-                  {t('invoice:showMore')}
-                </Button>
+              </div>
+
+              {eventData.totalElements ? (
+                <div className="flex flex-col mx-auto mt-8">
+                  <span className="text-small text-center text-secondary mt-lg" data-cy="page-count">
+                    {t('invoice:showing', {
+                      count: pageSize <= eventData.totalElements ? pageSize : eventData.totalElements,
+                      total: eventData.totalElements,
+                    })}
+                  </span>
+                  {eventData.totalElements > pageSize ? (
+                    <Button
+                      className="m-auto mt-12"
+                      variant="secondary"
+                      size="lg"
+                      onClick={() => {
+                        setPageSize(pageSize + 4);
+                      }}
+                      loading={isFetching}
+                      data-cy="show-more-events-button"
+                    >
+                      {t('invoice:showMore')}
+                    </Button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
-          ) : null}
-        </div>
+          ) : (
+            <p className="mt-20">{t('event:noLoggedExports')}</p>
+          )}
+        </>
       ) : (
-        <p className="mt-20">{t('event:noLoggedExports')}</p>
+        <Spinner className="mx-auto my-40" />
       )}
     </div>
   );

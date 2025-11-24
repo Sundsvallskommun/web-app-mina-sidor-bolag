@@ -11,7 +11,7 @@ const mapData = (data: Array<{ key: string; value: string }>, startObj = {}) => 
 
 const getFacilities = (data: Array<{ key: string; value: string }>) => {
   const indexes = data
-    .map((item) => item.key.replaceAll(/[^0-9]+/g, ''))
+    .map((item) => item.key.replaceAll(/\D+/g, ''))
     .filter((key, index, arr) => !!key && arr.indexOf(key) == index);
 
   return indexes.reduce(
@@ -30,13 +30,13 @@ const getFacilities = (data: Array<{ key: string; value: string }>) => {
 };
 
 export const handleEventLogResponse: (data: PagedEvents) => EventData = (data): EventData => {
-  data.content.map((event) => {
+  data.content.forEach((event) => {
     const mappedData: StructuredMetaData = mapData(
       event.metadata.filter((item) => !item.key.startsWith('facilities[')),
       { facilities: getFacilities(event.metadata) }
     ) as StructuredMetaData;
 
-    mappedData.facilities.map((facility: MetaDataFacility) => {
+    mappedData.facilities.forEach((facility: MetaDataFacility) => {
       facility.category = translateCategory(facility.category);
       facility.aggregateOn = translateAggregateOn(facility.aggregateOn);
       facility.toDate = dayjs(facility.toDate).format('YYYY-MM-DD');
