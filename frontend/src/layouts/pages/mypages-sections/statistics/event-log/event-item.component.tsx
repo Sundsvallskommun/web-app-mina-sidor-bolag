@@ -50,7 +50,7 @@ export const EventItem: React.FC<{ data: StructuredEvent }> = ({ data }) => {
               ) : (
                 <div
                   key={`${facility.address}-${index}`}
-                  className={cx(index !== data.metadata.facilities.length - 1 ? 'border-b-1 border-b-divider' : '')}
+                  className={cx(index === data.metadata.facilities.length - 1 ? '' : 'border-b-1 border-b-divider')}
                 >
                   <div className="px-20">
                     <strong>{t('event:address')}</strong>

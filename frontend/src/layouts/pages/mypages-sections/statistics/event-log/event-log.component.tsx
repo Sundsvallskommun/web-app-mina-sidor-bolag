@@ -52,7 +52,7 @@ export const EventLog = () => {
                 <div className="flex flex-col mx-auto mt-8">
                   <span className="text-small text-center text-secondary mt-lg" data-cy="page-count">
                     {t('invoice:showing', {
-                      count: pageSize <= eventData.totalElements ? pageSize : eventData.totalElements,
+                      count: Math.min(pageSize, eventData.totalElements),
                       total: eventData.totalElements,
                     })}
                   </span>
