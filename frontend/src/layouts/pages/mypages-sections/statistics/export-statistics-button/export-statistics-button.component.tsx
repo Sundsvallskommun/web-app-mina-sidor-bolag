@@ -1,7 +1,7 @@
 'use client';
 
 import { Download } from 'lucide-react';
-import { Button } from '@sk-web-gui/react';
+import { Button, useSnackbar } from '@sk-web-gui/react';
 import {
   MeasurementPoints,
   MergedMeasurementPoints,
@@ -13,6 +13,9 @@ import { utils, writeFile } from 'xlsx';
 import dayjs, { OpUnitType } from 'dayjs';
 import { translateAggregateOn } from '@services/measurement-data-service';
 import { useTranslation } from 'react-i18next';
+import { Event } from '@data-contracts/backend/data-contracts';
+import { queryClient, useApi } from '@services/api-service';
+import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
 export interface ExportStatisticsButtonProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -21,7 +24,13 @@ export interface ExportStatisticsButtonProps {
 export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   const { data, isFetching } = props;
   const { getValues } = useFormContext();
-  const { t } = useTranslation('statistics');
+  const { t } = useTranslation(['statistics', 'event']);
+  const toastMessage = useSnackbar();
+
+  const logExport = useApi<Event>({
+    url: '/event/create',
+    method: 'post',
+  });
 
   const exportStatistics = () => {
     if (data?.measurementData) {
@@ -41,13 +50,37 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
         {
           facilityId: getValues().facilityId,
           facilityAddress: getValues().address,
-          category: getValues().category,
-          exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
           fromDate: getValues().fromDate,
           toDate: getValues().toDate,
+          category: getValues().category,
           aggregation: translateAggregateOn(data?.aggregatedOn).toUpperCase(),
+          exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
         },
       ];
+
+      const logInformation = [
+        {
+          facilityId: getValues().facilityId,
+          facilityAddress: getValues().address,
+          fromDate: dayjs(getValues().fromDate).toISOString(),
+          toDate: dayjs(getValues().toDate).toISOString(),
+          category: getCategoryFromInstalledBaseType(getValues().category),
+          aggregation: data?.aggregatedOn,
+          expires: dayjs().add(1, 'year').toISOString(),
+        },
+      ];
+
+      logExport
+        .mutateAsync(logInformation)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ['events'] });
+        })
+        .catch(() =>
+          toastMessage({
+            message: t('event:error.create'),
+            status: 'error',
+          })
+        );
 
       const exportData =
         data?.measurementData?.[0].measurementPoints?.map(
@@ -78,11 +111,10 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   return (
     <Button
       size="lg"
-      variant="tertiary"
-      leftIcon={<Download />}
+      rightIcon={<Download />}
       disabled={isFetching || !data?.measurementData?.length}
       onClick={() => exportStatistics()}
-      className="sm:w-auto w-full"
+      className="lg:w-auto w-full"
       data-cy="export-statistics-button"
     >
       {t('statistics:export')}

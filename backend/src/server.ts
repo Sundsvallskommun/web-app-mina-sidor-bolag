@@ -16,6 +16,7 @@ import { FacilityDelegationController } from '@controllers/facility-delegation.c
 import { SignController } from './controllers/sign.controller';
 import { MandateController } from './controllers/mandate.controller';
 import { CitizenController } from './controllers/citizen.controller';
+import EventLogController from '@controllers/event-log.controller';
 
 validateEnv();
 
@@ -36,6 +37,7 @@ const app = new App([
   SignController,
   MandateController,
   CitizenController,
+  EventLogController,
 ]);
 
 app.listen();

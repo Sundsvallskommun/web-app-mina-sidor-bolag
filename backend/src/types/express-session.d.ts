@@ -4,9 +4,9 @@ import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import { Delegation, InstalledBaseItem } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { User } from '@/interfaces/users.interface';
-import { RepresentingEntity } from '../interfaces/representing.interface';
+import { RepresentingEntity } from '@interfaces/representing.interface';
 import { SignMandateCache } from '@/interfaces/mandates.interface';
-import { GrpCollectResponse, GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
+import { GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
 
 declare module 'express-session' {
   interface Session {
@@ -26,11 +26,11 @@ declare module 'express-session' {
       };
       relations?: CustomerRelation[];
       addresses?: FacilityAddress[];
-      facilities?: InstalledBaseItem[];
+      facilities?: (InstalledBaseItem & { facilityOwnerPartyId?: string })[];
       delegations?: Delegation[];
     };
     signs: {
-      // eslint-disable-next-line no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       details: Record<string, any>;
       pending: Record<string, GrpInitiateResponseWithStartTime>;
       completed: Record<string, GrpCollectResponseWithRef>;
