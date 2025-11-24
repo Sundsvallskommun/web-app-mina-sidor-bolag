@@ -1,0 +1,15 @@
+{
+  "description": "Här visas vilken information och statistik som har exporterats från Mina sidor.",
+  "showExports": "Visa exporter",
+  "hideExports": "Dölj exporter",
+  "address": "Adress",
+  "facilityId": "Anläggnings ID",
+  "category": "Kategori",
+  "timePeriod": "Tidsperiod",
+  "aggregateOn": "Tidsupplösning",
+  "logCreated": "{{date}}, klockan {{time}}",
+  "noLoggedExports" : "Det finns ingen exportinformation att visa",
+  "error" : {
+    "create": "Det gick inte att skapa logg för export"
+  }
+}

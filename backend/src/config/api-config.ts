@@ -44,6 +44,10 @@ export const APIS = [
     name: 'myrepresentatives',
     version: '4.2',
   },
+  {
+    name: 'eventlog',
+    version: '2.1',
+  },
 ] as const;
 
 type ApiName = (typeof APIS)[number]['name'];
