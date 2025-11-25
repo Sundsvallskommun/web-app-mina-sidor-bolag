@@ -35,7 +35,7 @@ export const getPhoneSettingsFromChannels = (contactChannels: ContactSettingChan
 };
 
 export const getBusinessAddress = (representing: RepresentingEntity) => {
-  return representing?.BUSINESS?.information?.companyLocation ?? null;
+  return representing?.BUSINESS?.information.address ?? null;
 };
 
 export const getBusinessName = (representing: RepresentingEntity) => {

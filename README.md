@@ -4,19 +4,19 @@
 
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
-| API                 | Version |
-| ------------------- | ------: |
-| BusinessEngagements |     3.0 |
-| ContactSettings     |     2.0 |
-| Citizen             |     3.0 |
-| Disturbances        |     5.0 |
-| Invoices            |     8.0 |
-| SimulatorServer     |     2.0 |
-| Customer            |     4.0 |
-| Installedbase       |     3.1 |
-| Agreement           |     4.1 |
-| MeasurementData     |     2.0 |
-| MyRepresentatives   |     4.2 |
+| API               | Version |
+| ----------------- | ------: |
+| ContactSettings   |     2.0 |
+| Citizen           |     3.0 |
+| Disturbances      |     5.0 |
+| Invoices          |     8.0 |
+| SimulatorServer   |     2.0 |
+| Customer          |     4.0 |
+| Installedbase     |     3.1 |
+| Agreement         |     4.1 |
+| MeasurementData   |     2.0 |
+| MyRepresentatives |     4.2 |
+| LegalEntity       |     2.0 |
 
 Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 

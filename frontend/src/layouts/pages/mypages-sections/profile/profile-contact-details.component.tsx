@@ -1,7 +1,6 @@
 'use client';
 
 import { FormBox } from '@components/form/form-box.component';
-import { ClientContactSetting, ClientContactSettingAddress } from '@interfaces/contactsettings';
 import { useApi, useApiService } from '@services/api-service';
 import { Button, Divider, Icon } from '@sk-web-gui/react';
 import _ from 'lodash';
@@ -10,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { Trans, useTranslation } from 'react-i18next';
 import { NextLink } from '@sk-web-gui/next';
+import { ClientContactSetting, ClientContactSettingAddress } from '@data-contracts/backend/data-contracts';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;

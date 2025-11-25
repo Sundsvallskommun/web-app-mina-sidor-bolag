@@ -5,9 +5,9 @@ import { Info, Pen } from 'lucide-react';
 import { useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { ConnectForm } from '@components/form/connect-form.component';
-import { ClientContactSetting } from '@interfaces/contactsettings';
 import { useApi } from '@services/api-service';
 import { useTranslation } from 'react-i18next';
+import { ClientContactSetting } from '@data-contracts/backend/data-contracts';
 
 export const ContactSettings = () => {
   const { data: contactsettings } = useApi<ClientContactSetting>({ url: '/contactsettings', method: 'get' });

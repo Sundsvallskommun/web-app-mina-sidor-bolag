@@ -1,5 +1,4 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ClientContactSetting, Delegate, DelegatedContactSetting, Filter, Rule } from '@interfaces/contactsettings';
 import { useApi, useApiService } from '@services/api-service';
 import { useSnackbar } from '@sk-web-gui/react';
 import { DefaultError } from '@tanstack/react-query';
@@ -10,6 +9,8 @@ import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { formatPhoneNumber } from '@utils/format-phone-number';
 import { useTranslation } from 'react-i18next';
+import { DelegatedContactSetting, ExtendedClientContactSetting } from '@interfaces/contactsettings';
+import { ClientDelegate, Filter, Rule } from '@data-contracts/backend/data-contracts';
 
 const defaultDelegatedContactSettingsForm: Partial<DelegatedContactSetting> = {
   contactSetting: {
@@ -48,7 +49,7 @@ const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
 
 const formSchema = yup
   .object<DelegatedContactSetting>({
-    contactSetting: yup.object<ClientContactSetting>({
+    contactSetting: yup.object<ExtendedClientContactSetting>({
       name: yup.string().nullable().optional(),
       email: yup.string().email('E-postadress har fel format').nullable().optional(),
       alias: yup.string().nullable().required('Namn på kontakt är obligatoriskt'),
@@ -58,7 +59,7 @@ const formSchema = yup
       phone: yup.string().nullable().optional(),
     }),
     delegate: yup
-      .object<Delegate>({
+      .object<ClientDelegate>({
         id: yup.string().nullable().optional(),
         principalId: yup.string().nullable().optional(),
         agentId: yup.string().nullable().optional(),
@@ -99,21 +100,21 @@ export default function DelegatedContactSettingsFormLogic({
   const snackBar = useSnackbar();
   const { t } = useTranslation('common');
 
-  const postContactSettingMutation = useApi<ClientContactSetting>({
+  const postContactSettingMutation = useApi<ExtendedClientContactSetting>({
     url: '/contactsettings',
     method: 'post',
   });
-  const patchContactSettingMutation = useApi<ClientContactSetting>({
+  const patchContactSettingMutation = useApi<ExtendedClientContactSetting>({
     url: `/contactsettings`,
     method: 'patch',
   });
 
-  const postDelegateMutation = useApi<Delegate>({
+  const postDelegateMutation = useApi<ClientDelegate>({
     url: '/delegates',
     method: 'post',
   });
 
-  const patchDelegateMutation = useApi<Delegate>({
+  const patchDelegateMutation = useApi<ClientDelegate>({
     url: '/delegates',
     method: 'patch',
   });
@@ -146,12 +147,12 @@ export default function DelegatedContactSettingsFormLogic({
 
   const saveContactSetting: (
     values: Partial<DelegatedContactSetting>
-  ) => Promise<Partial<ClientContactSetting> & { error?: DefaultError }> = async (values) => {
-    let contactSettingResult: Partial<ClientContactSetting> & { error?: DefaultError } = { error: undefined };
+  ) => Promise<Partial<ExtendedClientContactSetting> & { error?: DefaultError }> = async (values) => {
+    let contactSettingResult: Partial<ExtendedClientContactSetting> & { error?: DefaultError } = { error: undefined };
     const contactSettingApiCall = isContactSettingPatch()
       ? patchContactSettingMutation.mutateAsync
       : postContactSettingMutation.mutateAsync;
-    const contactSettingData: Partial<ClientContactSetting> = _.merge(formData.contactSetting, {
+    const contactSettingData: Partial<ExtendedClientContactSetting> = _.merge(formData.contactSetting, {
       id: formData?.contactSetting?.id,
       createdById: isContactSettingPatch() ? undefined : values?.contactSetting?.createdById,
       alias: values.contactSetting?.alias,
@@ -165,12 +166,15 @@ export default function DelegatedContactSettingsFormLogic({
   };
 
   const saveDelegate: (
-    contactSettingResult: Partial<ClientContactSetting> & { error?: DefaultError },
+    contactSettingResult: Partial<ExtendedClientContactSetting> & { error?: DefaultError },
     values: Partial<DelegatedContactSetting>
-  ) => Promise<Partial<ClientContactSetting> & { error?: DefaultError }> = async (contactSettingResult, values) => {
-    let delegateResult: Delegate & { error?: DefaultError } = { error: undefined };
+  ) => Promise<Partial<ExtendedClientContactSetting> & { error?: DefaultError }> = async (
+    contactSettingResult,
+    values
+  ) => {
+    let delegateResult: ClientDelegate & { error?: DefaultError } = { error: undefined };
     const delegateApiCall = isDelegatePatch() ? patchDelegateMutation.mutateAsync : postDelegateMutation.mutateAsync;
-    const delegateData: Partial<Delegate> = {
+    const delegateData: Partial<ClientDelegate> = {
       agentId: isContactSettingPatch() ? values.delegate?.agentId : (contactSettingResult.id ?? undefined),
       principalId: isContactSettingPatch()
         ? values.delegate?.principalId
@@ -190,7 +194,7 @@ export default function DelegatedContactSettingsFormLogic({
     } else {
       const contactSettingResult = await saveContactSetting(values);
 
-      let delegateResult: Delegate & { error?: DefaultError } = { error: undefined };
+      let delegateResult: ClientDelegate & { error?: DefaultError } = { error: undefined };
       if (!contactSettingResult.error) {
         delegateResult = await saveDelegate(contactSettingResult, values);
       }

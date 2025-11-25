@@ -10,7 +10,7 @@
     "**/*.cy.tsx",
     "cypress/**/*.ts",
     "src/components/**/*.tsx",
-    "src/interface/**/*.ts",
+    "src/interfaces/**/*.ts",
     "src/data-contracts/**/*.ts",
     "src/services/**/*.ts"
   ]

@@ -1,5 +1,6 @@
+import { ClientDelegate } from '@data-contracts/backend/data-contracts';
+import { DelegatedContactSetting } from '@interfaces/contactsettings';
 import { ApiResponse } from '@services/api-service';
-import { Delegate, DelegatedContactSetting, Operator } from '@interfaces/contactsettings';
 
 export const getDelegates: () => ApiResponse<DelegatedContactSetting[]> = () => ({
   data: [
@@ -18,7 +19,7 @@ export const getDelegates: () => ApiResponse<DelegatedContactSetting[]> = () => 
             rules: [
               {
                 attributeName: 'facilityId',
-                operator: Operator.EQUALS,
+                operator: 'EQUALS',
                 attributeValue: '111',
               },
             ],
@@ -34,8 +35,8 @@ export const getDelegates: () => ApiResponse<DelegatedContactSetting[]> = () => 
         virtual: true,
         alias: 'Kontaktperson',
         notifications: {
-          email_disabled: false,
-          phone_disabled: false,
+          email_enabled: false,
+          phone_enabled: false,
         },
         decicionsAndDocuments: {
           digitalInbox: true,
@@ -65,7 +66,7 @@ export const patchDelegates: () => ApiResponse<DelegatedContactSetting[]> = () =
             rules: [
               {
                 attributeName: 'facilityId',
-                operator: Operator.EQUALS,
+                operator: 'EQUALS',
                 attributeValue: '111',
               },
             ],
@@ -81,8 +82,8 @@ export const patchDelegates: () => ApiResponse<DelegatedContactSetting[]> = () =
         virtual: true,
         alias: 'Kontaktperson Kontaktpersonsson',
         notifications: {
-          email_disabled: false,
-          phone_disabled: false,
+          email_enabled: false,
+          phone_enabled: false,
         },
         decicionsAndDocuments: {
           digitalInbox: true,
@@ -95,7 +96,7 @@ export const patchDelegates: () => ApiResponse<DelegatedContactSetting[]> = () =
   message: 'success',
 });
 
-export const postDelegate: () => ApiResponse<Delegate> = () => ({
+export const postDelegate: () => ApiResponse<ClientDelegate> = () => ({
   data: {
     agentId: 'q-q-q-q-q',
     principalId: 'r-r-r-r-r',
@@ -106,7 +107,7 @@ export const postDelegate: () => ApiResponse<Delegate> = () => ({
         rules: [
           {
             attributeName: 'category',
-            operator: Operator.EQUALS,
+            operator: 'EQUALS',
             attributeValue: 'ELECTRICITY',
           },
         ],
@@ -117,7 +118,7 @@ export const postDelegate: () => ApiResponse<Delegate> = () => ({
         rules: [
           {
             attributeName: 'category',
-            operator: Operator.EQUALS,
+            operator: 'EQUALS',
             attributeValue: 'DISTRICT_HEATING',
           },
         ],

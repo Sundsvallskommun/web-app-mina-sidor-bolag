@@ -1,4 +1,5 @@
-import { DelegatedContactSetting, Filter, Operator, Rule } from '@interfaces/contactsettings';
+import { Filter, Rule } from '@data-contracts/backend/data-contracts';
+import { DelegatedContactSetting } from '@interfaces/contactsettings';
 import { FacilityAddress } from '@interfaces/facility-address';
 import { User } from '@interfaces/user';
 import { pagedAgreementsHandler } from '@services/agreement-service';
@@ -84,9 +85,10 @@ export const DelegateFilter = (props: {
           category: props.category,
         }),
         channel: process.env.NEXT_PUBLIC_DELEGATE_CHANNEL,
-        rules: [{ attributeName: 'category', operator: 'EQUALS' as Operator, attributeValue: props.category }],
+        rules: [{ attributeName: 'category', operator: 'EQUALS' as Rule['operator'], attributeValue: props.category }],
       };
       const updatedFilters = [...filters, newFilter];
+
       setDelegatedContactSetting({
         ...delegatedContactSetting,
         ...{ delegate: { ...delegatedContactSetting.delegate, filters: updatedFilters } },
@@ -126,7 +128,7 @@ export const DelegateFilter = (props: {
           rules: [
             {
               attributeName: 'facilityId',
-              operator: 'EQUALS' as Operator,
+              operator: 'EQUALS',
               attributeValue: facilityId,
             } as Rule,
           ],
