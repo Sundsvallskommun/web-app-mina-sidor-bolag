@@ -26,7 +26,7 @@ export const InvoicesTable = ({
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
   const [rows, setRows] = useState<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
-  const { t } = useTranslation(['common', 'invoice']);
+  const { t } = useTranslation(['common', 'invoice', 'organization']);
 
   const previousActivePage = useRef<number>(-1);
   const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
@@ -75,10 +75,10 @@ export const InvoicesTable = ({
   const getOrganizationName = useMemo(
     () =>
       (organizationNumber: string): string => {
-        return (
-          userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? t('common:unknown')
-        );
+        return organizationNumber === '5565027223'
+          ? t('organization:5564786647.name')
+          : (userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
+              ?.organizationName ?? t('common:unknown'));
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [userData]
