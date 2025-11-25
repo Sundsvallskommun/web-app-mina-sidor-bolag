@@ -55,7 +55,7 @@ import { additionalConverters } from './utils/custom-validation-classes';
 import { isValidUrl } from './utils/util';
 import { isValidOrigin } from './utils/isValidOrigin';
 import rateLimit from 'express-rate-limit';
-import getBusinessEngagements from './services/business-engagements.service';
+import { getBusinessEngagements } from './services/business-engagements.service';
 import getDelegatedFacilities from './services/delegation.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
