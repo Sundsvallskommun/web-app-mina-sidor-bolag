@@ -7,12 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { CardElevated } from '../../components/cards/card-elevated.component';
-import { RepresentingMode } from '../../interfaces/app';
 import { CenterDiv } from '../../layouts/center-div.component';
 import { EntryLayout } from '../../layouts/entry-layout.component';
 import Main from '../../layouts/main.component';
 import { appURL } from '../../utils/app-url';
 import { getAdjustedPathname, getRepresentingModeRoute } from '../../utils/representingModeRoute';
+import { RepresentingMode } from '@interfaces/app';
 
 function Login() {
   const router = useRouter();

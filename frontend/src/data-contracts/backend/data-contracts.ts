@@ -10,6 +10,36 @@
  * ---------------------------------------------------------------
  */
 
+export interface PersonEngagement {
+  organizationNumber: string | null;
+  name: string | null;
+  isAuthorizedSignatory?: boolean | null;
+  isSoleTrader?: boolean | null;
+}
+
+export interface BusinessEngagementsApiResponse {
+  data: PersonEngagement[];
+  message: string;
+}
+
+export interface LegalEntityAdress {
+  addressArea: string | null;
+  adressNumber: string | null;
+  city: string | null;
+  postalCode: string | null;
+  municipality: string | null;
+  county: string | null;
+}
+
+export interface BusinessInformation {
+  address: LegalEntityAdress;
+}
+
+export interface BusinessInformationApiResponse {
+  data: BusinessInformation;
+  message: string;
+}
+
 export interface CreateReadNotificationsDto {
   caseId: string;
 }
@@ -20,8 +50,37 @@ export interface RepresentsDto {
   mode?: 'PRIVATE' | 'BUSINESS' | 0 | 1;
 }
 
-export interface PatchUserSettingsDto {
-  feedbackLifespan: 'untilRemoved' | 'oneMonth' | 'twoWeeks';
+export interface ContactSettingChannel {
+  contactMethod: string;
+  destination: string;
+  disabled?: boolean;
+  alias: string;
+}
+
+export interface Meta {
+  page: number;
+  limit: number;
+  count: number;
+  totalRecords: number;
+  totalPages: number;
+  sortBy: string[];
+  sortDirection: 'ASC' | 'DESC';
+}
+
+export interface ContactSetting {
+  id: string;
+  partyId: string;
+  contactChannels: ContactSettingChannel[];
+  created: string;
+  modified: string;
+  virtual: boolean;
+  alias: string;
+  municipalityId: string;
+}
+
+export interface UpdateContactSettingsDto {
+  id: string;
+  contactChannels: ContactSettingChannel[];
 }
 
 export interface ClientContactSettingNotifications {
@@ -47,11 +106,11 @@ export interface ClientContactSetting {
   name?: string;
   email?: string | null;
   phone?: string | null;
-  address?: ClientContactSettingAddress[] | null;
-  notifications?: ClientContactSettingNotifications[];
-  decicionsAndDocuments?: ClientContactSettingDecicionsAndDocuments[];
-  virtual: boolean;
-  alias: string | null;
+  address?: ClientContactSettingAddress | null;
+  notifications?: ClientContactSettingNotifications;
+  decicionsAndDocuments?: ClientContactSettingDecicionsAndDocuments;
+  virtual?: boolean;
+  alias?: string | null;
   municipalityId?: string | null;
   modified?: string;
 }
@@ -80,14 +139,36 @@ export interface Rule {
   attributeValue: string;
 }
 
-export interface Meta {
-  page: number;
-  limit: number;
-  count: number;
-  totalRecords: number;
-  totalPages: number;
-  sortBy: string[];
-  sortDirection: 'ASC' | 'DESC';
+export interface RepresentingPrivateEntity {
+  name: string;
+  personNumber?: string;
+  information?: Information;
+}
+
+export interface RepresentingBusinessEntity {
+  organizationName: string;
+  organizationNumber: string;
+  isAuthorizedSignatory?: boolean;
+  information: Information;
+}
+
+export interface Information {
+  address: ClientContactSettingAddress;
+}
+
+export interface RepresentingEntity {
+  BUSINESS?: RepresentingBusinessEntity;
+  PRIVATE?: RepresentingPrivateEntity;
+  mode: 'PRIVATE' | 'BUSINESS' | 0 | 1;
+}
+
+export interface ClientRepresentingApiResponse {
+  data: RepresentingEntity;
+  message: string;
+}
+
+export interface PatchUserSettingsDto {
+  feedbackLifespan: 'untilRemoved' | 'oneMonth' | 'twoWeeks';
 }
 
 export interface Grantor {

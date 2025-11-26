@@ -1,48 +1,40 @@
-import { Engagement } from '@data-contracts/businessengagements/data-contracts';
-import { BusinessInformation, OrganisationInfo } from '../interfaces/organisation-info';
-import { useEffect, useState } from 'react';
+import { PersonEngagement } from '@data-contracts/backend/data-contracts';
+import { OrganisationInfo } from '@interfaces/organisation-info';
 import { useApi } from '@services/api-service';
-
-export interface OrganisationInfoResponse {
-  organizationName: string;
-  organizationNumber: string;
-  information: BusinessInformation;
-}
+import { useEffect, useState } from 'react';
 
 export const emptyOrganisationInfo: OrganisationInfo = {
   organizationName: '',
   organizationNumber: '',
   information: {
-    companyLocation: {
-      address: {
-        city: '',
-        street: '',
-        postcode: '',
-        careOf: '',
-      },
+    address: {
+      adressNumber: '',
+      addressArea: '',
+      city: '',
+      postalCode: '',
+      municipality: '',
+      county: '',
     },
   },
 };
 
-interface BusinessToRepresent extends Engagement {
+interface BusinessToRepresent extends PersonEngagement {
   isRepresentative: boolean;
 }
 
-const combineAllBusinessToRepresent = (businessEngagements?: Engagement[], businessRepresentatives?: Engagement[]) =>
+const combineAllBusinessToRepresent = (
+  businessEngagements?: PersonEngagement[],
+  businessRepresentatives?: PersonEngagement[]
+) =>
   (businessEngagements?.map((x) => ({ ...x, isRepresentative: false })) ?? []).concat(
     businessRepresentatives?.map((x) => ({ ...x, isRepresentative: true })) ?? []
   );
 
 export const useCombinedBusinessEngagements = () => {
-  const { data: businessEngagements, isLoading: businessEngagementsIsLoading } = useApi<Engagement[]>({
+  const { data: businessEngagements, isLoading: businessEngagementsIsLoading } = useApi<PersonEngagement[]>({
     url: '/businessengagements',
     method: 'get',
   });
-  // MyRepresentatives api currently disabled
-  // const { data: businessRepresentatives, isLoading: businessRepresentativesIsLoading } = useApi<Engagement[]>({
-  //   url: '/myrepresentatives',
-  //   method: 'get',
-  // });
 
   const [engagements, setEngagements] = useState<BusinessToRepresent[]>(
     combineAllBusinessToRepresent(businessEngagements)

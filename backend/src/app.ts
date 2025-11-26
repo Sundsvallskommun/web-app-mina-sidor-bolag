@@ -61,7 +61,9 @@ import getDelegatedFacilities from './services/delegation.service';
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
 // NOTE: memory uses ms while file uses seconds
-const sessionStore = new SessionStoreCreate(SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' });
+const sessionStore = new SessionStoreCreate(
+  SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
+);
 const apiService = new ApiService();
 
 passport.serializeUser(function (user, done) {
@@ -283,116 +285,131 @@ class App {
       });
     });
 
-    this.app.get(`${BASE_URL_PREFIX}/saml/logout/callback`, samlLimiter, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-      logger.info('SAML logout callback received', { query: req.query, body: req.body, user: req.user });
-      req.logout(err => {
-        if (err) return res.status(500).send(err);
-        let successRedirect: URL = new URL(SAML_LOGOUT_REDIRECT);
-        let failureRedirect: URL;
-        const urls = req?.body?.RelayState?.split(',') ?? [];
+    this.app.get(
+      `${BASE_URL_PREFIX}/saml/logout/callback`,
+      samlLimiter,
+      bodyParser.urlencoded({ extended: false }),
+      (req, res, next) => {
+        logger.info('SAML logout callback received', { query: req.query, body: req.body, user: req.user });
+        req.logout(err => {
+          if (err) return res.status(500).send(err);
+          let successRedirect: URL = new URL(SAML_LOGOUT_REDIRECT);
+          let failureRedirect: URL;
+          const urls = req?.body?.RelayState?.split(',') ?? [];
 
-        if (urls.length !== 0) {
-          if (isValidUrl(urls[0])) {
-            successRedirect = new URL(urls[0]);
-          }
-          if (isValidUrl(urls[1])) {
-            failureRedirect = new URL(urls[1]);
-          } else {
-            failureRedirect = successRedirect;
-          }
-        }
-
-        const queries = new URLSearchParams(failureRedirect?.searchParams);
-
-        if (queries) {
-          if (req.session.messages?.length > 0) {
-            queries.append('failMessage', req.session.messages[0]);
-          } else {
-            queries.append('failMessage', 'SAML_UNKNOWN_ERROR');
-          }
-        }
-
-        if (failureRedirect) {
-          res.redirect(failureRedirect.toString());
-        } else {
-          res.redirect(successRedirect.toString());
-        }
-      });
-    });
-
-    this.app.post(`${BASE_URL_PREFIX}/saml/login/callback`, samlLimiter, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-      const relay = typeof req?.body?.RelayState === 'string' ? JSON.parse(req.body.RelayState) : null;
-
-      let successRedirect;
-      if (typeof relay === 'object' && relay?.returnTo && isValidUrl(relay?.returnTo) && isValidOrigin(relay?.returnTo)) {
-        successRedirect = relay.returnTo;
-      } else if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
-        successRedirect = req.body.RelayState;
-      } else {
-        successRedirect = SAML_SUCCESS_REDIRECT;
-      }
-
-      let failureRedirect;
-      if (req.session.messages?.length > 0) {
-        failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
-      } else {
-        failureRedirect = successRedirect + `?failMessage=SAML_UNKNOWN_ERROR`;
-      }
-
-      // Authenticate before saving state to session, since otherwise state may be overwritten
-      passport.authenticate(
-        'saml',
-        {
-          failureRedirect,
-          failureMessage: true,
-        },
-        (err, user) => {
-          if (err) return next(err);
-          if (!user) return res.redirect(failureRedirect);
-
-          req.logIn(user, async err => {
-            if (err) return next(err);
-
-            if (req.body.RelayState) {
-              try {
-                const relay = JSON.parse(req.body.RelayState);
-                if (relay.representingMode != null) {
-                  const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
-                  req.session.representing = {
-                    mode,
-                    PRIVATE: {
-                      partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
-                      personNumber: req.user.personNumber,
-                      name: req.user.name,
-                    },
-                  };
-                }
-              } catch {}
+          if (urls.length !== 0) {
+            if (isValidUrl(urls[0])) {
+              successRedirect = new URL(urls[0]);
             }
+            if (isValidUrl(urls[1])) {
+              failureRedirect = new URL(urls[1]);
+            } else {
+              failureRedirect = successRedirect;
+            }
+          }
 
-            await getBusinessEngagements(user.partyId, user.name)
-              .then(engagements => {
-                req.session.representingBusinessChoices = engagements;
-              })
-              .catch(err => {
-                console.error('Error fetching business engagements:', err);
-                req.session.representingBusinessChoices = [];
+          const queries = new URLSearchParams(failureRedirect?.searchParams);
+
+          if (queries) {
+            if (req.session.messages?.length > 0) {
+              queries.append('failMessage', req.session.messages[0]);
+            } else {
+              queries.append('failMessage', 'SAML_UNKNOWN_ERROR');
+            }
+          }
+
+          if (failureRedirect) {
+            res.redirect(failureRedirect.toString());
+          } else {
+            res.redirect(successRedirect.toString());
+          }
+        });
+      },
+    );
+
+    this.app.post(
+      `${BASE_URL_PREFIX}/saml/login/callback`,
+      samlLimiter,
+      bodyParser.urlencoded({ extended: false }),
+      (req, res, next) => {
+        const relay = typeof req?.body?.RelayState === 'string' ? JSON.parse(req.body.RelayState) : null;
+
+        let successRedirect;
+        if (
+          typeof relay === 'object' &&
+          relay?.returnTo &&
+          isValidUrl(relay?.returnTo) &&
+          isValidOrigin(relay?.returnTo)
+        ) {
+          successRedirect = relay.returnTo;
+        } else if (isValidUrl(req.body.RelayState) && isValidOrigin(req.body.RelayState)) {
+          successRedirect = req.body.RelayState;
+        } else {
+          successRedirect = SAML_SUCCESS_REDIRECT;
+        }
+
+        let failureRedirect;
+        if (req.session.messages?.length > 0) {
+          failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
+        } else {
+          failureRedirect = successRedirect + `?failMessage=SAML_UNKNOWN_ERROR`;
+        }
+
+        // Authenticate before saving state to session, since otherwise state may be overwritten
+        passport.authenticate(
+          'saml',
+          {
+            failureRedirect,
+            failureMessage: true,
+          },
+          (err, user) => {
+            if (err) return next(err);
+            if (!user) return res.redirect(failureRedirect);
+
+            req.logIn(user, async err => {
+              if (err) return next(err);
+
+              if (req.body.RelayState) {
+                try {
+                  const relay = JSON.parse(req.body.RelayState);
+                  if (relay.representingMode != null) {
+                    const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
+                    req.session.representing = {
+                      mode,
+                      PRIVATE: {
+                        partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
+                        personNumber: req.user.personNumber,
+                        name: req.user.name,
+                      },
+                    };
+                  }
+                } catch {}
+              }
+
+              await getBusinessEngagements(user.personNumber)
+                .then(engagements => {
+                  req.session.representingBusinessChoices = engagements;
+                })
+                .catch(err => {
+                  console.error('Error fetching business engagements:', err);
+                  req.session.representingBusinessChoices = [];
+                });
+
+              req.session.cache ??= {};
+              const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+                console.error('Error fetching delegated facilities:', err);
+                return [];
               });
-
-            req.session.cache ??= {};
-            const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
-              console.error('Error fetching delegated facilities:', err);
-              return [];
+              req.session.cache.delegations = delegations;
+              req.session.save(saveErr => {
+                if (saveErr) return next(saveErr);
+                res.redirect(successRedirect);
+              });
             });
-            req.session.cache.delegations = delegations;
-            req.session.save(saveErr => {
-              if (saveErr) return next(saveErr);
-              res.redirect(successRedirect);
-            });
-          });
-        },
-      )(req, res, next);
-    });
+          },
+        )(req, res, next);
+      },
+    );
   }
 
   private initializeRoutes(controllers) {

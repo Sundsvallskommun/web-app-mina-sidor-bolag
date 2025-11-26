@@ -71,3 +71,9 @@ export interface NewContactSettings extends UpdateContactSettings {
   partyId: string;
   createdById: string;
 }
+
+export interface ContactSettingAddress {
+  street?: string;
+  postcode?: string;
+  city?: string;
+}

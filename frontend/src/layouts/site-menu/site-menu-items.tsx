@@ -6,12 +6,13 @@ import { Button, Icon, NavigationBar, PopupMenu, Select, cx, useThemeQueries } f
 import { ArrowRight, ChevronDownCircle, LogOut } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { RepresentingEntity, RepresentingEntityDto, RepresentingMode } from '../../interfaces/app';
 import { useApi, useApiService } from '../../services/api-service';
 import { getRepresentingModeRoute, newRepresentingModePathname } from '../../utils/representingModeRoute';
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { RepresentingEntity, RepresentsDto } from '@data-contracts/backend/data-contracts';
+import { RepresentingMode } from '@interfaces/app';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -25,7 +26,7 @@ export const useRepresentingSwitch = () => {
     queryClient.invalidateQueries();
   };
 
-  const setRepresenting = async (representingDto: RepresentingEntityDto) => {
+  const setRepresenting = async (representingDto: RepresentsDto) => {
     queryClient.cancelQueries();
     try {
       const res = await representingMutation.mutateAsync(representingDto);
@@ -108,9 +109,9 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
                   <PopupMenu.Item key={`${index}`}>
                     <Button
                       rightIcon={<Icon icon={<ArrowRight />} />}
-                      onClick={() => setEngagement(engagement?.organizationNumber)}
+                      onClick={() => setEngagement(engagement?.organizationNumber as string)}
                     >
-                      <span className="font-bold">{engagement.organizationName}</span>
+                      <span className="font-bold">{engagement.name}</span>
                       {engagement.isRepresentative ? (
                         <span className="ml-[.5em]">{t('common:isRepresentative')}</span>
                       ) : null}
@@ -128,9 +129,12 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
               className="w-full"
               onSelectValue={(organizationNumber) => setEngagement(organizationNumber)}
             >
-              {engagements?.map((engagement, index) => (
-                <Select.Option key={`${index}`} value={engagement.organizationNumber}>
-                  {engagement.organizationName}
+              {engagements?.map((engagement) => (
+                <Select.Option
+                  key={`${engagement.name}-${engagement.organizationNumber}`}
+                  value={engagement.organizationNumber as string}
+                >
+                  {engagement.name}
                   {engagement.isRepresentative ? ` (ombud)` : null}
                 </Select.Option>
               ))}

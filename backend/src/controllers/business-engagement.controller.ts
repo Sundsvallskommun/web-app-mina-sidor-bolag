@@ -1,38 +1,31 @@
-import { MOCK_ORGANIZATION_ID, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import {
-  BusinessEngagementsResponse,
-  BusinessEngagementsResponseStatusEnum,
-  BusinessInformation,
-  Engagement,
-} from '@/data-contracts/businessengagements/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { ApiResponse } from '@/interfaces/service';
+import { BusinessEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
 import ApiService from '@/services/api.service';
+import getBusinessEngagements, { getBusinessInformation } from '@/services/business-engagements.service';
+import { logger } from '@/utils/logger';
 import authMiddleware from '@middlewares/auth.middleware';
-import { Controller, Get, QueryParam, Req, UseBefore } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
-import { ENVIRONMENT } from '@config';
-
-interface InformationResponse {
-  information: {
-    companyLocation: BusinessInformation['companyLocation'];
-  };
-}
+import { Response } from 'express';
+import { Controller, Get, Req, Res, UseBefore } from 'routing-controllers';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Controller()
 export class BusinessEngagementController {
-  private apiService = new ApiService();
-  private apiBase = getApiBase('businessengagements');
+  private readonly apiService = new ApiService();
+  private readonly apiBase = getApiBase('legalentity');
 
   @Get('/businessengagements')
   @OpenAPI({ summary: 'Return a list of business engagements for current logged in user' })
+  @ResponseSchema(BusinessEngagementsApiResponse)
   @UseBefore(authMiddleware)
-  async businessEngagments(@Req() req: RequestWithUser): Promise<ApiResponse<Engagement[]>> {
-    const { partyId, name } = req?.user;
+  async businessEngagments(
+    @Req() req: RequestWithUser,
+    @Res() res: Response<BusinessEngagementsApiResponse>,
+  ): Promise<Response<BusinessEngagementsApiResponse>> {
+    const { personNumber } = req.user;
 
-    if (!partyId) {
+    if (!personNumber) {
       throw new HttpException(400, 'Bad Request');
     }
 
@@ -41,49 +34,38 @@ export class BusinessEngagementController {
       controller.abort();
       req.destroy();
     });
+    try {
+      let engagements = req.session.representingBusinessChoices;
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/engagements/${partyId}`;
-    const params = {
-      personalName: name,
-      serviceName: 'Mina Sidor',
-    };
+      if (!engagements) {
+        engagements = await getBusinessEngagements(personNumber);
+        if (!engagements) {
+          throw new HttpException(404, 'Not Found');
+        }
+        req.session.representingBusinessChoices = engagements ?? [];
+      }
 
-    let res: { data: BusinessEngagementsResponse };
-    if (ENVIRONMENT === 'TEST' && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER && MOCK_ORGANIZATION_ID) {
-      res = {
-        data: {
-          engagements: [
-            {
-              organizationName: MOCK_ORGANIZATION_NAME,
-              organizationNumber: MOCK_ORGANIZATION_NUMBER,
-              organizationId: MOCK_ORGANIZATION_ID,
-            },
-          ],
-          statusDescriptions: {},
-          status: BusinessEngagementsResponseStatusEnum.OK,
-        },
-      };
-    } else {
-      res = await this.apiService.get<BusinessEngagementsResponse>({ url, params }, req.user);
+      const data = engagements.map(engagement => {
+        const { organizationNumber, name, isAuthorizedSignatory, isSoleTrader } = engagement;
+        return { organizationNumber, name, isAuthorizedSignatory, isSoleTrader };
+      });
+
+      return res.send({ data, message: 'success' });
+    } catch (error) {
+      logger.error('Error getting business engagements', error);
+      throw new HttpException(500, 'Internal server error');
     }
-
-    if (!res.data?.engagements) {
-      throw new HttpException(404, 'Not Found');
-    }
-
-    // NOTE: set representing to session so we can use it to lookup later
-    req.session.representingBusinessChoices = res.data && res.data.engagements ? res.data.engagements : [];
-
-    return { data: res.data.engagements, message: 'success' };
   }
 
   @Get('/businessinformation')
   @OpenAPI({ summary: 'Return businessinformation for current representing organisation' })
+  @ResponseSchema(BusinessInformationApiResponse)
   @UseBefore(authMiddleware)
   async businessInformation(
     @Req() req: RequestWithUser,
-    @QueryParam('engagement') engagement: Engagement,
-  ): Promise<ApiResponse<InformationResponse>> {
+    @Res() res: Response<BusinessInformationApiResponse>,
+  ): Promise<Response<BusinessInformationApiResponse>> {
+    const engagement = req.session.representing?.BUSINESS;
     const controller = new AbortController();
     req.on('aborted', () => {
       controller.abort();
@@ -91,34 +73,19 @@ export class BusinessEngagementController {
     });
 
     if (!engagement) {
-      throw new HttpException(400, 'Bad Request - No choices');
-    }
-    if (!engagement) {
-      throw new HttpException(400, 'Bad Request - Does not exists');
+      throw new HttpException(500, 'Internal Server Error - Does not exists');
     }
 
-    if (!engagement.organizationId || !engagement.organizationName || !engagement.organizationNumber) {
+    if (!engagement.organizationNumber) {
       throw new HttpException(500, 'Internal Server Error - Data not complete');
     }
+    const details = await getBusinessInformation(engagement, req.user);
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/information/${engagement.organizationId}`;
-    const params = {
-      organizationName: engagement.organizationName,
-      serviceName: 'Mina Sidor',
-    };
-
-    const res = await this.apiService.get<BusinessInformation>({ url, params }, req.user);
-
-    if (!res.data) {
+    if (!details) {
       throw new HttpException(404, 'Not Found');
     }
+    const { address } = details;
 
-    const responseData: InformationResponse = {
-      information: {
-        companyLocation: (res.data.companyLocation as { address: BusinessInformation['companyLocation'] })?.address ?? null,
-      },
-    };
-
-    return { data: responseData, message: 'success' };
+    return res.send({ data: { address }, message: 'success' });
   }
 }
