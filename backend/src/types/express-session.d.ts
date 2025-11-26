@@ -6,7 +6,7 @@ import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
 import { SignMandateCache } from '@/interfaces/mandates.interface';
 import { User } from '@/interfaces/users.interface';
-import { RepresentingEntity } from '../interfaces/representing.interface';
+import { RepresentingEntity } from '@interfaces/representing.interface';
 
 declare module 'express-session' {
   interface Session {
