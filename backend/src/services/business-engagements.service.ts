@@ -6,6 +6,7 @@ import { BusinessInformation } from '@/interfaces/business-engagement';
 import { User } from '@/interfaces/users.interface';
 import ApiService from './api.service';
 import { Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
+import { logger } from '@/utils/logger';
 
 export const getBusinessEngagements = async (user: User): Promise<PersonEngagement[]> => {
   if (!user.personNumber) {
@@ -37,7 +38,12 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
       ],
     };
   } else {
-    res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
+    try {
+      res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
+    } catch (error) {
+      logger.error('Could not get engagements', error);
+      res = { data: [] };
+    }
   }
 
   await addEngagementFromMandate(user, apiService, apiBase, res);
@@ -98,7 +104,7 @@ const addEngagementFromMandate = async (
         res.data.push({
           organizationNumber: companyByGrantor.data.organizationNumber,
           name: companyByGrantor.data.name,
-          isAuthorizedSignatory: true,
+          isAuthorizedSignatory: false,
           isSoleTrader: null,
         });
       }),
