@@ -77,10 +77,10 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
   const getOrganizationName = useMemo(
     () =>
       (organizationNumber: string): string => {
-        return organizationNumber === '5565027223'
-          ? t('organization:5564786647.name')
-          : (userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
-              ?.organizationName ?? t('common:unknown'));
+        return (
+          userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
+            ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
+        );
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [userData]
