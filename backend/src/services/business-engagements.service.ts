@@ -7,6 +7,7 @@ import { User } from '@/interfaces/users.interface';
 import ApiService from './api.service';
 import { Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
 import { logger } from '@/utils/logger';
+import { HttpError } from 'routing-controllers';
 
 export const getBusinessEngagements = async (user: User): Promise<PersonEngagement[]> => {
   if (!user.personNumber) {
@@ -64,20 +65,24 @@ export const getBusinessInformation = async (
   if (!engagement.organizationNumber) {
     throw new HttpException(500, 'Internal Server Error - Data not complete');
   }
+  try {
+    const guidurl = `${apiBase}/${MUNICIPALITY_ID}/${engagement.organizationNumber}/guid`;
+    const guid = await apiService.get<string>({ url: guidurl }, user);
 
-  const guidurl = `${apiBase}/${MUNICIPALITY_ID}/${engagement.organizationNumber}/guid`;
-  const guid = await apiService.get<string>({ url: guidurl }, user);
+    const url = `${apiBase}/${MUNICIPALITY_ID}/${guid.data}`;
 
-  const url = `${apiBase}/${MUNICIPALITY_ID}/${guid.data}`;
+    const details = await apiService.get<LegalEntity2>({ url }, user);
 
-  const details = await apiService.get<LegalEntity2>({ url }, user);
+    if (!details.data) {
+      throw new HttpException(404, 'Not Found');
+    }
+    const { address } = details.data;
 
-  if (!details.data) {
-    throw new HttpException(404, 'Not Found');
+    return { address, partyId: guid.data };
+  } catch (error) {
+    logger.error('Error getting business information: ', error);
+    throw new HttpError(error?.code ?? 500, error?.message ?? 'Error getting business information');
   }
-  const { address } = details.data;
-
-  return { address, partyId: guid.data };
 };
 
 const addEngagementFromMandate = async (
@@ -92,22 +97,26 @@ const addEngagementFromMandate = async (
   const mandateParams = {
     granteePartyId: user.partyId,
   };
+  try {
+    const mandateRes = await apiService.get<Mandates>({ url: mandateApiUrl, params: mandateParams }, user);
 
-  const mandateRes = await apiService.get<Mandates>({ url: mandateApiUrl, params: mandateParams }, user);
+    if (mandateRes && mandateRes.data.mandateDetailsList.length > 0) {
+      await Promise.all(
+        mandateRes.data.mandateDetailsList.map(async m => {
+          const url = `${apiBase}/${MUNICIPALITY_ID}/${m.grantorDetails.grantorPartyId}`;
+          const companyByGrantor = await apiService.get<LegalEntity2>({ url }, user);
 
-  if (mandateRes && mandateRes.data.mandateDetailsList.length > 0) {
-    await Promise.all(
-      mandateRes.data.mandateDetailsList.map(async m => {
-        const url = `${apiBase}/${MUNICIPALITY_ID}/${m.grantorDetails.grantorPartyId}`;
-        const companyByGrantor = await apiService.get<LegalEntity2>({ url }, user);
-
-        res.data.push({
-          organizationNumber: companyByGrantor.data.organizationNumber,
-          name: companyByGrantor.data.name,
-          isAuthorizedSignatory: false,
-          isSoleTrader: null,
-        });
-      }),
-    );
+          res.data.push({
+            organizationNumber: companyByGrantor.data.organizationNumber,
+            name: companyByGrantor.data.name,
+            isAuthorizedSignatory: false,
+            isSoleTrader: null,
+          });
+        }),
+      );
+    }
+  } catch (error) {
+    logger.error('Error getting engagement: ', error);
+    throw new HttpError(error?.code ?? 500, error?.message ?? 'Error getting engagement');
   }
 };
