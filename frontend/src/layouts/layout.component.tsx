@@ -66,20 +66,6 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 <Footer.ListItem className="font-bold">Sundsvall Energi</Footer.ListItem>
                 <Footer.ListItem>
                   Telefon:
-                  <NextLink variant="tertiary" href={'tel:+46606005020'}>
-                    060-600 50 20
-                  </NextLink>
-                </Footer.ListItem>
-                <Footer.ListItem>
-                  Mail:
-                  <NextLink variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
-                    info@sundsvallelnat.se
-                  </NextLink>
-                </Footer.ListItem>
-
-                <Footer.ListItem className="font-bold">Sundsvall Elnät</Footer.ListItem>
-                <Footer.ListItem>
-                  Telefon:
                   <NextLink variant="tertiary" href={'tel:060192200'}>
                     060-19 22 00
                   </NextLink>
@@ -88,6 +74,20 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                   Mail:
                   <NextLink variant="tertiary" href={'mailto:kundservice@sundsvallenergi.se'}>
                     kundservice@sundsvallenergi.se
+                  </NextLink>
+                </Footer.ListItem>
+
+                <Footer.ListItem className="font-bold">Sundsvall Elnät</Footer.ListItem>
+                <Footer.ListItem>
+                  Telefon:
+                  <NextLink variant="tertiary" href={'tel:+46606005020'}>
+                    060-600 50 20
+                  </NextLink>
+                </Footer.ListItem>
+                <Footer.ListItem>
+                  Mail:
+                  <NextLink variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
+                    info@sundsvallelnat.se
                   </NextLink>
                 </Footer.ListItem>
               </Footer.List>
