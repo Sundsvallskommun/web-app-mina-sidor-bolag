@@ -7,7 +7,7 @@ import { RequestWithUser } from '@interfaces/auth.interface';
 import { ApiResponse } from '@interfaces/service';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { HttpException } from '@exceptions/HttpException';
-import { MUNICIPALITY_ID } from '@config';
+import { MUNICIPALITY_ID, NAMESPACE } from '@config';
 import { logger } from '@utils/logger';
 import { EventResponse, EventType, PagedEventsResponse } from '@/responses/eventlog.response';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
@@ -17,7 +17,6 @@ import { PageEvent, Event } from '@/data-contracts/eventlog/data-contracts';
 class EventLogController {
   readonly apiService = new ApiService();
   readonly apiBase = getApiBase('eventlog');
-  private readonly eventLogOwner = 'BolagensMinaSidor';
 
   @Get('/event/get')
   @OpenAPI({ summary: 'Get log events' })
@@ -38,7 +37,7 @@ class EventLogController {
         partyId,
         size,
         sort,
-        filter: encodeURI(`owner:'${this.eventLogOwner}'`),
+        filter: encodeURI(`owner:'${NAMESPACE}'`),
       };
 
       const res = await this.apiService.get<PageEvent>({ url, params }, req.user);
@@ -86,7 +85,7 @@ class EventLogController {
     const createLogData: Event = {
       type: EventType.READ,
       message: 'Export av mätdata',
-      owner: 'BolagensMinaSidor',
+      owner: NAMESPACE,
       sourceType: 'Export',
       expires: exportLogData[0].expires,
       metadata: [
