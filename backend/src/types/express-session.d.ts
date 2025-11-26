@@ -5,8 +5,6 @@ import { Delegation, InstalledBaseItem } from '@/data-contracts/installedbase/da
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { User } from '@/interfaces/users.interface';
 import { RepresentingEntity } from '@interfaces/representing.interface';
-import { SignMandateCache } from '@/interfaces/mandates.interface';
-import { GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
 
 declare module 'express-session' {
   interface Session {
