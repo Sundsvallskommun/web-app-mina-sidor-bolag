@@ -26,7 +26,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
   const [activePage, setActivePage] = useState(1);
   const [rows, setRows] = useState<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
-  const { t } = useTranslation(['common', 'invoice']);
+  const { t } = useTranslation(['common', 'invoice', 'organization']);
 
   const previousActivePage = useRef<number>(-1);
   const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
@@ -79,7 +79,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
       (organizationNumber: string): string => {
         return (
           userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? t('common:unknown')
+            ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
         );
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
