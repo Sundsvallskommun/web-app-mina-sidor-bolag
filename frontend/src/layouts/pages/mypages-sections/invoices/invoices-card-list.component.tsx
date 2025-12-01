@@ -30,6 +30,30 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
+  const searchParams = new URLSearchParams({});
+  searchParams.append('limit', pageSize.toString());
+  searchParams.append('page', activePage.toString());
+  if (facilityIds?.length) {
+    searchParams.append('facilityId', facilityIds.toString());
+  } else if (userData?.facilities?.length) {
+    searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
+  }
+
+  const paginationChanged = activePage !== previousActivePage.current;
+  const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
+  const representingModeChanged = representingMode !== previousRepresentingMode.current;
+
+  const base = onlyPending ? '/invoices/pending' : '/invoices';
+  const { data = emptyInvoicesList, isFetched } = useApi<InvoicesResponse, Error, InvoicesData>({
+    queryKey: [base, searchParams.toString()],
+    url: `${base}?${searchParams.toString()}`,
+    method: 'get',
+    queryOptions: {
+      enabled: paginationChanged || facilityIdsChanged,
+    },
+    dataHandler: invoicesHandler,
+  });
+
   useEffect(() => {
     previousActivePage.current = -1;
     previousRows.current = [];
