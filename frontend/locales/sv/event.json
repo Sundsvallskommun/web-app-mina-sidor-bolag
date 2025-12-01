@@ -4,7 +4,27 @@
   "hideExports": "Dölj exporter",
   "address": "Adress",
   "facilityId": "Anläggnings ID",
-  "category": "Kategori",
+  "category": {
+    "title": "Kategori",
+    "ELECTRICITY": "Elförbrukning",
+    "ELECTRICITY_PRODUCTION": "Elproduktion",
+    "DISTRICT_HEATING": "Fjärrvärme",
+    "ELECTRICITY_TRADE": "Elhandel",
+    "COMMUNICATION": "Bredband"
+  },
+  "categoryType": {
+    "Elförbrukning": "ELECTRICITY",
+    "Elproduktion": "ELECTRICITY_PRODUCTION",
+    "Fjärrvärme": "DISTRICT_HEATING",
+    "Bredband": "COMMUNICATION"
+  },
+  "aggregation": {
+    "HOUR": "Timme",
+    "DAY": "Dag",
+    "MONTH": "Månad",
+    "YEAR": "År",
+    "QUARTERLY": "Kvartal"
+  },
   "timePeriod": "Tidsperiod",
   "aggregateOn": "Tidsupplösning",
   "logCreated": "{{date}}, klockan {{time}}",
