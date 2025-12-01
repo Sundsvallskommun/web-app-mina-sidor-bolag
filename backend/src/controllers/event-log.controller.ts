@@ -12,6 +12,10 @@ import { logger } from '@utils/logger';
 import { EventResponse, EventType, PagedEventsResponse } from '@/responses/eventlog.response';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { PageEvent, Event } from '@/data-contracts/eventlog/data-contracts';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import { createLogEventData } from '@interfaces/event';
+dayjs.extend(utc);
 
 @Controller()
 class EventLogController {
@@ -64,7 +68,10 @@ class EventLogController {
   @OpenAPI({ summary: 'Create log event' })
   @UseBefore(authMiddleware)
   @ResponseSchema(EventResponse)
-  async createEvent(@Req() req: RequestWithUser, @Body() exportLogData: FormData): Promise<ApiResponse<number>> {
+  async createEvent(
+    @Req() req: RequestWithUser,
+    @Body() exportLogData: createLogEventData[],
+  ): Promise<ApiResponse<number>> {
     const representing = req.session?.representing ?? undefined;
     const partyId = getRepresentingPartyId(representing);
     const user = req.session.cache;
@@ -82,22 +89,53 @@ class EventLogController {
 
     const ownerPartyId = representing.mode === 0 ? checkIfDelegatedFacility() : representing.BUSINESS.partyId;
 
+    exportLogData.map(logItem => {
+      if (logItem.year) {
+        exportLogData.push({
+          facilityId: logItem.facilityId,
+          facilityAddress: logItem.facilityAddress,
+          fromDate: dayjs(logItem.fromDate)
+            .utc(true)
+            .subtract(parseInt(dayjs(logItem.fromDate).format('YYYY')) - logItem.year, 'year')
+            .startOf('date')
+            .utc(true)
+            .format(),
+          toDate: dayjs(logItem.toDate)
+            .subtract(parseInt(dayjs(logItem.toDate).format('YYYY')) - logItem.year, 'year')
+            .endOf('date')
+            .utc(true)
+            .format(),
+          category: logItem.category,
+          aggregation: logItem.aggregation,
+        });
+      }
+    });
+
+    const metadata = exportLogData.reduce(
+      (data, item, index) => {
+        return [
+          ...data,
+          { key: `facilities[${index}].facilityId`, value: item.facilityId },
+          { key: `facilities[${index}].address`, value: item.facilityAddress },
+          { key: `facilities[${index}].category`, value: item.category },
+          { key: `facilities[${index}].fromDate`, value: item.fromDate },
+          { key: `facilities[${index}].toDate`, value: item.toDate },
+          { key: `facilities[${index}].aggregateOn`, value: item.aggregation },
+        ];
+      },
+      [
+        { key: 'exportedByPartyId', value: representing.PRIVATE.partyId },
+        { key: 'ownerPartyId', value: ownerPartyId },
+      ],
+    );
+
     const createLogData: Event = {
       type: EventType.READ,
       message: 'Export av mätdata',
       owner: NAMESPACE,
       sourceType: 'Export',
-      expires: exportLogData[0].expires,
-      metadata: [
-        { key: 'exportedByPartyId', value: representing.PRIVATE.partyId },
-        { key: 'ownerPartyId', value: ownerPartyId },
-        { key: 'facilities[0].facilityId', value: exportLogData[0].facilityId },
-        { key: 'facilities[0].address', value: exportLogData[0].facilityAddress },
-        { key: 'facilities[0].category', value: exportLogData[0].category },
-        { key: 'facilities[0].fromDate', value: exportLogData[0].fromDate },
-        { key: 'facilities[0].toDate', value: exportLogData[0].toDate },
-        { key: 'facilities[0].aggregateOn', value: exportLogData[0].aggregation },
-      ],
+      expires: dayjs().add(1, 'year').utc(true).toISOString(),
+      metadata,
     };
 
     try {
