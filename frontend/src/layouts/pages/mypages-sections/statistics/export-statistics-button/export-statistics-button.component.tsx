@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Event } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
 import { getEventCategory } from '@utils/facility';
-import { createLogEventData } from '@interfaces/event';
+import { CreateLogEventData } from '@interfaces/event';
 
 export interface ExportStatisticsButtonProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -59,7 +59,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
         },
       ];
 
-      const logInformation: createLogEventData[] = [
+      const logInformation: CreateLogEventData[] = [
         {
           facilityId: getValues().facilityId,
           facilityAddress: getValues().address,

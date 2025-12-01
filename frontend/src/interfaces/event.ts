@@ -26,7 +26,7 @@ export interface MetaDataFacility {
   toDate: string;
 }
 
-export interface createLogEventData {
+export interface CreateLogEventData {
   facilityId: string;
   facilityAddress: string;
   fromDate: string;
