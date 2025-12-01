@@ -37,8 +37,7 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
   searchParams.append('page', activePage.toString());
   if (facilityIds?.length) {
     searchParams.append('facilityId', facilityIds.toString());
-  }
-  if (userData?.facilities?.length) {
+  } else if (userData?.facilities?.length) {
     searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
   }
 
@@ -83,6 +82,14 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
         );
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userData]
+  );
+
+  const getInvoiceAddress = useMemo(
+    () =>
+      (facilityId: string): string => {
+        return userData?.addresses.find((address) => address.facilityIds.includes(facilityId))?.address ?? '';
+      },
     [userData]
   );
 
@@ -140,8 +147,13 @@ export const InvoicesTable = ({ pageSize, facilityIds, emptyComponent, onlyPendi
       },
       {
         label: t('common:address'),
-        property: 'invoiceAddress.street',
+        property: 'invoiceAddress',
         className: 'max-w-[146px]',
+        renderColumn: (_value, item) => (
+          <div className="text-left text-small">
+            <span>{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
+          </div>
+        ),
       },
       {
         label: t('invoice:fetch'),

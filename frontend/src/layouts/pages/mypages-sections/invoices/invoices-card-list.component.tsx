@@ -35,9 +35,9 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
   const searchParams = new URLSearchParams({});
   searchParams.append('limit', pageSize.toString());
   searchParams.append('page', activePage.toString());
-  if (facilityIds?.length) searchParams.append('facilityId', facilityIds.toString());
-
-  if (userData?.facilities?.length) {
+  if (facilityIds?.length) {
+    searchParams.append('facilityId', facilityIds.toString());
+  } else if (userData?.facilities?.length) {
     searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
   }
 
