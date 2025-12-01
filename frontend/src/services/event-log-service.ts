@@ -1,4 +1,3 @@
-import { translateAggregateOn, translateCategory } from '@utils/facility';
 import dayjs from 'dayjs';
 import { PagedEvents } from '@data-contracts/backend/data-contracts';
 import { EventData, MetaDataFacility, StructuredMetaData } from '@interfaces/event';
@@ -37,8 +36,6 @@ export const handleEventLogResponse: (data: PagedEvents) => EventData = (data): 
     ) as StructuredMetaData;
 
     mappedData.facilities.forEach((facility: MetaDataFacility) => {
-      facility.category = translateCategory(facility.category);
-      facility.aggregateOn = translateAggregateOn(facility.aggregateOn);
       facility.toDate = dayjs(facility.toDate).format('YYYY-MM-DD');
       facility.fromDate = dayjs(facility.fromDate).format('YYYY-MM-DD');
     });
