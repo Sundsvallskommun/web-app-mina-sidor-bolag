@@ -1,6 +1,6 @@
 import { Aggregation } from '@/data-contracts/measurementdata/data-contracts';
 
-export interface createLogEventData {
+export interface CreateLogEventData {
   facilityId: string;
   facilityAddress: string;
   fromDate: string;
