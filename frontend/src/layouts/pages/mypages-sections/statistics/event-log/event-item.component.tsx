@@ -29,7 +29,7 @@ export const EventItem: React.FC<{ data: StructuredEvent }> = ({ data }) => {
             <div className="flex items-start pt-24 self-stretch px-20">
               <strong className="max-w-[180px] flex-1">{t('event:address')}</strong>
               <strong className="max-w-[180px] flex-1">{t('event:facilityId')}</strong>
-              <strong className="max-w-[140px] flex-1">{t('event:category')}</strong>
+              <strong className="max-w-[140px] flex-1">{t('event:category.title')}</strong>
               <strong className="max-w-[240px] flex-1">{t('event:timePeriod')}</strong>
               <strong className="max-w-[140px] flex-1">{t('event:aggregateOn')}</strong>
             </div>
@@ -41,11 +41,15 @@ export const EventItem: React.FC<{ data: StructuredEvent }> = ({ data }) => {
                 <div key={`${facility.address}-${index}`} className="flex px-20">
                   <p className="max-w-[180px] flex-1">{facility.address ?? t('common:unknown')}</p>
                   <p className="max-w-[180px] flex-1">{facility.facilityId ?? t('common:unknown')}</p>
-                  <p className="max-w-[140px] flex-1">{facility.category ?? t('common:unknown')}</p>
+                  <p className="max-w-[140px] flex-1">
+                    {t(`event:category.${facility.category}`, { defaultValue: t('common:unknown') })}
+                  </p>
                   <p className="max-w-[240px] flex-1">
                     {facility.fromDate} - {facility.toDate}
                   </p>
-                  <p className="max-w-[140px]">{facility.aggregateOn ?? t('common:unknown')}</p>
+                  <p className="max-w-[140px]">
+                    {t(`event:aggregation.${facility.aggregateOn}`, { defaultValue: t('common:unknown') })}
+                  </p>
                 </div>
               ) : (
                 <div
@@ -57,7 +61,7 @@ export const EventItem: React.FC<{ data: StructuredEvent }> = ({ data }) => {
                     <p>{facility.address ?? t('common:unknown')}</p>
                     <strong>{t('event:facilityId')}</strong>
                     <p>{facility.facilityId ?? t('common:unknown')}</p>
-                    <strong>{t('event:category')}</strong>
+                    <strong>{t('event:category.title')}</strong>
                     <p>{facility.category ?? t('common:unknown')}</p>
                     <strong>{t('event:timePeriod')}</strong>
                     <p>

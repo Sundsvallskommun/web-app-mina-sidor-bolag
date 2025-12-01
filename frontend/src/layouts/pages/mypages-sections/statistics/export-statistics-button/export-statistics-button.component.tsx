@@ -15,7 +15,8 @@ import { translateAggregateOn } from '@services/measurement-data-service';
 import { useTranslation } from 'react-i18next';
 import { Event } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
-import { getCategoryFromInstalledBaseType } from '@utils/facility';
+import { getEventCategory } from '@utils/facility';
+import { createLogEventData } from '@interfaces/event';
 
 export interface ExportStatisticsButtonProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -33,7 +34,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   });
 
   const exportStatistics = () => {
-    if (data?.measurementData) {
+    if (data?.measurementData && data?.aggregatedOn) {
       const exportInformationHeadings = [
         ['Anläggnings-id', 'Adress', 'Kategori', 'Tidpunkt för export', 'Starttidpunkt', 'Sluttidpunkt', 'Detaljnivå'],
       ];
@@ -50,23 +51,23 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
         {
           facilityId: getValues().facilityId,
           facilityAddress: getValues().address,
+          category: getValues().category,
+          exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
           fromDate: getValues().fromDate,
           toDate: getValues().toDate,
-          category: getValues().category,
           aggregation: translateAggregateOn(data?.aggregatedOn).toUpperCase(),
-          exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
         },
       ];
 
-      const logInformation = [
+      const logInformation: createLogEventData[] = [
         {
           facilityId: getValues().facilityId,
           facilityAddress: getValues().address,
-          fromDate: dayjs(getValues().fromDate).toISOString(),
-          toDate: dayjs(getValues().toDate).toISOString(),
-          category: getCategoryFromInstalledBaseType(getValues().category),
-          aggregation: data?.aggregatedOn,
-          expires: dayjs().add(1, 'year').toISOString(),
+          fromDate: dayjs(getValues().fromDate).utc(true).toISOString(),
+          toDate: dayjs(getValues().toDate).utc(true).toISOString(),
+          category: getEventCategory(getValues().category),
+          aggregation: data.aggregatedOn,
+          year: getValues().year,
         },
       ];
 
