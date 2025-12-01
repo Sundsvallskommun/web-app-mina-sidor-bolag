@@ -1,9 +1,7 @@
-import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { BusinessEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
-import ApiService from '@/services/api.service';
-import getBusinessEngagements, { getBusinessInformation } from '@/services/business-engagements.service';
+import { getBusinessEngagements, getBusinessInformation } from '@/services/business-engagements.service';
 import { logger } from '@/utils/logger';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Response } from 'express';
@@ -12,9 +10,6 @@ import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Controller()
 export class BusinessEngagementController {
-  private readonly apiService = new ApiService();
-  private readonly apiBase = getApiBase('legalentity');
-
   @Get('/businessengagements')
   @OpenAPI({ summary: 'Return a list of business engagements for current logged in user' })
   @ResponseSchema(BusinessEngagementsApiResponse)
@@ -23,9 +18,7 @@ export class BusinessEngagementController {
     @Req() req: RequestWithUser,
     @Res() res: Response<BusinessEngagementsApiResponse>,
   ): Promise<Response<BusinessEngagementsApiResponse>> {
-    const { personNumber } = req.user;
-
-    if (!personNumber) {
+    if (!req.user.personNumber) {
       throw new HttpException(400, 'Bad Request');
     }
 
@@ -37,8 +30,8 @@ export class BusinessEngagementController {
     try {
       let engagements = req.session.representingBusinessChoices;
 
-      if (!engagements) {
-        engagements = await getBusinessEngagements(personNumber);
+      if (!engagements || engagements.length <= 0) {
+        engagements = await getBusinessEngagements(req.user);
         if (!engagements) {
           throw new HttpException(404, 'Not Found');
         }
