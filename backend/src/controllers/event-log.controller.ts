@@ -14,7 +14,7 @@ import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { PageEvent, Event } from '@/data-contracts/eventlog/data-contracts';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { createLogEventData } from '@interfaces/event';
+import { CreateLogEventData } from '@interfaces/event';
 dayjs.extend(utc);
 
 @Controller()
@@ -70,7 +70,7 @@ class EventLogController {
   @ResponseSchema(EventResponse)
   async createEvent(
     @Req() req: RequestWithUser,
-    @Body() exportLogData: createLogEventData[],
+    @Body() exportLogData: CreateLogEventData[],
   ): Promise<ApiResponse<number>> {
     const representing = req.session?.representing ?? undefined;
     const partyId = getRepresentingPartyId(representing);
@@ -89,20 +89,20 @@ class EventLogController {
 
     const ownerPartyId = representing.mode === 0 ? checkIfDelegatedFacility() : representing.BUSINESS.partyId;
 
-    exportLogData.map(logItem => {
+    exportLogData.forEach(logItem => {
       if (logItem.year) {
         exportLogData.push({
           facilityId: logItem.facilityId,
           facilityAddress: logItem.facilityAddress,
           fromDate: dayjs(logItem.fromDate)
             .utc(true)
-            .subtract(parseInt(dayjs(logItem.fromDate).format('YYYY')) - logItem.year, 'year')
+            .subtract(Number.parseInt(dayjs(logItem.fromDate).format('YYYY')) - logItem.year, 'year')
             .startOf('date')
             .utc(true)
             .format(),
           toDate: dayjs(logItem.toDate)
-            .subtract(parseInt(dayjs(logItem.toDate).format('YYYY')) - logItem.year, 'year')
-            .endOf('date')
+            .subtract(Number.parseInt(dayjs(logItem.toDate).format('YYYY')) - logItem.year, 'year')
+            .startOf('date')
             .utc(true)
             .format(),
           category: logItem.category,
