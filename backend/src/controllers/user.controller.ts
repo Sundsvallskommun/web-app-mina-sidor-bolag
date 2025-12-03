@@ -203,7 +203,7 @@ export class UserController {
                   .filter(facilityActiveLastThreeYears)
                   .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
                   .map(item => {
-                    return { ...item, isDelegated: true };
+                    return { ...item, isDelegated: true, facilityOwnerPartyId: customer.partyId };
                   });
               });
             delegatedInstalledBasePromises.push(thisPromise);

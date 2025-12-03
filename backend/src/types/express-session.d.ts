@@ -6,7 +6,7 @@ import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { GrpCollectResponseWithRef, GrpInitiateResponseWithStartTime } from '@/interfaces/grp.interface';
 import { SignMandateCache } from '@/interfaces/mandates.interface';
 import { User } from '@/interfaces/users.interface';
-import { RepresentingEntity } from '../interfaces/representing.interface';
+import { RepresentingEntity } from '@interfaces/representing.interface';
 
 declare module 'express-session' {
   interface Session {
@@ -26,11 +26,11 @@ declare module 'express-session' {
       };
       relations?: CustomerRelation[];
       addresses?: FacilityAddress[];
-      facilities?: InstalledBaseItem[];
+      facilities?: (InstalledBaseItem & { facilityOwnerPartyId?: string })[];
       delegations?: Delegation[];
     };
     signs: {
-      // eslint-disable-next-line no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       details: Record<string, any>;
       pending: Record<string, GrpInitiateResponseWithStartTime>;
       completed: Record<string, GrpCollectResponseWithRef>;

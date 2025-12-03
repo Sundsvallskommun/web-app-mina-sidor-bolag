@@ -2,15 +2,12 @@
 
 import { Icon, Spinner } from '@sk-web-gui/react';
 import { useApi } from '@services/api-service';
-import {
-  calculateYearDifference,
-  getCategoryFromInstalledBaseType,
-  measurementDataByMonthHandler,
-} from '@services/measurement-data-service';
+import { calculateYearDifference, measurementDataByMonthHandler } from '@services/measurement-data-service';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { ArrowDownRight, ArrowUpRight, Lightbulb, Waves } from 'lucide-react';
 import { Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
 export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayjs }) => {
   const { facility, date } = props;

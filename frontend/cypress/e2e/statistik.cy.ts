@@ -6,6 +6,7 @@ import { getMe } from '../fixtures/getMe';
 import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
 import path from 'path';
+import { createEvent, getEvents } from '../fixtures/getExportEvents';
 
 describe('Statistik', () => {
   beforeEach(() => {
@@ -159,8 +160,27 @@ describe('Statistik', () => {
     });
   });
 
-  it('can export statistics', () => {
+  it('can view export events', () => {
     statisticsDataIntercept();
+    cy.intercept('GET', '**/api/event/get?**', getEvents());
+
+    cy.get('[data-cy="event-log-toggle"]').should('exist').contains('Visa exporter').click({ force: true });
+    cy.get('[data-cy="event-item-2025-01-07"]')
+      .should('exist')
+      .should('include.text', 'Storgatan 1')
+      .should('include.text', '333')
+      .should('include.text', 'Fjärrvärme');
+
+    cy.get('[data-cy="page-count"]')
+      .should('exist')
+      .should('have.text', `Visar ${getEvents().data.size} av ${getEvents().data.totalElements}`);
+    cy.get('[data-cy="show-more-events-button"]').should('exist');
+    cy.get('[data-cy="event-log-toggle"]').should('exist').contains('Dölj exporter').click({ force: true });
+  });
+
+  it('can export statistics and create event', () => {
+    statisticsDataIntercept();
+    cy.intercept('POST', '**/api/event/create**', createEvent());
 
     const downloadsFolder = Cypress.config('downloadsFolder');
     const exportFileName = path.join(

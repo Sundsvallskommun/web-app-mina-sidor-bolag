@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Consumption from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption.component';
-import { Divider } from '@sk-web-gui/react';
+import { Button, Divider, Icon } from '@sk-web-gui/react';
 import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
 import { useFormContext } from 'react-hook-form';
 import {
   getAreaFromFacility,
   getCategoryFromFacilityType,
-  getCategoryFromInstalledBaseType,
   mergeMeasurementDataSets,
   mergeTemperatureDataSets,
   statisticsMeasurementDataHandler,
@@ -18,6 +17,10 @@ import { MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { OnlyTrade } from '../../overview/consumption/only-trade.component';
 import { pagedAgreementsHandler } from '@services/agreement-service';
+import { EventLog } from '@layouts/pages/mypages-sections/statistics/event-log/event-log.component';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
 export default function Charts() {
   const { watch, setValue } = useFormContext();
@@ -25,6 +28,8 @@ export default function Charts() {
   const [onlyTrade, setOnlyTrade] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
   const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
+  const [showEventLog, setShowEventLog] = useState<boolean>(false);
+  const { t } = useTranslation('event');
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -153,15 +158,29 @@ export default function Charts() {
               />
             </>
           ) : null}
+
+          <Divider className="my-64" />
+
+          <div className="mt-40 flex lg:justify-between items-start lg:flex-row flex-col-reverse lg:gap-0 gap-24">
+            <Button
+              showBackground={false}
+              variant="tertiary"
+              rightIcon={showEventLog ? <Icon icon={<ChevronUp />} /> : <Icon icon={<ChevronDown />} />}
+              onClick={() => (showEventLog ? setShowEventLog(false) : setShowEventLog(true))}
+              size="lg"
+              data-cy="event-log-toggle"
+            >
+              {showEventLog ? t('event:hideExports') : t('event:showExports')}
+            </Button>
+            <ExportStatisticsButton
+              data={mergedMeasurementData ?? measurementData}
+              isFetching={isFetchingMeasurementData}
+            />
+          </div>
+
+          {showEventLog && <EventLog />}
         </div>
       )}
-
-      <div className="mt-40 flex justify-end">
-        <ExportStatisticsButton
-          data={mergedMeasurementData ?? measurementData}
-          isFetching={isFetchingMeasurementData}
-        />
-      </div>
     </div>
   );
 }
