@@ -1,66 +1,54 @@
 import { IInvoice, InvoicesData } from '@interfaces/invoice';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { InvoicesResponse } from '@data-contracts/invoices/data-contracts';
-import { emptyInvoicesList, invoicesHandler } from '@services/invoice-service';
+import React, { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { InvoicesCardEntry } from './invoices-card-entry.component';
 import { Button, Spinner } from '@sk-web-gui/react';
 import { User } from '@interfaces/user';
-import { useAppContext } from '@contexts/app.context';
 import { RepresentingMode } from '@interfaces/app';
-import { isEqual } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 interface InvoiceTableContentProps {
-  pageSize: number;
+  data: InvoicesData;
+  isFetched: boolean;
+  activePage: number;
+  setActivePage: React.Dispatch<React.SetStateAction<number>>;
+  previousActivePage: RefObject<number>;
+  previousFacilityIds: RefObject<string[] | undefined>;
+  representingModeChanged: boolean;
   facilityIds?: string[];
   emptyComponent?: ReactNode;
-  onlyPending?: boolean;
+  representingMode: RepresentingMode;
+  representingName: string | undefined;
 }
 
-export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPending }: InvoiceTableContentProps) => {
-  const { representingMode, representingName } = useAppContext();
-  const [activePage, setActivePage] = useState<number>(1);
+export const InvoicesCardList = ({
+  data,
+  isFetched,
+  activePage,
+  setActivePage,
+  previousActivePage,
+  previousFacilityIds,
+  representingMode,
+  representingName,
+  representingModeChanged,
+  facilityIds,
+  emptyComponent,
+}: InvoiceTableContentProps) => {
   const [rows, setRows] = useState<IInvoice[]>([]);
   const previousRows = useRef<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
   const { t } = useTranslation(['common', 'invoice']);
 
-  const previousActivePage = useRef<number>(-1);
-  const previousFacilityIds = useRef<string[] | undefined>(undefined);
   const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
-
-  const searchParams = new URLSearchParams({});
-  searchParams.append('limit', pageSize.toString());
-  searchParams.append('page', activePage.toString());
-  if (facilityIds?.length) {
-    searchParams.append('facilityId', facilityIds.toString());
-  } else if (userData?.facilities?.length) {
-    searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
-  }
-
-  const paginationChanged = activePage !== previousActivePage.current;
-  const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
-  const representingModeChanged = representingMode !== previousRepresentingMode.current;
-
-  const base = onlyPending ? '/invoices/pending' : '/invoices';
-  const { data = emptyInvoicesList, isFetched } = useApi<InvoicesResponse, Error, InvoicesData>({
-    queryKey: [base, searchParams.toString()],
-    url: `${base}?${searchParams.toString()}`,
-    method: 'get',
-    queryOptions: {
-      enabled: paginationChanged || facilityIdsChanged,
-    },
-    dataHandler: invoicesHandler,
-  });
 
   useEffect(() => {
     previousActivePage.current = -1;
     previousRows.current = [];
     setActivePage(1);
     setRows([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setActivePage, setRows, facilityIds, representingName]);
 
   useEffect(() => {
