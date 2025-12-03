@@ -1,14 +1,28 @@
 import { ManualTable, ManualTableColumn } from '@components/manual-table/manual-table.component';
 import { IInvoice, InvoiceTableProps } from '@interfaces/invoice';
 import { Label, Spinner } from '@sk-web-gui/react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { useAppContext } from '@contexts/app.context';
-import { isEqual } from 'lodash';
-import { RepresentingMode } from '@interfaces/app';
 import { useTranslation } from 'react-i18next';
+import { RepresentingMode } from '@interfaces/app';
+
+interface InvoiceTableContentProps {
+  data: InvoicesData;
+  isFetched: boolean;
+  activePage: number;
+  setActivePage: React.Dispatch<React.SetStateAction<number>>;
+  previousActivePage: RefObject<number>;
+  previousFacilityIds: RefObject<string[] | undefined>;
+  representingModeChanged: boolean;
+  facilityIds?: string[];
+  emptyComponent?: ReactNode;
+  representingMode: RepresentingMode;
+  representingName: string | undefined;
+  pageSize: number;
+  previousRepresentingMode: RefObject<RepresentingMode | undefined>;
+}
 
 export const InvoicesTable = ({
   data,
@@ -17,44 +31,19 @@ export const InvoicesTable = ({
   pageSize,
   setActivePage,
   previousActivePage,
+  previousFacilityIds,
+  representingMode,
   representingName,
   representingModeChanged,
   facilityIds,
   emptyComponent,
-}: InvoiceTableProps) => {
+  previousRepresentingMode,
+}: InvoiceTableContentProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
   const [rows, setRows] = useState<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
   const { t } = useTranslation(['common', 'invoice', 'organization']);
-
-  const previousActivePage = useRef<number>(-1);
-  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
-  const previousFacilityIds = useRef<string[] | undefined>(undefined);
-
-  const searchParams = new URLSearchParams({});
-  searchParams.append('limit', pageSize.toString());
-  searchParams.append('page', activePage.toString());
-  if (facilityIds?.length) {
-    searchParams.append('facilityId', facilityIds.toString());
-  } else if (userData?.facilities?.length) {
-    searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
-  }
-
-  const paginationChanged = activePage !== previousActivePage.current;
-  const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
-  const representingModeChanged = representingMode !== previousRepresentingMode.current;
-
-  const base = onlyPending ? '/invoices/pending' : '/invoices';
-  const { data = emptyInvoicesList, isFetched } = useApi<InvoicesResponse, Error, InvoicesData>({
-    queryKey: [base, searchParams.toString()],
-    url: `${base}?${searchParams.toString()}`,
-    method: 'get',
-    queryOptions: {
-      enabled: paginationChanged || facilityIdsChanged,
-    },
-    dataHandler: invoicesHandler,
-  });
 
   useEffect(() => {
     previousActivePage.current = -1;
