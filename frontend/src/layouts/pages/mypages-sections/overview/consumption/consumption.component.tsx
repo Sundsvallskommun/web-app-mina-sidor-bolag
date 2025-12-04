@@ -13,16 +13,23 @@ import { FacilityAddress } from '@interfaces/facility-address';
 import { useTranslation } from 'react-i18next';
 
 export const Consumption = () => {
-  const { data: user, isFetching: isUserFetching } = useApi<User>({
+  const {
+    data: user,
+    isFetching: isUserFetching,
+    isFetched: userIsFetched,
+  } = useApi<User>({
     url: '/me',
     method: 'get',
     queryKey: ['user'],
   });
 
-  const { data, isFetching } = useApi<User>({
+  const { data: customerCode } = useApi({
     url: '/customer-code',
     method: 'get',
+    queryOptions: { enabled: userIsFetched },
   });
+
+  console.log(customerCode);
 
   const { data: agreements, isFetching: isAgreementsFetching } = useApi({
     url: `/paged/agreements`,

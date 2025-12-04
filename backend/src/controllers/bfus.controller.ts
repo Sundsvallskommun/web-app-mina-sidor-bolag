@@ -15,20 +15,18 @@ export class BFUSController {
   @Get('/customer-code')
   @OpenAPI({ summary: 'Returns a customer code from BFUS' })
   @UseBefore(authMiddleware)
-  async getBFUS(
+  async getBFUSCustomerId(
     @Req() req: RequestWithUser,
     @Res() res: Response<BFUSApiResponse>,
   ): Promise<Response<BFUSApiResponse>> {
-    const { relations } = req.session.cache;
+    const relations = req?.session?.cache?.relations ?? { customerRelations: [], customerNumber: [] };
 
-    console.log(relations);
-
-    if (!relations || !relations.customerNumber) {
+    if (!relations || !relations.customerNumber.length) {
       throw new HttpException(400, 'No relations or customer number available');
     }
 
     try {
-      const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${relations.customerNumber}`;
+      const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${relations.customerNumber[0]}`;
 
       const response = await axios.get<BFUSCustomerResponse>(url, {
         headers: { Authorization: BFUS_API_KEY },
@@ -36,7 +34,7 @@ export class BFUSController {
 
       return res.send({
         message: 'success',
-        customerCode: response.data.Content.Customer.CustomerCode,
+        customerId: response.data.Content.Customer.CustomerId,
       });
     } catch (error: any) {
       const err = error as HttpError;
