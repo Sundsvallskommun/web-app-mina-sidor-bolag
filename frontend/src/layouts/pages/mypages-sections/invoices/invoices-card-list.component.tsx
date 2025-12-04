@@ -1,25 +1,11 @@
-import { IInvoice, InvoicesData } from '@interfaces/invoice';
-import React, { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { IInvoice, InvoiceBaseProps } from '@interfaces/invoice';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { InvoicesCardEntry } from './invoices-card-entry.component';
 import { Button, Spinner } from '@sk-web-gui/react';
 import { User } from '@interfaces/user';
 import { RepresentingMode } from '@interfaces/app';
 import { useTranslation } from 'react-i18next';
-
-interface InvoiceTableContentProps {
-  data: InvoicesData;
-  isFetched: boolean;
-  activePage: number;
-  setActivePage: React.Dispatch<React.SetStateAction<number>>;
-  previousActivePage: RefObject<number>;
-  previousFacilityIds: RefObject<string[] | undefined>;
-  representingModeChanged: boolean;
-  facilityIds?: string[];
-  emptyComponent?: ReactNode;
-  representingMode: RepresentingMode;
-  representingName: string | undefined;
-}
 
 export const InvoicesCardList = ({
   data,
@@ -33,7 +19,7 @@ export const InvoicesCardList = ({
   representingModeChanged,
   facilityIds,
   emptyComponent,
-}: InvoiceTableContentProps) => {
+}: InvoiceBaseProps) => {
   const [rows, setRows] = useState<IInvoice[]>([]);
   const previousRows = useRef<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
