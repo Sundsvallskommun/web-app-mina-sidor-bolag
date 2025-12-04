@@ -22,7 +22,7 @@ declare module 'express-session' {
           [key: string]: CaseStatusResponse[];
         };
       };
-      relations?: { customerNumber: string; customerRelations: CustomerRelation[] };
+      relations?: { customerNumber: string[]; customerRelations: CustomerRelation[] };
       addresses?: FacilityAddress[];
       facilities?: (InstalledBaseItem & { facilityOwnerPartyId?: string })[];
       delegations?: Delegation[];

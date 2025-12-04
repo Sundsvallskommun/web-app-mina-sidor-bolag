@@ -23,7 +23,7 @@ import dayjs from 'dayjs';
 interface UserData {
   name: string;
   userSettings: any;
-  relations?: { customerNumber: string; customerRelations: CustomerRelation[] };
+  relations?: { customerNumber: string[]; customerRelations: CustomerRelation[] };
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
@@ -58,7 +58,7 @@ export class UserController {
     const delegations = req?.session?.cache?.delegations ?? [];
     const allRelations: CustomerRelation[] = [];
 
-    if (!req.session.cache.relations.customerRelations) {
+    if (!req.session.cache.relations) {
       try {
         const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
         const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
@@ -86,6 +86,7 @@ export class UserController {
             relations.forEach(relation => {
               if (!allRelations.some(r => r.organizationNumber === relation.organizationNumber)) {
                 allRelations.push({
+                  customerNumber: relation.customerNumber,
                   organizationNumber: relation.organizationNumber,
                   organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
                 });
@@ -99,10 +100,16 @@ export class UserController {
         }
       }
 
-      console.log(allRelations);
+      const customerNumbers: string[] = [];
 
-      req.session.cache.relations.customerRelations = allRelations;
-      req.session.cache.relations.customerNumber = allRelations[0].customerNumber;
+      allRelations.forEach(relation => {
+        if (!customerNumbers.includes(relation.customerNumber)) customerNumbers.push(relation.customerNumber);
+      });
+
+      req.session.cache.relations = {
+        customerRelations: allRelations,
+        customerNumber: customerNumbers,
+      };
       return Promise.resolve(true);
     }
   };
@@ -277,10 +284,7 @@ export class UserController {
       req.session.cache.facilities = facilities;
     }
 
-    const relations = {
-      customerNumber: req.session.cache.relations.customerNumber,
-      customerRelations: req.session.cache.relations.customerRelations,
-    };
+    const relations = req.session.cache.relations;
     const facilities = req.session.cache.facilities;
     const addresses = req.session.cache.addresses;
 
