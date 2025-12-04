@@ -1,8 +1,9 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class BFUSApiResponse {
   @IsString()
   message: string;
   @IsNumber()
-  customerId: number;
+  @IsArray()
+  customerIds: number[];
 }

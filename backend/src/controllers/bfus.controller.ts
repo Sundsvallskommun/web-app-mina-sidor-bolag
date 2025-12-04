@@ -5,15 +5,15 @@ import { BFUSCustomerResponse } from '@/interfaces/bfus.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
 import { BFUSApiResponse } from '@/responses/bfus.response';
 import { logger } from '@/utils/logger';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { Controller, Get, HttpError, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
 export class BFUSController {
-  @Get('/customer-code')
-  @OpenAPI({ summary: 'Returns a customer code from BFUS' })
+  @Get('/customer-id')
+  @OpenAPI({ summary: 'Returns a list with customer id:s from BFUS' })
   @UseBefore(authMiddleware)
   async getBFUSCustomerId(
     @Req() req: RequestWithUser,
@@ -26,20 +26,28 @@ export class BFUSController {
     }
 
     try {
-      const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${relations.customerNumber[0]}`;
+      const results = await Promise.allSettled(
+        relations.customerNumber.map(cn => {
+          const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
+          return axios.get<BFUSCustomerResponse>(url, {
+            headers: { Authorization: BFUS_API_KEY },
+          });
+        }),
+      );
 
-      const response = await axios.get<BFUSCustomerResponse>(url, {
-        headers: { Authorization: BFUS_API_KEY },
-      });
+      const customerIds = results
+        .filter(r => r.status === 'fulfilled')
+        .map(
+          (r: PromiseFulfilledResult<AxiosResponse<BFUSCustomerResponse>>) => r.value.data.Content.Customer.CustomerId,
+        );
 
       return res.send({
         message: 'success',
-        customerId: response.data.Content.Customer.CustomerId,
+        customerIds: customerIds,
       });
     } catch (error: any) {
-      const err = error as HttpError;
-      logger.error('Error getting BFUS Customer', err.message);
-      throw new HttpError(err.httpCode, err.message || 'Connection error');
+      logger.error('Unexpected error in BFUS Customer', error.message);
+      throw new HttpError(500, 'Unexpected server error');
     }
   }
 }
