@@ -21,7 +21,7 @@ export class BFUSController {
   ): Promise<Response<BFUSApiResponse>> {
     const relations = req?.session?.cache?.relations ?? { customerRelations: [], customerNumber: [] };
 
-    if (!relations || !relations.customerNumber.length) {
+    if (!relations?.customerNumber?.length) {
       throw new HttpException(400, 'No relations or customer number available');
     }
 
