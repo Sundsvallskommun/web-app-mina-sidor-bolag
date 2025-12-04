@@ -19,6 +19,11 @@ export const Consumption = () => {
     queryKey: ['user'],
   });
 
+  const { data, isFetching } = useApi<User>({
+    url: '/customer-code',
+    method: 'get',
+  });
+
   const { data: agreements, isFetching: isAgreementsFetching } = useApi({
     url: `/paged/agreements`,
     method: 'get',

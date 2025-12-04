@@ -10,7 +10,12 @@ import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
-import { Delegation, InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
+import {
+  Delegation,
+  InstalledBaseItem,
+  InstalledBaseItemMetaData,
+  InstalledBaseResponse,
+} from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
@@ -18,7 +23,7 @@ import dayjs from 'dayjs';
 interface UserData {
   name: string;
   userSettings: any;
-  relations?: CustomerRelation[];
+  relations?: { customerNumber: string; customerRelations: CustomerRelation[] };
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
@@ -53,7 +58,7 @@ export class UserController {
     const delegations = req?.session?.cache?.delegations ?? [];
     const allRelations: CustomerRelation[] = [];
 
-    if (!req.session.cache.relations) {
+    if (!req.session.cache.relations.customerRelations) {
       try {
         const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
         const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
@@ -94,7 +99,10 @@ export class UserController {
         }
       }
 
-      req.session.cache.relations = allRelations;
+      console.log(allRelations);
+
+      req.session.cache.relations.customerRelations = allRelations;
+      req.session.cache.relations.customerNumber = allRelations[0].customerNumber;
       return Promise.resolve(true);
     }
   };
@@ -142,7 +150,7 @@ export class UserController {
       (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)
     ) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
-      const relations = req.session.cache?.relations ?? [];
+      const relations = req.session.cache?.relations?.customerRelations ?? [];
       const facilities: InstalledBaseItem[] = [];
       const addressDictionary: { [key: string]: string[] } = {};
       let customerItems: InstalledBaseItem[] = [];
@@ -230,7 +238,11 @@ export class UserController {
         });
 
       const uniqueFacilities: InstalledBaseItem[] = delegatedItems.reduce((accumulator, current) => {
-        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type)) {
+        if (
+          !accumulator.find(
+            (item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type,
+          )
+        ) {
           accumulator.push(current);
         }
         return accumulator;
@@ -246,7 +258,8 @@ export class UserController {
         if (
           installation.metaData.some(
             (data: InstalledBaseItemMetaData) =>
-              (data.key.includes('isproduction') || data.key.includes('issmallproduction')) && data.value.includes('true'),
+              (data.key.includes('isproduction') || data.key.includes('issmallproduction')) &&
+              data.value.includes('true'),
           )
         ) {
           if (installation.type === 'El') {
@@ -264,7 +277,10 @@ export class UserController {
       req.session.cache.facilities = facilities;
     }
 
-    const relations = req.session.cache.relations;
+    const relations = {
+      customerNumber: req.session.cache.relations.customerNumber,
+      customerRelations: req.session.cache.relations.customerRelations,
+    };
     const facilities = req.session.cache.facilities;
     const addresses = req.session.cache.addresses;
 
@@ -294,7 +310,7 @@ export class UserController {
 
     await this.cacheRelations(req);
 
-    const relations = req.session.cache.relations;
+    const relations = req.session.cache.relations.customerRelations;
 
     return response.send({ data: relations, message: 'success' });
   }

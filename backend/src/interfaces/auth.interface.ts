@@ -25,7 +25,7 @@ export interface RequestWithUser extends Request {
         [key: string]: CaseStatusResponse[];
       };
     };
-    relations?: CustomerRelation[];
+    relations?: { customerNumber: string; customerRelations: CustomerRelation[] };
     addresses?: FacilityAddress[];
     facilities?: InstalledBaseItem[];
   };
