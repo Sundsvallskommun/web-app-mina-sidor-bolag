@@ -1,28 +1,11 @@
 import { ManualTable, ManualTableColumn } from '@components/manual-table/manual-table.component';
 import { IInvoice, InvoiceTableProps } from '@interfaces/invoice';
 import { Label, Spinner } from '@sk-web-gui/react';
-import React, { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useTranslation } from 'react-i18next';
-import { RepresentingMode } from '@interfaces/app';
-
-interface InvoiceTableContentProps {
-  data: InvoicesData;
-  isFetched: boolean;
-  activePage: number;
-  setActivePage: React.Dispatch<React.SetStateAction<number>>;
-  previousActivePage: RefObject<number>;
-  previousFacilityIds: RefObject<string[] | undefined>;
-  representingModeChanged: boolean;
-  facilityIds?: string[];
-  emptyComponent?: ReactNode;
-  representingMode: RepresentingMode;
-  representingName: string | undefined;
-  pageSize: number;
-  previousRepresentingMode: RefObject<RepresentingMode | undefined>;
-}
 
 export const InvoicesTable = ({
   data,
@@ -38,7 +21,7 @@ export const InvoicesTable = ({
   facilityIds,
   emptyComponent,
   previousRepresentingMode,
-}: InvoiceTableContentProps) => {
+}: InvoiceTableProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
   const [rows, setRows] = useState<IInvoice[]>([]);
