@@ -1,4 +1,5 @@
 import { BFUS_API_KEY, BFUS_BASE_URL, BFUS_EXTERNAL_ID } from '@/config';
+import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { BFUSCustomerResponse } from '@/interfaces/bfus.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
@@ -19,10 +20,15 @@ export class BFUSController {
     @Res() res: Response<BFUSApiResponse>,
   ): Promise<Response<BFUSApiResponse>> {
     const { relations } = req.session.cache;
-    const customerNumber = relations[0].customerNumber;
+
+    console.log(relations);
+
+    if (!relations || !relations.customerNumber) {
+      throw new HttpException(400, 'No relations or customer number available');
+    }
 
     try {
-      const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${customerNumber}`;
+      const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${relations.customerNumber}`;
 
       const response = await axios.get<BFUSCustomerResponse>(url, {
         headers: { Authorization: BFUS_API_KEY },

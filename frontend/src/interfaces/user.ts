@@ -20,7 +20,7 @@ export interface User {
     feedbackLifespan: FeedbackLifespan;
     readNotificationsClearedDate: string;
   };
-  relations: CustomerRelation[];
+  relations: { customerNumber: string; customerRelations: CustomerRelation[] };
   addresses: FacilityAddress[];
   facilities: (InstalledBaseItem & { isDelegated?: boolean })[];
 }
