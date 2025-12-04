@@ -4,7 +4,7 @@ export interface BFUSCustomerResponse {
 }
 
 export interface BFUSCustomerHeader {
-  ErrorInformation: any | null;
+  ErrorInformation: string | null;
   ObjectVersion: number;
   Success: boolean;
   PerformanceTime: string;
@@ -65,6 +65,6 @@ export interface BFUSCustomer {
   Email3: string | null;
   BusinessUnitId: number;
   BusinessUnitExternalReferenceCode: number;
-  ContactPersons: any | null;
+  ContactPersons: string[] | null;
   ObjectVersion: number;
 }

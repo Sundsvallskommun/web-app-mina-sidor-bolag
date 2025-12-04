@@ -246,7 +246,7 @@ export class UserController {
 
       const uniqueFacilities: InstalledBaseItem[] = delegatedItems.reduce((accumulator, current) => {
         if (
-          !accumulator.find(
+          !accumulator.some(
             (item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type,
           )
         ) {
