@@ -21,11 +21,11 @@
     "test:coverage": "yarn cypress:headless"
   },
   "dependencies": {
-    "@sk-web-gui/countrycode-select": "^1.1.1",
     "@hookform/resolvers": "^5.2.2",
     "@next/bundle-analyzer": "15.5.3",
     "@react-hookz/web": "^25.1.1",
     "@sk-web-gui/core": "3.16.2",
+    "@sk-web-gui/countrycode-select": "^1.1.1",
     "@sk-web-gui/next": "^1.1.0",
     "@sk-web-gui/react": "2.0.4",
     "@socialgouv/matomo-next": "^1.9.2",
@@ -35,7 +35,7 @@
     "i18next": "^25.5.2",
     "i18next-resources-to-backend": "^1.2.1",
     "lucide-react": "^0.544.0",
-    "next": "15.5.3",
+    "next": "15.5.7",
     "next-i18n-router": "^5.5.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
