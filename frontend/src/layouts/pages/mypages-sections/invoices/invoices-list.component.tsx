@@ -54,45 +54,30 @@ export const InvoicesList: React.FC<{
     dataHandler: invoicesHandler,
   });
 
+  const baseProps = {
+    data,
+    isFetched,
+    activePage,
+    setActivePage,
+    previousActivePage,
+    previousFacilityIds,
+    representingMode,
+    representingName,
+    representingModeChanged,
+    facilityIds,
+    emptyComponent,
+  };
+
+  const tableProps = {
+    ...baseProps,
+    pageSize,
+    previousRepresentingMode,
+  };
+
   return (
     <div ref={ref}>
       <TableWrapper header={heading}>
-        {isMinDesktop ? (
-          <InvoicesTable
-            {...{
-              data,
-              isFetched,
-              activePage,
-              setActivePage,
-              previousActivePage,
-              previousFacilityIds,
-              previousRepresentingMode,
-              representingModeChanged,
-              representingMode,
-              representingName,
-              pageSize,
-              facilityIds,
-              emptyComponent,
-              onlyPending,
-            }}
-          />
-        ) : (
-          <InvoicesCardList
-            {...{
-              data,
-              isFetched,
-              activePage,
-              setActivePage,
-              previousActivePage,
-              previousFacilityIds,
-              representingMode,
-              representingName,
-              representingModeChanged,
-              facilityIds,
-              emptyComponent,
-            }}
-          />
-        )}
+        {isMinDesktop ? <InvoicesTable {...tableProps} /> : <InvoicesCardList {...baseProps} />}
       </TableWrapper>
     </div>
   );
