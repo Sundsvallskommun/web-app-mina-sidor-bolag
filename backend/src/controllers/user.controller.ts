@@ -10,7 +10,12 @@ import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
 import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
-import { Delegation, InstalledBaseItem, InstalledBaseItemMetaData, InstalledBaseResponse } from '@/data-contracts/installedbase/data-contracts';
+import {
+  Delegation,
+  InstalledBaseItem,
+  InstalledBaseItemMetaData,
+  InstalledBaseResponse,
+} from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
@@ -18,7 +23,7 @@ import dayjs from 'dayjs';
 interface UserData {
   name: string;
   userSettings: any;
-  relations?: CustomerRelation[];
+  relations?: { customerNumber: string[]; customerRelations: CustomerRelation[] };
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
@@ -81,6 +86,7 @@ export class UserController {
             relations.forEach(relation => {
               if (!allRelations.some(r => r.organizationNumber === relation.organizationNumber)) {
                 allRelations.push({
+                  customerNumber: relation.customerNumber,
                   organizationNumber: relation.organizationNumber,
                   organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
                 });
@@ -94,7 +100,16 @@ export class UserController {
         }
       }
 
-      req.session.cache.relations = allRelations;
+      const customerNumbers: string[] = [];
+
+      allRelations.forEach(relation => {
+        if (!customerNumbers.includes(relation.customerNumber)) customerNumbers.push(relation.customerNumber);
+      });
+
+      req.session.cache.relations = {
+        customerRelations: allRelations,
+        customerNumber: customerNumbers,
+      };
       return Promise.resolve(true);
     }
   };
@@ -142,7 +157,7 @@ export class UserController {
       (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)
     ) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
-      const relations = req.session.cache?.relations ?? [];
+      const relations = req.session.cache?.relations?.customerRelations ?? [];
       const facilities: InstalledBaseItem[] = [];
       const addressDictionary: { [key: string]: string[] } = {};
       let customerItems: InstalledBaseItem[] = [];
@@ -230,7 +245,11 @@ export class UserController {
         });
 
       const uniqueFacilities: InstalledBaseItem[] = delegatedItems.reduce((accumulator, current) => {
-        if (!accumulator.find((item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type)) {
+        if (
+          !accumulator.some(
+            (item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type,
+          )
+        ) {
           accumulator.push(current);
         }
         return accumulator;
@@ -246,7 +265,8 @@ export class UserController {
         if (
           installation.metaData.some(
             (data: InstalledBaseItemMetaData) =>
-              (data.key.includes('isproduction') || data.key.includes('issmallproduction')) && data.value.includes('true'),
+              (data.key.includes('isproduction') || data.key.includes('issmallproduction')) &&
+              data.value.includes('true'),
           )
         ) {
           if (installation.type === 'El') {
@@ -294,7 +314,7 @@ export class UserController {
 
     await this.cacheRelations(req);
 
-    const relations = req.session.cache.relations;
+    const relations = req.session.cache.relations.customerRelations;
 
     return response.send({ data: relations, message: 'success' });
   }
