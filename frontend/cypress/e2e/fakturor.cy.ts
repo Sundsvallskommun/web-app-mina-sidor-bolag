@@ -1,6 +1,7 @@
 import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
 import { getInvoices, getPendingInvoices } from '../fixtures/getInvoices';
+import { getGeneratedInvoices } from '../fixtures/utils';
 
 describe('Fakturor', () => {
   beforeEach(() => {

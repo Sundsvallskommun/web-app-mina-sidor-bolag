@@ -46,10 +46,6 @@ export const setIntercepts = (
   cy.intercept('GET', '**/api/myrelations', getMyRelations).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
-  cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
-
-  cy.intercept('GET', '**/api/citizen/**', getCitizen).as('getCitizen');
-  cy.intercept('GET', '**/api/mandates/org', getOrgMandates).as('getOrgMandates');
 
   cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');
   cy.intercept('GET', '**/api/facility/delegations', getFacilityDelegates()).as('getFacilityDelegates');
