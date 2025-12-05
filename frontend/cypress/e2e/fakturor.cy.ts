@@ -1,11 +1,13 @@
 import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
-import { getPendingInvoices } from '../fixtures/getInvoices';
+import { getInvoices, getPendingInvoices } from '../fixtures/getInvoices';
 import { getGeneratedInvoices } from '../fixtures/utils';
 
 describe('Fakturor', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
+    cy.intercept('GET', '**/api/invoices?**', getInvoices(RepresentingMode.PRIVATE)).as('getInvoices');
+    cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
     cy.visit('/privat/fakturor');
   });
 
