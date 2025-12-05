@@ -57,9 +57,9 @@
       "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Mina sidor, men inte ge ut fullmakt till någon annan.",
       "2": "Personen måste ha ett svenskt personnummer.",
       "3": "Du ansvarar själv för att ta bort behörigheten när den inte längre behövs.",
-      "4": "Sundsvalls Energi och Sundsvalls Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
+      "4": "Sundsvall Energi och Sundsvall Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
     },
-    "create_information": "Skapa en ny fullmakt för en person som du vill ska representera ditt företag. Fullmakten gäller endast på Sundsvalls Energis och Sundsvalls Elnäts Mina sidor.",
+    "create_information": "Skapa en ny fullmakt för en person som du vill ska representera ditt företag. Fullmakten gäller endast på Sundsvall Energis och Sundsvall Elnäts Mina sidor.",
     "properties": {
       "grantee": "Fullmaktshavare",
       "activeFrom": "Gäller från och med",
@@ -91,13 +91,13 @@
     },
     "agreement": {
       "bullets": {
-        "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Sundsvalls Energis och Sundsvalls Elnäts Mina sidor.",
+        "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Sundsvall Energis och Sundsvall Elnäts Mina sidor.",
         "2": "Du ansvarar själv för att ta bort behörigheten när den inte längre behövs.",
-        "3": "Sundsvalls Energi och Sundsvalls Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
+        "3": "Sundsvall Energi och Sundsvall Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
       },
       "bankid": {
         "title": "Signera fullmakt",
-        "information": "Jag godkänner härmed följande fullmakt till *Mina sidor* för *Sundsvalls Energi* och *Sundsvall Elnät*.\n\n| | |\n|-|-|\n| *Företag*: | {{org}} |\n| *Fullmaktstagare:* | {{name}} |\n| *Startdatum:* | {{startdate}} |\n| *Slutdatum:* | {{enddate}} |\n"
+        "information": "Jag godkänner härmed följande fullmakt till *Mina sidor* för *Sundsvall Energi* och *Sundsvall Elnät*.\n\n| | |\n|-|-|\n| *Företag*: | {{org}} |\n| *Fullmaktstagare:* | {{name}} |\n| *Startdatum:* | {{startdate}} |\n| *Slutdatum:* | {{enddate}} |\n"
       }
     }
   },
