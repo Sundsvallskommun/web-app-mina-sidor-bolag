@@ -51,8 +51,8 @@ export const InvoicesCardList = ({
     () =>
       (organizationNumber: string): string => {
         return (
-          userData?.relations.customerRelations?.find((relation) => relation.organizationNumber === organizationNumber)
-            ?.organizationName ?? t('common:unknown')
+          userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
+            ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
         );
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
