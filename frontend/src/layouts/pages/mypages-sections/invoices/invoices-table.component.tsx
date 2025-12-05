@@ -76,7 +76,7 @@ export const InvoicesTable = ({
     () =>
       (organizationNumber: string): string => {
         return (
-          userData?.relations.customerRelations.find((relation) => relation.organizationNumber === organizationNumber)
+          userData?.relations.customerRelations?.find((relation) => relation.organizationNumber === organizationNumber)
             ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
         );
       },
