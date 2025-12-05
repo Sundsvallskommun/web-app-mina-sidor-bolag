@@ -7,7 +7,10 @@ const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
     feedbackLifespan: res.data.userSettings.feedbackLifespan,
     readNotificationsClearedDate: res.data.userSettings.readNotificationsClearedDate,
   },
-  relations: res.data.relations,
+  relations: {
+    customerNumber: res.data.relations.customerNumber,
+    customerRelations: res.data.relations.customerRelations,
+  },
   addresses: res.data.addresses,
   facilities: res.data.facilities,
 });
