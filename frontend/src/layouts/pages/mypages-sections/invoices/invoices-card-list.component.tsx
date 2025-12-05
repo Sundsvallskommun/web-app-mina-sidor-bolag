@@ -81,7 +81,7 @@ export const InvoicesCardList = ({ pageSize, facilityIds, emptyComponent, onlyPe
     () =>
       (organizationNumber: string): string => {
         return (
-          userData?.relations.customerRelations.find((relation) => relation.organizationNumber === organizationNumber)
+          userData?.relations.customerRelations?.find((relation) => relation.organizationNumber === organizationNumber)
             ?.organizationName ?? t('common:unknown')
         );
       },
