@@ -42,7 +42,7 @@ export const MandateListItem: React.FC<MandateListItemProps> = ({ mandate }) => 
     <li className="bg-background-color-mixin-1 p-16 flex gap-32 rounded-16 items-center">
       <div className="flex flex-col gap-6 grow">
         <label className="text-large">
-          {mandate.grantee.name}, {mandate.grantee.personNumber}
+          {mandate.grantee.name}, {mandate.grantee.personNumber?.toString().slice(0, -4).concat('****')}
         </label>
         <span className="text-dark-secondary">
           {t('profile:mandates.signedBy', {
