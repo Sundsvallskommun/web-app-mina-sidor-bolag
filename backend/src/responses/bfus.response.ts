@@ -1,3 +1,4 @@
+import { BFUSEligablePartyPart } from '@/interfaces/bfus.interface';
 import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class BFUSApiResponse {
@@ -6,4 +7,11 @@ export class BFUSApiResponse {
   @IsNumber()
   @IsArray()
   customerIds: number[];
+}
+
+export class BFUSEligablePartyApiResponse {
+  @IsString()
+  message: string;
+  @IsArray()
+  eligablePartyParts: BFUSEligablePartyPart[];
 }

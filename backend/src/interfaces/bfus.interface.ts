@@ -68,3 +68,44 @@ export interface BFUSCustomer {
   ContactPersons: string[] | null;
   ObjectVersion: number;
 }
+
+export interface BFUSEligablePartyResponse {
+  Header: BFUSEligablePartyHeader;
+  Content: BFUSEligablePartyContent;
+}
+
+export interface BFUSEligablePartyHeader {
+  ErrorInformation: string | null;
+  ObjectVersion: number;
+  Success: boolean;
+  PerformanceTime: string;
+  InParameters: string[];
+}
+
+export interface BFUSEligablePartyContent {
+  EligablePartyParts: BFUSEligablePartyPart[];
+}
+
+export interface BFUSEligablePartyPart {
+  EnergyServiceParty: string;
+  LastDayToApprove: string;
+  ContractReference: string;
+  UserHandledTime: string | null;
+  PermissionId: string;
+  StartDay: string;
+  EndDay: string | null;
+  UserRevokedContractTime: string | null;
+  EndReason: string | null;
+  RequestPurpose: string;
+  ContractInUse: boolean;
+  ContractId: number;
+  Status: string;
+  EligablePartyPermissionId: number;
+  CustomerId: number;
+  ServiceIdentifier: string;
+  UsePlaceAddress: string;
+  EligablePartyId: string;
+  StatusCode: number;
+  IsProduction: boolean;
+  ObjectVersion: number;
+}
