@@ -3,7 +3,6 @@ import '@cypress/code-coverage/support';
 import { CookieConsentUtils } from '@sk-web-gui/react';
 import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
-import { getInvoices, getPendingInvoices } from 'cypress/fixtures/getInvoices';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { getMe } from '../fixtures/getMe';
 import { getMyRelations } from '../fixtures/getMyRelations';
@@ -47,9 +46,6 @@ export const setIntercepts = (
   cy.intercept('GET', '**/api/myrelations', getMyRelations).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
-  cy.intercept('GET', '**/api/invoices?**', getInvoices(representingMode)).as('getInvoices');
-
-  cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
 
   cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');
   cy.intercept('GET', '**/api/facility/delegations', getFacilityDelegates()).as('getFacilityDelegates');
