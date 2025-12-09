@@ -12,7 +12,7 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import _ from 'lodash';
 import { validationMiddleware } from '@/middlewares/validation.middleware';
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
-import { sendPermissionRequest, validatePermissionRequest } from '@/services/bfus.service';
+import { sendPermissionRequest } from '@/services/bfus.service';
 import { isDenied, isEnded, isExpired, isNew, isOngoing, isRevoked } from '@/utils/bfus-permission-status-code-helpers';
 
 @Controller('/bfus')
