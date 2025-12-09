@@ -95,7 +95,7 @@ export interface BFUSEligablePartyPart {
   StartDay: string;
   EndDay: string | null;
   UserRevokedContractTime: string | null;
-  EndReason: string | null;
+  EndReason: BFUSEndReason;
   RequestPurpose: string;
   ContractInUse: boolean;
   ContractId: number;
@@ -105,7 +105,35 @@ export interface BFUSEligablePartyPart {
   ServiceIdentifier: string;
   UsePlaceAddress: string;
   EligablePartyId: string;
-  StatusCode: number;
+  StatusCode: BFUSStatusCode;
   IsProduction: boolean;
   ObjectVersion: number;
+}
+
+export interface BFUSEligablePartyPermissionResponse {
+  Header: {
+    ErrorInformation: string | null;
+    ObjectVersion: number;
+    Success: boolean;
+    PerformanceTime: string;
+    InParameters: string | null;
+  };
+  Content: {
+    EligablePartyId: string;
+    Action: string;
+    PermissionRequestExecuted: boolean;
+  };
+}
+
+export enum BFUSStatusCode {
+  New = 0,
+  Active = 1,
+  Denied = 2,
+  Ended = 3,
+}
+
+export enum BFUSEndReason {
+  Revoked = 'Återkallat',
+  Expired = 'Upphört',
+  None = null as unknown as never,
 }

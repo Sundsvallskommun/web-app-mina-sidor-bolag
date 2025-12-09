@@ -1,21 +1,25 @@
 import { BFUSEligablePartyPart, BFUSEndReason, BFUSStatusCode } from '@/interfaces/bfus.interface';
 
-export type PermissionStatusCategory = 'new' | 'ongoing' | 'denied' | 'ended' | 'revoked' | 'expired';
+export const isNew = (part: BFUSEligablePartyPart) => {
+  return part.StatusCode === BFUSStatusCode.New;
+};
 
-export const mapPartStatus = (part: BFUSEligablePartyPart): PermissionStatusCategory => {
-  switch (part.StatusCode) {
-    case BFUSStatusCode.New:
-      return 'new';
+export const isOngoing = (part: BFUSEligablePartyPart) => {
+  return part.StatusCode === BFUSStatusCode.Active;
+};
 
-    case BFUSStatusCode.Active:
-      return 'ongoing';
+export const isDenied = (part: BFUSEligablePartyPart) => {
+  return part.StatusCode === BFUSStatusCode.Denied;
+};
 
-    case BFUSStatusCode.Denied:
-      return 'denied';
+export const isEnded = (part: BFUSEligablePartyPart) => {
+  return part.StatusCode === BFUSStatusCode.Ended;
+};
 
-    case BFUSStatusCode.Ended:
-      if (part.EndReason === BFUSEndReason.Revoked) return 'revoked';
-      if (part.EndReason === BFUSEndReason.Expired) return 'expired';
-      return 'ended';
-  }
+export const isRevoked = (part: BFUSEligablePartyPart) => {
+  return part.StatusCode === BFUSStatusCode.Ended && part.EndReason === BFUSEndReason.Revoked;
+};
+
+export const isExpired = (part: BFUSEligablePartyPart) => {
+  return part.StatusCode === BFUSStatusCode.Ended && part.EndReason === BFUSEndReason.Expired;
 };

@@ -1,12 +1,4 @@
-import { IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
-
-export class PermissionHeaderDto {
-  @IsString()
-  ExternalId: string;
-
-  @IsString()
-  Operation: 'grant' | 'deny' | 'revoke';
-}
+import { ArrayNotEmpty, IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PermissionRequestDto {
   @IsString()
@@ -14,15 +6,11 @@ export class PermissionRequestDto {
 
   @IsOptional()
   @IsArray()
+  @ArrayNotEmpty()
   @IsNumber({}, { each: true })
   ContractIdList?: number[];
 
   @IsOptional()
   @IsNumber()
   CustomerId?: number;
-}
-
-export class FullPermissionDto {
-  Header: PermissionHeaderDto;
-  PermissionRequest: PermissionRequestDto;
 }
