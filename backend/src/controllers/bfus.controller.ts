@@ -10,25 +10,29 @@ import { Response } from 'express';
 import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import _ from 'lodash';
-import { validationMiddleware } from '@/middlewares/validation.middleware';
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
 import { sendPermissionRequest } from '@/services/bfus.service';
 import { isDenied, isEnded, isExpired, isNew, isOngoing, isRevoked } from '@/utils/bfus-permission-status-code-helpers';
+import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-request.dto';
+import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
 
 @Controller('/bfus')
 export class BFUSController {
-  async processPermission(operation: 'grant' | 'deny' | 'revoke', permitData: UpdatePermissionDto) {
-    const body: any = {
-      Header: permitData.Header,
+  async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto) {
+    const body: FullPermissionDto = {
+      Header: {
+        ExternalId: BFUS_EXTERNAL_ID,
+        Operation: operation,
+      },
       PermissionRequest: {
-        EligablePartyId: permitData.PermissionRequest.EligablePartyId,
+        EligablePartyId: request.EligablePartyId,
       },
     };
 
     if (operation === 'grant' || operation === 'revoke') {
-      body.PermissionRequest.ContractIdList = permitData.PermissionRequest.ContractIdList;
+      body.PermissionRequest.ContractIdList = request.ContractIdList;
     } else if (operation === 'deny') {
-      body.PermissionRequest.CustomerId = permitData.PermissionRequest.CustomerId;
+      body.PermissionRequest.CustomerId = request.CustomerId;
     }
 
     try {
@@ -39,9 +43,11 @@ export class BFUSController {
       };
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
+
       if (axios.isAxiosError(error) && error.response) {
         throw new HttpException(error.response.status, error.response.statusText);
       }
+
       throw new HttpException(500, 'Internal server error');
     }
   }
@@ -132,25 +138,19 @@ export class BFUSController {
 
   @Post('/eligable-party-grant-permission')
   @HttpCode(201)
-  @OpenAPI({ summary: 'Grant permission for eligable party' })
-  @UseBefore(authMiddleware, validationMiddleware(UpdatePermissionDto, 'body'))
-  async grantPermission(@Body() permitData: UpdatePermissionDto) {
-    return this.processPermission('grant', permitData);
+  async grantPermission(@Body() dto: UpdatePermissionDto) {
+    return this.processPermission('grant', dto.PermissionRequest);
   }
 
   @Post('/eligable-party-deny-permission')
   @HttpCode(200)
-  @OpenAPI({ summary: 'Deny permission for eligable party' })
-  @UseBefore(authMiddleware, validationMiddleware(UpdatePermissionDto, 'body'))
-  async denyPermission(@Body() permitData: UpdatePermissionDto) {
-    return this.processPermission('deny', permitData);
+  async denyPermission(@Body() dto: UpdatePermissionDto) {
+    return this.processPermission('deny', dto.PermissionRequest);
   }
 
   @Post('/eligable-party-revoke-permission')
   @HttpCode(200)
-  @OpenAPI({ summary: 'Revoke permission for eligable party' })
-  @UseBefore(authMiddleware, validationMiddleware(UpdatePermissionDto, 'body'))
-  async revokePermission(@Body() permitData: UpdatePermissionDto) {
-    return this.processPermission('revoke', permitData);
+  async revokePermission(@Body() dto: UpdatePermissionDto) {
+    return this.processPermission('revoke', dto.PermissionRequest);
   }
 }
