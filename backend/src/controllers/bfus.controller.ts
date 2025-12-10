@@ -12,9 +12,9 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import _ from 'lodash';
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
 import { sendPermissionRequest } from '@/services/bfus.service';
-import { isDenied, isEnded, isExpired, isNew, isOngoing, isRevoked } from '@/utils/bfus-permission-status-code-helpers';
 import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-request.dto';
 import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
+import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
 
 @Controller('/bfus')
 export class BFUSController {
@@ -118,12 +118,7 @@ export class BFUSController {
 
       const statusCodeMappedParts = eligablePartyParts.map(p => ({
         ...p,
-        isNew: isNew(p),
-        isOngoing: isOngoing(p),
-        isDenied: isDenied(p),
-        isEnded: isEnded(p),
-        isRevoked: isRevoked(p),
-        isExpired: isExpired(p),
+        statusCategory: mapPartStatus(p),
       }));
 
       return res.send({
