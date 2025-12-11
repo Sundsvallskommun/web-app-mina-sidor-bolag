@@ -1,3 +1,5 @@
+import { PermissionStatusCategory } from '@/utils/bfus-permission-status-code-helpers';
+
 export interface BFUSCustomerResponse {
   Header: BFUSCustomerHeader;
   Content: BFUSCustomerContent;
@@ -67,4 +69,74 @@ export interface BFUSCustomer {
   BusinessUnitExternalReferenceCode: number;
   ContactPersons: string[] | null;
   ObjectVersion: number;
+}
+
+export interface BFUSEligablePartyResponse {
+  Header: BFUSEligablePartyHeader;
+  Content: BFUSEligablePartyContent;
+}
+
+export interface BFUSEligablePartyHeader {
+  ErrorInformation: string | null;
+  ObjectVersion: number;
+  Success: boolean;
+  PerformanceTime: string;
+  InParameters: string[];
+}
+
+export interface BFUSEligablePartyContent {
+  EligablePartyParts: BFUSEligablePartyPart[];
+}
+
+export interface BFUSEligablePartyPart {
+  EnergyServiceParty: string;
+  LastDayToApprove: string;
+  ContractReference: string;
+  UserHandledTime: string | null;
+  PermissionId: string;
+  StartDay: string;
+  EndDay: string | null;
+  UserRevokedContractTime: string | null;
+  EndReason: BFUSEndReason;
+  RequestPurpose: string;
+  ContractInUse: boolean;
+  ContractId: number;
+  Status: string;
+  EligablePartyPermissionId: number;
+  CustomerId: number;
+  ServiceIdentifier: string;
+  UsePlaceAddress: string;
+  EligablePartyId: string;
+  StatusCode: BFUSStatusCode;
+  IsProduction: boolean;
+  ObjectVersion: number;
+  StatusCategory: PermissionStatusCategory;
+}
+
+export interface BFUSEligablePartyPermissionResponse {
+  Header: {
+    ErrorInformation: string | null;
+    ObjectVersion: number;
+    Success: boolean;
+    PerformanceTime: string;
+    InParameters: string | null;
+  };
+  Content: {
+    EligablePartyId: string;
+    Action: string;
+    PermissionRequestExecuted: boolean;
+  };
+}
+
+export enum BFUSStatusCode {
+  New = 0,
+  Active = 1,
+  Denied = 2,
+  Ended = 3,
+}
+
+export enum BFUSEndReason {
+  Revoked = 'Återkallat',
+  Expired = 'Upphört',
+  Dismissed = 'Uppsagt',
 }
