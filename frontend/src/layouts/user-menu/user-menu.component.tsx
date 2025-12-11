@@ -14,12 +14,12 @@ export const UserMenu = () => {
   const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   return (
-    <div className="flex" data-cy="user-menu">
-      <div className="relative">
+    <div className="flex min-w-[250px] items-center" data-cy="user-menu">
+      <div className="relative w-full">
         <PopupMenu align="end">
           <PopupMenu.Button
             variant="ghost"
-            className="!w-full !max-w-max !min-w-min"
+            className="!w-auto !max-w-max !min-w-min"
             size="md"
             iconButton
             rounded
@@ -47,8 +47,6 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
-              {/*
-              Hide this temporarily until feature is fully implemented.
               <PopupMenu.Item>
                 <Button
                   className="!justify-between"
@@ -60,7 +58,7 @@ export const UserMenu = () => {
                   {capitalize(t('common:eligibility'))}
                   <Icon icon={<ArrowRight />} />
                 </Button>
-              </PopupMenu.Item>*/}
+              </PopupMenu.Item>
               <Divider />
               <PopupMenu.Item>
                 <Button
