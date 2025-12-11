@@ -43,11 +43,9 @@ export class BFUSController {
       };
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
-
       if (axios.isAxiosError(error) && error.response) {
         throw new HttpException(error.response.status, error.response.statusText);
       }
-
       throw new HttpException(500, 'Internal server error');
     }
   }
@@ -118,7 +116,7 @@ export class BFUSController {
 
       const statusCodeMappedParts = eligablePartyParts.map(p => ({
         ...p,
-        statusCategory: mapPartStatus(p),
+        StatusCategory: mapPartStatus(p),
       }));
 
       return res.send({
