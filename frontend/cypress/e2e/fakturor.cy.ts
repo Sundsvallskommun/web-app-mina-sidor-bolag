@@ -24,31 +24,21 @@ describe('Fakturor', () => {
     const all = cy.get('[data-cy="all-invoices-table"]').should('exist');
 
     tableHeaders.forEach((header) => {
-      cy.get('[data-cy="unhandled-invoices-table"]')
-        .should('exist')
-        .within(() => {
-          cy.get('th').should('exist').contains(header);
-        });
-      cy.get('[data-cy="all-invoices-table"]')
-        .should('exist')
-        .within(() => {
-          cy.get('th').should('exist').contains(header);
-        });
+      unhandled.within(() => {
+        cy.get('th').should('exist').contains(header);
+      });
+      all.within(() => {
+        cy.get('th').should('exist').contains(header);
+      });
     });
-  });
 
-  it('should display table data correctly', () => {
-    cy.get('[data-cy="unhandled-invoices-table"]')
-      .should('exist')
-      .within(() => {
-        cy.get('tr').should('exist').contains('240736694');
-        cy.get('tr').should('include.text', 'Obetald');
-      });
+    unhandled.within(() => {
+      cy.get('tr').should('exist').contains('240736694');
+      cy.get('tr').should('include.text', 'Obetald');
+    });
 
-    cy.get('[data-cy="all-invoices-table"]')
-      .should('exist')
-      .within(() => {
-        cy.get('tr').should('exist').contains('96758235');
-      });
+    all.within(() => {
+      cy.get('tr').should('exist').contains('96758235');
+    });
   });
 });
