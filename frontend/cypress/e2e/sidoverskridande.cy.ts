@@ -26,7 +26,7 @@ describe('Sidöverskridande', () => {
 
     cy.get('button[aria-label="Meny"]').should('be.visible').click();
     cy.get('button[aria-label="Stäng meny"]').should('be.visible');
-    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 6);
+    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 7);
 
     // foretag
     setIntercepts(RepresentingMode.BUSINESS);
@@ -43,6 +43,17 @@ describe('Sidöverskridande', () => {
 
     cy.get('[data-cy="user-menu"]').should('exist').contains('Förnamn Efternamn').click();
     cy.get('[data-cy="user-menu-profile-button"]').should('exist').should('have.text', 'Profil och inställningar');
+    cy.get('[data-cy="user-menu-logout-button"]').should('exist').should('have.text', 'Logga ut');
+    cy.get('[data-cy="desktop-navigation"] li').should('have.length', 5);
+  });
+
+  it('displays user menu and navigation correctly on desktop', () => {
+    cy.visit('/');
+    cy.url().should('include', '/privat/oversikt');
+
+    cy.get('[data-cy="user-menu"]').should('exist').contains('Förnamn Efternamn').click();
+    cy.get('[data-cy="user-menu-profile-button"]').should('exist').should('have.text', 'Profil och inställningar');
+    cy.get('[data-cy="user-menu-eligibility-button"]').should('exist').should('have.text', 'Medgivanden');
     cy.get('[data-cy="user-menu-logout-button"]').should('exist').should('have.text', 'Logga ut');
     cy.get('[data-cy="desktop-navigation"] li').should('have.length', 5);
   });
