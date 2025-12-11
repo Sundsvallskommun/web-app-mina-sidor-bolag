@@ -97,7 +97,7 @@ export class MandateController {
             grantor: { name: `${mandateDetails[0].data.givenname} ${mandateDetails[0].data.lastname}` },
             grantee: {
               name: `${mandateDetails[1].data.givenname} ${mandateDetails[1].data.lastname}`,
-              personNumber: mandateDetails[2].data,
+              personNumber: mandateDetails[2].data?.toString().slice(0, -4).concat('****'),
             },
           });
         } catch (error) {

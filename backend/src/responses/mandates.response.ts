@@ -11,7 +11,7 @@ import { GrpStatus } from '@/interfaces/grp.interface';
 import { MandatePopulated as MandatePopulatedType, MandateStatus, MandateUser } from '@/interfaces/mandates.interface';
 import { ApiResponse } from '@/services/api.service';
 import { Type } from 'class-transformer';
-import { IsDateString, IsEnum, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Meta } from './common.response';
 
 export class Grantor implements GrantorDetails {
@@ -32,9 +32,9 @@ export class Grantee implements GranteeDetails {
 export class MandatePart implements MandateUser {
   @IsString()
   name: string;
-  @IsInt()
+  @IsString()
   @IsOptional()
-  personNumber?: number;
+  personNumber?: string;
 }
 
 class CompletionDataUser implements User {
