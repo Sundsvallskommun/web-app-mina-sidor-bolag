@@ -25,7 +25,11 @@ export const BannerMenu: React.FC = () => {
             {representingMode === RepresentingMode.PRIVATE ? titleCase(representingLabel) : representingLabel}
           </span>
           {isMinDesktop && (
-            <NavigationBar className="self-stretch" aria-label={`Undersidor ${representingLabel}`}>
+            <NavigationBar
+              className="self-stretch"
+              aria-label={`Undersidor ${representingLabel}`}
+              data-cy="desktop-navigation"
+            >
               {bannerMenuItems.map((item, index) => (
                 <NavigationBar.Item
                   key={`${index}`}

@@ -20,5 +20,15 @@
     "fetching": "Hämtar pdf",
     "fetchInvoice": "Hämta faktura {{invoice}}",
     "error": "Det gick inte att hämta filen."
+  },
+  "card": {
+    "amount": "Belopp: {{amount}} kr",
+    "dueDate": "Förfallodatum: {{date}}",
+    "date": "Fakturadatum: {{date}}",
+    "ocr": "Fakturanummer: {{number}}",
+    "ariaOpen": "Öppna fakturakort",
+    "ariaClose": "Stäng fakturakort",
+    "showLess": "Visa mindre",
+    "showMore": "Visa mer"
   }
 }
