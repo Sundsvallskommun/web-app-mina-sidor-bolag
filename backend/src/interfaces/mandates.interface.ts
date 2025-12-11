@@ -19,7 +19,7 @@ export interface SignMandateCache extends SignMandate {
 
 export interface MandateUser {
   name: string;
-  personNumber?: number;
+  personNumber?: string;
 }
 export interface MandatePopulated extends Pick<Mandate, 'activeFrom' | 'created' | 'id' | 'inactiveAfter' | 'status'> {
   grantor: MandateUser;
