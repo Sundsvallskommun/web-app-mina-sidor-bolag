@@ -3,13 +3,16 @@ import { useAppContext } from '../../contexts/app.context';
 import { getRepresentingModeRoute } from '../../utils/representingModeRoute';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
+import { useThemeQueries } from '@sk-web-gui/react';
 
 export const useBannerMenuItems = () => {
   const { representingMode } = useAppContext();
   const myPagesRoute = getRepresentingModeRoute(representingMode);
   const { t } = useTranslation('common');
 
-  return [
+  const { isMinDesktop } = useThemeQueries();
+
+  const bannerItems = [
     <NextLink
       key={`banner-menu-item-0`}
       className="w-full flex items-center justify-center"
@@ -45,6 +48,9 @@ export const useBannerMenuItems = () => {
     >
       {capitalize(t('common:selfService'))}
     </NextLink>,
+  ];
+  const mobileMenuItems = [
+    ...bannerItems,
     <NextLink
       key={`banner-menu-item-5`}
       className="w-full flex items-center justify-center"
@@ -52,5 +58,14 @@ export const useBannerMenuItems = () => {
     >
       {capitalize(t('common:profile'))}
     </NextLink>,
+    <NextLink
+      key={`banner-menu-item-5`}
+      className="w-full flex items-center justify-center"
+      href={`${myPagesRoute}/medgivanden`}
+    >
+      {capitalize(t('common:eligibility'))}
+    </NextLink>,
   ];
+
+  return isMinDesktop ? bannerItems : mobileMenuItems;
 };

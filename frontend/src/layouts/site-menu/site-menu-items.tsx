@@ -3,7 +3,7 @@
 import { useAppContext } from '@contexts/app.context';
 import { useCombinedBusinessEngagements } from '@services/organisation-service';
 import { Button, Icon, NavigationBar, PopupMenu, Select, cx, useThemeQueries } from '@sk-web-gui/react';
-import { ArrowRight, ChevronDownCircle, LogOut } from 'lucide-react';
+import { ArrowRight, ChevronDownCircle } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApi, useApiService } from '../../services/api-service';
@@ -144,21 +144,4 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
       </div>
     </label>
   );
-};
-
-export const useSiteMenuItems = () => {
-  const router = useRouter();
-  const { t } = useTranslation('common');
-
-  return [
-    <Button
-      key={`site-menu-items-0`}
-      onClick={() => router.push('/logout')}
-      showBackground={false}
-      variant="tertiary"
-      leftIcon={<Icon icon={<LogOut />} />}
-    >
-      {t('common:logout.logout')}
-    </Button>,
-  ];
 };
