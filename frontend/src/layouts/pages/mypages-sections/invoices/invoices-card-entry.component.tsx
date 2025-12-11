@@ -1,12 +1,18 @@
 import { IInvoice } from '@interfaces/invoice';
-import { Button, Card, Icon, Label } from '@sk-web-gui/react';
+import { Button, Card, Divider, Icon, Label } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { GetPdfButton } from './get-pdf-button.component';
+import { useTranslation } from 'react-i18next';
 
-export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvoice }> = ({ organizationName, item }) => {
+export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvoice }> = ({
+  organizationName,
+  item,
+}) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('invoice');
+
   return (
     <Card>
       <Card.Body className="w-full p-md">
@@ -28,45 +34,41 @@ export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvo
 
           <div className="flex flex-col gap-[1.2rem]">
             <div>
-              <span>Belopp: </span>
-              <span>{`${item.totalAmount}`}</span>
+              <span>{t('invoice:card.amount', { amount: item.totalAmount })}</span>
             </div>
             <div>
-              <span>Förfallodatum: </span>
-              <span>{dayjs(item.dueDate).format('YYYY-MM-DD')}</span>
+              <span>{t('invoice:card.dueDate', { date: dayjs(item.dueDate).format('YYYY-MM-DD') })}</span>
             </div>
-            { open ? (
+            {open ? (
               <>
                 <div>
-                  <span>Fakturadatum: </span>
-                  <span>{dayjs(item.invoiceDate).format('YYYY-MM-DD')}</span>
+                  <span>{t('invoice:card.date', { date: dayjs(item.invoiceDate).format('YYYY-MM-DD') })} </span>
                 </div>
                 <div>
-                  <span>Fakturanummer: </span>
-                  <span>{`${item.ocrNumber}`}</span>
+                  <span>{t('invoice:card.ocr', { number: item.ocrNumber })}</span>
                 </div>
               </>
-            ): undefined }
+            ) : undefined}
           </div>
-          
-          { open ? (
+
+          {open ? (
             <div className="flex flex-col mb-sm">
               <GetPdfButton item={item} />
             </div>
-          ): undefined }
+          ) : undefined}
 
-          <div className="border-b-1 border-divider"></div>
+          <Divider />
 
           <Button
             className="w-full border-0 hover:bg-transparent"
-            aria-label={`${open ? 'Stäng' : 'Öppna'} fakturakort`}
+            aria-label={open ? t('invoice:card.ariaClose') : t('invoice:card.ariaOpen')}
             showBackground={false}
             variant="secondary"
             size="md"
             rounded
             onClick={() => setOpen((open) => !open)}
           >
-            {open ? 'Visa mindre' : 'Visa mer'}
+            {open ? t('invoice:card.showLess') : t('invoice:card.showMore')}
             <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />
           </Button>
         </div>
