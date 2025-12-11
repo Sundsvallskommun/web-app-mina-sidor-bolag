@@ -1,3 +1,5 @@
+import { PermissionStatusCategory } from '@/utils/bfus-permission-status-code-helpers';
+
 export interface BFUSCustomerResponse {
   Header: BFUSCustomerHeader;
   Content: BFUSCustomerContent;
@@ -108,6 +110,7 @@ export interface BFUSEligablePartyPart {
   StatusCode: BFUSStatusCode;
   IsProduction: boolean;
   ObjectVersion: number;
+  StatusCategory: PermissionStatusCategory;
 }
 
 export interface BFUSEligablePartyPermissionResponse {
