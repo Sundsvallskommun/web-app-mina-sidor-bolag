@@ -1,7 +1,12 @@
 import { MUNICIPALITY_ID, NAMESPACE } from '@/config';
 import { getApiBase } from '@/config/api-config';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
-import { CreateMandate, MandateDetails, Mandates, SearchMandateParameters } from '@/data-contracts/myrepresentatives/data-contracts';
+import {
+  CreateMandate,
+  MandateDetails,
+  Mandates,
+  SearchMandateParameters,
+} from '@/data-contracts/myrepresentatives/data-contracts';
 import { CreateMandateDto, MandatePaginationDto } from '@/dtos/mandate.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -74,7 +79,10 @@ export class MandateController {
             { url: `${this.citizenApiBase}/${mandate.grantorDetails.signatoryPartyId}` },
             req.user,
           );
-          const granteeDetails = this.apiService.get<CitizenExtended>({ url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}` }, req.user);
+          const granteeDetails = this.apiService.get<CitizenExtended>(
+            { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}` },
+            req.user,
+          );
           const granteePersonNumber = this.apiService.get<number>(
             { url: `${this.citizenApiBase}/${mandate.granteeDetails.partyId}/personnumber` },
             req.user,
@@ -87,7 +95,10 @@ export class MandateController {
             created: mandate.created,
             status: mandate.status,
             grantor: { name: `${mandateDetails[0].data.givenname} ${mandateDetails[0].data.lastname}` },
-            grantee: { name: `${mandateDetails[1].data.givenname} ${mandateDetails[1].data.lastname}`, personNumber: mandateDetails[2].data },
+            grantee: {
+              name: `${mandateDetails[1].data.givenname} ${mandateDetails[1].data.lastname}`,
+              personNumber: mandateDetails[2].data?.toString().slice(0, -4).concat('****'),
+            },
           });
         } catch (error) {
           logger.error('Error getting details for mandate', error);
