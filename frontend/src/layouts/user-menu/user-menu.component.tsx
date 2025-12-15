@@ -47,6 +47,8 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
+              {/*
+              Hide this temporarily until feature is fully implemented.
               <PopupMenu.Item>
                 <Button
                   className="!justify-between"
@@ -58,7 +60,7 @@ export const UserMenu = () => {
                   {capitalize(t('common:eligibility'))}
                   <Icon icon={<ArrowRight />} />
                 </Button>
-              </PopupMenu.Item>
+              </PopupMenu.Item>*/}
               <Divider />
               <PopupMenu.Item>
                 <Button

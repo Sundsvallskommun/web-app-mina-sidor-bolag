@@ -58,13 +58,15 @@ export const useBannerMenuItems = () => {
     >
       {capitalize(t('common:profile'))}
     </NextLink>,
+    /*
+    Hiding this temporarily until feature is fully implemented.
     <NextLink
       key={`banner-menu-item-5`}
       className="w-full flex items-center justify-center"
       href={`${myPagesRoute}/medgivanden`}
     >
       {capitalize(t('common:eligibility'))}
-    </NextLink>,
+    </NextLink>,*/
   ];
 
   return isMinDesktop ? bannerItems : mobileMenuItems;
