@@ -14,11 +14,9 @@ export const useGetCustomerIds = () => {
 
 export const useGetEligiblePartyPermissions = (customerIds: number[] | null, customerIdsIsLoaded: boolean | null) => {
   const fetcher = async () => {
-    if (!customerIds || !customerIds.length) return [];
-
     const responses = await Promise.all(
-      customerIds.map((id) =>
-        apiService.get<BFUSEligiblePartyPermissionsApiResponse>(`/bfus/eligable-party-permissions`, {
+      customerIds!.map((id) =>
+        apiService.get<BFUSEligiblePartyPermissionsApiResponse>('/bfus/eligable-party-permissions', {
           params: { customerId: id },
         })
       )
@@ -27,5 +25,10 @@ export const useGetEligiblePartyPermissions = (customerIds: number[] | null, cus
     return responses.flatMap((r) => r.data.eligablePartyParts);
   };
 
-  return useApiGet(fetcher, [customerIds, customerIdsIsLoaded], 'bfus-eligible-party-permissions:get.error');
+  return useApiGet(
+    fetcher,
+    [customerIds],
+    'bfus-eligible-party-permissions:get.error',
+    !!customerIdsIsLoaded && !!customerIds?.length
+  );
 };
