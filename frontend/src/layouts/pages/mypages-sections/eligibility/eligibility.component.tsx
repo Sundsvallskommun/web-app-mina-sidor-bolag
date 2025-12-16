@@ -1,17 +1,24 @@
 'use client';
 
-import React from 'react';
-import { useGetCustomerIds, useGetEligiblePartyPermissions } from '@services/eligibility-service';
+import React, { useMemo } from 'react';
+import { useGetEligiblePartyPermissions, useGetCustomerId } from '@services/eligibility-service';
 import { useTranslation } from 'react-i18next';
+import { useApi } from '@services/api-service';
+import { User } from '@interfaces/user';
 
 export default function Eligibility() {
   const { t } = useTranslation('eligibility');
-  const { data: customerIds, loading: customerIdsLoading, loaded: customerIdsLoaded } = useGetCustomerIds();
-  const {
-    data: eligiblePartyParts,
-    loading: eligiblePartyPartsLoading,
-    loaded: eligiblePartyPartsLoaded,
-  } = useGetEligiblePartyPermissions(customerIds ?? null, customerIds && customerIds.length > 0);
+  const { data: user } = useApi<User>({
+    url: '/me',
+    method: 'get',
+    queryKey: ['user'],
+  });
+  const isUserFetched = useMemo(() => !!user?.name, [user?.name]);
+  const { data: customerIds } = useGetCustomerId(isUserFetched);
+  const { data: permissions, isLoading } = useGetEligiblePartyPermissions(
+    customerIds,
+    isUserFetched && !!customerIds?.length
+  );
 
   return (
     <div>

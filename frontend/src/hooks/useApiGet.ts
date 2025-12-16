@@ -2,12 +2,12 @@ import { useEffect, useState, type DependencyList } from 'react';
 import { useSnackbar } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 
-export function useApiGet<T>(
+export const useApiGet = <T>(
   fetcher: () => Promise<T>,
   deps: DependencyList,
   errorKey: string,
   enabled: boolean = true
-) {
+) => {
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [data, setData] = useState<T | null>(null);
@@ -44,4 +44,4 @@ export function useApiGet<T>(
   // eslint-disable-line react-hooks/exhaustive-deps
 
   return { loading, loaded, data };
-}
+};

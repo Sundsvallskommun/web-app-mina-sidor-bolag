@@ -80,8 +80,10 @@ export class BFUSController {
         );
 
       return res.send({
+        data: {
+          customerIds: customerIds,
+        },
         message: 'success',
-        customerIds: customerIds,
       });
     } catch (error: any) {
       logger.error('Unexpected error in BFUS Customer', error.message);
@@ -90,41 +92,48 @@ export class BFUSController {
   }
 
   @Get('/eligable-party-permissions')
-  @OpenAPI({ summary: 'Returns a list with eligable party permissions' })
+  @OpenAPI({ summary: 'Returns a list of eligable party permissions' })
   @UseBefore(authMiddleware)
   async GetEligablePartyPermissions(
-    @QueryParam('customerId') customerId: string,
+    @QueryParam('customerIds') customerIds: string,
     @Res() res: Response<BFUSEligablePartyApiResponse>,
   ): Promise<Response<BFUSEligablePartyApiResponse>> {
-    if (!customerId) {
-      throw new HttpException(400, 'No customer id found');
+    if (!customerIds) {
+      throw new HttpException(400, 'No customer ids found');
     }
 
-    const customerIdNumber = Number(customerId);
+    const ids = customerIds
+      .split(',')
+      .map(id => Number(id.trim()))
+      .filter(id => !Number.isNaN(id));
 
-    if (Number.isNaN(customerIdNumber)) {
-      throw new HttpException(400, 'Customer id must be a number');
+    if (!ids.length) {
+      throw new HttpException(400, 'Customer ids must be numbers');
     }
 
     try {
-      const url = `${BFUS_BASE_URL}/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}`;
-      const result = await axios.get<BFUSEligablePartyResponse>(url, {
-        headers: { Authorization: BFUS_API_KEY },
-      });
+      const responses = await Promise.all(
+        ids.map(customerId => {
+          const url = `${BFUS_BASE_URL}/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}`;
+          return axios.get<BFUSEligablePartyResponse>(url, {
+            headers: { Authorization: BFUS_API_KEY },
+          });
+        }),
+      );
 
-      const eligablePartyParts = result.data.Content.EligablePartyParts;
+      const eligablePartyParts = responses.flatMap(r => r.data.Content?.EligablePartyParts ?? []);
 
-      const statusCodeMappedParts = eligablePartyParts.map(p => ({
+      const mappedParts = eligablePartyParts.map(p => ({
         ...p,
         StatusCategory: mapPartStatus(p),
       }));
 
       return res.send({
-        message: _.isEmpty(result.data.Content) ? 'no eligable party parts available' : 'success',
-        eligablePartyParts: statusCodeMappedParts,
+        message: mappedParts.length ? 'success' : 'no eligable party parts available',
+        data: { eligablePartyParts: mappedParts },
       });
     } catch (error: any) {
-      logger.error('Unexpected error in BFUS eligable party permissions', error.message);
+      logger.error('Unexpected error in BFUS aggregated eligable party permissions', error.message);
       throw new HttpError(500, 'Unexpected server error');
     }
   }

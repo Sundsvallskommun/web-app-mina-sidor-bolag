@@ -1,34 +1,32 @@
-import { apiService } from './api-service';
 import {
   BFUSCustomerIdsApiResponse,
   BFUSEligiblePartyPermissionsApiResponse,
-} from 'src/data-contracts/backend/data-contracts';
-import { useApiGet } from 'src/hooks/useApiGet';
+  EligablePartyPart,
+} from '@interfaces/eligibility';
+import { useApi } from './api-service';
+import { QueryKey } from '@tanstack/react-query';
 
-export const useGetCustomerIds = () => {
-  const fetcher = () =>
-    apiService.get<BFUSCustomerIdsApiResponse>('/bfus/eligable-party-customer-id').then((r) => r.data.customerIds);
+export const useGetCustomerId = (enabled: boolean) =>
+  useApi<BFUSCustomerIdsApiResponse, Error, number[], QueryKey>({
+    url: '/bfus/eligable-party-customer-id',
+    method: 'get',
+    queryKey: ['bfus-customer-ids'],
+    queryOptions: { enabled },
+    dataHandler: (data) => data.customerIds,
+  });
 
-  return useApiGet(fetcher, [], 'bfus-customer-ids:get.error');
-};
-
-export const useGetEligiblePartyPermissions = (customerIds: number[] | null, customerIdsIsLoaded: boolean | null) => {
-  const fetcher = async () => {
-    const responses = await Promise.all(
-      customerIds!.map((id) =>
-        apiService.get<BFUSEligiblePartyPermissionsApiResponse>('/bfus/eligable-party-permissions', {
-          params: { customerId: id },
-        })
-      )
-    );
-
-    return responses.flatMap((r) => r.data.eligablePartyParts);
-  };
-
-  return useApiGet(
-    fetcher,
-    [customerIds],
-    'bfus-eligible-party-permissions:get.error',
-    !!customerIdsIsLoaded && !!customerIds?.length
-  );
-};
+export const useGetEligiblePartyPermissions = (customerIds: number[] | undefined, enabled: boolean | undefined) =>
+  useApi<BFUSEligiblePartyPermissionsApiResponse, Error, EligablePartyPart[], QueryKey>({
+    url: '/bfus/eligable-party-permissions',
+    method: 'get',
+    queryKey: ['bfus-eligible-party-permissions', customerIds],
+    axiosParameters: {
+      params: {
+        customerIds: customerIds?.join(','),
+      },
+    },
+    queryOptions: {
+      enabled: enabled && !!customerIds?.length,
+    },
+    dataHandler: (data) => data.eligablePartyParts,
+  });
