@@ -1,4 +1,22 @@
 {
   "title": "Dina medgivanden",
-  "description" : "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden."
+  "description": "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden.",
+  "permissions": {
+    "current": "Aktuella",
+    "closed": "Avslutade",
+    "description": {
+      "current": "Här ser du aktuella medgivanden. Du kan när som helst återkalla ett medgivande om du inte längre vill dela dina mätvärden.",
+      "closed": "Här ser du medgivanden som har löpt ut, nekats eller återkallats."
+    },
+    "table": {
+      "header": {
+        "company": "Företag",
+        "address": "Adress",
+        "service-identifier": "Anläggnings-ID",
+        "validity-period": "Giltighetstid",
+        "approved": "Godkänt",
+        "closed": "Avslutat"
+      }
+    }
+  }
 }
