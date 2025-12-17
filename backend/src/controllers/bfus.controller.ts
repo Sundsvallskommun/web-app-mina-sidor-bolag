@@ -9,7 +9,6 @@ import axios, { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import _ from 'lodash';
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
 import { sendPermissionRequest } from '@/services/bfus.service';
 import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-request.dto';
