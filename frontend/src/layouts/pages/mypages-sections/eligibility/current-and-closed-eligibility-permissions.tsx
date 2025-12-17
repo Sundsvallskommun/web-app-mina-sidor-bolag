@@ -2,27 +2,30 @@ import { useState } from 'react';
 import { EligablePartyPart } from '@interfaces/eligibility';
 import { Badge, Spinner, Table, Tabs } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+import { useGetCurrentAndClosedPermissions } from '@services/eligibility-service';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
-  permissions: EligablePartyPart[] | undefined;
-  isLoaded: boolean;
+  customerIds: number[] | undefined;
 }
 
-const CurrentAndClosedEligibilityPermissions = ({
-  permissions,
-  isLoaded,
-}: CurrentAndClosedEligibilityPermissionsProps) => {
+const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState<number>(0);
   const headerLabel = (label: string) => t(`eligibility:permissions.table.header.${label}`);
+  const formatDate = (date: string | null) => dayjs(date).format('YYYY-MM-DD');
+  const { data: permissions, isLoading, isFetching } = useGetCurrentAndClosedPermissions(customerIds);
+  const isLoaded = !isLoading && !isFetching && permissions !== undefined;
 
   const filterPermissions = (
     ongoing: boolean
   ): { count: number | undefined; items: EligablePartyPart[] | undefined } => {
-    const filteredPermissions = permissions?.filter((p) =>
-      ongoing ? p.StatusCategory === 'ongoing' : p.StatusCategory !== 'ongoing'
-    );
-    return { count: filteredPermissions?.length, items: filteredPermissions };
+    const filteredPermissions = permissions?.filter((p) => (p.StatusCategory === 'ongoing') === ongoing);
+
+    return {
+      count: filteredPermissions?.length,
+      items: filteredPermissions,
+    };
   };
 
   const tabItem = (ongoing: boolean, panelIndex: number) => {
@@ -60,7 +63,7 @@ const CurrentAndClosedEligibilityPermissions = ({
                   <Table.Column>{p.EnergyServiceParty}</Table.Column>
                   <Table.Column>{p.UsePlaceAddress}</Table.Column>
                   <Table.Column>{p.ServiceIdentifier}</Table.Column>
-                  <Table.Column>{p.EndDay}</Table.Column>
+                  <Table.Column>{`${formatDate(p.StartDay)} - ${formatDate(p.EndDay)}`}</Table.Column>
                   <Table.Column>{p.UserHandledTime}</Table.Column>
                   <Table.Column />
                 </Table.Row>

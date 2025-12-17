@@ -14,7 +14,7 @@ export const useGetCustomerId = () =>
     dataHandler: (data) => data.customerIds,
   });
 
-export const useGetEligiblePartyPermissions = (customerIds: number[] | undefined) =>
+export const useGetCurrentAndClosedPermissions = (customerIds: number[] | undefined) =>
   useApi<BFUSEligiblePartyPermissionsApiResponse['data'], Error, EligablePartyPart[], QueryKey>({
     url: '/bfus/eligable-party-permissions',
     method: 'get',
@@ -27,5 +27,5 @@ export const useGetEligiblePartyPermissions = (customerIds: number[] | undefined
     queryOptions: {
       enabled: !!customerIds && customerIds.length > 0,
     },
-    dataHandler: (data) => data.eligablePartyParts,
+    dataHandler: (data) => data.eligablePartyParts.filter((epp) => epp.StatusCategory !== 'new'),
   });
