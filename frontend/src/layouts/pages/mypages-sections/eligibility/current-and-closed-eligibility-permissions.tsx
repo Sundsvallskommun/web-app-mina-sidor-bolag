@@ -5,12 +5,12 @@ import { useTranslation } from 'react-i18next';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
   permissions: EligablePartyPart[] | undefined;
-  isLoading: boolean;
+  isLoaded: boolean;
 }
 
 const CurrentAndClosedEligibilityPermissions = ({
   permissions,
-  isLoading,
+  isLoaded,
 }: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState<number>(0);
@@ -72,15 +72,20 @@ const CurrentAndClosedEligibilityPermissions = ({
     );
   };
 
-  return isLoading ? (
-    <div className="w-full flex justify-center content-center p-24">
-      <Spinner />
-    </div>
-  ) : (
-    <Tabs className="mt-64" onTabChange={(panel) => setActivePanel(panel)} underline>
+  return isLoaded ? (
+    <Tabs
+      className="mt-64"
+      onTabChange={(panel) => setActivePanel(panel)}
+      underline
+      data-cy="current-and-closed-permissions"
+    >
       {tabItem(true, 0)}
       {tabItem(false, 1)}
     </Tabs>
+  ) : (
+    <div className="w-full flex justify-center content-center p-24" data-cy="current-and-closed-permissions-loader">
+      <Spinner />
+    </div>
   );
 };
 

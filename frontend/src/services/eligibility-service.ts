@@ -6,17 +6,16 @@ import {
 import { useApi } from './api-service';
 import { QueryKey } from '@tanstack/react-query';
 
-export const useGetCustomerId = (enabled: boolean) =>
-  useApi<BFUSCustomerIdsApiResponse, Error, number[], QueryKey>({
+export const useGetCustomerId = () =>
+  useApi<BFUSCustomerIdsApiResponse['data'], Error, number[], QueryKey>({
     url: '/bfus/eligable-party-customer-id',
     method: 'get',
     queryKey: ['bfus-customer-ids'],
-    queryOptions: { enabled },
     dataHandler: (data) => data.customerIds,
   });
 
-export const useGetEligiblePartyPermissions = (customerIds: number[] | undefined, enabled: boolean | undefined) =>
-  useApi<BFUSEligiblePartyPermissionsApiResponse, Error, EligablePartyPart[], QueryKey>({
+export const useGetEligiblePartyPermissions = (customerIds: number[] | undefined) =>
+  useApi<BFUSEligiblePartyPermissionsApiResponse['data'], Error, EligablePartyPart[], QueryKey>({
     url: '/bfus/eligable-party-permissions',
     method: 'get',
     queryKey: ['bfus-eligible-party-permissions', customerIds],
@@ -26,7 +25,7 @@ export const useGetEligiblePartyPermissions = (customerIds: number[] | undefined
       },
     },
     queryOptions: {
-      enabled: enabled && !!customerIds?.length,
+      enabled: !!customerIds && customerIds.length > 0,
     },
     dataHandler: (data) => data.eligablePartyParts,
   });

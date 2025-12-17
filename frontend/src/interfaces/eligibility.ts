@@ -1,5 +1,5 @@
 export interface BFUSCustomerIdsApiResponse {
-  customerIds: number[];
+  data: { customerIds: number[] };
   message: string;
 }
 
@@ -23,15 +23,15 @@ export interface EligablePartyPart {
   LastDayToApprove: string;
   ContractReference: string;
   UserHandledTime: string | null;
-  PermissionId: string;
+  PermissionId: string | null;
   StartDay: string;
   EndDay: string | null;
   UserRevokedContractTime: string | null;
-  EndReason: BFUSEndReason;
+  EndReason: BFUSEndReason | null;
   RequestPurpose: string;
   ContractInUse: boolean;
   ContractId: number;
-  Status: string;
+  Status: string | null;
   EligablePartyPermissionId: number;
   CustomerId: number;
   ServiceIdentifier: string;
@@ -44,6 +44,6 @@ export interface EligablePartyPart {
 }
 
 export interface BFUSEligiblePartyPermissionsApiResponse {
-  eligablePartyParts: EligablePartyPart[];
+  data: { eligablePartyParts: EligablePartyPart[] };
   message: string;
 }
