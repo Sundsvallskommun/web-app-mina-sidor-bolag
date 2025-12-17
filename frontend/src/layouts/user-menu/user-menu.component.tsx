@@ -14,12 +14,12 @@ export const UserMenu = () => {
   const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   return (
-    <div className="flex min-w-[250px] items-center" data-cy="user-menu">
-      <div className="relative w-full">
+    <div className="flex" data-cy="user-menu">
+      <div className="relative">
         <PopupMenu align="end">
           <PopupMenu.Button
             variant="ghost"
-            className="!w-auto !max-w-max !min-w-min"
+            className="!w-full !max-w-max !min-w-min"
             size="md"
             iconButton
             rounded
