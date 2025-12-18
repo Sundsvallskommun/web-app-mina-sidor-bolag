@@ -16,6 +16,11 @@
         "validity-period": "Giltighetstid",
         "approved": "Godkänt",
         "closed": "Avslutat"
+      },
+      "status": {
+        "denied": "Nekad",
+        "ended": "Löpt ut",
+        "revoked": "Återkallad"
       }
     }
   }

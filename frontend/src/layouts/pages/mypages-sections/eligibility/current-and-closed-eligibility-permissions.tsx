@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { EligablePartyPart } from '@interfaces/eligibility';
-import { Badge, Spinner, Table, Tabs } from '@sk-web-gui/react';
+import { Badge, Chip, Label, Spinner, Table, Tabs } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useGetCurrentAndClosedPermissions } from '@services/eligibility-service';
@@ -26,6 +26,14 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
       count: filteredPermissions?.length,
       items: filteredPermissions,
     };
+  };
+
+  const closedLabel = (statusCategory: EligablePartyPart['StatusCategory']) => {
+    return (
+      <Label rounded inverted color={statusCategory === 'denied' ? 'error' : 'tertiary'}>
+        {t(`eligibility:permissions.table.status.${statusCategory}`)}
+      </Label>
+    );
   };
 
   const tabItem = (ongoing: boolean, panelIndex: number) => {
@@ -65,7 +73,8 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
                   <Table.Column>{p.ServiceIdentifier}</Table.Column>
                   <Table.Column>{`${formatDate(p.StartDay)} - ${formatDate(p.EndDay)}`}</Table.Column>
                   <Table.Column>{p.UserHandledTime}</Table.Column>
-                  <Table.Column />
+                  {/* To do: add button for revoke action instead of null in ternary */}
+                  <Table.Column>{activePanel === 0 ? null : closedLabel(p.StatusCategory)}</Table.Column>
                 </Table.Row>
               );
             })}
