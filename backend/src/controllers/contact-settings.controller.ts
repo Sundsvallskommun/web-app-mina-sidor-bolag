@@ -81,8 +81,9 @@ export class ContactSettingsController {
 
     const mapAdress = (adress: LEAddress): ContactSettingAddress => ({
       city: adress?.city,
-      street: !adress.addressArea || !adress.adressNumber ? undefined : `${adress.addressArea} ${adress.adressNumber}`,
-      postcode: adress.postalCode,
+      street:
+        !adress?.addressArea || !adress?.adressNumber ? undefined : `${adress.addressArea} ${adress.adressNumber}`,
+      postcode: adress?.postalCode,
     });
 
     try {
@@ -104,7 +105,7 @@ export class ContactSettingsController {
             const citizenRes = await this.apiService.get<CitizenExtended>({ url, params }, req.user);
             if (citizenRes.data) {
               const address = citizenRes.data.addresses?.[0];
-              clientContactSetting.address = address?.city ? mapAdress(clientContactSetting.address) : null;
+              clientContactSetting.address = address?.city ? mapAdress(address) : null;
             }
           }
           break;
