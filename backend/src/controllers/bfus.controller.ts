@@ -36,10 +36,7 @@ export class BFUSController {
 
     try {
       const result = await sendPermissionRequest(body);
-      return {
-        Header: result.Header,
-        Content: result.Content,
-      };
+      return { data: { Header: result.Header, Content: result.Content } };
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
       if (axios.isAxiosError(error) && error.response) {

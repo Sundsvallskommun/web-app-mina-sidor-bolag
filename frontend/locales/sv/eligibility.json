@@ -17,10 +17,17 @@
         "approved": "Godkänt",
         "closed": "Avslutat"
       },
-      "status": {
-        "denied": "Nekad",
-        "ended": "Löpt ut",
-        "revoked": "Återkallad"
+      "currentAndClosed": {
+        "status": {
+          "denied": "Nekad",
+          "ended": "Löpt ut",
+          "revoked": "Återkallad"
+        },
+        "revokeAction": "Återkalla medgivande",
+        "snackBarMessage": {
+          "success": "Medgivandet är återkallat",
+          "error": "Det gick inte att återkalla medgivandet"
+        }
       }
     }
   }

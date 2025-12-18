@@ -1,9 +1,11 @@
-import { useState } from 'react';
-import { EligablePartyPart } from '@interfaces/eligibility';
-import { Badge, Chip, Label, Spinner, Table, Tabs } from '@sk-web-gui/react';
+import { MouseEvent, useState } from 'react';
+import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
+import { Badge, Button, Label, Spinner, Table, Tabs, useSnackbar } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { useGetCurrentAndClosedPermissions } from '@services/eligibility-service';
+import { eligibilityQueryKeys, useGetCurrentAndClosedPermissions } from '@services/eligibility-service';
+import { queryClient, useApi } from '@services/api-service';
+import { AxiosError } from 'axios';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
   customerIds: number[] | undefined;
@@ -11,11 +13,41 @@ interface CurrentAndClosedEligibilityPermissionsProps {
 
 const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
+  const snackBar = useSnackbar();
   const [activePanel, setActivePanel] = useState<number>(0);
   const headerLabel = (label: string) => t(`eligibility:permissions.table.header.${label}`);
   const formatDate = (date: string | null) => dayjs(date).format('YYYY-MM-DD');
   const { data: permissions, isLoading, isFetching } = useGetCurrentAndClosedPermissions(customerIds);
   const isLoaded = !isLoading && !isFetching && permissions !== undefined;
+
+  const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
+    url: 'bfus/eligable-party-revoke-permission',
+    method: 'post',
+  });
+
+  const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    await revokeMutation
+      .mutateAsync({
+        PermissionRequest: {
+          EligablePartyId: p.EligablePartyId,
+          ContractIdList: [p.ContractId],
+        },
+      })
+      .then(() => {
+        snackBar({
+          message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
+          status: 'success',
+        });
+        queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
+      })
+      .catch((e: AxiosError) =>
+        snackBar({
+          message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
+          status: 'error',
+        })
+      );
+  };
 
   const filterPermissions = (
     ongoing: boolean
@@ -31,7 +63,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
   const closedLabel = (statusCategory: EligablePartyPart['StatusCategory']) => {
     return (
       <Label rounded inverted color={statusCategory === 'denied' ? 'error' : 'tertiary'}>
-        {t(`eligibility:permissions.table.status.${statusCategory}`)}
+        {t(`eligibility:permissions.table.currentAndClosed.status.${statusCategory}`)}
       </Label>
     );
   };
@@ -73,8 +105,15 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
                   <Table.Column>{p.ServiceIdentifier}</Table.Column>
                   <Table.Column>{`${formatDate(p.StartDay)} - ${formatDate(p.EndDay)}`}</Table.Column>
                   <Table.Column>{p.UserHandledTime}</Table.Column>
-                  {/* To do: add button for revoke action instead of null in ternary */}
-                  <Table.Column>{activePanel === 0 ? null : closedLabel(p.StatusCategory)}</Table.Column>
+                  <Table.Column>
+                    {activePanel === 0 ? (
+                      <Button variant="tertiary" onClick={handleRevokePermission(p)}>
+                        {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
+                      </Button>
+                    ) : (
+                      closedLabel(p.StatusCategory)
+                    )}
+                  </Table.Column>
                 </Table.Row>
               );
             })}

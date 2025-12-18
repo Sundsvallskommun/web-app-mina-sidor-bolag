@@ -47,3 +47,12 @@ export interface BFUSEligiblePartyPermissionsApiResponse {
   data: { eligablePartyParts: EligablePartyPart[] };
   message: string;
 }
+
+export interface PermissionRequestDto {
+  PermissionRequest: { ContractIdList: number[]; EligablePartyId: number };
+}
+
+export interface FullPermissionDto {
+  Header: { ExternalId: string; Operation: 'grant' | 'deny' | 'revoke' };
+  PermissionRequest: { EligablePartyId: string; ContractIdList?: number[]; ustomerId?: number };
+}
