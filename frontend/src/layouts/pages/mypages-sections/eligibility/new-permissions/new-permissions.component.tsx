@@ -35,7 +35,7 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     method: 'get',
     axiosParameters: {
       params: {
-        customerIds: customerIds?.join(','),
+        customerIds: customerIds?.toString(),
       },
     },
     dataHandler: pendingEligibilityHandler,

@@ -50,7 +50,7 @@ export const Todos = () => {
     method: 'get',
     axiosParameters: {
       params: {
-        customerIds: customerIds?.customerIds.join(','),
+        customerIds: customerIds?.customerIds.toString(),
       },
     },
     queryOptions: {
