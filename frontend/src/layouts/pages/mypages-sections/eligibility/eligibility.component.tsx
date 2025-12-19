@@ -24,7 +24,9 @@ export default function Eligibility() {
           <NewPermissions customerIds={customerIds} />
           <CurrentAndClosedEligibilityPermissions customerIds={customerIds} />
         </div>
-      ) : null}
+      ) : (
+        <p className="pt-40">{t('eligibility.noData')}</p>
+      )}
     </div>
   );
 }

@@ -30,7 +30,7 @@ export const NewPermissionCardItem = (props: NewPermissionCardItemProps) => {
 
       {permissions.map((permission) => {
         return (
-          <div key={permission.ContractId}>
+          <div key={permission.EligablePartyPermissionId}>
             <Divider />
             <div key={permission.ServiceIdentifier} className="flex flex-col px-20 py-24 gap-y-8">
               <div>

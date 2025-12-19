@@ -88,7 +88,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
           <Table.Body>
             {permissions.map((permission) => {
               return (
-                <Table.Row key={permission.ContractId}>
+                <Table.Row key={permission.EligablePartyPermissionId}>
                   <Table.Column>
                     <Checkbox
                       {...register('selectedContractIds')}
