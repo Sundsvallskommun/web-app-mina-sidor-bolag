@@ -56,13 +56,13 @@ export const NewPermissions = (props: NewPermissionsProps) => {
           queryKey: ['new-permissions'],
         });
         snackBar({
-          message: 'Medgivande godkändes',
+          message: t('eligibility:permissions.item.approveSuccess'),
           status: 'success',
         });
       })
       .catch(() => {
         snackBar({
-          message: 'Något gick fel när medgivande skulle godkännas',
+          message: t('eligibility:permissions.item.approveError'),
           status: 'error',
         });
       });
@@ -82,13 +82,13 @@ export const NewPermissions = (props: NewPermissionsProps) => {
           queryKey: ['new-permissions'],
         });
         snackBar({
-          message: 'Medgivande nekades',
+          message: t('eligibility:permissions.item.denySuccess'),
           status: 'success',
         });
       })
       .catch(() => {
         snackBar({
-          message: 'Något gick fel när medgivande skulle nekas',
+          message: t('eligibility:permissions.item.denyError'),
           status: 'error',
         });
       });
@@ -98,8 +98,8 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     newPermissions &&
     Object.keys(newPermissions) && (
       <div>
-        <h3 className="leading-h3-lg">{t('eligibility:item.new')}</h3>
-        <p className="pt-8">{t('eligibility:item.newDescription')}</p>
+        <h3 className="leading-h3-lg">{t('eligibility:permissions.new')}</h3>
+        <p className="pt-8">{t('eligibility:permissions.description.new')}</p>
 
         {newPermissions &&
           Object.entries(newPermissions).map(([company, permissions]: [string, EligablePartyPart[]]) => {

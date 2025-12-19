@@ -45,13 +45,9 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
     <div className="bg-background-content p-20 rounded-cards shadow-50 my-16 w-full">
       <div className="p-16">
         <h4 className="leading-h4-md">{company}</h4>
+        <p>{t('eligibility:permissions.item.received', { date: '' })}</p>
         <p>
-          {t('eligibility:item.received', {
-            date: dayjs(permissions[0]?.LastDayToApprove).subtract(21, 'days').format('YYYY-MM-DD'),
-          })}
-        </p>
-        <p>
-          {t('eligibility:item.handleLatest', {
+          {t('eligibility:permissions.item.handleLatest', {
             date: dayjs(permissions[0]?.LastDayToApprove).format('YYYY-MM-DD'),
           })}
         </p>
@@ -63,9 +59,9 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
             <Table.HeaderColumn>
               <Checkbox checked={selected.length > 0} onChange={handleChangeAll} indeterminate={isIndeterminate} />
             </Table.HeaderColumn>
-            <Table.HeaderColumn>{t('eligibility:item.address')}</Table.HeaderColumn>
-            <Table.HeaderColumn>{t('eligibility:item.facilityId')}</Table.HeaderColumn>
-            <Table.HeaderColumn>{t('eligibility:item.validTime')}</Table.HeaderColumn>
+            <Table.HeaderColumn>{t('eligibility:permissions.item.address')}</Table.HeaderColumn>
+            <Table.HeaderColumn>{t('eligibility:permissions.item.facilityId')}</Table.HeaderColumn>
+            <Table.HeaderColumn>{t('eligibility:permissions.item.validTime')}</Table.HeaderColumn>
             <Table.HeaderColumn className="flex justify-end gap-16">
               {selected?.length > 1 ? <p>{selected.length} valda</p> : null}
               <Button
@@ -75,7 +71,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                 disabled={selected?.length < 2}
                 onClick={() => handleDenyPermission(permissions[0].CustomerId, eligablePartyId)}
               >
-                {t('eligibility:item.deny')}
+                {t('eligibility:permissions.item.deny')}
               </Button>
               <Button
                 size="sm"
@@ -84,7 +80,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                 disabled={selected?.length < 2}
                 onClick={() => handleApprovePermission(selected, eligablePartyId)}
               >
-                {t('eligibility:item.approve')}
+                {t('eligibility:permissions.item.approve')}
               </Button>
             </Table.HeaderColumn>
           </Table.Header>
@@ -114,7 +110,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                       inverted
                       disabled={selected?.length > 1}
                     >
-                      {t('eligibility:item.deny')}
+                      {t('eligibility:permissions.item.deny')}
                     </Button>
                     <Button
                       onClick={() => handleApprovePermission([permission.ContractId], permission.EligablePartyId)}
@@ -123,7 +119,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                       inverted
                       disabled={selected?.length > 1}
                     >
-                      {t('eligibility:item.approve')}
+                      {t('eligibility:permissions.item.approve')}
                     </Button>
                   </Table.Column>
                 </Table.Row>
