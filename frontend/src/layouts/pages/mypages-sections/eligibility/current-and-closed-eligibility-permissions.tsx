@@ -16,7 +16,8 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
   const snackBar = useSnackbar();
   const [activePanel, setActivePanel] = useState<number>(0);
   const headerLabel = (label: string) => t(`eligibility:permissions.table.header.${label}`);
-  const formatDate = (date: string | null) => dayjs(date).format('YYYY-MM-DD');
+  const formatDate = (date: string | null) =>
+    date ? dayjs(date).format('YYYY-MM-DD') : t('eligibility:permissions.table.currentAndClosed.unknownDate');
   const { data: permissions, isLoading, isFetching } = useGetCurrentAndClosedPermissions(customerIds);
   const isLoaded = !isLoading && !isFetching && permissions !== undefined;
 
@@ -84,6 +85,14 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
     );
   };
 
+  const handleEndDate = (p: EligablePartyPart) => {
+    if (p.StatusCategory === 'revoked') return p.UserRevokedContractTime;
+    if (p.StatusCategory === 'expired') return p.EndDay;
+    if (p.StatusCategory === 'denied') return p.UserHandledTime;
+
+    return p.UserHandledTime;
+  };
+
   const table = (ongoing: boolean) => {
     return (
       <div className="bg-background-content p-20 rounded-cards shadow-50">
@@ -103,11 +112,15 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
                   <Table.Column>{p.EnergyServiceParty}</Table.Column>
                   <Table.Column>{p.UsePlaceAddress}</Table.Column>
                   <Table.Column>{p.ServiceIdentifier}</Table.Column>
-                  <Table.Column>{`${formatDate(p.StartDay)} - ${formatDate(p.EndDay)}`}</Table.Column>
-                  <Table.Column>{p.UserHandledTime}</Table.Column>
+                  <Table.Column>
+                    <p className="whitespace-nowrap">{`${formatDate(p.StartDay)} - ${formatDate(p.EndDay)}`}</p>
+                  </Table.Column>
+                  <Table.Column>
+                    <p className="whitespace-nowrap">{formatDate(handleEndDate(p))}</p>
+                  </Table.Column>
                   <Table.Column>
                     {activePanel === 0 ? (
-                      <Button variant="tertiary" onClick={handleRevokePermission(p)}>
+                      <Button variant="tertiary" size="sm" onClick={handleRevokePermission(p)}>
                         {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
                       </Button>
                     ) : (

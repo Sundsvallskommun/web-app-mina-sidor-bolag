@@ -1,12 +1,28 @@
 {
   "title": "Dina medgivanden",
   "description": "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden.",
+  "noData": "Du har inga medgivanden.",
   "permissions": {
+    "new": "Nytt medgivande",
     "current": "Aktuella",
     "closed": "Avslutade",
     "description": {
+      "new": "Du kan godkänna eller neka begäran om åtkomst till dina mätvärden. Du behöver hantera medgivandet inom 21 dagar från att det mottogs.",
       "current": "Här ser du aktuella medgivanden. Du kan när som helst återkalla ett medgivande om du inte längre vill dela dina mätvärden.",
       "closed": "Här ser du medgivanden som har löpt ut, nekats eller återkallats."
+    },
+    "item": {
+      "received": "Mottaget: {{date}}",
+      "handleLatest": "Hantera senast: {{date}}",
+      "address": "Adress",
+      "facilityId": "Anläggnings-ID",
+      "validTime": "Giltighetstid",
+      "approve": "Godkänn",
+      "deny": "Neka",
+      "approveSuccess": "Medgivande godkändes",
+      "approveError": "Något gick fel när medgivande skulle godkännas",
+      "denySuccess": "Medgivande nekades",
+      "denyError": "Något gick fel när medgivande skulle nekas"
     },
     "table": {
       "header": {
@@ -27,7 +43,8 @@
         "snackBarMessage": {
           "success": "Medgivandet är återkallat",
           "error": "Det gick inte att återkalla medgivandet"
-        }
+        },
+        "unknownDate": "Okänt"
       }
     }
   }
