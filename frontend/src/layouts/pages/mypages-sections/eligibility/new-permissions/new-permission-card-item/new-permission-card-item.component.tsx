@@ -8,7 +8,6 @@ import { EligablePartyPart } from '@interfaces/eligibility';
 interface NewPermissionCardItemProps {
   company: string;
   permissions: EligablePartyPart[];
-  eligablePartyId: string;
   handleApprovePermission: (contractIds: number[], eligablePartyId: string) => void;
   handleDenyPermission: (customerId: number, eligablePartyId: string) => void;
 }
@@ -29,9 +28,9 @@ export const NewPermissionCardItem = (props: NewPermissionCardItemProps) => {
         </p>
       </div>
 
-      {permissions.map((permission, index) => {
+      {permissions.map((permission) => {
         return (
-          <div key={index}>
+          <div key={permission.ContractId}>
             <Divider />
             <div key={permission.ServiceIdentifier} className="flex flex-col px-20 py-24 gap-y-8">
               <div>

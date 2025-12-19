@@ -102,10 +102,10 @@ export const NewPermissions = (props: NewPermissionsProps) => {
         <p className="pt-8">{t('eligibility:item.newDescription')}</p>
 
         {newPermissions &&
-          Object.entries(newPermissions).map(([company, permissions]: [string, EligablePartyPart[]], index) => {
+          Object.entries(newPermissions).map(([company, permissions]: [string, EligablePartyPart[]]) => {
             return isMinLg ? (
               <NewPermissionListItem
-                key={index}
+                key={company}
                 eligablePartyId={permissions[0].EligablePartyId}
                 customerId={permissions[0].CustomerId}
                 company={company}
@@ -115,8 +115,7 @@ export const NewPermissions = (props: NewPermissionsProps) => {
               />
             ) : (
               <NewPermissionCardItem
-                key={index}
-                eligablePartyId={permissions[0].EligablePartyId}
+                key={company}
                 company={company}
                 permissions={permissions}
                 handleApprovePermission={handleApprovePermission}

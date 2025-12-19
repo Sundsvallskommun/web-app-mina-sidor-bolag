@@ -90,9 +90,9 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
           </Table.Header>
 
           <Table.Body>
-            {permissions.map((permission, index) => {
+            {permissions.map((permission) => {
               return (
-                <Table.Row key={index}>
+                <Table.Row key={permission.ContractId}>
                   <Table.Column>
                     <Checkbox
                       {...register('selectedContractIds')}
