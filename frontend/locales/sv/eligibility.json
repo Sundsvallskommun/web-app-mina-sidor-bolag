@@ -1,4 +1,15 @@
 {
   "title": "Dina medgivanden",
-  "description" : "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden."
+  "description": "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden.",
+  "item": {
+    "new": "Nytt medgivande",
+    "newDescription": "Du kan godkänna eller neka begäran om åtkomst till dina mätvärden. Du behöver hantera medgivandet inom 21 dagar från att det mottogs.",
+    "received": "Mottaget: {{date}}",
+    "handleLatest": "Hantera senast: {{date}}",
+    "address": "Adress",
+    "facilityId": "Anläggnings-ID",
+    "validTime": "Giltighetstid",
+    "approve": "Godkänn",
+    "deny": "Neka"
+  }
 }

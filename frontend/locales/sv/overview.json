@@ -14,12 +14,23 @@
   },
   "todo": {
     "title": "Att göra",
-    "description": "Aktuella fakturor att betala",
-    "invoices": "fakturor",
-    "currentInvoices": "Du har {{count}} fakturor att betala.",
     "noTodos": "Du har inget du behöver ta hand om.",
     "fetching": "Hämtar ohanterade uppgifter",
-    "showInvoices": "Visa fakturor"
+
+    "invoice": {
+      "description": "Aktuella fakturor att betala",
+      "invoices": "fakturor",
+      "currentInvoices": "Du har {{count}} fakturor att betala.",
+      "noTodos": "Du har inget du behöver ta hand om.",
+      "fetching": "Hämtar ohanterade uppgifter",
+      "showInvoices": "Visa fakturor"
+    },
+    "eligibility" : {
+      "description": "Nytt medgivande",
+      "eligibility": "medgivanden",
+      "current": "Du har fått ett nytt medgivande som du måste hantera.",
+      "show": "Visa medgivanden"
+    }
   },
   "announcements": {
     "title": "Nyheter"
