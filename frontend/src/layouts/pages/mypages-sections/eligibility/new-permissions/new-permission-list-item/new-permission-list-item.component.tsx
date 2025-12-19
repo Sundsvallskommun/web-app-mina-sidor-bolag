@@ -42,7 +42,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
     selected.length > 0 && !permissions.every((permission) => selected.includes(permission.ContractId));
 
   return (
-    <div className="bg-background-content p-20 rounded-cards shadow-50 my-16 w-full">
+    <div className="bg-background-content p-20 rounded-cards shadow-50 my-16 w-full" data-cy="new-permissions-card">
       <div className="p-16">
         <h4 className="leading-h4-md">{company}</h4>
         <p>{t('eligibility:permissions.item.received', { date: '' })}</p>
@@ -54,7 +54,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
       </div>
 
       <FormControl className="w-full" fieldset>
-        <Table>
+        <Table data-cy="new-permissions-table">
           <Table.Header>
             <Table.HeaderColumn>
               <Checkbox checked={selected.length > 0} onChange={handleChangeAll} indeterminate={isIndeterminate} />
@@ -109,10 +109,12 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                       color="error"
                       inverted
                       disabled={selected?.length > 1}
+                      data-cy="denyOne"
                     >
                       {t('eligibility:permissions.item.deny')}
                     </Button>
                     <Button
+                      data-cy="approveOne"
                       onClick={() => handleApprovePermission([permission.ContractId], permission.EligablePartyId)}
                       size="sm"
                       color="gronsta"
