@@ -6,6 +6,7 @@ import { NewPermissions } from '@layouts/pages/mypages-sections/eligibility/new-
 import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
 import { BFUSCustomerIdsApiResponse } from '@interfaces/eligibility';
+import CurrentAndClosedEligibilityPermissions from './current-and-closed-eligibility-permissions';
 
 export default function Eligibility() {
   const { t } = useTranslation('eligibility');
@@ -29,6 +30,8 @@ export default function Eligibility() {
           <NewPermissions customerIds={customerIds.customerIds} />
         </div>
       ) : null}
+
+      <CurrentAndClosedEligibilityPermissions customerIds={customerIds} />
     </div>
   );
 }

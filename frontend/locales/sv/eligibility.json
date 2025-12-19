@@ -11,5 +11,35 @@
     "validTime": "Giltighetstid",
     "approve": "Godkänn",
     "deny": "Neka"
+  },
+  "permissions": {
+    "current": "Aktuella",
+    "closed": "Avslutade",
+    "description": {
+      "current": "Här ser du aktuella medgivanden. Du kan när som helst återkalla ett medgivande om du inte längre vill dela dina mätvärden.",
+      "closed": "Här ser du medgivanden som har löpt ut, nekats eller återkallats."
+    },
+    "table": {
+      "header": {
+        "company": "Företag",
+        "address": "Adress",
+        "service-identifier": "Anläggnings-ID",
+        "validity-period": "Giltighetstid",
+        "approved": "Godkänt",
+        "closed": "Avslutat"
+      },
+      "currentAndClosed": {
+        "status": {
+          "denied": "Nekad",
+          "ended": "Löpt ut",
+          "revoked": "Återkallad"
+        },
+        "revokeAction": "Återkalla medgivande",
+        "snackBarMessage": {
+          "success": "Medgivandet är återkallat",
+          "error": "Det gick inte att återkalla medgivandet"
+        }
+      }
+    }
   }
 }
