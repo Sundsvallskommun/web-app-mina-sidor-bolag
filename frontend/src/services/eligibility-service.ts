@@ -8,13 +8,14 @@ import { QueryKey } from '@tanstack/react-query';
 
 export const eligibilityQueryKeys = {
   partyPermissions: 'bfus-eligible-party-permissions',
+  customerIds: 'bfus-customer-ids',
 };
 
 export const useGetCustomerId = () =>
   useApi<BFUSCustomerIdsApiResponse['data'], Error, number[], QueryKey>({
     url: '/bfus/eligable-party-customer-id',
     method: 'get',
-    queryKey: ['bfus-customer-ids'],
+    queryKey: [eligibilityQueryKeys.customerIds],
     dataHandler: (data) => data.customerIds,
   });
 
