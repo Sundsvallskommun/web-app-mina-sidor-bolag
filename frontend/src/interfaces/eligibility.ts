@@ -49,10 +49,10 @@ export interface BFUSEligiblePartyPermissionsApiResponse {
 }
 
 export interface PermissionRequestDto {
-  PermissionRequest: { ContractIdList: number[]; EligablePartyId: number };
+  PermissionRequest: { ContractIdList?: number[]; EligablePartyId: string; CustomerId?: number };
 }
 
 export interface FullPermissionDto {
   Header: { ExternalId: string; Operation: 'grant' | 'deny' | 'revoke' };
-  PermissionRequest: { EligablePartyId: string; ContractIdList?: number[]; ustomerId?: number };
+  PermissionRequest: { EligablePartyId: string; ContractIdList?: number[]; CustomerId?: number };
 }
