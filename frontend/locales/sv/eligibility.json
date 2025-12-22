@@ -22,7 +22,8 @@
       "approveSuccess": "Medgivande godkändes",
       "approveError": "Något gick fel när medgivande skulle godkännas",
       "denySuccess": "Medgivande nekades",
-      "denyError": "Något gick fel när medgivande skulle nekas"
+      "denyError": "Något gick fel när medgivande skulle nekas",
+      "continuous": "Löpande"
     },
     "table": {
       "header": {

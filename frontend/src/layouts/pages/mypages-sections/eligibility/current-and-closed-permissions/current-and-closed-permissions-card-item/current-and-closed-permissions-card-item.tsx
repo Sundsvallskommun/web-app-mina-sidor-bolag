@@ -2,6 +2,7 @@
 
 import { Divider } from '@sk-web-gui/react';
 import { CurrentAndClosedEligibilityPermissionsProps } from '../current-and-closed-permissions-table/current-and-closed-eligibility-permissions-table';
+import { useTranslation } from 'react-i18next';
 
 export const CurrentAndClosedPermissionCard = ({
   ongoing,
@@ -13,6 +14,7 @@ export const CurrentAndClosedPermissionCard = ({
   handleEndDate,
 }: CurrentAndClosedEligibilityPermissionsProps) => {
   const permissions = filterPermissions(ongoing);
+  const { t } = useTranslation('eligibility');
 
   return (
     <div
@@ -38,7 +40,8 @@ export const CurrentAndClosedPermissionCard = ({
               <div>
                 <strong>{headerLabel('validity-period')}</strong>
                 <p>
-                  {formatDate(permission.StartDay)} -{permission.EndDay ? formatDate(permission.EndDay) : ' Löpande'}
+                  {`${formatDate(permission.StartDay)} -
+                  ${permission.EndDay ? formatDate(permission.EndDay) : t('eligibility:permissions.item.continuous')}`}
                 </p>
               </div>
               <div>
