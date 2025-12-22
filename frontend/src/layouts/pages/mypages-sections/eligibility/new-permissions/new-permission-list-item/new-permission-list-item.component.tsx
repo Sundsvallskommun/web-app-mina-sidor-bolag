@@ -99,8 +99,12 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                   <Table.Column>{permission.UsePlaceAddress}</Table.Column>
                   <Table.Column>{permission.ServiceIdentifier}</Table.Column>
                   <Table.Column>
-                    {dayjs(permission.StartDay).format('YYYY-MM-DD')} -
-                    {permission.EndDay ? dayjs(permission.EndDay).format('YYYY-MM-DD') : ' Löpande'}
+                    {t('eligibility:permissions.item.periodOfValidity', {
+                      start: dayjs(permission.StartDay).format('YYYY-MM-DD'),
+                      end: permission.EndDay
+                        ? dayjs(permission.EndDay).format('YYYY-MM-DD')
+                        : t('eligibility:permissions.item.continuous'),
+                    })}
                   </Table.Column>
                   <Table.Column className="flex justify-end !gap-16 !pr-16">
                     <Button

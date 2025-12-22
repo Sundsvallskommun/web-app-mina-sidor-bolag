@@ -20,9 +20,9 @@ export const NewPermissionCardItem = (props: NewPermissionCardItemProps) => {
     <div className="bg-background-content rounded-cards shadow-50 my-24">
       <div className="p-20">
         <h4 className="leading-h4-md">{company}</h4>
-        <p>{t('eligibility:item.received', { date: '' })} </p>
+        <p>{t('eligibility:permissions.item.received', { date: '' })} </p>
         <p>
-          {t('eligibility:item.handleLatest', {
+          {t('eligibility:permissions.item.handleLatest', {
             date: dayjs(permissions[0]?.LastDayToApprove).format('YYYY-MM-DD'),
           })}
         </p>
@@ -34,18 +34,22 @@ export const NewPermissionCardItem = (props: NewPermissionCardItemProps) => {
             <Divider />
             <div key={permission.ServiceIdentifier} className="flex flex-col px-20 py-24 gap-y-8">
               <div>
-                <strong>{t('eligibility:item.address')}</strong>
+                <strong>{t('eligibility:permissions.item.address')}</strong>
                 <p>{permission.UsePlaceAddress}</p>
               </div>
               <div>
-                <strong>{t('eligibility:item.facilityId')}</strong>
+                <strong>{t('eligibility:permissions.item.facilityId')}</strong>
                 <p>{permission.ServiceIdentifier}</p>
               </div>
               <div>
-                <strong>{t('eligibility:item.validTime')}</strong>
+                <strong>{t('eligibility:permissions.item.validTime')}</strong>
                 <p>
-                  {dayjs(permission.StartDay).format('YYYY-MM-DD')} -
-                  {permission.EndDay ? dayjs(permission.EndDay).format('YYYY-MM-DD') : ' Löpande'}
+                  {t('eligibility:permissions.item.periodOfValidity', {
+                    start: dayjs(permission.StartDay).format('YYYY-MM-DD'),
+                    end: permission.EndDay
+                      ? dayjs(permission.EndDay).format('YYYY-MM-DD')
+                      : t('eligibility:permissions.item.continuous'),
+                  })}
                 </p>
               </div>
 
@@ -57,7 +61,7 @@ export const NewPermissionCardItem = (props: NewPermissionCardItemProps) => {
                   className="flex-1"
                   onClick={() => handleDenyPermission(permission.CustomerId, permission.EligablePartyId)}
                 >
-                  {t('eligibility:item.deny')}
+                  {t('eligibility:permissions.item.deny')}
                 </Button>
                 <Button
                   size="lg"
@@ -66,7 +70,7 @@ export const NewPermissionCardItem = (props: NewPermissionCardItemProps) => {
                   className="flex-1"
                   onClick={() => handleApprovePermission([permission.ContractId], permission.EligablePartyId)}
                 >
-                  {t('eligibility:item.approve')}
+                  {t('eligibility:permissions.item.approve')}
                 </Button>
               </div>
             </div>
