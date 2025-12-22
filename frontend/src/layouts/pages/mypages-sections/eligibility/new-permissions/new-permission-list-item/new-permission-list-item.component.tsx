@@ -9,14 +9,12 @@ import { EligablePartyPart } from '@interfaces/eligibility';
 interface NewPermissionListItemProps {
   company: string;
   permissions: EligablePartyPart[];
-  eligablePartyId: string;
-  customerId: number;
   handleApprovePermission: (contractIds: number[], eligablePartyId: string) => void;
   handleDenyPermission: (customerId: number, eligablePartyId: string) => void;
 }
 
 export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
-  const { company, permissions, eligablePartyId, handleApprovePermission, handleDenyPermission } = props;
+  const { company, permissions, handleApprovePermission, handleDenyPermission } = props;
   const { t } = useTranslation(['common', 'eligibility']);
 
   const { register, watch, setValue } = useForm<{
@@ -69,7 +67,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                 color="error"
                 inverted
                 disabled={selected?.length < 2}
-                onClick={() => handleDenyPermission(permissions[0].CustomerId, eligablePartyId)}
+                onClick={() => handleDenyPermission(permissions[0].CustomerId, permissions[0].EligablePartyId)}
               >
                 {t('eligibility:permissions.item.deny')}
               </Button>
@@ -78,7 +76,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                 color="gronsta"
                 inverted
                 disabled={selected?.length < 2}
-                onClick={() => handleApprovePermission(selected, eligablePartyId)}
+                onClick={() => handleApprovePermission(selected, permissions[0].EligablePartyId)}
               >
                 {t('eligibility:permissions.item.approve')}
               </Button>

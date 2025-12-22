@@ -7,11 +7,20 @@ import { NewPermissionListItem } from '@layouts/pages/mypages-sections/eligibili
 import React from 'react';
 import { useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { NewPermissionCardItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-card-item/new-permission-card-item.component';
-import { EligablePartyPart } from '@interfaces/eligibility';
+import { EligablePartyPart, PermissionRequestDto } from '@interfaces/eligibility';
 
 interface NewPermissionsProps {
   customerIds: number[];
 }
+
+type PermissionMutationOptions<TPayload> = {
+  payload: TPayload;
+  mutation: {
+    mutateAsync: (payload: TPayload) => Promise<unknown>;
+  };
+  successMessage: string;
+  errorMessage: string;
+};
 
 export const NewPermissions = (props: NewPermissionsProps) => {
   const { customerIds } = props;
@@ -41,89 +50,83 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     dataHandler: pendingEligibilityHandler,
   });
 
-  const handleApprovePermission = async (contractIds: number[], eligablePartyId: string) => {
-    const formData = {
-      PermissionRequest: {
-        ContractIdList: contractIds,
-        EligablePartyId: eligablePartyId,
-      },
-    };
+  const handlePermissionMutation = async ({
+    payload,
+    mutation,
+    successMessage,
+    errorMessage,
+  }: PermissionMutationOptions<PermissionRequestDto>) => {
+    try {
+      await mutation.mutateAsync(payload);
 
-    await grantPermission
-      .mutateAsync(formData)
-      .then(() => {
-        queryClient.invalidateQueries({
-          queryKey: ['new-permissions'],
-        });
-        snackBar({
-          message: t('eligibility:permissions.item.approveSuccess'),
-          status: 'success',
-        });
-      })
-      .catch(() => {
-        snackBar({
-          message: t('eligibility:permissions.item.approveError'),
-          status: 'error',
-        });
+      await queryClient.invalidateQueries({
+        queryKey: ['new-permissions'],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['bfus-eligible-party-permissions'],
+      });
+      snackBar({
+        message: successMessage,
+        status: 'success',
+      });
+    } catch {
+      snackBar({
+        message: errorMessage,
+        status: 'error',
+      });
+    }
+  };
+
+  const handleApprovePermission = async (contractIds: number[], eligablePartyId: string) => {
+    await handlePermissionMutation({
+      payload: {
+        PermissionRequest: {
+          ContractIdList: contractIds,
+          EligablePartyId: eligablePartyId,
+        },
+      },
+      mutation: grantPermission,
+      successMessage: t('eligibility:permissions.item.approveSuccess'),
+      errorMessage: t('eligibility:permissions.item.approveError'),
+    });
   };
 
   const handleDenyPermission = async (customerId: number, eligablePartyId: string) => {
-    const formData = {
-      PermissionRequest: {
-        CustomerId: customerId,
-        EligablePartyId: eligablePartyId,
+    await handlePermissionMutation({
+      payload: {
+        PermissionRequest: {
+          CustomerId: customerId,
+          EligablePartyId: eligablePartyId,
+        },
       },
-    };
-    await denyPermission
-      .mutateAsync(formData)
-      .then(() => {
-        queryClient.invalidateQueries({
-          queryKey: ['new-permissions'],
-        });
-        snackBar({
-          message: t('eligibility:permissions.item.denySuccess'),
-          status: 'success',
-        });
-      })
-      .catch(() => {
-        snackBar({
-          message: t('eligibility:permissions.item.denyError'),
-          status: 'error',
-        });
-      });
+      mutation: denyPermission,
+      successMessage: t('eligibility:permissions.item.denySuccess'),
+      errorMessage: t('eligibility:permissions.item.denyError'),
+    });
   };
 
-  return (
-    newPermissions &&
-    Object.keys(newPermissions) && (
-      <div>
-        <h3 className="leading-h3-lg">{t('eligibility:permissions.new')}</h3>
-        <p className="pt-8">{t('eligibility:permissions.description.new')}</p>
+  if (!newPermissions || Object.keys(newPermissions).length === 0) {
+    return null;
+  }
 
-        {newPermissions &&
-          Object.entries(newPermissions).map(([company, permissions]: [string, EligablePartyPart[]]) => {
-            return isMinLg ? (
-              <NewPermissionListItem
-                key={company}
-                eligablePartyId={permissions[0].EligablePartyId}
-                customerId={permissions[0].CustomerId}
-                company={company}
-                permissions={permissions}
-                handleApprovePermission={handleApprovePermission}
-                handleDenyPermission={handleDenyPermission}
-              />
-            ) : (
-              <NewPermissionCardItem
-                key={company}
-                company={company}
-                permissions={permissions}
-                handleApprovePermission={handleApprovePermission}
-                handleDenyPermission={handleDenyPermission}
-              />
-            );
-          })}
-      </div>
-    )
+  return (
+    <div>
+      <h3 className="leading-h3-lg">{t('eligibility:permissions.new')}</h3>
+      <p className="pt-8">{t('eligibility:permissions.description.new')}</p>
+      {...Object.entries(newPermissions).map(([company, permissions]: [string, EligablePartyPart[]]) => {
+        const commonProps = {
+          company,
+          permissions,
+          handleApprovePermission,
+          handleDenyPermission,
+        };
+
+        return isMinLg ? (
+          <NewPermissionListItem {...commonProps} key={company} />
+        ) : (
+          <NewPermissionCardItem {...commonProps} key={company} />
+        );
+      })}
+    </div>
   );
 };
