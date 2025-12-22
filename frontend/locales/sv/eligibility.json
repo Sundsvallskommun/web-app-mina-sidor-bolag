@@ -45,7 +45,8 @@
         "snackBarMessage": {
           "success": "Medgivandet är återkallat",
           "error": "Det gick inte att återkalla medgivandet"
-        }
+        },
+        "unknownDate": "Okänt"
       }
     }
   }
