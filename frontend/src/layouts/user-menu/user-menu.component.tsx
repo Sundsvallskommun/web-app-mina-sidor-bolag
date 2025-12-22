@@ -1,17 +1,18 @@
 import { Button, Divider, Icon, PopupMenu } from '@sk-web-gui/react';
-import { useApi } from '@services/api-service';
-import { User } from '@interfaces/user';
 import { ArrowRight, ChevronDown, LogOut, User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { capitalize } from 'lodash';
+import { RepresentingMode } from '@interfaces/app';
+import { titleCase } from '@utils/title-caser';
+import { useAppContext } from '@contexts/app.context';
 
 export const UserMenu = () => {
   const { t } = useTranslation('common');
 
   const router = useRouter();
-  const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const { representingMode, representingName: representingLabel } = useAppContext();
 
   return (
     <div className="flex" data-cy="user-menu">
@@ -29,7 +30,9 @@ export const UserMenu = () => {
               <div className="flex items-center justify-center rounded-[1000px] min-w-[40px] h-[40px] bg-brand-primary">
                 <Icon icon={<User2 />} />
               </div>
-              <span>{user?.name}</span>
+              <span>
+                {representingMode === RepresentingMode.PRIVATE ? titleCase(representingLabel) : representingLabel}
+              </span>
               <Icon icon={<ChevronDown />} />
             </div>
           </PopupMenu.Button>
