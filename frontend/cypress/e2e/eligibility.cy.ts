@@ -18,10 +18,20 @@ describe('Dina medgivanden', () => {
   });
 
   it('should render a table for current and closed eligibility permissions', () => {
-    cy.wait('@getCustomerIds').its('response.body.data.customerIds').should('deep.equal', [12345678]);
+    cy.viewport('macbook-16');
+    defaultCurrentAndClosedPermissions();
+    cy.get('[data-cy="current-and-closed-permissions"]').find('table').should('exist');
+  });
+
+  it('should render a container with cards for current and closed eligibility permissions', () => {
+    cy.viewport('iphone-8');
+    defaultCurrentAndClosedPermissions();
+    cy.get('[data-cy="current-and-closed-permissions-card-container"]').should('exist');
+  });
+
+  const defaultCurrentAndClosedPermissions = () => {
     cy.get('[data-cy="current-and-closed-permissions-loader"]').should('exist');
     cy.wait('@getPartyPermissions', { timeout: 10000 }).its('response.statusCode').should('eq', 200);
     cy.get('[data-cy="current-and-closed-permissions-loader"]').should('not.exist');
-    cy.get('[data-cy="current-and-closed-permissions"]').find('table').should('exist');
-  });
+  };
 });

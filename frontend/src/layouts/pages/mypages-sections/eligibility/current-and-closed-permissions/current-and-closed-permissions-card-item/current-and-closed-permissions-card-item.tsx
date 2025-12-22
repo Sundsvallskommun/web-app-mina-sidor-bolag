@@ -15,7 +15,10 @@ export const CurrentAndClosedPermissionCard = ({
   const permissions = filterPermissions(ongoing);
 
   return (
-    <div className="bg-background-content rounded-cards shadow-50 my-24">
+    <div
+      className="bg-background-content rounded-cards shadow-50 my-24"
+      data-cy="current-and-closed-permissions-card-container"
+    >
       {permissions.map((permission) => {
         return (
           <div key={permission.EligablePartyPermissionId}>
