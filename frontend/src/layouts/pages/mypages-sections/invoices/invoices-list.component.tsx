@@ -1,6 +1,6 @@
 import { TableWrapper } from '@components/table-wrapper/table-wrapper.component';
 import { useThemeQueries } from '@sk-web-gui/react';
-import React, { ReactNode, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { InvoicesTable } from './invoices-table.component';
 import { InvoicesCardList } from './invoices-card-list.component';
 import { InvoicesData } from '@interfaces/invoice';
@@ -28,7 +28,7 @@ export const InvoicesList: React.FC<{
   const [activePage, setActivePage] = useState<number>(1);
   const previousActivePage = useRef<number>(-1);
   const previousFacilityIds = useRef<string[] | undefined>(undefined);
-  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
+  const previousRepresentingMode = useRef<RepresentingMode | undefined>(representingMode);
 
   const paginationChanged = activePage !== previousActivePage.current;
   const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
@@ -53,6 +53,14 @@ export const InvoicesList: React.FC<{
     },
     dataHandler: invoicesHandler,
   });
+
+  useEffect(() => {
+    if (!isFetched) return;
+    previousActivePage.current = activePage;
+    previousFacilityIds.current = facilityIds;
+    previousRepresentingMode.current = representingMode;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFetched, data]);
 
   const baseProps = {
     data,

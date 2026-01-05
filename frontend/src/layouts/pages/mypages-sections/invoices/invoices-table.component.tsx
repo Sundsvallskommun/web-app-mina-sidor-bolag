@@ -14,13 +14,10 @@ export const InvoicesTable = ({
   pageSize,
   setActivePage,
   previousActivePage,
-  previousFacilityIds,
-  representingMode,
   representingName,
   representingModeChanged,
   facilityIds,
   emptyComponent,
-  previousRepresentingMode,
 }: InvoiceTableProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
@@ -38,11 +35,8 @@ export const InvoicesTable = ({
   useEffect(() => {
     if (!isFetched) return;
 
-    previousActivePage.current = activePage;
-    previousFacilityIds.current = facilityIds;
-    previousRepresentingMode.current = representingMode;
-    totalCount.current = data.totalCount;
     setRows(data.invoices);
+    totalCount.current = data.totalCount;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setRows, isFetched, data]);
 
