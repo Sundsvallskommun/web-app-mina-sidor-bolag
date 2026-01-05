@@ -4,7 +4,6 @@ import { useApi } from '@services/api-service';
 import { InvoicesCardEntry } from './invoices-card-entry.component';
 import { Button, Spinner } from '@sk-web-gui/react';
 import { User } from '@interfaces/user';
-import { RepresentingMode } from '@interfaces/app';
 import { useTranslation } from 'react-i18next';
 
 export const InvoicesCardList = ({
@@ -13,8 +12,6 @@ export const InvoicesCardList = ({
   activePage,
   setActivePage,
   previousActivePage,
-  previousFacilityIds,
-  representingMode,
   representingName,
   representingModeChanged,
   facilityIds,
@@ -24,8 +21,6 @@ export const InvoicesCardList = ({
   const previousRows = useRef<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
   const { t } = useTranslation(['common', 'invoice']);
-
-  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
@@ -39,10 +34,6 @@ export const InvoicesCardList = ({
 
   useEffect(() => {
     if (!isFetched) return;
-
-    previousActivePage.current = activePage;
-    previousFacilityIds.current = facilityIds;
-    previousRepresentingMode.current = representingMode;
 
     const totalRows = [...previousRows.current, ...data.invoices];
     totalCount.current = data.totalCount;
