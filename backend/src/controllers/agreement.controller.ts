@@ -7,14 +7,10 @@ import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import {
-  Agreement,
-  AgreementResponse,
-  Category,
-  PagedAgreementResponse,
-} from '@/data-contracts/agreement/data-contracts';
+import { Agreement, AgreementResponse, Category } from '@/data-contracts/agreement/data-contracts';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
+import { fetchAgreementsForPartyAndDelegations } from '@/services/agreement.service';
 
 function activeAgreement(agreement: Agreement): boolean {
   // Agreements are considered active if the `toDate` is in the future or undefined (ongoing agreements).
@@ -38,42 +34,15 @@ export class AgreementController {
     const representing = req.session?.representing ?? undefined;
     const delegations = req?.session?.cache?.delegations ?? [];
     const partyId = getRepresentingPartyId(representing);
-    const partyIdList: string[] = [];
-    const agreements: Agreement[] = [];
-    const filteredAgreements: Agreement[] = [];
-
-    delegations.forEach(delegation => {
-      partyIdList.push(delegation.owner);
-    });
+    const partyIdList: string[] = delegations.map(delegation => delegation.owner);
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-    const params = {};
+    const data = await fetchAgreementsForPartyAndDelegations(partyId, partyIdList, delegations, req.user, false);
 
-    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-    filteredAgreements.push(...res.data.agreements.filter(activeAgreement));
-
-    for (const partyIdItem of partyIdList) {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyIdItem}`;
-
-      const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-      agreements.push(...res.data.agreements.filter(activeAgreement));
-    }
-
-    agreements.forEach(agreement => {
-      delegations.forEach(delegation => {
-        delegation.facilities.forEach(facility => {
-          if (facility.id === agreement.facilityId) {
-            filteredAgreements.push(agreement);
-          }
-        });
-      });
-    });
-
-    return { data: filteredAgreements, message: 'success' };
+    return { data, message: 'success' };
   }
 
   @Get('/paged/all-agreements')
@@ -83,42 +52,15 @@ export class AgreementController {
     const representing = req.session?.representing ?? undefined;
     const delegations = req?.session?.cache?.delegations ?? [];
     const partyId = getRepresentingPartyId(representing);
-    const partyIdList: string[] = [];
-    const agreements: Agreement[] = [];
-    const filteredAgreements: Agreement[] = [];
-
-    delegations.forEach(delegation => {
-      partyIdList.push(delegation.owner);
-    });
+    const partyIdList: string[] = delegations.map(delegation => delegation.owner);
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-    const params = {};
+    const data = await fetchAgreementsForPartyAndDelegations(partyId, partyIdList, delegations, req.user, true);
 
-    const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-    filteredAgreements.push(...res.data.agreements);
-
-    for (const partyIdItem of partyIdList) {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyIdItem}`;
-
-      const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
-      agreements.push(...res.data.agreements);
-    }
-
-    agreements.forEach(agreement => {
-      delegations.forEach(delegation => {
-        delegation.facilities.forEach(facility => {
-          if (facility.id === agreement.facilityId) {
-            filteredAgreements.push(agreement);
-          }
-        });
-      });
-    });
-
-    return { data: filteredAgreements, message: 'success' };
+    return { data, message: 'success' };
   }
 
   @Get('/agreement/:category/:facilityId')
