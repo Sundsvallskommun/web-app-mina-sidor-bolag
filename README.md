@@ -9,12 +9,12 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | ContactSettings   |     2.0 |
 | Citizen           |     3.0 |
 | Disturbances      |     5.0 |
-| Invoices          |     8.0 |
+| Invoices          |     9.0 |
 | SimulatorServer   |     2.0 |
 | Customer          |     4.0 |
 | Installedbase     |     3.1 |
 | Agreement         |     4.1 |
-| MeasurementData   |     2.0 |
+| MeasurementData   |     3.0 |
 | MyRepresentatives |     4.2 |
 | LegalEntity       |     2.0 |
 | Eventlog          |     2.1 |
