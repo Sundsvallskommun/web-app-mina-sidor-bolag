@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 
 function activeAgreement(agreement: Agreement): boolean {
   // Agreements are considered active if the `toDate` is in the future or undefined (ongoing agreements).
-  return dayjs(agreement.toDate).isAfter(dayjs()) || typeof agreement.toDate === 'undefined';
+  return dayjs(agreement.toDate).isAfter(dayjs()) || agreement.toDate === undefined;
 }
 
 export const fetchAgreementsForPartyAndDelegations = async (
