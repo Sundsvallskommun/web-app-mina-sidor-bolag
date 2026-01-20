@@ -13,7 +13,7 @@ import { utils, writeFile } from 'xlsx';
 import dayjs, { OpUnitType } from 'dayjs';
 import { translateAggregateOn } from '@services/measurement-data-service';
 import { useTranslation } from 'react-i18next';
-import { Event } from '@data-contracts/backend/data-contracts';
+import { EventResponse } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
 import { getEventCategory } from '@utils/facility';
 import { CreateLogEventData } from '@interfaces/event';
@@ -28,7 +28,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   const { t } = useTranslation(['statistics', 'event']);
   const toastMessage = useSnackbar();
 
-  const logExport = useApi<Event>({
+  const logExport = useApi<EventResponse>({
     url: '/event/create',
     method: 'post',
   });
