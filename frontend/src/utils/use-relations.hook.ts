@@ -21,7 +21,7 @@ export const useRelations = () => {
     // Get contractors from active agreements, we use names because we do not have organization numbers in agreements, better to be improved later
     const contractors = new Set(
       Object.values(agreements)
-        .flatMap((agreementList) => agreementList)
+        .flat()
         .map((agreement) => normalize(agreement.category.contractor))
         .filter(Boolean)
     );
