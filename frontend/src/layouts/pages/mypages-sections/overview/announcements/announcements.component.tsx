@@ -1,12 +1,12 @@
 'use client';
 
 import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
-import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { Announcement, AnnouncementGroup } from '@interfaces/announcements';
 import { RepresentingMode } from '@interfaces/app';
 import { useApi } from '@services/api-service';
 import { Image, Link, Spinner } from '@sk-web-gui/react';
 import { getCustomerGroups } from '@utils/app-organizations';
+import { useRelations } from '@utils/use-relations.hook';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -126,17 +126,16 @@ const getRepresentingGroup = (representingEntity?: RepresentingEntity): Announce
 
 export const Announcements = () => {
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
-  const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
+  const { relations, activeCustomerEngagements } = useRelations();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const { t } = useTranslation('overview');
 
   useEffect(() => {
-    const customerEngagements = relations?.map((r) => r.organizationNumber ?? '') ?? [];
-    const groups = [getRepresentingGroup(representingEntity), ...getCustomerGroups(customerEngagements)];
+    const groups = [getRepresentingGroup(representingEntity), ...getCustomerGroups(activeCustomerEngagements)];
     setAnnouncements(
       announcementsSource.filter((announcement) => groups.some((group) => announcement.groups.includes(group)))
     );
-  }, [representingEntity, relations, setAnnouncements]);
+  }, [representingEntity, activeCustomerEngagements, setAnnouncements]);
 
   const doneFetching = representingEntity && relations;
   if (doneFetching && announcements.length === 0) {
