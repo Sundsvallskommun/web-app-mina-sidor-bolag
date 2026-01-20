@@ -4,6 +4,7 @@ import { getInvoices, getPendingInvoices } from '../fixtures/getInvoices';
 
 describe('Fakturor', () => {
   beforeEach(() => {
+    cy.viewport('macbook-16');
     setIntercepts(RepresentingMode.PRIVATE);
     cy.intercept('GET', '**/api/invoices?**', getInvoices(RepresentingMode.PRIVATE)).as('getInvoices');
     cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
