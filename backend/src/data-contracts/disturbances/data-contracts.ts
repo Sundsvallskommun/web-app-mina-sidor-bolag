@@ -14,7 +14,7 @@ export interface Problem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
   title?: string;
   detail?: string;
@@ -47,7 +47,7 @@ export interface ConstraintViolationProblem {
   message?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   detail?: string;
   suppressed?: {
     stackTrace?: {
@@ -68,7 +68,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -85,7 +85,7 @@ export interface ThrowableProblem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
   title?: string;
   detail?: string;
@@ -112,10 +112,7 @@ export interface Violation {
   message?: string;
 }
 
-/**
- * Category model
- * @example "ELECTRICITY"
- */
+/** Category model */
 export enum Category {
   COMMUNICATION = 'COMMUNICATION',
   DISTRICT_COOLING = 'DISTRICT_COOLING',
@@ -128,14 +125,13 @@ export enum Category {
 
 /** Opt-out setting model */
 export interface OptOutSetting {
-  /** Category model */
+  /** Category of the disturbance */
   category: Category;
   /**
    * Key/value pairs of opt-out values. E.g. ["facilityId" : "12345"].
    * If multiple entries are added, they will have an "and"-relation. I.e. all properties must match in order for the opt-out to be evaluated as true.
-   * @example {"facilityId":"123456"}
    */
-  values?: object;
+  values?: Record<string, any>;
 }
 
 /** Subscription update request model */
@@ -149,18 +145,11 @@ export interface Subscription {
   /**
    * Subscription ID
    * @format int64
-   * @example 1234
    */
   id?: number;
-  /**
-   * Municipality ID
-   * @example "2281"
-   */
+  /** Municipality ID */
   municipalityId?: string;
-  /**
-   * PartyId (e.g. a personId or an organizationId)
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** PartyId (e.g. a personId or an organizationId) */
   partyId?: string;
   /** Opt out settings */
   optOutSettings?: OptOutSetting[];
@@ -178,10 +167,7 @@ export interface Subscription {
 
 /** Subscription create request model */
 export interface SubscriptionCreateRequest {
-  /**
-   * PartyId (e.g. a personId or an organizationId)
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** PartyId (e.g. a personId or an organizationId) */
   partyId: string;
   /** Opt-out settings */
   optOutSettings?: OptOutSetting[];
@@ -189,27 +175,17 @@ export interface SubscriptionCreateRequest {
 
 /** Affected persons and/or organizations model */
 export interface Affected {
-  /**
-   * PartyId (e.g. a personId or an organizationId)
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** PartyId (e.g. a personId or an organizationId) */
   partyId: string;
   /**
    * Reference information
    * @minLength 0
    * @maxLength 512
-   * @example "Streetname 123"
    */
   reference: string;
-  /**
-   * Facitlity-ID. The unique facility identifier
-   * @example "735999109175011012"
-   */
+  /** Facitlity-ID. The unique facility identifier */
   facilityId?: string;
-  /**
-   * The coordinates to the facility on the format:{coordinate-system}:N{north-coordinate}:E{east-coordinate}
-   * @example "SWEREF 991715:N6919620.98828125:E152414.77734375"
-   */
+  /** The coordinates to the facility on the format:{coordinate-system}:N{north-coordinate}:E{east-coordinate} */
   coordinates?: string;
 }
 
@@ -219,7 +195,6 @@ export interface DisturbanceCreateRequest {
    * Disturbance ID
    * @minLength 0
    * @maxLength 255
-   * @example "435553"
    */
   id: string;
   /** Category model */
@@ -228,14 +203,12 @@ export interface DisturbanceCreateRequest {
    * Title
    * @minLength 0
    * @maxLength 255
-   * @example "Disturbance"
    */
   title: string;
   /**
    * Description
    * @minLength 0
    * @maxLength 8192
-   * @example "Major disturbance"
    */
   description: string;
   /** Status model */
@@ -266,14 +239,12 @@ export interface DisturbanceUpdateRequest {
    * Title
    * @minLength 0
    * @maxLength 255
-   * @example "Disturbance"
    */
   title: string;
   /**
    * Description
    * @minLength 0
    * @maxLength 8192
-   * @example "Major disturbance"
    */
   description?: string;
   /** Status model */
@@ -293,29 +264,17 @@ export interface DisturbanceUpdateRequest {
 
 /** Disturbance model */
 export interface Disturbance {
-  /**
-   * Disturbance ID
-   * @example "435553"
-   */
+  /** Disturbance ID */
   id?: string;
-  /**
-   * Municipality ID
-   * @example "2281"
-   */
+  /** Municipality ID */
   municipalityId?: string;
   /** Category model */
   category: Category;
   /** Status model */
   status: Status;
-  /**
-   * Title
-   * @example "Disturbance"
-   */
+  /** Title */
   title?: string;
-  /**
-   * Description
-   * @example "Major disturbance in city"
-   */
+  /** Description */
   description?: string;
   /**
    * Planned start date for the disturbance
