@@ -35,23 +35,22 @@ export const fetchAgreementsForPartyAndDelegations = async (
   // Fetch agreements for delegated parties
   for (const partyIdItem of partyIdList) {
     const delegationUrl = `${apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyIdItem}`;
-    const delegationRes = await apiService.get<PagedAgreementResponse>({ url: delegationUrl, params }, user);
-    let delegationAgreements = delegationRes.data.agreements;
-    if (!includeInactiveAgreements) {
-      delegationAgreements = delegationAgreements.filter(activeAgreement);
-    }
+    const { data: delegationData } = await apiService.get<PagedAgreementResponse>({ url: delegationUrl, params }, user);
+    const delegationAgreements = includeInactiveAgreements
+      ? delegationData.agreements
+      : delegationData.agreements.filter(activeAgreement);
+
     agreements.push(...delegationAgreements);
   }
 
   // Filter delegated agreements by delegation facilities
   agreements.forEach(agreement => {
-    delegations.forEach(delegation => {
-      delegation.facilities.forEach(facility => {
-        if (facility.id === agreement.facilityId) {
-          filteredAgreements.push(agreement);
-        }
-      });
+    const hasMatch = delegations.some(delegation => {
+      return delegation.facilities.some(facility => facility.id === agreement.facilityId);
     });
+    if (hasMatch) {
+      filteredAgreements.push(agreement);
+    }
   });
 
   return filteredAgreements;
