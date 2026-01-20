@@ -211,7 +211,6 @@ export interface CompletionData {
 export interface SigningInfo {
   orderRef: string;
   status: 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'PENDING';
-  status: 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'PENDING';
   completionData: CompletionData;
 }
 
