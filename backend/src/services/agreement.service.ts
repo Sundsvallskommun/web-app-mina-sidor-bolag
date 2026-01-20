@@ -1,6 +1,7 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
 import { Agreement, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
+import { Delegation } from '@/data-contracts/installedbase/data-contracts';
 import ApiService from './api.service';
 import dayjs from 'dayjs';
 
@@ -12,8 +13,8 @@ function activeAgreement(agreement: Agreement): boolean {
 export const fetchAgreementsForPartyAndDelegations = async (
   partyId: string,
   partyIdList: string[],
-  delegations: any[],
-  user: any,
+  delegations: Delegation[],
+  user: { username: string },
   includeInactiveAgreements: boolean = false,
 ): Promise<Agreement[]> => {
   const apiService = new ApiService();
