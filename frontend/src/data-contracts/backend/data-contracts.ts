@@ -47,7 +47,7 @@ export interface CreateReadNotificationsDto {
 export interface RepresentsDto {
   organizationNumber?: string;
   personNumber?: string;
-  mode?: 'PRIVATE' | 'BUSINESS' | 0 | 1;
+  mode?: "PRIVATE" | "BUSINESS" | 0 | 1;
 }
 
 export interface ContactSettingChannel {
@@ -64,7 +64,7 @@ export interface Meta {
   totalRecords: number;
   totalPages: number;
   sortBy: string[];
-  sortDirection: 'ASC' | 'DESC';
+  sortDirection: "ASC" | "DESC";
 }
 
 export interface ContactSetting {
@@ -135,7 +135,7 @@ export interface Filter {
 
 export interface Rule {
   attributeName: string;
-  operator: 'EQUALS' | 'NOT_EQUALS';
+  operator: "EQUALS" | "NOT_EQUALS";
   attributeValue: string;
 }
 
@@ -159,7 +159,7 @@ export interface Information {
 export interface RepresentingEntity {
   BUSINESS?: RepresentingBusinessEntity;
   PRIVATE?: RepresentingPrivateEntity;
-  mode: 'PRIVATE' | 'BUSINESS' | 0 | 1;
+  mode: "PRIVATE" | "BUSINESS" | 0 | 1;
 }
 
 export interface ClientRepresentingApiResponse {
@@ -168,7 +168,7 @@ export interface ClientRepresentingApiResponse {
 }
 
 export interface PatchUserSettingsDto {
-  feedbackLifespan: 'untilRemoved' | 'oneMonth' | 'twoWeeks';
+  feedbackLifespan: "untilRemoved" | "oneMonth" | "twoWeeks";
 }
 
 export interface Grantor {
@@ -183,7 +183,7 @@ export interface Grantee {
 
 export interface MandatePart {
   name: string;
-  personNumber?: number;
+  personNumber?: string;
 }
 
 export interface CompletionDataUser {
@@ -210,7 +210,7 @@ export interface CompletionData {
 
 export interface SigningInfo {
   orderRef: string;
-  status: 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'PENDING';
+  status: "COMPLETE" | "FAILED" | "CANCELLED" | "PENDING";
   completionData: CompletionData;
 }
 
@@ -224,7 +224,7 @@ export interface MandateDefaults {
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DELETED';
+  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
 }
 
 export interface Mandate {
@@ -239,7 +239,7 @@ export interface Mandate {
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DELETED';
+  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
 }
 
 export interface MandatePopulated {
@@ -254,7 +254,7 @@ export interface MandatePopulated {
   activeFrom: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'DELETED';
+  status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
 }
 
 export interface MandatesApiResponse {
@@ -266,7 +266,7 @@ export interface MandatesApiResponse {
   totalRecords: number;
   totalPages: number;
   sortBy: string[];
-  sortDirection: 'ASC' | 'DESC';
+  sortDirection: "ASC" | "DESC";
 }
 
 export interface MandateApiResponse {
@@ -283,7 +283,7 @@ export interface PopulatedMandatesApiResponse {
   totalRecords: number;
   totalPages: number;
   sortBy: string[];
-  sortDirection: 'ASC' | 'DESC';
+  sortDirection: "ASC" | "DESC";
 }
 
 export interface SignMandateDetails {
@@ -315,13 +315,13 @@ export interface CreateMandateDto {
 
 export interface SignDto {
   visible: string;
-  format: 'PLAIN_TEXT' | 'MARKDOWN' | 'HTML';
+  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
   details?: object;
 }
 
 export interface SignMandateDto {
   visible: string;
-  format: 'PLAIN_TEXT' | 'MARKDOWN' | 'HTML';
+  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
   mandate: SignMandateDetails;
 }
 
@@ -333,7 +333,7 @@ export interface Sign {
 
 export interface SubjectIdentifier {
   value: string;
-  type: 'TIN' | 'EMAIL';
+  type: "TIN" | "EMAIL";
 }
 
 export interface User {
@@ -346,14 +346,14 @@ export interface User {
 }
 
 export interface Status {
-  status: 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'PENDING';
+  status: "COMPLETE" | "FAILED" | "CANCELLED" | "PENDING";
   substatus: string | null;
   message: string;
 }
 
 export interface ValidationInfo {
   signature: string;
-  signatureFormat: 'xmldsig' | 'pkcs7' | 'jws';
+  signatureFormat: "xmldsig" | "pkcs7" | "jws";
   ocspResponse?: string;
 }
 
@@ -392,9 +392,17 @@ export interface MetaData {
   value: string;
 }
 
-export interface Event {
+export interface EventResponse {
   logKey?: string;
-  type: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'ACCESS' | 'EXECUTE' | 'CANCEL' | 'DROP';
+  type:
+    | "CREATE"
+    | "READ"
+    | "UPDATE"
+    | "DELETE"
+    | "ACCESS"
+    | "EXECUTE"
+    | "CANCEL"
+    | "DROP";
   municipalityId?: string;
   message?: string;
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
@@ -404,7 +412,7 @@ export interface Event {
   created?: string;
   historyReference?: string | null;
   sourceType?: string | null;
-  metadata: MetaData[];
+  metadata: MetaData;
 }
 
 export interface SortObject {
@@ -422,11 +430,11 @@ export interface PageableObject {
   pageSize?: number;
 }
 
-export interface PagedEvents {
+export interface PagedEventsResponse {
   totalPages?: number;
   totalElements?: number;
   size?: number;
-  content: Event[];
+  content: any;
   number?: number;
   sort: SortObject;
   first?: boolean;
@@ -434,4 +442,19 @@ export interface PagedEvents {
   numberOfElements?: number;
   pageable: PageableObject;
   empty?: boolean;
+}
+
+export interface PermissionHeaderDto {
+  ExternalId: string;
+  Operation: string;
+}
+
+export interface PermissionRequestDto {
+  EligablePartyId: string;
+  ContractIdList?: number[];
+  CustomerId?: number;
+}
+
+export interface UpdatePermissionDto {
+  PermissionRequest: any;
 }
