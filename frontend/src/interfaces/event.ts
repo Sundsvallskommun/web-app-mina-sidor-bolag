@@ -1,11 +1,11 @@
-import { PagedEvents, Event } from '@data-contracts/backend/data-contracts';
+import { PagedEventsResponse, EventResponse } from '@data-contracts/backend/data-contracts';
 import { Aggregation } from '@interfaces/measurement-data';
 
-export interface EventData extends Omit<PagedEvents, 'content'> {
+export interface EventData extends Omit<PagedEventsResponse, 'content'> {
   content?: StructuredEvent[];
 }
 
-export interface StructuredEvent extends Omit<Event, 'metadata'> {
+export interface StructuredEvent extends Omit<EventResponse, 'metadata'> {
   exportName: string;
   metadata: StructuredMetaData;
 }

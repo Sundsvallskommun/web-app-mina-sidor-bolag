@@ -10,14 +10,14 @@
  */
 
 export interface Problem {
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
 }
 
 export interface StatusType {
@@ -33,15 +33,9 @@ export interface CreateDelegation {
    * @uniqueItems true
    */
   facilities: Facility[];
-  /**
-   * Party ID of the delegate
-   * @example "81471222-5798-11e9-ae24-57fa13b361e2"
-   */
+  /** Party ID of the delegate */
   delegatedTo: string;
-  /**
-   * Party ID of the delegation owner
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** Party ID of the delegation owner */
   owner: string;
 }
 
@@ -50,13 +44,9 @@ export interface Facility {
   /**
    * Facility id
    * @minLength 1
-   * @example "facility1"
    */
   id: string;
-  /**
-   * Organization number of the company owning the facility
-   * @example "5591628136"
-   */
+  /** Organization number of the company owning the facility */
   businessEngagementOrgId: string;
 }
 
@@ -79,10 +69,10 @@ export interface ConstraintViolationProblem {
   violations?: Violation[];
   title?: string;
   message?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -102,7 +92,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -115,14 +105,14 @@ export interface ThrowableProblem {
     nativeMethod?: boolean;
   }[];
   message?: string;
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -150,62 +140,43 @@ export interface Violation {
 export interface UpdateDelegation {
   /** @uniqueItems true */
   facilities?: Facility[];
-  /**
-   * Party ID of the delegate
-   * @example "81471222-5798-11e9-ae24-57fa13b361e2"
-   */
+  /** Party ID of the delegate */
   delegatedTo?: string;
 }
 
 /** Installed base owner model */
 export interface InstalledBaseCustomer {
-  /**
-   * Customer number
-   * @example "10007"
-   */
+  /** Customer number */
   customerNumber?: string;
-  /**
-   * Party-ID
-   * @example "cf9892ad-69d5-420f-ae98-9631dd1664fe"
-   */
+  /** Party-ID */
   partyId?: string;
   items?: InstalledBaseItem[];
 }
 
 /** Installed base item model */
 export interface InstalledBaseItem {
-  /**
-   * Type
-   * @example "Fjärrvärme"
-   */
+  /** Type */
   type?: string;
-  /**
-   * Facility id
-   * @example "735999109270751042"
-   */
+  /** Facility id */
   facilityId?: string;
   /**
    * Placement id
    * @format int32
-   * @example 5263
    */
   placementId?: number;
   /**
    * Facility commitment start date
    * @format date
-   * @example "2020-04-01"
    */
   facilityCommitmentStartDate?: string;
   /**
    * Facility commitment end date
    * @format date
-   * @example "2020-09-30"
    */
   facilityCommitmentEndDate?: string;
   /**
    * Last date for modification of item (or null if no modification has been done)
    * @format date
-   * @example "2020-06-01"
    */
   lastModifiedDate?: string;
   /** Installed base item address model */
@@ -216,54 +187,27 @@ export interface InstalledBaseItem {
 
 /** Installed base item address model */
 export interface InstalledBaseItemAddress {
-  /**
-   * Property designation
-   * @example "Södermalm 1:27"
-   */
+  /** Property designation */
   propertyDesignation?: string;
-  /**
-   * Care of address
-   * @example "Agatha Malm"
-   */
+  /** Care of address */
   careOf?: string;
-  /**
-   * Street
-   * @example "Storgatan 9"
-   */
+  /** Street */
   street?: string;
-  /**
-   * Postal code
-   * @example "85230"
-   */
+  /** Postal code */
   postalCode?: string;
-  /**
-   * City
-   * @example "Sundsvall"
-   */
+  /** City */
   city?: string;
 }
 
 /** Installed base item metadata model */
 export interface InstalledBaseItemMetaData {
-  /**
-   * Key
-   * @example "netarea"
-   */
+  /** Key */
   key?: string;
-  /**
-   * Value
-   * @example "Sundsvall tätort"
-   */
+  /** Value */
   value?: string;
-  /**
-   * Type
-   * @example "location"
-   */
+  /** Type */
   type?: string;
-  /**
-   * Displayname
-   * @example "Nätområde"
-   */
+  /** Displayname */
   displayName?: string;
 }
 
@@ -274,26 +218,14 @@ export interface InstalledBaseResponse {
 
 /** Delegation response model */
 export interface Delegation {
-  /**
-   * Unique identifier for the delegation
-   * @example "12345678-1234-1234-1234-123456789012"
-   */
+  /** Unique identifier for the delegation */
   id?: string;
   facilities?: Facility[];
-  /**
-   * Party ID of the delegate
-   * @example "81471222-5798-11e9-ae24-57fa13b361e2"
-   */
+  /** Party ID of the delegate */
   delegatedTo?: string;
-  /**
-   * Party ID of the delegation owner
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** Party ID of the delegation owner */
   owner?: string;
-  /**
-   * Municipality ID of the delegation
-   * @example "1234"
-   */
+  /** Municipality ID of the delegation */
   municipalityId?: string;
   /**
    * When the delegation was created

@@ -10,14 +10,14 @@
  */
 
 export interface Problem {
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
 }
 
 export interface StatusType {
@@ -26,29 +26,20 @@ export interface StatusType {
   reasonPhrase?: string;
 }
 
-/** Information about the user and the completed order */
 export interface CompletionData {
   /**
    * When the BankID was issued
    * @format date
-   * @example "2020-01-02"
    */
   bankIdIssueDate?: string;
   /**
    * The signature made by the receiving party
    * @minLength 1
-   * @example "YmFzZTY0LWVuY29kZWQgZGF0YQ=="
    */
   signature: string;
-  /**
-   * Online certificate status protocol for the signing order
-   * @example "YmFzZTY0LWVuY29kZWQgZGF0YQ=="
-   */
+  /** Online certificate status protocol for the signing order */
   ocspResponse?: string;
-  /**
-   * Indicates the risk level of the order based on data available in the order
-   * @example "low"
-   */
+  /** Indicates the risk level of the order based on data available in the order */
   risk?: string;
   /** Information regarding the signing party */
   user: User;
@@ -60,66 +51,47 @@ export interface CompletionData {
 
 /** CreateMandate model */
 export interface CreateMandate {
-  /** GrantorDetails model */
+  /** Mandate grantor information */
   grantorDetails: GrantorDetails;
-  /** GranteeDetails model */
+  /** List of grantees */
   granteeDetails: GranteeDetails;
   /**
    * The date when the mandate becomes effective
    * @format date
-   * @example "2025-08-01"
    */
   activeFrom: string;
   /**
    * The date after which the mandate is no longer valid, if not provided it will be set to activeFrom + 36 months
    * @format date
-   * @example "2025-12-31"
    */
   inactiveAfter?: string;
-  /** SigningInfo model */
+  /** Signing information related to the mandate */
   signingInfo: SigningInfo;
 }
 
-/** Information regarding the device used for the signing order */
 export interface Device {
   /**
    * Ip address used when the letter was signed
    * @minLength 1
-   * @example "192.168.1.1"
    */
   ipAddress: string;
-  /**
-   * The Unique Hardware Identifier for the user’s device holding the BankID
-   * @example "OZvYM9VvyiAmG7NA5jU5zqGcVpo="
-   */
+  /** The Unique Hardware Identifier for the user’s device holding the BankID */
   uhi?: string;
 }
 
 /** GranteeDetails model */
 export interface GranteeDetails {
-  /**
-   * PartyId of the grantee
-   * @example "fb2f0290-3820-11ed-a261-0242ac120004"
-   */
+  /** PartyId of the grantee */
   partyId: string;
 }
 
 /** GrantorDetails model */
 export interface GrantorDetails {
-  /**
-   * The name of the granting organization or person
-   * @example "Ankeborgs Margarinfabrik"
-   */
+  /** The name of the granting organization or person */
   name?: string;
-  /**
-   * The partyId of the issuing organization or person
-   * @example "fb2f0290-3820-11ed-a261-0242ac120002"
-   */
+  /** The partyId of the issuing organization or person */
   grantorPartyId: string;
-  /**
-   * PartyId of the issuing person / signatory
-   * @example "fb2f0290-3820-11ed-a261-0242ac120003"
-   */
+  /** PartyId of the issuing person / signatory */
   signatoryPartyId: string;
 }
 
@@ -128,57 +100,43 @@ export interface SigningInfo {
   /**
    * Reference for the signing order
    * @minLength 1
-   * @example "131daac9-16c6-4618-beb0-365768f37288"
    */
   orderRef: string;
   /**
    * External transactionId
    * @minLength 1
-   * @example "87b53852-df66-4eab-bed1-873f927a2dcc"
    */
   externalTransactionId: string;
   /**
    * Status of the signing order
    * @minLength 1
-   * @example "complete"
    */
   status: string;
   /** Information about the user and the completed order */
   completionData: CompletionData;
 }
 
-/** Information about possible additional verifications that were part of the signing order */
 export interface StepUp {
-  /**
-   * Whether an MRTD check was performed before the order was completed
-   * @example true
-   */
+  /** Whether an MRTD check was performed before the order was completed */
   mrtd?: boolean;
 }
 
-/** Information regarding the signing party */
 export interface User {
   /**
    * Personal identity number for the signing party
    * @minLength 1
-   * @example "200001012384"
    */
   personalNumber: string;
-  /**
-   * Full name of the signing party
-   * @example "John Wick"
-   */
+  /** Full name of the signing party */
   name?: string;
   /**
    * First name of the signing party
    * @minLength 1
-   * @example "John"
    */
   givenName: string;
   /**
    * Last name of the signing party
    * @minLength 1
-   * @example "Wick"
    */
   surname: string;
 }
@@ -202,10 +160,10 @@ export interface ConstraintViolationProblem {
   violations?: Violation[];
   title?: string;
   message?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -225,7 +183,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -238,14 +196,14 @@ export interface ThrowableProblem {
     nativeMethod?: boolean;
   }[];
   message?: string;
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -286,29 +244,16 @@ export interface SearchMandateParameters {
    * @example 15
    */
   limit?: number;
-  /**
-   * The partyId of the issuing organization or person
-   * @example "fb2f0290-3820-11ed-a261-0242ac120002"
-   */
+  /** The partyId of the issuing organization or person */
   grantorPartyId?: string;
-  /**
-   * PartyId of the grantee
-   * @example "fb2f0290-3820-11ed-a261-0242ac120004"
-   */
+  /** PartyId of the grantee */
   granteePartyId?: string;
-  /**
-   * PartyId of the issuing person / signatory
-   * @example "fb2f0290-3820-11ed-a261-0242ac120003"
-   */
+  /** PartyId of the issuing person / signatory */
   signatoryPartyId?: string;
   /** List of mandate statuses */
   statuses?: string[];
 }
 
-/**
- * The sort order direction
- * @example "ASC"
- */
 export enum Direction {
   ASC = 'ASC',
   DESC = 'DESC',
@@ -316,19 +261,13 @@ export enum Direction {
 
 /** MandateDetails model */
 export interface MandateDetails {
-  /**
-   * Id of the mandate
-   * @example "123e4567-e89b-12d3-a456-426614174000"
-   */
+  /** Id of the mandate */
   id?: string;
-  /** GrantorDetails model */
+  /** Mandate grantor details */
   grantorDetails?: GrantorDetails;
-  /** GranteeDetails model */
+  /** Mandate grantee details */
   granteeDetails?: GranteeDetails;
-  /**
-   * MunicipalityId where the mandate was created
-   * @example "2281"
-   */
+  /** MunicipalityId where the mandate was created */
   municipalityId?: string;
   /** The namespace in which the mandate is valid */
   namespace?: string;
@@ -340,27 +279,21 @@ export interface MandateDetails {
   /**
    * The date and time when the mandate was changed
    * @format date-time
-   * @example "2025-11-22T15:30:00+02:00"
    */
   updated?: string;
   /**
    * The date when the mandate becomes effective
    * @format date
-   * @example "2025-01-01"
    */
   activeFrom?: string;
   /**
    * The date after which the mandate is no longer valid
    * @format date
-   * @example "2025-12-31"
    */
   inactiveAfter?: string;
-  /**
-   * Indicates whether the mandate is active or not
-   * @example "ACTIVE | INACTIVE | EXPIRED | DELETED"
-   */
+  /** Indicates whether the mandate is active or not */
   status?: string;
-  /** SigningInfo model */
+  /** Signing information related to the mandate */
   signingInfo?: SigningInfo;
 }
 
@@ -405,6 +338,9 @@ export interface PagingAndSortingMetaData {
    */
   totalPages?: number;
   sortBy?: string[];
-  /** The sort order direction */
+  /**
+   * The sort order direction
+   * @example "ASC"
+   */
   sortDirection?: Direction;
 }
