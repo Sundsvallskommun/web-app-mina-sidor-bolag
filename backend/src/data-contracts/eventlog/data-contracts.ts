@@ -14,10 +14,10 @@ export interface Problem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
-  title?: string;
   detail?: string;
+  title?: string;
 }
 
 export interface StatusType {
@@ -47,7 +47,7 @@ export interface ConstraintViolationProblem {
   message?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   detail?: string;
   suppressed?: {
     stackTrace?: {
@@ -68,7 +68,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -85,10 +85,10 @@ export interface ThrowableProblem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
-  title?: string;
   detail?: string;
+  title?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -114,10 +114,7 @@ export interface Violation {
 
 /** Event model */
 export interface Event {
-  /**
-   * Unique identifier
-   * @example "fbe2fb67-005c-4f26-990f-1c95b5f6933e"
-   */
+  /** Unique identifier */
   logKey?: string;
   /**
    * ## CRUD events:
@@ -132,45 +129,32 @@ export interface Event {
    * * `DROP` - skip, omit, ignore, disregard
    */
   type: EventType;
-  /**
-   * Municipality ID
-   * @example "2281"
-   */
+  /** Municipality ID */
   municipalityId?: string;
   /**
    * Event description
    * @minLength 1
-   * @example "Request saved in database"
    */
   message: string;
   /**
    * Date when event can be scheduled for delete. 'null' means never
    * @format date-time
-   * @example "2030-10-31T01:30:00+02:00"
    */
-  expires?: string | null;
+  expires?: string;
   /**
    * Service that created event
    * @minLength 1
-   * @example "SupportManagement"
    */
   owner: string;
   /**
    * Timestamp when the event was created
    * @format date-time
-   * @example "2000-10-31T01:30:00+02:00"
    */
   created?: string;
-  /**
-   * Historical external reference to an immutable snapshot of data
-   * @example "fbe2fb67-005c-4f26-990f-1c95b5f6933e"
-   */
-  historyReference?: string | null;
-  /**
-   * Source which the event refers to
-   * @example "errand"
-   */
-  sourceType?: string | null;
+  /** Historical external reference to an immutable snapshot of data */
+  historyReference?: string;
+  /** Source which the event refers to */
+  sourceType?: string;
   metadata?: Metadata[];
 }
 
@@ -202,38 +186,35 @@ export interface Metadata {
   /**
    * The key
    * @minLength 1
-   * @example "userId"
    */
   key: string;
   /**
    * The value
    * @minLength 1
-   * @example "john123"
    */
   value: string;
 }
 
 export interface PageEvent {
-  /** @format int32 */
-  totalPages?: number;
   /** @format int64 */
   totalElements?: number;
+  /** @format int32 */
+  totalPages?: number;
   /** @format int32 */
   size?: number;
   content?: Event[];
   /** @format int32 */
   number?: number;
-  sort?: SortObject;
   first?: boolean;
   last?: boolean;
   /** @format int32 */
   numberOfElements?: number;
+  sort?: SortObject;
   pageable?: PageableObject;
   empty?: boolean;
 }
 
 export interface PageableObject {
-  unpaged?: boolean;
   /** @format int64 */
   offset?: number;
   sort?: SortObject;
@@ -242,10 +223,11 @@ export interface PageableObject {
   pageNumber?: number;
   /** @format int32 */
   pageSize?: number;
+  unpaged?: boolean;
 }
 
 export interface SortObject {
-  unsorted?: boolean;
   empty?: boolean;
   sorted?: boolean;
+  unsorted?: boolean;
 }

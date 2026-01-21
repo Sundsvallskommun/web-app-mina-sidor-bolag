@@ -11,20 +11,13 @@
 
 /** Measurement date request parameters */
 export interface MeasurementDataSearchParameters {
-  /**
-   * Party ID, either private or enterprise uuid
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** Party ID, either private or enterprise uuid */
   partyId: string;
-  /**
-   * Category
-   * @example "DISTRICT_HEATING"
-   */
+  /** Category */
   category: MeasurementDataSearchParametersCategoryEnum;
   /**
    * Facility ID
    * @minLength 1
-   * @example "112233"
    */
   facilityId: string;
   /**
@@ -37,28 +30,49 @@ export interface MeasurementDataSearchParameters {
    * @format date-time
    */
   toDate: string;
-  /**
-   * Aggregation granularity
-   * @example "HOUR"
-   */
+  /** Data point aggregation granularity */
   aggregateOn: MeasurementDataSearchParametersAggregateOnEnum;
 }
 
-/**
- * Aggregation granularity
- * @example "HOUR"
- */
+/** Measurement meta data */
+export interface MetaData {
+  /** key */
+  key?: string;
+  /** value */
+  value?: string;
+}
+
+/** A single measurement data point */
+export interface MeasurementPoint {
+  /** Value of the point */
+  value?: number;
+  /**
+   * Timestamp of the datapoint
+   * @format date-time
+   */
+  timestamp?: string;
+  metaData?: MetaData[];
+}
+
+/** Measurement from a single source */
+export interface MeasurementSerie {
+  /** Unit of all measurement points */
+  unit?: string;
+  /** Type of measurement */
+  measurementType?: string;
+  metaData?: MetaData[];
+  measurementPoints?: MeasurementPoint[];
+}
+
+/** Aggregation granularity */
 export enum Aggregation {
+  QUARTER = 'QUARTER',
   HOUR = 'HOUR',
   DAY = 'DAY',
   MONTH = 'MONTH',
-  YEAR = 'YEAR',
 }
 
-/**
- * Category
- * @example "DISTRICT_HEATING"
- */
+/** Category */
 export enum Category {
   DISTRICT_HEATING = 'DISTRICT_HEATING',
   ELECTRICITY = 'ELECTRICITY',
@@ -70,7 +84,6 @@ export enum Category {
 export interface Data {
   /** Category */
   category?: Category;
-  /** @example "1234567" */
   facilityId?: string;
   /** Aggregation granularity */
   aggregateOn?: Aggregation;
@@ -87,60 +100,15 @@ export interface Data {
   measurementSeries?: MeasurementSerie[];
 }
 
-/** Measurement from a single source */
-export interface MeasurementSerie {
-  /**
-   * Unit of all measurement points
-   * @example "m3"
-   */
-  unit?: string;
-  /**
-   * Type of measurement
-   * @example "volume"
-   */
-  measurementType?: string;
-  metaData?: MetaData[];
-  measurementPoints?: MeasurementPoints[];
-}
-
-/** A single measurement data point */
-export interface MeasurementPoints {
-  /**
-   * Value of the point
-   * @example 22.321
-   */
-  value?: number;
-  /**
-   * Timestamp of the datapoint
-   * @format date-time
-   */
-  timestamp?: string;
-  metaData?: MetaData[];
-}
-
-/** Measurement meta data */
-export interface MetaData {
-  /**
-   * key
-   * @example "id"
-   */
-  key?: string;
-  /**
-   * value
-   * @example "123"
-   */
-  value?: string;
-}
-
 export interface Problem {
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
 }
 
 export interface StatusType {
@@ -168,10 +136,10 @@ export interface ConstraintViolationProblem {
   violations?: Violation[];
   title?: string;
   message?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -191,7 +159,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -204,14 +172,14 @@ export interface ThrowableProblem {
     nativeMethod?: boolean;
   }[];
   message?: string;
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -235,10 +203,7 @@ export interface Violation {
   message?: string;
 }
 
-/**
- * Category
- * @example "DISTRICT_HEATING"
- */
+/** Category */
 export enum MeasurementDataSearchParametersCategoryEnum {
   DISTRICT_HEATING = 'DISTRICT_HEATING',
   ELECTRICITY = 'ELECTRICITY',
@@ -246,13 +211,10 @@ export enum MeasurementDataSearchParametersCategoryEnum {
   WASTE_MANAGEMENT = 'WASTE_MANAGEMENT',
 }
 
-/**
- * Aggregation granularity
- * @example "HOUR"
- */
+/** Data point aggregation granularity */
 export enum MeasurementDataSearchParametersAggregateOnEnum {
+  QUARTER = 'QUARTER',
   HOUR = 'HOUR',
   DAY = 'DAY',
   MONTH = 'MONTH',
-  YEAR = 'YEAR',
 }
