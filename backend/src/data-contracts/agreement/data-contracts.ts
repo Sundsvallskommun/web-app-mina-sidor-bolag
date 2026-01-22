@@ -14,7 +14,7 @@ export interface Problem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
   title?: string;
   detail?: string;
@@ -47,7 +47,7 @@ export interface ConstraintViolationProblem {
   message?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   detail?: string;
   suppressed?: {
     stackTrace?: {
@@ -68,7 +68,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -85,7 +85,7 @@ export interface ThrowableProblem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
   title?: string;
   detail?: string;
@@ -140,93 +140,49 @@ export interface AgreementParameters {
    * @example 15
    */
   limit?: number;
-  /**
-   * Signal if only active or all agreements should be included in response, default is to only return active agreements.
-   * @example true
-   */
+  /** Signal if only active or all agreements should be included in response, default is to only return active agreements. */
   onlyActive?: boolean;
 }
 
 /** Agreement model */
 export interface Agreement {
-  /**
-   * Customer identifier at the supplier of the agreement
-   * @example "81471222"
-   */
+  /** Customer identifier at the supplier of the agreement */
   customerId?: string;
-  /**
-   * Agreement identifier
-   * @example "223344-A"
-   */
+  /** Agreement identifier */
   agreementId?: string;
-  /**
-   * Billing identifier
-   * @example "111222333"
-   */
+  /** Billing identifier */
   billingId?: string;
   /** Category model */
   category?: Category;
-  /**
-   * Description
-   * @example "The master agreement"
-   */
+  /** Description */
   description?: string;
-  /**
-   * Id of the facility connected to the agreement
-   * @example "1223334"
-   */
+  /** Id of the facility connected to the agreement */
   facilityId?: string;
-  /**
-   * Signal indicating whether the agreement is the main agreement or not
-   * @example true
-   */
+  /** Signal indicating whether the agreement is the main agreement or not */
   mainAgreement?: boolean;
-  /**
-   * Signal indicating whether the agreement has a binding period or not
-   * @example true
-   */
+  /** Signal indicating whether the agreement has a binding period or not */
   binding?: boolean;
-  /**
-   * Description of the binding rule in cases where the agreement has a binding period
-   * @example "12 mån bindning"
-   */
-  bindingRule?: string | null;
-  /**
-   * Placement status for agreement
-   * @example "Tillkopplad"
-   */
+  /** Description of the binding rule in cases where the agreement has a binding period */
+  bindingRule?: string;
+  /** Placement status for agreement */
   placementStatus?: string;
-  /**
-   * Net area id for agreement
-   * @example "SUV"
-   */
+  /** Net area id for agreement */
   netAreaId?: string;
-  /**
-   * Site address connected to the agreement
-   * @example "Första gatan 2"
-   */
+  /** Site address connected to the agreement */
   siteAddress?: string;
-  /**
-   * Signal if the agreement is a production agreement or not (can be null if not applicable)
-   * @example true
-   */
-  production?: boolean | null;
+  /** Signal if the agreement is a production agreement or not (can be null if not applicable) */
+  production?: boolean;
   /**
    * Start date of the agreement
    * @format date
-   * @example "2022-01-01"
    */
   fromDate?: string;
   /**
    * End date of the agreement
    * @format date
-   * @example "2022-12-31"
    */
   toDate?: string;
-  /**
-   * Signal if the agreement is active or not
-   * @example true
-   */
+  /** Signal if the agreement is active or not */
   active?: boolean;
 }
 
@@ -273,10 +229,7 @@ export interface PagingMetaData {
 
 /** Agreement party model */
 export interface AgreementParty {
-  /**
-   * Customer identifier at the supplier of the agreement
-   * @example "81471222"
-   */
+  /** Customer identifier at the supplier of the agreement */
   customerId?: string;
   agreements?: Agreement[];
 }

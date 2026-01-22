@@ -37,8 +37,8 @@ export default function Charts() {
     queryKey: ['user'],
   });
 
-  const { data: agreements } = useApi({
-    url: `/paged/agreements`,
+  const { data: allAgreements } = useApi({
+    url: `/paged/all-agreements`,
     method: 'get',
     dataHandler: pagedAgreementsHandler,
   });
@@ -109,8 +109,8 @@ export default function Charts() {
     if (category === 'Fjärrvärme') {
       setOnlyTrade(false);
     } else {
-      const netAgreementExistsForFacility = agreements
-        ? Object.values(agreements ?? {})
+      const netAgreementExistsForFacility = allAgreements
+        ? Object.values(allAgreements ?? {})
             .flat()
             .some((agreement) => agreement.facilityId === facilityId && agreement.category.code === 'ELECTRICITY')
         : false;
@@ -129,7 +129,7 @@ export default function Charts() {
       setMergedTemperatureData(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [previousMeasurementData]);
+  }, [measurementData, previousMeasurementData]);
 
   return (
     <div>

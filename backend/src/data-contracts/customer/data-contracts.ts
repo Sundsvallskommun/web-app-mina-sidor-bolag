@@ -10,14 +10,14 @@
  */
 
 export interface Problem {
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
 }
 
 export interface StatusType {
@@ -45,10 +45,10 @@ export interface ConstraintViolationProblem {
   violations?: Violation[];
   title?: string;
   message?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -68,7 +68,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -81,14 +81,14 @@ export interface ThrowableProblem {
     nativeMethod?: boolean;
   }[];
   message?: string;
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -130,7 +130,10 @@ export interface CustomerDetailsRequest {
    */
   limit?: number;
   sortBy?: string[];
-  /** The sort order direction */
+  /**
+   * The sort order direction
+   * @example "ASC"
+   */
   sortDirection?: Direction;
   partyId?: string[];
   /**
@@ -141,15 +144,10 @@ export interface CustomerDetailsRequest {
   /**
    * Earliest date and time for when to search for change from. Format is yyyy-MM-dd'T'HH:mm:ss.SSSXXX
    * @format date-time
-   * @example "2000-10-31T01:30:00-05:00"
    */
   fromDateTime?: string;
 }
 
-/**
- * The sort order direction
- * @example "ASC"
- */
 export enum Direction {
   ASC = 'ASC',
   DESC = 'DESC',
@@ -157,78 +155,38 @@ export enum Direction {
 
 /** Customer details model */
 export interface CustomerDetails {
-  /**
-   * Company with which the customer has an engagement (organization number)
-   * @example "5591962591"
-   */
+  /** Company with which the customer has an engagement (organization number) */
   customerEngagementOrgId?: string;
-  /**
-   * Name of the company the customer has an engagement with
-   * @example "Sundsvall Elnät"
-   */
+  /** Name of the company the customer has an engagement with */
   customerEngagementOrgName?: string;
-  /**
-   * PartyId (e.g. a personId or an organizationId)
-   * @example "81471222-5798-11e9-ae24-57fa13b361e1"
-   */
+  /** PartyId (e.g. a personId or an organizationId) */
   partyId?: string;
-  /**
-   * Customer number
-   * @example "39195"
-   */
+  /** Customer number */
   customerNumber?: string;
-  /**
-   * Customer name
-   * @example "Sven Svensson"
-   */
+  /** Customer name */
   customerName?: string;
-  /**
-   * Street
-   * @example "Storgatan 44"
-   */
+  /** Street */
   street?: string;
-  /**
-   * Postal code
-   * @example "85230"
-   */
+  /** Postal code */
   postalCode?: string;
-  /**
-   * City
-   * @example "Sundsvall"
-   */
+  /** City */
   city?: string;
-  /**
-   * Care of address
-   * @example "Agatha Malm"
-   */
+  /** Care of address */
   careOf?: string;
   phoneNumbers?: string[];
   emails?: string[];
   /**
    * Customer category ID
    * @format int32
-   * @example 1
    */
   customerCategoryID?: number;
-  /**
-   * Customer category description
-   * @example "Privat"
-   */
+  /** Customer category description */
   customerCategoryDescription?: string;
-  /**
-   * Indicates if customer details have changed since the search date
-   * @example false
-   */
+  /** Indicates if customer details have changed since the search date */
   customerChangedFlg?: boolean;
-  /**
-   * Indicates if placement and/or equipment details have changed since the search date
-   * @example true
-   */
+  /** Indicates if placement and/or equipment details have changed since the search date */
   installedChangedFlg?: boolean;
-  /**
-   * Indicates customer status, if not active then the moveInDate holds information on when the customer will be activated
-   * @example true
-   */
+  /** Indicates customer status, if not active then the moveInDate holds information on when the customer will be activated */
   active?: boolean;
   /**
    * The prospective customer's move-in date
@@ -277,7 +235,10 @@ export interface PagingAndSortingMetaData {
    */
   totalPages?: number;
   sortBy?: string[];
-  /** The sort order direction */
+  /**
+   * The sort order direction
+   * @example "ASC"
+   */
   sortDirection?: Direction;
 }
 
@@ -290,25 +251,13 @@ export interface Customer {
 
 /** Customer relation model */
 export interface CustomerRelation {
-  /**
-   * Customer number
-   * @example "10007"
-   */
+  /** Customer number */
   customerNumber?: string;
-  /**
-   * Organization number
-   * @example "5565027223"
-   */
+  /** Organization number */
   organizationNumber?: string;
-  /**
-   * Organization name
-   * @example "Sundsvall Elnät"
-   */
+  /** Organization name */
   organizationName?: string;
-  /**
-   * Indicates customer status, if not active then the moveInDate holds information on when the customer will be activated
-   * @example true
-   */
+  /** Indicates customer status, if not active then the moveInDate holds information on when the customer will be activated */
   active?: boolean;
   /**
    * The prospective customer's move-in date
