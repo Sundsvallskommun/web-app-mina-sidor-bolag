@@ -18,7 +18,8 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
   headerLabel,
   formatDate,
   filterPermissions,
-  revokeActionButton,
+  // implementeras i HYDRAN-760
+  // revokeActionButton,
   handleEndDate,
 }: CurrentAndClosedEligibilityPermissionsProps) => {
   return (
