@@ -1,4 +1,4 @@
-import { BFUS_API_KEY, BFUS_BASE_URL, BFUS_EXTERNAL_ID } from '@/config';
+import { BFUS_API_KEY, BFUS_EXTERNAL_ID, BFUS_API_BASE_URL } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { BFUSCustomerResponse, BFUSEligablePartyResponse } from '@/interfaces/bfus.interface';
@@ -14,9 +14,22 @@ import { sendPermissionRequest } from '@/services/bfus.service';
 import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-request.dto';
 import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
 import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
+import ApiTokenService from '@/services/api-token.service';
 
 @Controller('/bfus')
 export class BFUSController {
+  async requireToken(): Promise<string> {
+    const apiTokenService = new ApiTokenService();
+    const token = await apiTokenService.getToken();
+
+    if (!token) {
+      throw new HttpException(500, 'No token');
+    }
+
+    return token;
+  }
+
+  // To do: check endpoint and params
   async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto) {
     const body: FullPermissionDto = {
       Header: {
@@ -35,7 +48,7 @@ export class BFUSController {
     }
 
     try {
-      const result = await sendPermissionRequest(body);
+      const result = await sendPermissionRequest(body, this.requireToken);
       return {
         Header: result.Header,
         Content: result.Content,
@@ -63,11 +76,12 @@ export class BFUSController {
     }
 
     try {
+      const token = await this.requireToken();
       const results = await Promise.allSettled(
         relations.customerNumber.map(cn => {
-          const url = `${BFUS_BASE_URL}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
+          const url = `${BFUS_API_BASE_URL}/bfusewiopenapi3/1.0.0/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
           return axios.get<BFUSCustomerResponse>(url, {
-            headers: { Authorization: BFUS_API_KEY },
+            headers: { Authorization: `Bearer ${token}, ${BFUS_API_KEY}` },
           });
         }),
       );
@@ -111,11 +125,12 @@ export class BFUSController {
     }
 
     try {
+      const token = await this.requireToken();
       const responses = await Promise.all(
         ids.map(customerId => {
-          const url = `${BFUS_BASE_URL}/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}`;
+          const url = `${BFUS_API_BASE_URL}/bfusewiopenapi3/1.0.0/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}`;
           return axios.get<BFUSEligablePartyResponse>(url, {
-            headers: { Authorization: BFUS_API_KEY },
+            headers: { Authorization: `Bearer ${token}, ${BFUS_API_KEY}` },
           });
         }),
       );
