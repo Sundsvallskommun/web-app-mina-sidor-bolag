@@ -30,7 +30,7 @@ export const useGetCurrentAndClosedPermissions = (customerIds: number[] | undefi
     queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
     axiosParameters: {
       params: {
-        customerIds: customerIds?.join(','),
+        customerIds: customerIds?.toString(),
       },
     },
     queryOptions: {
