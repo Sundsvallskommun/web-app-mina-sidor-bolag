@@ -53,7 +53,7 @@ export const CurrentAndClosedPermissionCard = ({
                 {revokeActionButton(permission)}
               </div> */}
             </div>
-            {permissions[permissions.length - 1] !== permission && <Divider />}
+            {permissions.at(-1) !== permission && <Divider />}
           </div>
         );
       })}
