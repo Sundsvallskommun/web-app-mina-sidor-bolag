@@ -10,7 +10,7 @@ export const CurrentAndClosedPermissionCard = ({
   headerLabel,
   formatDate,
   filterPermissions,
-  revokeActionButton,
+  //revokeActionButton,
   handleEndDate,
 }: CurrentAndClosedEligibilityPermissionsProps) => {
   const permissions = filterPermissions(ongoing);
@@ -48,9 +48,10 @@ export const CurrentAndClosedPermissionCard = ({
                 <strong>{headerLabel(activePanel === 0 ? 'approved' : 'closed')}</strong>
                 <p>{formatDate(handleEndDate(permission))}</p>
               </div>
-              <div className={`flex ${ongoing ? 'justify-center' : 'justify-start'}`}>
+              {/* implementeras i HYDRAN-760 */}
+              {/* <div className={`flex ${ongoing ? 'justify-center' : 'justify-start'}`}>
                 {revokeActionButton(permission)}
-              </div>
+              </div> */}
             </div>
             {permissions[permissions.length - 1] !== permission && <Divider />}
           </div>
