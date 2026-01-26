@@ -2,7 +2,7 @@ import { IInvoice } from '@interfaces/invoice';
 import { getInvoicePdf } from '@services/invoice-service';
 import { Button, cx, Icon, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { ArrowDownToLine } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePdfDownload } from '@utils/use-pdf-download.hook';
 
@@ -60,7 +60,7 @@ export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading,
       } else {
         showErrorMessage();
       }
-    } catch (error: unknown) {
+    } catch {
       showErrorMessage();
     } finally {
       updateIsLoadingForInvoice(item.invoiceNumber, false);

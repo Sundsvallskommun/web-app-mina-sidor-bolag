@@ -39,7 +39,7 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
         const url = URL.createObjectURL(blob);
         downloadFromObjectUrl(url, fileName);
         setFallbackUrl(url);
-      } catch (error) {
+      } catch {
         onError();
       }
     },
