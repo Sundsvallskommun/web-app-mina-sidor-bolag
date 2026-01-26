@@ -48,8 +48,8 @@ export class InvoicesController {
     const { facilityId, page, limit } = req.query;
 
     const metaData: MetaData = {
-      page: parseInt(page.toString()),
-      limit: parseInt(limit.toString()),
+      page: Number.parseInt(page.toString()),
+      limit: Number.parseInt(limit.toString()),
       totalRecords: 0,
       totalPages: 0,
       count: 12,

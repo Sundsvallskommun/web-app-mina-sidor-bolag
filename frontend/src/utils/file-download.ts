@@ -13,13 +13,8 @@ export const base64ToBlob = (base64: string, mimeType = 'application/octet-strea
   // Decode Base64 → binary string
   const binary = atob(cleanedBase64);
 
-  const len = binary.length;
-  const bytes = new Uint8Array(len);
-
   // Convert binary string → bytes
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
 
   return new Blob([bytes], { type: mimeType });
 };
