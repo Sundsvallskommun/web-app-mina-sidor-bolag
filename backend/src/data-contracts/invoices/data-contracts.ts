@@ -18,27 +18,7 @@ export enum InvoiceOrigin {
   PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
 }
 
-/**
- * Status of invoice
- * @example "PAID"
- */
-export enum InvoiceStatus {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
-}
-
-/**
- * Type of invoice
- * @example "INVOICE"
- */
+/** Type of invoice */
 export enum InvoiceType {
   INVOICE = 'INVOICE',
   CREDIT_INVOICE = 'CREDIT_INVOICE',
@@ -53,107 +33,28 @@ export enum InvoiceType {
   UNKNOWN = 'UNKNOWN',
 }
 
-/** Invoice request parameters model */
-export interface InvoicesParameters {
-  /**
-   * Page number
-   * @format int32
-   * @min 1
-   * @default 1
-   * @example 1
-   */
-  page?: number;
-  /**
-   * Result size per page
-   * @format int32
-   * @min 1
-   * @max 1000
-   * @default 100
-   * @example 100
-   */
-  limit?: number;
-  /**
-   * @minItems 1
-   * @uniqueItems true
-   */
-  partyId: string[];
-  facilityId?: string[];
-  /**
-   * Invoice number
-   * @example "767915994"
-   */
-  invoiceNumber?: string;
-  /**
-   * Earliest invoice date. Format is YYYY-MM-DD.
-   * @format date
-   * @example "2022-01-01"
-   */
-  invoiceDateFrom?: string;
-  /**
-   * Latest invoice date. Format is YYYY-MM-DD.
-   * @format date
-   * @example "2022-01-31"
-   */
-  invoiceDateTo?: string;
-  /**
-   * invoice name
-   * @example "765801493.pdf"
-   */
-  invoiceName?: string;
-  /** Type of invoice */
-  invoiceType?: InvoiceType;
-  /** Status of invoice */
-  invoiceStatus?: InvoiceStatus;
-  /**
-   * Ocr number
-   * @example "767915994"
-   */
-  ocrNumber?: string;
-  /**
-   * Earliest due date. Format is YYYY-MM-DD.
-   * @format date
-   * @example "2022-01-01"
-   */
-  dueDateFrom?: string;
-  /**
-   * Latest due date. Format is YYYY-MM-DD.
-   * @format date
-   * @example "2022-01-31"
-   */
-  dueDateTo?: string;
-  /**
-   * Creditor organization number
-   * @example "5564786647"
-   */
-  organizationNumber?: string;
-  /**
-   * Organization group
-   * @example "stadsbacken"
-   */
-  organizationGroup?: string;
+/** Status of invoice */
+export enum InvoiceStatus {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
 }
 
-/** Invoice-address */
 export interface Address {
-  /**
-   * Street-address
-   * @example "Storgatan 1"
-   */
+  /** Street-address */
   street?: string;
-  /**
-   * Post-code
-   * @example "11122"
-   */
+  /** Post-code */
   postcode?: string;
-  /**
-   * City
-   * @example "Sundsvall"
-   */
+  /** City */
   city?: string;
-  /**
-   * Care-of
-   * @example "Kalle"
-   */
+  /** Care-of */
   careOf?: string;
 }
 
@@ -162,111 +63,83 @@ export interface Invoice {
   /**
    * Due date
    * @format date
-   * @example "2022-02-28"
    */
   dueDate?: string;
   /**
    * Invoice-amount including VAT and rounding
    * @format float
-   * @example 814
    */
   totalAmount?: number;
   /**
    * Invoice-amount including VAT
    * @format float
-   * @example 813.5
    */
   amountVatIncluded?: number;
   /**
    * Invoice-amount excluding VAT
    * @format float
-   * @example 651.2
    */
   amountVatExcluded?: number;
   /**
    * Amount which VAT is applied on
    * @format float
-   * @example 651.2
    */
   vatEligibleAmount?: number;
   /**
    * Equalization to integer
    * @format float
-   * @example 0.5
    */
   rounding?: number;
   /**
    * VAT
    * @format float
-   * @example 162.8
    */
   vat?: number;
-  /**
-   * Is VAT reversed
-   * @example false
-   */
+  /** Is VAT reversed */
   reversedVat?: boolean;
-  /**
-   * Is invoice-pdf available
-   * @example false
-   */
+  /** Is invoice-pdf available */
   pdfAvailable?: boolean;
-  /**
-   * Currency
-   * @example "SEK"
-   */
+  /** Currency */
   currency?: string;
   /**
    * Invoice-date
    * @format date
-   * @example "2022-01-15"
    */
   invoiceDate?: string;
   /**
    * Invoice from-date
    * @format date
-   * @example "2022-01-01"
    */
   fromDate?: string;
   /**
    * Invoice to-date
    * @format date
-   * @example "2022-01-31"
    */
   toDate?: string;
-  /**
-   * Invoice-number
-   * @example "999"
-   */
+  /** Invoice-number */
   invoiceNumber?: string;
   /** Status of invoice */
   invoiceStatus?: InvoiceStatus;
-  /**
-   * OCR-number
-   * @example "96758235"
-   */
+  /** OCR-number */
   ocrNumber?: string;
-  /**
-   * Organization number of the creditor
-   * @example "5565027223"
-   */
+  /** Organization number of the creditor */
   organizationNumber?: string;
-  /**
-   * Invoice-name
-   * @example "faktura-999.pdf"
-   */
+  /** Invoice-name */
   invoiceName?: string;
   /** Type of invoice */
   invoiceType?: InvoiceType;
   /**
    * Invoice-description
-   * @example "Fjärrvärme"
+   * @uniqueItems true
    */
-  invoiceDescription?: string;
+  invoiceDescriptions?: string[];
   /** Invoice-address */
   invoiceAddress?: Address;
-  /** Facility-id */
-  facilityId?: string;
+  /**
+   * Facility-id
+   * @uniqueItems true
+   */
+  facilityIds?: string[];
   /** Invoice origin (invoices originates from either commercial or public activities) */
   invoiceOrigin?: InvoiceOrigin;
 }
@@ -283,44 +156,39 @@ export interface MetaData {
   /**
    * Current page
    * @format int32
-   * @example 5
    */
   page?: number;
   /**
    * Displayed objects per page
    * @format int32
-   * @example 20
    */
   limit?: number;
   /**
    * Displayed objects on current page
    * @format int32
-   * @example 13
    */
   count?: number;
   /**
    * Total amount of hits based on provided search parameters
    * @format int64
-   * @example 98
    */
   totalRecords?: number;
   /**
    * Total amount of pages based on provided search parameters
    * @format int32
-   * @example 23
    */
   totalPages?: number;
 }
 
 export interface Problem {
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
 }
 
 export interface StatusType {
@@ -348,10 +216,10 @@ export interface ConstraintViolationProblem {
   violations?: Violation[];
   title?: string;
   message?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -371,7 +239,7 @@ export interface ConstraintViolationProblem {
 }
 
 export interface ThrowableProblem {
-  cause?: ThrowableProblem;
+  cause?: any;
   stackTrace?: {
     classLoaderName?: string;
     moduleName?: string;
@@ -384,14 +252,14 @@ export interface ThrowableProblem {
     nativeMethod?: boolean;
   }[];
   message?: string;
-  title?: string;
-  detail?: string;
   /** @format uri */
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, object>;
+  parameters?: Record<string, any>;
   status?: StatusType;
+  title?: string;
+  detail?: string;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -416,10 +284,7 @@ export interface Violation {
 }
 
 export interface PdfInvoice {
-  /**
-   * File-name
-   * @example "faktura-999.pdf"
-   */
+  /** File-name */
   fileName?: string;
   /**
    * Base64-encoded contents of file
@@ -433,71 +298,55 @@ export interface InvoiceDetail {
   /**
    * Amount
    * @format float
-   * @example 814
    */
   amount?: number;
   /**
    * Invoice-amount excluding VAT
    * @format float
-   * @example 651.2
    */
   amountVatExcluded?: number;
   /**
    * VAT
    * @format float
-   * @example 162.8
    */
   vat?: number;
   /**
    * VAT-rate in percent
    * @format float
-   * @example 25
    */
   vatRate?: number;
   /**
    * Quantity of product
    * @format float
-   * @example 3.45
    */
   quantity?: number;
-  /**
-   * Unit in quantity
-   * @example "kWh"
-   */
+  /** Unit in quantity */
   unit?: string;
   /**
    * Unit-price
    * @format float
-   * @example 271.3
    */
   unitPrice?: number;
-  /**
-   * Description of detail
-   * @example "Förbrukning el"
-   */
+  /** Description of detail */
   description?: string;
-  /**
-   * Product code
-   * @example "999"
-   */
+  /** Product code */
   productCode?: string;
-  /**
-   * Product name
-   * @example "Elförbrukning"
-   */
+  /** Product name */
   productName?: string;
   /**
    * Invoice-detail from-date
    * @format date
-   * @example "2022-01-01"
    */
   fromDate?: string;
   /**
    * Invoice-detail to-date
    * @format date
-   * @example "2022-01-31"
    */
   toDate?: string;
+  /** Facility id */
+  facilityId?: string;
+  /** Administration */
+  administration?: string;
 }
 
 export interface InvoiceDetailsResponse {

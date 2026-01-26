@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
-import { PagedEvents } from '@data-contracts/backend/data-contracts';
-import { EventData, MetaDataFacility, StructuredMetaData } from '@interfaces/event';
+import { PagedEventsResponse, MetaData } from '@data-contracts/backend/data-contracts';
+import { EventData, MetaDataFacility, StructuredMetaData, StructuredEvent } from '@interfaces/event';
 
-const mapData = (data: Array<{ key: string; value: string }>, startObj = {}) => {
+const mapData = (data: MetaData[], startObj = {}) => {
   return data.reduce((object, item) => {
     return { ...object, [item.key]: item.value };
   }, startObj);
 };
 
-const getFacilities = (data: Array<{ key: string; value: string }>) => {
+const getFacilities = (data: MetaData[]) => {
   const indexes = data
     .map((item) => item.key.replaceAll(/\D+/g, ''))
     .filter((key, index, arr) => !!key && arr.indexOf(key) == index);
@@ -28,11 +28,14 @@ const getFacilities = (data: Array<{ key: string; value: string }>) => {
   );
 };
 
-export const handleEventLogResponse: (data: PagedEvents) => EventData = (data): EventData => {
-  data.content.forEach((event) => {
+export const handleEventLogResponse = (data: PagedEventsResponse): EventData => {
+  const events = data.content as StructuredEvent[];
+
+  events.forEach((event) => {
+    const eventMetadata = event.metadata as unknown as MetaData[];
     const mappedData: StructuredMetaData = mapData(
-      event.metadata.filter((item) => !item.key.startsWith('facilities[')),
-      { facilities: getFacilities(event.metadata) }
+      eventMetadata.filter((item) => !item.key.startsWith('facilities[')),
+      { facilities: getFacilities(eventMetadata) }
     ) as StructuredMetaData;
 
     mappedData.facilities.forEach((facility: MetaDataFacility) => {
@@ -40,11 +43,10 @@ export const handleEventLogResponse: (data: PagedEvents) => EventData = (data): 
       facility.fromDate = dayjs(facility.fromDate).format('YYYY-MM-DD');
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    event.metadata = mappedData as any;
+    event.metadata = mappedData;
   });
 
-  return data as unknown as EventData;
+  return data as EventData;
 };
 
-export const eventLogHandler = (data: PagedEvents) => handleEventLogResponse(data);
+export const eventLogHandler = (data: PagedEventsResponse) => handleEventLogResponse(data);

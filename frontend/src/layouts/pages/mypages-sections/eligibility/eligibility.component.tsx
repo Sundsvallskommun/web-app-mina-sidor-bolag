@@ -4,13 +4,15 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NewPermissions } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permissions.component';
 import { Spinner } from '@sk-web-gui/react';
-import CurrentAndClosedEligibilityPermissions from './current-and-closed-eligibility-permissions';
-import { useGetCustomerId } from '@services/eligibility-service';
+import CurrentAndClosedEligibilityPermissions from './current-and-closed-permissions/current-and-closed-eligibility-permissions';
+import { useGetCustomerId } from '@services/permissions-service';
+import { useApi } from '@services/api-service';
+import { User } from '@interfaces/user';
 
 export default function Eligibility() {
   const { t } = useTranslation('eligibility');
-
-  const { data: customerIds, isFetching } = useGetCustomerId();
+  const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const { data: customerIds, isFetching } = useGetCustomerId(userData);
 
   return (
     <div>

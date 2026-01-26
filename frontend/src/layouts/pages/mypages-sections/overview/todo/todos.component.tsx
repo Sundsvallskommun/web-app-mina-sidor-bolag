@@ -6,7 +6,7 @@ import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
 import { TodoListItem } from './todo-list-item.component';
 import { useTranslation } from 'react-i18next';
-import { pendingEligibilityHandler } from '@services/new-permissions-service';
+import { handleEligibilityResponse } from '@services/permissions-service';
 import { BFUSCustomerIdsApiResponse } from '@interfaces/eligibility';
 
 export const Todos = () => {
@@ -56,7 +56,7 @@ export const Todos = () => {
     queryOptions: {
       enabled: customerIdsFetched && customerIds && customerIds?.customerIds?.length > 0,
     },
-    dataHandler: pendingEligibilityHandler,
+    dataHandler: handleEligibilityResponse('new'),
   });
 
   return (

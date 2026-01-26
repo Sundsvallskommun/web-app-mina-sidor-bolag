@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { queryClient, useApi } from '@services/api-service';
-import { pendingEligibilityHandler } from '@services/new-permissions-service';
+import { handleEligibilityResponse } from '@services/permissions-service';
 import { NewPermissionListItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-list-item/new-permission-list-item.component';
 import React from 'react';
 import { useSnackbar, useThemeQueries } from '@sk-web-gui/react';
@@ -47,7 +47,7 @@ export const NewPermissions = (props: NewPermissionsProps) => {
         customerIds: customerIds?.toString(),
       },
     },
-    dataHandler: pendingEligibilityHandler,
+    dataHandler: handleEligibilityResponse('new'),
   });
 
   const handlePermissionMutation = async ({
