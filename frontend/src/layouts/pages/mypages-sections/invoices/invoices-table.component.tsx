@@ -2,7 +2,7 @@ import { ManualTable, ManualTableColumn } from '@components/manual-table/manual-
 import { IInvoice, InvoiceTableProps } from '@interfaces/invoice';
 import { Label, Spinner } from '@sk-web-gui/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { GetPdfButton } from './get-pdf-button.component';
+import { DownloadPdfButton } from './get-pdf-button.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useTranslation } from 'react-i18next';
@@ -129,7 +129,7 @@ export const InvoicesTable = ({
         screenReaderOnly: true,
         renderColumn: (_value, item: IInvoice) => (
           <div className="text-left">
-            <GetPdfButton isLoading={pdfIsLoading} setIsLoading={setPdfIsLoading} item={item} />
+            <DownloadPdfButton isLoading={pdfIsLoading} setIsLoading={setPdfIsLoading} item={item} />
           </div>
         ),
       },
