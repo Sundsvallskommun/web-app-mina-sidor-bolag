@@ -2,6 +2,7 @@ import {
   BFUSCustomerIdsApiResponse,
   BFUSEligiblePartyPermissionsApiResponse,
   EligablePartyPart,
+  PermissionStatusCategory,
 } from '@interfaces/eligibility';
 import { useApi } from './api-service';
 import { QueryKey } from '@tanstack/react-query';
@@ -23,18 +24,23 @@ export const useGetCustomerId = (user: User | undefined) =>
     },
   });
 
-export const useGetCurrentAndClosedPermissions = (customerIds: number[] | undefined) =>
-  useApi<BFUSEligiblePartyPermissionsApiResponse['data'], Error, EligablePartyPart[], QueryKey>({
-    url: '/bfus/eligable-party-permissions',
-    method: 'get',
-    queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
-    axiosParameters: {
-      params: {
-        customerIds: customerIds?.toString(),
-      },
-    },
-    queryOptions: {
-      enabled: !!customerIds && customerIds.length > 0,
-    },
-    dataHandler: (data) => data.eligablePartyParts.filter((epp) => epp.StatusCategory !== 'new'),
-  });
+export const handleEligibilityResponse =
+  (statuses: PermissionStatusCategory | PermissionStatusCategory[]) =>
+  (data: BFUSEligiblePartyPermissionsApiResponse['data']): { [key: string]: EligablePartyPart[] } => {
+    if (!data) {
+      return {};
+    }
+
+    const statusList = Array.isArray(statuses) ? statuses : [statuses];
+
+    return data.eligablePartyParts
+      .filter((part) => statusList.includes(part.StatusCategory))
+      .reduce(
+        (r: { [key: string]: EligablePartyPart[] }, a) => {
+          const key = a.EnergyServiceParty;
+          (r[key] ??= []).push(a);
+          return r;
+        },
+        {} as { [key: string]: EligablePartyPart[] }
+      );
+  };

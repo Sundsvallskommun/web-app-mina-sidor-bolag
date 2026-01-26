@@ -1,13 +1,12 @@
-import { MouseEvent, useState } from 'react';
+import { useState } from 'react';
 import CurrentAndClosedEligibilityPermissionsTable from './current-and-closed-permissions-table/current-and-closed-eligibility-permissions-table';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { eligibilityQueryKeys, useGetCurrentAndClosedPermissions } from '@services/eligibility-service';
-import { Badge, Button, Label, Spinner, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
+import { Badge, Label, Spinner, Tabs, useThemeQueries } from '@sk-web-gui/react';
 import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions-card-item/current-and-closed-permissions-card-item';
-import { queryClient, useApi } from '@services/api-service';
-import { AxiosError } from 'axios';
-import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
+import { useApi } from '@services/api-service';
+import { EligablePartyPart } from '@interfaces/eligibility';
+import { handleEligibilityResponse } from '@services/permissions-service';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
   customerIds?: number[];
@@ -17,16 +16,57 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState(0);
   const { isMinLg } = useThemeQueries();
-  const { data: permissions, isLoading, isFetching } = useGetCurrentAndClosedPermissions(customerIds);
   const headerLabel = (label: string) => t(`eligibility:permissions.table.header.${label}`);
   const formatDate = (date: string | null) =>
     date ? dayjs(date).format('YYYY-MM-DD') : t('eligibility:permissions.table.currentAndClosed.unknownDate');
-  const snackBar = useSnackbar();
+  //const snackBar = useSnackbar();
 
-  const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
-    url: 'bfus/eligable-party-revoke-permission',
-    method: 'post',
+  const {
+    data: permissions,
+    isLoading,
+    isFetching,
+  } = useApi({
+    url: '/bfus/eligable-party-permissions',
+    queryKey: ['current-and-closed-permissions'],
+    method: 'get',
+    axiosParameters: {
+      params: {
+        customerIds: customerIds?.toString(),
+      },
+    },
+    dataHandler: handleEligibilityResponse(['ongoing', 'denied']),
   });
+
+  // - - - implementeras i HYDRAN-760 - - - //
+
+  // const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
+  //   url: 'bfus/eligable-party-revoke-permission',
+  //   method: 'post',
+  // });
+
+  // const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
+  //   await revokeMutation
+  //     .mutateAsync({
+  //       PermissionRequest: {
+  //         EligablePartyId: p.EligablePartyId,
+  //         ContractIdList: [p.ContractId],
+  //       },
+  //     })
+  //     .then(() => {
+  //       snackBar({
+  //         message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
+  //         status: 'success',
+  //       });
+  //       queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
+  //     })
+  //     .catch((e: AxiosError) =>
+  //       snackBar({
+  //         message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
+  //         status: 'error',
+  //       })
+  //     );
+  // };
 
   if (isLoading || isFetching || !permissions) {
     return (
@@ -36,37 +76,15 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
     );
   }
 
+  const currentAndClosedPermissions: EligablePartyPart[] = Object.values(permissions).flat();
+
   const filterPermissions = (ongoing: boolean) =>
-    permissions.filter((p) => (p.StatusCategory === 'ongoing') === ongoing);
+    currentAndClosedPermissions.filter((p) => (p.StatusCategory === 'ongoing') === ongoing);
 
   const tabs = [
     { ongoing: true, index: 0 },
     { ongoing: false, index: 1 },
   ];
-
-  const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    await revokeMutation
-      .mutateAsync({
-        PermissionRequest: {
-          EligablePartyId: p.EligablePartyId,
-          ContractIdList: [p.ContractId],
-        },
-      })
-      .then(() => {
-        snackBar({
-          message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
-          status: 'success',
-        });
-        queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
-      })
-      .catch((e: AxiosError) =>
-        snackBar({
-          message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
-          status: 'error',
-        })
-      );
-  };
 
   const closedLabel = (statusCategory: EligablePartyPart['StatusCategory']) => {
     return (
@@ -78,9 +96,11 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
 
   const revokeActionButton = (p: EligablePartyPart) =>
     activePanel === 0 ? (
-      <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
-        {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
-      </Button>
+      // - - - implementeras i HYDRAN-760 - - - //
+      // <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
+      //   {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
+      // </Button>
+      <div />
     ) : (
       closedLabel(p.StatusCategory)
     );
@@ -106,7 +126,6 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
     <Tabs className="mt-64" underline data-cy="current-and-closed-permissions" onTabChange={setActivePanel}>
       {tabs.map(({ ongoing, index }) => {
         const items = filterPermissions(ongoing);
-
         return (
           <Tabs.Item key={index}>
             <Tabs.Button rightIcon={<Badge inverted={activePanel !== index} counter={items.length} />}>

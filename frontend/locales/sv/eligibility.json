@@ -39,7 +39,8 @@
         "status": {
           "denied": "Nekad",
           "ended": "Löpt ut",
-          "revoked": "Återkallad"
+          "revoked": "Återkallad",
+          "ongoing": "Pågående"
         },
         "revokeAction": "Återkalla medgivande",
         "snackBarMessage": {

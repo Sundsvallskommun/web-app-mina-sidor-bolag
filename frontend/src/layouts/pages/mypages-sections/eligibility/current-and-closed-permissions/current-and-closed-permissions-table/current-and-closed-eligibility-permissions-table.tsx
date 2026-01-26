@@ -18,8 +18,7 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
   headerLabel,
   formatDate,
   filterPermissions,
-  // implementeras i HYDRAN-760
-  // revokeActionButton,
+  revokeActionButton,
   handleEndDate,
 }: CurrentAndClosedEligibilityPermissionsProps) => {
   return (
@@ -31,8 +30,7 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
           <Table.HeaderColumn>{headerLabel('service-identifier')}</Table.HeaderColumn>
           <Table.HeaderColumn>{headerLabel('validity-period')}</Table.HeaderColumn>
           <Table.HeaderColumn>{headerLabel(activePanel === 0 ? 'approved' : 'closed')}</Table.HeaderColumn>
-          {/* implementeras i HYDRAN-760 */}
-          {/* <Table.HeaderColumn /> */}
+          <Table.HeaderColumn />
         </Table.Header>
         <Table.Body>
           {filterPermissions(ongoing)?.map((p) => {
@@ -47,8 +45,7 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
                 <Table.Column>
                   <p className="whitespace-nowrap">{formatDate(handleEndDate(p))}</p>
                 </Table.Column>
-                {/* implementeras i HYDRAN-760 */}
-                {/* <Table.Column>{revokeActionButton(p)}</Table.Column> */}
+                <Table.Column>{revokeActionButton(p)}</Table.Column>
               </Table.Row>
             );
           })}

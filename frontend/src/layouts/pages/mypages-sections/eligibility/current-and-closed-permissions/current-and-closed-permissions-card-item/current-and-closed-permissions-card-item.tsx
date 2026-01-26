@@ -10,10 +10,10 @@ export const CurrentAndClosedPermissionCard = ({
   headerLabel,
   formatDate,
   filterPermissions,
-  //revokeActionButton,
+  revokeActionButton,
   handleEndDate,
 }: CurrentAndClosedEligibilityPermissionsProps) => {
-  const permissions = filterPermissions(ongoing);
+  const currentAndClosedPermissions = filterPermissions(ongoing);
   const { t } = useTranslation('eligibility');
 
   return (
@@ -21,7 +21,7 @@ export const CurrentAndClosedPermissionCard = ({
       className="bg-background-content rounded-cards shadow-50 my-24"
       data-cy="current-and-closed-permissions-card-container"
     >
-      {permissions.map((permission) => {
+      {currentAndClosedPermissions.map((permission) => {
         return (
           <div key={permission.EligablePartyPermissionId}>
             <div key={permission.ServiceIdentifier} className="flex flex-col px-20 py-24 gap-16">
@@ -48,12 +48,11 @@ export const CurrentAndClosedPermissionCard = ({
                 <strong>{headerLabel(activePanel === 0 ? 'approved' : 'closed')}</strong>
                 <p>{formatDate(handleEndDate(permission))}</p>
               </div>
-              {/* implementeras i HYDRAN-760 */}
-              {/* <div className={`flex ${ongoing ? 'justify-center' : 'justify-start'}`}>
+              <div className={`flex ${ongoing ? 'justify-center' : 'justify-start'}`}>
                 {revokeActionButton(permission)}
-              </div> */}
+              </div>
             </div>
-            {permissions.at(-1) !== permission && <Divider />}
+            {currentAndClosedPermissions.at(-1) !== permission && <Divider />}
           </div>
         );
       })}
