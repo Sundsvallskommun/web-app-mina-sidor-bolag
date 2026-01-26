@@ -3,7 +3,7 @@ import { Button, Card, Divider, Icon, Label } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useState } from 'react';
-import { GetPdfButton } from './get-pdf-button.component';
+import { DownloadPdfButton } from './get-pdf-button.component';
 import { useTranslation } from 'react-i18next';
 
 export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvoice }> = ({
@@ -53,7 +53,7 @@ export const InvoicesCardEntry: React.FC<{ organizationName: string; item: IInvo
 
           {open ? (
             <div className="flex flex-col mb-sm">
-              <GetPdfButton item={item} />
+              <DownloadPdfButton item={item} />
             </div>
           ) : undefined}
 
