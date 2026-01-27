@@ -27,7 +27,7 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
         URL.revokeObjectURL(fallbackUrl);
       }
       if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
+        globalThis.clearInterval(intervalRef.current);
       }
     };
   }, [fallbackUrl]);
@@ -77,7 +77,7 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
         if (windowRef.current && !windowRef.current.closed) return;
 
         if (intervalRef.current) {
-          window.clearInterval(intervalRef.current);
+          globalThis.clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
         // Clean up and hide link when window is closed
