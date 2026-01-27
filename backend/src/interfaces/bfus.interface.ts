@@ -114,18 +114,9 @@ export interface BFUSEligablePartyPart {
 }
 
 export interface BFUSEligablePartyPermissionResponse {
-  Header: {
-    ErrorInformation: string | null;
-    ObjectVersion: number;
-    Success: boolean;
-    PerformanceTime: string;
-    InParameters: string | null;
-  };
-  Content: {
-    EligablePartyId: string;
-    Action: string;
-    PermissionRequestExecuted: boolean;
-  };
+  EligablePartyId: string;
+  Action: string;
+  PermissionRequestExecuted: boolean;
 }
 
 export enum BFUSStatusCode {

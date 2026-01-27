@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNumber, isString } from 'class-validator';
 
 export class PermissionHeaderDto {
   @IsString()
@@ -20,6 +20,10 @@ export class PermissionRequestDto {
   @IsOptional()
   @IsNumber()
   CustomerId?: number;
+
+  @IsOptional()
+  @IsString()
+  EndDate: string;
 }
 
 export class FullPermissionDto {

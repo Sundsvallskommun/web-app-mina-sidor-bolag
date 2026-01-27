@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import CurrentAndClosedEligibilityPermissionsTable from './current-and-closed-permissions-table/current-and-closed-eligibility-permissions-table';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { Badge, Label, Spinner, Tabs, useThemeQueries } from '@sk-web-gui/react';
+import { Badge, Button, Label, Spinner, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions-card-item/current-and-closed-permissions-card-item';
-import { useApi } from '@services/api-service';
-import { EligablePartyPart } from '@interfaces/eligibility';
-import { handleEligibilityResponse } from '@services/permissions-service';
+import { queryClient, useApi } from '@services/api-service';
+import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
+import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
+import { AxiosError } from 'axios';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
   customerIds?: number[];
@@ -19,7 +20,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
   const headerLabel = (label: string) => t(`eligibility:permissions.table.header.${label}`);
   const formatDate = (date: string | null) =>
     date ? dayjs(date).format('YYYY-MM-DD') : t('eligibility:permissions.table.currentAndClosed.unknownDate');
-  //const snackBar = useSnackbar();
+  const snackBar = useSnackbar();
 
   const {
     data: permissions,
@@ -37,36 +38,34 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
     dataHandler: handleEligibilityResponse(['ongoing', 'denied']),
   });
 
-  // - - - implementeras i HYDRAN-760 - - - //
+  const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
+    url: 'bfus/eligable-party-revoke-permission',
+    method: 'post',
+  });
 
-  // const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
-  //   url: 'bfus/eligable-party-revoke-permission',
-  //   method: 'post',
-  // });
-
-  // const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
-  //   e.preventDefault();
-  //   await revokeMutation
-  //     .mutateAsync({
-  //       PermissionRequest: {
-  //         EligablePartyId: p.EligablePartyId,
-  //         ContractIdList: [p.ContractId],
-  //       },
-  //     })
-  //     .then(() => {
-  //       snackBar({
-  //         message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
-  //         status: 'success',
-  //       });
-  //       queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
-  //     })
-  //     .catch((e: AxiosError) =>
-  //       snackBar({
-  //         message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
-  //         status: 'error',
-  //       })
-  //     );
-  // };
+  const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    await revokeMutation
+      .mutateAsync({
+        PermissionRequest: {
+          EligablePartyId: p.EligablePartyId,
+          ContractIdList: [p.ContractId],
+        },
+      })
+      .then(() => {
+        snackBar({
+          message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
+          status: 'success',
+        });
+        queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
+      })
+      .catch((e: AxiosError) =>
+        snackBar({
+          message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
+          status: 'error',
+        })
+      );
+  };
 
   if (isLoading || isFetching || !permissions) {
     return (
@@ -96,11 +95,9 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
 
   const revokeActionButton = (p: EligablePartyPart) =>
     activePanel === 0 ? (
-      // - - - implementeras i HYDRAN-760 - - - //
-      // <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
-      //   {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
-      // </Button>
-      <div />
+      <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
+        {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
+      </Button>
     ) : (
       closedLabel(p.StatusCategory)
     );

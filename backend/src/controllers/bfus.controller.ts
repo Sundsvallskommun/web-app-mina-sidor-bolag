@@ -15,6 +15,7 @@ import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-reque
 import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
 import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
 import ApiTokenService from '@/services/api-token.service';
+import dayjs from 'dayjs';
 
 @Controller('/bfus')
 export class BFUSController {
@@ -29,8 +30,8 @@ export class BFUSController {
     return token;
   }
 
-  // To do: check endpoint and params
   async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto) {
+    const now = dayjs();
     const body: FullPermissionDto = {
       Header: {
         ExternalId: BFUS_EXTERNAL_ID,
@@ -38,24 +39,27 @@ export class BFUSController {
       },
       PermissionRequest: {
         EligablePartyId: request.EligablePartyId,
+        EndDate: now.toISOString(),
       },
     };
 
     if (operation === 'grant' || operation === 'revoke') {
       body.PermissionRequest.ContractIdList = request.ContractIdList;
+      body.PermissionRequest.CustomerId = null;
     } else if (operation === 'deny') {
       body.PermissionRequest.CustomerId = request.CustomerId;
     }
 
     try {
-      const result = await sendPermissionRequest(body, this.requireToken);
-      return {
-        Header: result.Header,
-        Content: result.Content,
-      };
+      const token = await this.requireToken();
+      const result = await sendPermissionRequest(body, token);
+      return result;
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
       if (axios.isAxiosError(error) && error.response) {
+        console.error('Status:', error.response?.status);
+        console.error('Data:', JSON.stringify(error.response?.data, null, 2));
+        console.error('Request:', error.config);
         throw new HttpException(error.response.status, error.response.statusText);
       }
       throw new HttpException(500, 'Internal server error');
