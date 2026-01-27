@@ -1,6 +1,12 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { Invoice, InvoicesResponse, InvoiceStatus, MetaData, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
+import {
+  Invoice,
+  InvoicesResponse,
+  InvoiceStatus,
+  MetaData,
+  PdfInvoice,
+} from '@/data-contracts/invoices/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
@@ -41,7 +47,13 @@ export class InvoicesController {
     const allInvoices: Invoice[] = [];
     const { facilityId, page, limit } = req.query;
 
-    const metaData: MetaData = { page: parseInt(page.toString()), limit: parseInt(page.toString()), totalRecords: 0, totalPages: 0, count: 12 };
+    const metaData: MetaData = {
+      page: Number.parseInt(page.toString()),
+      limit: Number.parseInt(limit.toString()),
+      totalRecords: 0,
+      totalPages: 0,
+      count: 12,
+    };
 
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
@@ -72,6 +84,11 @@ export class InvoicesController {
         const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
         if (res.data) {
           const { invoices, _meta } = res.data;
+          // Debugging for testing purposes only
+          // invoices[0].invoiceNumber = '811338193';
+          // invoices[0].invoiceName = '811338193.pdf';
+          // invoices[0].ocrNumber = '811338193';
+
           allInvoices.push(...invoices);
           metaData.totalRecords += _meta.totalRecords;
           metaData.totalPages += _meta.totalPages;

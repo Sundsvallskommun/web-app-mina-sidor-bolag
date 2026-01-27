@@ -19,7 +19,8 @@
     "fetch": "Hämta pdf",
     "fetching": "Hämtar pdf",
     "fetchInvoice": "Hämta faktura {{invoice}}",
-    "error": "Det gick inte att hämta filen."
+    "error": "Det gick inte att hämta filen.",
+    "openInBrowser": "Öppna i webbläsaren"
   },
   "card": {
     "amount": "Belopp: {{amount}} kr",

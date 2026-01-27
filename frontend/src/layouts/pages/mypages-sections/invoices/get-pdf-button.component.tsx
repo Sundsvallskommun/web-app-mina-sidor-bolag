@@ -1,65 +1,98 @@
 import { IInvoice } from '@interfaces/invoice';
 import { getInvoicePdf } from '@services/invoice-service';
-import { Button, Icon, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
+import { Button, Icon, Link, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { ArrowDownToLine } from 'lucide-react';
-import React from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePdfDownload } from '@utils/use-pdf-download.hook';
 
-export const GetPdfButton: React.FC<{
+interface DownloadPdfButtonProps {
   isLoading?: { [key: string]: boolean };
   setIsLoading?: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
   item: IInvoice;
-}> = ({ isLoading, setIsLoading, item }) => {
+}
+
+export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading, setIsLoading, item }) => {
   const message = useSnackbar();
   const { isMinDesktop } = useThemeQueries();
   const { t } = useTranslation('invoice');
 
-  const getPdf = (organizationNumber: string, invoiceNumber: string) => {
-    if (setIsLoading) {
-      setIsLoading((old) => {
-        const newObj = { ...old };
-        newObj[invoiceNumber] = true;
-        return newObj;
-      });
+  const showErrorMessage = useCallback(() => {
+    message({
+      message: t('invoice:pdf.error'),
+      status: 'error',
+    });
+  }, [message, t]);
+
+  const { downloadPdf, fallbackUrl, handleFallbackClick } = usePdfDownload({
+    onError: () => {
+      showErrorMessage();
+    },
+  });
+
+  const updateIsLoadingForInvoice = useCallback(
+    (invoiceNumber: string, value: boolean) => {
+      if (!setIsLoading) return;
+      setIsLoading((old) => ({
+        ...old,
+        [invoiceNumber]: value,
+      }));
+    },
+    [setIsLoading]
+  );
+
+  const handleButtonClick = useCallback(async () => {
+    if (!item.invoiceNumber || !item.organizationNumber) {
+      showErrorMessage();
+      return;
     }
-    getInvoicePdf(organizationNumber, invoiceNumber)
-      .then((d) => {
-        if (typeof d.error === 'undefined') {
-          const uri = `data:application/pdf;base64,${d.pdf.file}`;
-          const link = document.createElement('a');
-          link.href = uri;
-          link.setAttribute('download', `${invoiceNumber}.pdf`);
-          document.body.appendChild(link);
-          link.click();
-        } else {
-          message({
-            message: t('invoice:pdf.error'),
-            status: 'error',
-          });
-        }
-      })
-      .finally(() => {
-        if (setIsLoading) {
-          setIsLoading((old) => {
-            const newObj = { ...old };
-            newObj[invoiceNumber] = false;
-            return newObj;
-          });
-        }
-      });
-  };
+
+    updateIsLoadingForInvoice(item.invoiceNumber, true);
+
+    try {
+      const invoicePdfData = await getInvoicePdf(item.organizationNumber, item.invoiceNumber);
+
+      if (invoicePdfData.error !== undefined) {
+        throw new Error();
+      }
+
+      const fileName = item.invoiceName ?? invoicePdfData.pdf.fileName;
+      downloadPdf(invoicePdfData.pdf.file, fileName);
+    } catch {
+      showErrorMessage();
+    } finally {
+      updateIsLoadingForInvoice(item.invoiceNumber, false);
+    }
+  }, [item, updateIsLoadingForInvoice, showErrorMessage, downloadPdf]);
+
+  const invoiceKey = item.invoiceNumber;
 
   return (
-    <Button
-      aria-label={t('invoice:pdf.fetchInvoice', { invoice: item.invoiceDescription })}
-      size={isMinDesktop ? 'sm' : 'lg'}
-      variant="secondary"
-      loading={isLoading?.[item.invoiceNumber!]}
-      loadingText={t('invoice:pdf.fetching')}
-      onClick={() => getPdf(item.organizationNumber!, item.invoiceNumber!)}
-      rightIcon={<Icon icon={<ArrowDownToLine />} />}
-    >
-      {t('invoice:pdf.fetch')}
-    </Button>
+    <div className="flex flex-col gap-2">
+      <Button
+        aria-label={t('invoice:pdf.fetchInvoice', { invoice: item.invoiceDescription })}
+        size={isMinDesktop ? 'sm' : 'lg'}
+        variant="secondary"
+        loading={!!invoiceKey && isLoading?.[invoiceKey]}
+        loadingText={t('invoice:pdf.fetching')}
+        onClick={handleButtonClick}
+        rightIcon={<Icon icon={<ArrowDownToLine />} />}
+      >
+        {t('invoice:pdf.fetch')}
+      </Button>
+      {fallbackUrl && (
+        <Link
+          href={fallbackUrl}
+          target="_blank"
+          variant="tertiary"
+          rel="noopener noreferrer"
+          size={isMinDesktop ? 'sm' : 'lg'}
+          className="p-5"
+          onClick={handleFallbackClick}
+        >
+          {t('invoice:pdf.openInBrowser')}
+        </Link>
+      )}
+    </div>
   );
 };
