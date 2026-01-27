@@ -49,24 +49,24 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
   const handleFallbackClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      if (fallbackUrl) {
-        // Open window and keep reference
-        windowRef.current = window.open(fallbackUrl, '_blank');
+      if (!fallbackUrl) return;
 
-        // Poll to check if window is closed
-        intervalRef.current = setInterval(() => {
-          if (windowRef.current?.closed) {
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-              intervalRef.current = null;
-            }
-            // Clean up and hide link when window is closed
-            URL.revokeObjectURL(fallbackUrl);
-            setFallbackUrl(null);
-            windowRef.current = null;
-          }
-        }, 500);
-      }
+      // Open window and keep reference
+      windowRef.current = window.open(fallbackUrl, '_blank');
+
+      // Poll to check if window is closed
+      intervalRef.current = setInterval(() => {
+        if (windowRef.current && !windowRef.current.closed) return;
+
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        // Clean up and hide link when window is closed
+        URL.revokeObjectURL(fallbackUrl);
+        setFallbackUrl(null);
+        windowRef.current = null;
+      }, 500);
     },
     [fallbackUrl]
   );
