@@ -33,11 +33,10 @@ export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading,
   const updateIsLoadingForInvoice = useCallback(
     (invoiceNumber: string, value: boolean) => {
       if (!setIsLoading) return;
-      setIsLoading((old) => {
-        const newObj = { ...old };
-        newObj[invoiceNumber] = value;
-        return newObj;
-      });
+      setIsLoading((old) => ({
+        ...old,
+        [invoiceNumber]: value,
+      }));
     },
     [setIsLoading]
   );
