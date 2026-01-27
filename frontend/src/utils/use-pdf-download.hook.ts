@@ -18,7 +18,7 @@ interface UsePdfDownloadReturn {
 export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownloadReturn => {
   const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
   const windowRef = useRef<Window | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -27,7 +27,7 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
         URL.revokeObjectURL(fallbackUrl);
       }
       if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+        window.clearInterval(intervalRef.current);
       }
     };
   }, [fallbackUrl]);
@@ -55,11 +55,11 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
       windowRef.current = window.open(fallbackUrl, '_blank');
 
       // Poll to check if window is closed
-      intervalRef.current = setInterval(() => {
+      intervalRef.current = window.setInterval(() => {
         if (windowRef.current && !windowRef.current.closed) return;
 
         if (intervalRef.current) {
-          clearInterval(intervalRef.current);
+          window.clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
         // Clean up and hide link when window is closed
