@@ -34,6 +34,9 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
 
   const downloadPdf = useCallback(
     (base64Data: string, fileName: string) => {
+      if (fallbackUrl) {
+        URL.revokeObjectURL(fallbackUrl);
+      }
       try {
         const blob = base64ToBlob(base64Data, 'application/pdf');
         const url = URL.createObjectURL(blob);
@@ -43,7 +46,7 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
         onError();
       }
     },
-    [onError]
+    [onError, fallbackUrl]
   );
 
   const handleFallbackClick = useCallback(
