@@ -65,13 +65,16 @@ export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading,
       updateIsLoadingForInvoice(item.invoiceNumber, false);
     }
   }, [item, updateIsLoadingForInvoice, showErrorMessage, downloadPdf]);
+
+  const invoiceKey = item.invoiceNumber;
+
   return (
     <div className="flex flex-col gap-2">
       <Button
         aria-label={t('invoice:pdf.fetchInvoice', { invoice: item.invoiceDescription })}
         size={isMinDesktop ? 'sm' : 'lg'}
         variant="secondary"
-        loading={isLoading?.[item.invoiceNumber ?? '']}
+        loading={!!invoiceKey && isLoading?.[invoiceKey]}
         loadingText={t('invoice:pdf.fetching')}
         onClick={handleButtonClick}
         rightIcon={<Icon icon={<ArrowDownToLine />} />}
