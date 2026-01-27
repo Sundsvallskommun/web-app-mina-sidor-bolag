@@ -1,6 +1,6 @@
 import { IInvoice } from '@interfaces/invoice';
 import { getInvoicePdf } from '@services/invoice-service';
-import { Button, cx, Icon, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
+import { Button, Icon, Link, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { ArrowDownToLine } from 'lucide-react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -81,15 +81,17 @@ export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading,
         {t('invoice:pdf.fetch')}
       </Button>
       {fallbackUrl && (
-        <a
+        <Link
           href={fallbackUrl}
           target="_blank"
+          variant="tertiary"
           rel="noopener noreferrer"
-          className={cx(isMinDesktop ? 'text-label-small' : 'text-label-medium', 'p-5 text-blue-600 hover:underline')}
+          size={isMinDesktop ? 'sm' : 'lg'}
+          className="p-5"
           onClick={handleFallbackClick}
         >
           {t('invoice:pdf.openInBrowser')}
-        </a>
+        </Link>
       )}
     </div>
   );
