@@ -60,8 +60,16 @@ export const InvoicesTable = ({
 
   const getInvoiceAddress = useMemo(
     () =>
-      (facilityId: string): string => {
-        return userData?.addresses.find((address) => address.facilityIds.includes(facilityId))?.address ?? '';
+      (facilityIds: string[]): string => {
+        const uniqueAddresses = new Set(
+          facilityIds.map((id) => userData?.addresses.find((a) => a.facilityIds.includes(id))?.address).filter(Boolean)
+        );
+
+        if (uniqueAddresses.size === 0) {
+          return t('invoice:noAddressFound');
+        }
+
+        return Array.from(uniqueAddresses).join(', ');
       },
     [userData]
   );
@@ -124,7 +132,7 @@ export const InvoicesTable = ({
         className: 'max-w-[146px]',
         renderColumn: (_value, item) => (
           <div className="text-left text-small">
-            <span>{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
+            <span>{!!item.facilityIds && getInvoiceAddress(item.facilityIds)}</span>
           </div>
         ),
       },
