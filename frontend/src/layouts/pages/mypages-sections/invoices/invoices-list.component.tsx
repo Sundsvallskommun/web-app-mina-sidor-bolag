@@ -28,7 +28,7 @@ export const InvoicesList: React.FC<{
   const [activePage, setActivePage] = useState<number>(1);
   const previousActivePage = useRef<number>(-1);
   const previousFacilityIds = useRef<string[] | undefined>(undefined);
-  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
+  const previousRepresentingMode = useRef<RepresentingMode | undefined>(representingMode);
 
   const paginationChanged = activePage !== previousActivePage.current;
   const facilityIdsChanged = !isEqual(facilityIds, previousFacilityIds.current);
