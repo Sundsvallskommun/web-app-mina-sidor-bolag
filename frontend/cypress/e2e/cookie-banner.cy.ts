@@ -1,7 +1,11 @@
 import { CookieConsentUtils } from '@sk-web-gui/react';
+import { setIntercepts } from '../support/e2e';
+import { RepresentingMode } from '../../src/interfaces/app';
 
 describe('Kakor', () => {
   it('should render and close', () => {
+    setIntercepts(RepresentingMode.PRIVATE);
+
     Cypress.on('window:before:load', (window) => {
       window.document.cookie = `${CookieConsentUtils.defaultCookieConsentName}=`;
     });

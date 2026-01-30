@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import ConsumptionInformation from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-information.component';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
-import { useFormContext } from 'react-hook-form';
-import { Spinner, MenuBar, Button, Icon } from '@sk-web-gui/react';
 import { ConsumptionChart } from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-chart/consumption-chart.component';
-import { BarChart3Icon, TableIcon } from 'lucide-react';
+import ConsumptionInformation from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-information.component';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
+import { Spinner } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
+import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDarkMode } from 'usehooks-ts';
+import { ChartStyleSelector } from '../chart-style-selector.component';
 
 export interface ElectricityConsumptionProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -20,6 +21,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
   const [current, setCurrent] = useState<number>(0);
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
+  const { t } = useTranslation('statistics');
 
   return (
     <div>
@@ -64,31 +66,20 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                         stroke={isDarkMode ? '#FAE9E7' : '#600724'}
                       />
                     </svg>
-                    <p className="pl-8"> {getValues().year}</p>
+                    <p className="pl-8">{getValues().year}</p>
                   </div>
                 </div>
               )}
             </div>
 
-            <MenuBar className="md:w-auto w-full md:mt-0 mt-40" showBackground>
-              <MenuBar.Item className="md:w-auto w-full">
-                <Button className="md:w-auto w-full" onClick={() => setCurrent(0)} inverted={current === 0}>
-                  <Icon icon={<BarChart3Icon />} className="mr-8" /> Graf
-                </Button>
-              </MenuBar.Item>
-              <MenuBar.Item className="md:w-auto w-full">
-                <Button className="md:w-auto w-full" onClick={() => setCurrent(1)} inverted={current === 1}>
-                  <Icon icon={<TableIcon />} className="mr-8" /> Tabell
-                </Button>
-              </MenuBar.Item>
-            </MenuBar>
+            <ChartStyleSelector current={current} onChangeCurrent={setCurrent} />
           </div>
 
           {current === 0 ? <ConsumptionChart data={data} /> : <MeasurementDataTable data={data} isConsumption={true} />}
         </div>
       ) : (
         <div data-cy="empty-response-container" className="w-full text-center my-56">
-          <p className="font-bold">Det finns ingen data att visa för vald kategori och period</p>
+          <p className="font-bold">{t('statistics:noData')}</p>
         </div>
       )}
     </div>

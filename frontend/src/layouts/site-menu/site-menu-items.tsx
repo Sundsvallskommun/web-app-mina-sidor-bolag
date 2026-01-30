@@ -2,15 +2,17 @@
 
 import { useAppContext } from '@contexts/app.context';
 import { useCombinedBusinessEngagements } from '@services/organisation-service';
-import { Button, Icon, MenuBar, PopupMenu, Select, cx, useThemeQueries } from '@sk-web-gui/react';
-import { ArrowRight, ChevronDownCircle, LogOut } from 'lucide-react';
+import { Button, Icon, NavigationBar, PopupMenu, Select, cx, useThemeQueries } from '@sk-web-gui/react';
+import { ArrowRight, ChevronDownCircle } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { RepresentingEntity, RepresentingEntityDto, RepresentingMode } from '../../interfaces/app';
 import { useApi, useApiService } from '../../services/api-service';
 import { getRepresentingModeRoute, newRepresentingModePathname } from '../../utils/representingModeRoute';
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { RepresentingEntity, RepresentsDto } from '@data-contracts/backend/data-contracts';
+import { RepresentingMode } from '@interfaces/app';
 
 export const useRepresentingSwitch = () => {
   const queryClient = useApiService((s) => s.queryClient);
@@ -24,7 +26,7 @@ export const useRepresentingSwitch = () => {
     queryClient.invalidateQueries();
   };
 
-  const setRepresenting = async (representingDto: RepresentingEntityDto) => {
+  const setRepresenting = async (representingDto: RepresentsDto) => {
     queryClient.cancelQueries();
     try {
       const res = await representingMutation.mutateAsync(representingDto);
@@ -48,16 +50,21 @@ export const useRepresentingSwitch = () => {
 export const MyPagesToggle = () => {
   const { representingMode } = useAppContext();
   const pathname = usePathname();
+  const { t } = useTranslation('common');
 
   return (
-    <MenuBar showBackground current={representingMode === 1 ? 0 : 1}>
-      <MenuBar.Item menuIndex={RepresentingMode.BUSINESS}>
-        <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>Organisation</NextLink>
-      </MenuBar.Item>
-      <MenuBar.Item menuIndex={RepresentingMode.PRIVATE}>
-        <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>Privat</NextLink>
-      </MenuBar.Item>
-    </MenuBar>
+    <NavigationBar showBackground current={representingMode === 1 ? 0 : 1}>
+      <NavigationBar.Item data-cy="representing-business-menu-item" menuIndex={RepresentingMode.BUSINESS}>
+        <NextLink href={`${newRepresentingModePathname(RepresentingMode.BUSINESS, pathname)}`}>
+          {t('common:organization')}
+        </NextLink>
+      </NavigationBar.Item>
+      <NavigationBar.Item data-cy="representing-private-menu-item" menuIndex={RepresentingMode.PRIVATE}>
+        <NextLink href={`${newRepresentingModePathname(RepresentingMode.PRIVATE, pathname)}`}>
+          {t('common:private')}
+        </NextLink>
+      </NavigationBar.Item>
+    </NavigationBar>
   );
 };
 
@@ -70,6 +77,7 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
     method: 'get',
   });
   const { isMinDesktop } = useThemeQueries();
+  const { t } = useTranslation('common');
 
   const setEngagement = async (value?: string) => {
     const res = (await setRepresenting({ organizationNumber: value })) as RepresentingEntity;
@@ -88,10 +96,12 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
             <PopupMenu.Button
               variant="secondary"
               className="bg-transparent"
-              aria-label={`Byt organisation, nuvarande: ${representingEntity?.BUSINESS?.organizationName}`}
+              aria-label={t('common:switchOrganizationAriaLabel', {
+                current: representingEntity?.BUSINESS?.organizationName,
+              })}
               rightIcon={<Icon icon={<ChevronDownCircle />} />}
             >
-              Byt organisation
+              {t('common:switchOrganization')}
             </PopupMenu.Button>
             <PopupMenu.Panel className="z-50">
               <PopupMenu.Items>
@@ -99,10 +109,12 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
                   <PopupMenu.Item key={`${index}`}>
                     <Button
                       rightIcon={<Icon icon={<ArrowRight />} />}
-                      onClick={() => setEngagement(engagement?.organizationNumber)}
+                      onClick={() => setEngagement(engagement?.organizationNumber as string)}
                     >
-                      <span className="font-bold">{engagement.organizationName}</span>
-                      {engagement.isRepresentative ? <span className="ml-[.5em]">(ombud)</span> : null}
+                      <span className="font-bold">{engagement.name}</span>
+                      {engagement.isRepresentative ? (
+                        <span className="ml-[.5em]">{t('common:isRepresentative')}</span>
+                      ) : null}
                     </Button>
                   </PopupMenu.Item>
                 ))}
@@ -111,15 +123,18 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
           </PopupMenu>
         ) : (
           <>
-            <div className="w-full mb-4">Byt organisation</div>
+            <div className="w-full mb-4">{t('common:switchOrganization')}</div>
             <Select
               value={representingEntity?.BUSINESS?.organizationNumber}
               className="w-full"
               onSelectValue={(organizationNumber) => setEngagement(organizationNumber)}
             >
-              {engagements?.map((engagement, index) => (
-                <Select.Option key={`${index}`} value={engagement.organizationNumber}>
-                  {engagement.organizationName}
+              {engagements?.map((engagement) => (
+                <Select.Option
+                  key={`${engagement.name}-${engagement.organizationNumber}`}
+                  value={engagement.organizationNumber as string}
+                >
+                  {engagement.name}
                   {engagement.isRepresentative ? ` (ombud)` : null}
                 </Select.Option>
               ))}
@@ -129,20 +144,4 @@ export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = 
       </div>
     </label>
   );
-};
-
-export const useSiteMenuItems = () => {
-  const router = useRouter();
-
-  return [
-    <Button
-      key={`site-menu-items-0`}
-      onClick={() => router.push('/logout')}
-      showBackground={false}
-      variant="tertiary"
-      leftIcon={<Icon icon={<LogOut />} />}
-    >
-      Logga ut
-    </Button>,
-  ];
 };

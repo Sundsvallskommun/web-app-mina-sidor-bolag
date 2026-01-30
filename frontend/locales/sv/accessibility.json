@@ -1,0 +1,20 @@
+{
+  "title": "Tillgänglighet",
+  "pageLink": "/om-webbplatsen/tillganglighet",
+  "description": "Här hittar du tillgänglighetsredogörelsen för Stadsbackens Mina sidor.",
+  "subTitle": "Tillgänglighet för minasidor.stadsbacken.se",
+  "subDescription": "Tillgänglighetsredogörelsen beskriver hur minasidor.stadsbacken.se uppfyller lagen om tillgänglighet till digital offentlig service, eventuella kända tillgänglighetsproblem och hur du kan rapportera brister till oss så att vi kan åtgärda dem.",
+  "publishDate": "Webbplatsen offentliggjordes den 25 juni 2025.",
+  "howAccessible": "Hur tillgänglig är webbplatsen?",
+  "howAccessibleDescription": "Vi är medvetna om att delar av webbplatsen inte är helt tillgängliga. Bristerna åtgärdas löpande och ambitionen är att ha åtgärdat de viktigaste kända tillgänglighetsproblem senast den 31 december 2025.",
+  "reportTitle": "Rapportera brister i webbplatsens tillgänglighet",
+  "reportDescription": "Om du upptäcker problem som inte är beskrivna på den här sidan, eller om du anser att vi inte uppfyller lagens krav, <Link external href=\"https://minasidor.stadsbacken.se/oversikt/flow/225\"> lämna synpunkt här </Link> så att vi får veta att problemet finns.",
+  "reportDescriptionUrl": "https://minasidor.stadsbacken.se/oversikt/flow/225",
+  "digitalReportContactTitle": "Du kan också kontakta oss om digital tillgänglighet via:",
+  "digitalReportContactLink": "E-post: <Link href=\"mailto:minasidor@stadsbacken.se\">minasidor@stadsbacken.se</Link>",
+  "digitalReportContactUrl": "mailto:minasidor@stadsbacken.se",
+  "oversight": "Tillsyn",
+  "oversightDescription": "Myndigheten för digital förvaltning har ansvaret för tillsyn över lagen om tillgänglighet till digital offentlig service.",
+  "oversightLink": "Om du inte är nöjd med hur vi hanterar ditt påpekande om bristande webbtillgänglighet eller din begäran om tillgängliggörande av innehåll kan du <Link external href=\"https://www.digg.se/tdosanmalan\"> anmäla till Myndigheten för digital förvaltning</Link>.",
+  "oversightUrl": "https://www.digg.se/tdosanmalan"
+}

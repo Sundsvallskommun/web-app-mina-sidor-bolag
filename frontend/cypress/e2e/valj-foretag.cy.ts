@@ -1,8 +1,10 @@
 import { RepresentingMode } from '@interfaces/app';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
+import { setIntercepts } from '../support/e2e';
 
 describe('Valj företag', () => {
   beforeEach(() => {
+    setIntercepts(RepresentingMode.PRIVATE);
     cy.intercept(
       'GET',
       '**/api/representing',
@@ -15,6 +17,8 @@ describe('Valj företag', () => {
     cy.get('h1').should('exist');
   });
   it('choosing a businessengagement should redirect', () => {
+    setIntercepts(RepresentingMode.BUSINESS);
+
     cy.contains('Styrbjörns båtar').click();
     cy.contains('button', 'Fortsätt').click();
     cy.url().should('include', '/foretag/oversikt');

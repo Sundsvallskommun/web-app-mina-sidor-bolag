@@ -97,14 +97,21 @@ class ApiService {
           logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
           logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
           logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data?.slice(0, 1500)}`);
+          logger.error(`Error data: ${error.response.config.data}`);
           logger.error(`Error method: ${error.response.config.method}`);
           throw new HttpException(404, 'Not found');
+        } else if (axios.isAxiosError(error) && error.response?.status === 409) {
+          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
+          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
+          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
+          logger.error(`Error data: ${error.response.config.data}`);
+          logger.error(`Error method: ${error.response.config.method}`);
+          throw new HttpException(409, 'Duplicate');
         } else if (axios.isAxiosError(error) && (error as AxiosError).response?.data) {
           logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
           logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
           logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data?.slice(0, 1500)}`);
+          logger.error(`Error data: ${error.response.config.data}`);
           logger.error(`Error method: ${error.response.config.method}`);
           throw new HttpException(error.response.status ?? 500, 'API request failed');
         } else {

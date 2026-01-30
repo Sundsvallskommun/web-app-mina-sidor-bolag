@@ -1,8 +1,28 @@
 {
   "5564786647": {
+    "name": "Sundsvall Energi",
+    "url": "https://sundsvallenergi.se/",
+    "phone": "Telefon: <Link href=\"tel:060192200\">060-19 22 00</Link>",
+    "phoneNumber": "tel:060192200",
+    "email": "Mail: <Link href=\"mailto:kundservice@sundsvallenergi.se\">kundservice@sundsvallenergi.se</Link>",
+    "emailAddress": "mailto:kundservice@sundsvallenergi.se",
+    "about": "<Link href=\"https://sundsvallenergi.se/om-oss\">Om Sundsvall Energi</Link>",
+    "aboutUrl": "https://sundsvallenergi.se/om-oss",
+    "personalData": "<Link href=\"https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy\">Personuppgifter Sundsvall Energi</Link>",
+    "personalDataUrl": "https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy",
     "logo_alt": "Sundsvall energis logotyp"
   },
   "5565027223": {
+    "name": "Sundsvall Elnät",
+    "url": "https://sundsvallelnat.se/",
+    "phoneNumber": "tel:+46606005020",
+    "phone": "Telefon: <Link href=\"tel:+46606005020\">060-600 50 20</Link>",
+    "emailAddress": "mailto:info@sundsvallelnat.se",
+    "email": "Mail: <Link href=\"mailto:info@sundsvallelnat.se\">info@sundsvallelnat.se</Link>",
+    "about": "<Link href=\"https://sundsvallelnat.se/om-oss/det-har-gor-vi\">Om Sundsvall Elnät</Link>",
+    "aboutUrl": "https://sundsvallelnat.se/om-oss/det-har-gor-vi",
+    "personalData": "<Link href=\"https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter\">Personuppgifter Sundsvall Elnät</Link>",
+    "personalDataUrl": "https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter",
     "logo_alt": "Sundsvall elnäts logotyp"
   }
 }

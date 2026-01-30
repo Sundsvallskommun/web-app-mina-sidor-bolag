@@ -1,0 +1,117 @@
+{
+  "title": "Din profil och inställningar",
+  "save": "Spara",
+  "cancel": "Avbryt",
+  "edit": "Redigera",
+  "add": "Lägg till",
+  "remove": "Ta bort",
+  "noAlias": "Inget alias tillagt",
+  "name": "Namn",
+  "noName": "Inget namn tillagt",
+  "noAddress": "Ingen adress tillagd",
+  "validDuration": "Giltighetstid",
+  "validDurationInformation": "Välj start- och slutdatum. Fullmakten kan gälla i högst 36 månader.",
+  "phone": "Mobilnummer",
+  "editPhone": "Ändra mobilnummer",
+  "noPhone": "Inget mobilnummer tillagt",
+  "email": "E-postadress",
+  "noEmail": "Ingen e-postadress tillagd",
+  "editEmail": "Ändra e-postadress",
+  "personNumber": "Personnummer",
+  "personNumberLayout": "ååååmmddxxxx",
+  "invalidPersonNumber": "Ogiltigt personnummer",
+  "addPersonNumber": "Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).",
+  "error": {
+    "save": "Det gick inte att spara uppgifterna.",
+    "requiredOption": "Minst ett alternativ måste väljas."
+  },
+  "success": {
+    "save": "Uppgifterna sparades."
+  },
+  "contactSetting": {
+    "title": "Kontaktuppgifter",
+    "description": "Uppdatera dina kontaktuppgifter så att vi kan nå dig.",
+    "information": "Vi hämtar namn och adress från Skatteverket. Stämmer inte uppgifterna kan du ändra dem på <Link href=\\\"https://www.skatteverket.se/\\\">Skatteverkets hemsida</Link>",
+    "taxAgencyUrl": "https://www.skatteverket.se/"
+  },
+  "delegates": {
+    "title": "Behörigheter",
+    "description": "Hantera dina behörigheter för Mina sidor.",
+    "information": "Du kan ge en person behörighet till dina avtal och dokument. Kom ihåg att du själv måste ta bort behörigheten om personen inte längre ska kunna se eller göra ändringar i avtalen.",
+    "subTitle": "Tillagda behörigheter",
+    "add": "Lägg till behörighet",
+    "edit": "Redigera behörighet",
+    "remove": {
+      "title": "Ta bort behörighet",
+      "message": "Vill du ta bort denna behörighet?",
+      "success": "Behörigheten togs bort."
+    },
+    "conflictError": "Du kan inte delegera dig själv.",
+    "eligibleForFacility": "Behörig för anläggning: "
+  },
+  "mandates": {
+    "title": "Fullmakter",
+    "description": "Hantera dina fullmakter för Mina sidor.",
+    "information": "Du kan ge en person behörighet till dina avtal och dokument. Kom ihåg att du själv måste ta bort behörigheten om personen inte längre ska kunna se eller göra ändringar i avtalen.",
+    "bullets": {
+      "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Mina sidor, men inte ge ut fullmakt till någon annan.",
+      "2": "Personen måste ha ett svenskt personnummer.",
+      "3": "Du ansvarar själv för att ta bort behörigheten när den inte längre behövs.",
+      "4": "Sundsvall Energi och Sundsvall Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
+    },
+    "create_information": "Skapa en ny fullmakt för en person som du vill ska representera ditt företag. Fullmakten gäller endast på Sundsvall Energis och Sundsvall Elnäts Mina sidor.",
+    "properties": {
+      "grantee": "Fullmaktshavare",
+      "activeFrom": "Gäller från och med",
+      "inactiveAfter": "Gäller till och med",
+      "agree": "Jag har läst och godkänner villkoren",
+      "status": {
+        "ACTIVE": "Aktiv",
+        "EXPIRED": "Löpt ut",
+        "DELETED": "Borttagen",
+        "INACTIVE": "Inaktiv"
+      }
+    },
+    "success": {
+      "save": "Fullmakt signerad och skapad!",
+      "delete": "Fullmakten togs bort"
+    },
+    "errors": {
+      "409": "En fullmakt är redan utställd på den personen",
+      "500": "Ett okänt fel uppstod. Försök igen.",
+      "save": "Kunde inte skapa fullmakt",
+      "delete": "Kunde inte ta bort fullmakt",
+      "grantee": "Fyll i en fullmaktshavare.",
+      "activeFrom": "Ange ett startdatum.",
+      "inactiveAfter": {
+        "tooBig": "Fullmakten får ej gälla längre än 3 år",
+        "tooSmall": "Fullmakten måste sluta gälla senare än startdatum"
+      },
+      "agree": "Godkänn villkoren."
+    },
+    "agreement": {
+      "bullets": {
+        "1": "Med en fullmakt kan ombudet hantera dina ärenden och ta del av dina dokument på Sundsvall Energis och Sundsvall Elnäts Mina sidor.",
+        "2": "Du ansvarar själv för att ta bort behörigheten när den inte längre behövs.",
+        "3": "Sundsvall Energi och Sundsvall Elnät ansvarar inte för eventuell skada som ditt ombud orsakar."
+      },
+      "bankid": {
+        "title": "Signera fullmakt",
+        "information": "Jag godkänner härmed följande fullmakt till *Mina sidor* för *Sundsvall Energi* och *Sundsvall Elnät*.\n\n| | |\n|-|-|\n| *Företag*: | {{org}} |\n| *Fullmaktstagare:* | {{name}} |\n| *Startdatum:* | {{startdate}} |\n| *Slutdatum:* | {{enddate}} |\n"
+      }
+    }
+  },
+  "mandates.create_new": "Skapa ny fullmakt",
+  "signWithBankId": "Signera med BankID",
+  "autoclose": "Den här rutan kommer stänga automatiskt om",
+  "mandates.signedBy": "Signerad av {{name}} {{date}}",
+  "mandates.validUntil": "Giltighetstid",
+  "mandates.activeMandates": "Aktuella fullmakter",
+  "mandates.activeMandatesDescription": "Här ser du företagets aktuella fullmakter. Du kan när som ta bort fullmakten.",
+  "mandates.inactiveMandates": "Avslutade fullmakter",
+  "mandates.inactiveMandatesDescription": "Här ser du fullmakter som företaget har haft.",
+  "mandates.deleteMandate": "Ta bort fullmakt",
+  "mandates.deleteMandateFor": "Ta bort fullmakt för {{name}}",
+  "mandates.deleteMandateInfo": "Om du tar bort fullmakten har {{name}} inte längre behörighet att företräda företaget på Mina sidor.",
+  "mandates.noMandates": "Inga fullmakter funna"
+}

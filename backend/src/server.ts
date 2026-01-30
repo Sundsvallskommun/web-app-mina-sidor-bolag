@@ -1,6 +1,5 @@
 import App from '@/app';
 import { BusinessEngagementController } from '@controllers/business-engagement.controller';
-import { FeedbackController } from '@controllers/feedback.controller';
 import { IndexController } from '@controllers/index.controller';
 import { NotificationsController } from '@controllers/notifications.controller';
 import { RepresentingController } from '@controllers/representing.controller';
@@ -14,6 +13,11 @@ import { MeasurementDataController } from '@controllers/measurement-data.control
 import { DelegateController } from './controllers/delegate.controller';
 import { NetOwnerController } from './controllers/netowner.controller';
 import { FacilityDelegationController } from '@controllers/facility-delegation.controller';
+import { SignController } from './controllers/sign.controller';
+import { MandateController } from './controllers/mandate.controller';
+import { CitizenController } from './controllers/citizen.controller';
+import EventLogController from '@controllers/event-log.controller';
+import { BFUSController } from './controllers/bfus.controller';
 
 validateEnv();
 
@@ -23,7 +27,6 @@ const app = new App([
   RepresentingController,
   UserController,
   NotificationsController,
-  FeedbackController,
   InvoicesController,
   HealthController,
   ContactSettingsController,
@@ -32,6 +35,11 @@ const app = new App([
   DelegateController,
   NetOwnerController,
   FacilityDelegationController,
+  SignController,
+  MandateController,
+  CitizenController,
+  EventLogController,
+  BFUSController,
 ]);
 
 app.listen();

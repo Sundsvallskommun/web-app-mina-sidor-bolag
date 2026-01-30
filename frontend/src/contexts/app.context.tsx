@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useState } from 'react';
-import { RepresentingMode } from '../interfaces/app';
 import { useRepresentingSwitch } from '../layouts/site-menu/site-menu-items';
 import { appURL } from '../utils/app-url';
 import {
@@ -11,6 +10,7 @@ import {
   isPrivateMode,
   newRepresentingModePathname,
 } from '../utils/representingModeRoute';
+import { RepresentingMode } from '@interfaces/app';
 
 export interface AppContextStates {
   representingMode: RepresentingMode;

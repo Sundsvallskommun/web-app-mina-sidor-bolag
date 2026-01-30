@@ -7,9 +7,11 @@ import { Logotypes } from '@components/logotypes/logotypes.component';
 import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { useApi } from '@services/api-service';
 import React, { useMemo } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
+  const { t } = useTranslation(['common', 'layout', 'organization', 'cookies']);
 
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
@@ -49,7 +51,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         className="sr-only focus:not-sr-only bg-primary-light border-2 border-black p-4 text-black inline-block focus:absolute focus:top-0 focus:left-0 focus:right-0 focus:m-auto focus:w-80 text-center"
         href="#content"
       >
-        Hoppa till innehåll
+        {t('layout:goToContent')}
       </NextLink>
 
       <div className="root-container">
@@ -61,102 +63,124 @@ export function Layout({ title, children }: { title: string; children: React.Rea
             </Footer.LogoWrapper>
             <Footer.ListWrapper className="desktop:ml-80 gap-x-80 [&_.sk-footer-list-item]:w-full">
               <Footer.List>
-                <Footer.ListItem className="text-label-medium">Kontakt</Footer.ListItem>
+                <Footer.ListItem className="text-label-medium">{t('layout:contact')}</Footer.ListItem>
+                <Footer.ListItem className="font-bold">{t('organization:5564786647.name')}</Footer.ListItem>
+                <Footer.ListItem>
+                  <Trans
+                    i18nKey="organization:5564786647.phone"
+                    components={{
+                      Link: <NextLink href={t('organization:5564786647.phoneNumber')} variant="tertiary" />,
+                    }}
+                  />
+                </Footer.ListItem>
+                <Footer.ListItem>
+                  <Trans
+                    i18nKey="organization:5564786647.email"
+                    components={{
+                      Link: <NextLink href={t('organization:5564786647.emailAddress')} variant="tertiary" />,
+                    }}
+                  />
+                </Footer.ListItem>
 
-                <Footer.ListItem className="font-bold">Sundsvall Energi</Footer.ListItem>
+                <Footer.ListItem className="font-bold">{t('organization:5565027223.name')}</Footer.ListItem>
                 <Footer.ListItem>
-                  Telefon:
-                  <NextLink variant="tertiary" href={'tel:060192200'}>
-                    060-19 22 00
-                  </NextLink>
+                  <Trans
+                    i18nKey="organization:5565027223.phone"
+                    components={{
+                      Link: <NextLink href={t('organization:5565027223.phoneNumber')} variant="tertiary" />,
+                    }}
+                  />
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  Mail:
-                  <NextLink variant="tertiary" href={'mailto:kundservice@sundsvallenergi.se'}>
-                    kundservice@sundsvallenergi.se
-                  </NextLink>
-                </Footer.ListItem>
-
-                <Footer.ListItem className="font-bold">Sundsvall Elnät</Footer.ListItem>
-                <Footer.ListItem>
-                  Telefon:
-                  <NextLink variant="tertiary" href={'tel:+46606005020'}>
-                    060-600 50 20
-                  </NextLink>
-                </Footer.ListItem>
-                <Footer.ListItem>
-                  Mail:
-                  <NextLink variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
-                    info@sundsvallelnat.se
-                  </NextLink>
+                  <Trans
+                    i18nKey="organization:5565027223.email"
+                    components={{
+                      Link: <NextLink href={t('organization:5565027223.emailAddress')} variant="tertiary" />,
+                    }}
+                  />
                 </Footer.ListItem>
               </Footer.List>
 
               <Footer.List>
-                <Footer.ListItem className="text-label-medium">Om bolagen</Footer.ListItem>
+                <Footer.ListItem className="text-label-medium"> {t('layout:about')}</Footer.ListItem>
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
-                    <NextLink variant="tertiary" external href={'https://sundsvallenergi.se/om-oss'}>
-                      Om Sundsvall Energi
-                    </NextLink>
+                    <Trans
+                      i18nKey="organization:5564786647.about"
+                      components={{
+                        Link: <NextLink href={t('organization:5564786647.aboutUrl')} variant="tertiary" external />,
+                      }}
+                    />
                   </Footer.ListItem>
                 )}
                 {customerEngagements.includes('5565027223') && (
                   <Footer.ListItem>
-                    <NextLink variant="tertiary" external href={'https://sundsvallelnat.se/om-oss/det-har-gor-vi'}>
-                      Om Sundsvall Elnät
-                    </NextLink>
+                    <Trans
+                      i18nKey="organization:5565027223.about"
+                      components={{
+                        Link: <NextLink href={t('organization:5565027223.aboutUrl')} variant="tertiary" external />,
+                      }}
+                    />
                   </Footer.ListItem>
                 )}
                 <Footer.ListItem>
-                  <NextLink
-                    variant="tertiary"
-                    external
-                    href={
-                      'https://sundsvall.se/kommun-och-politik/politik-och-demokrati/moten-och-protokoll/bolag-och-forbund/stadsbacken-ab'
-                    }
-                  >
-                    Om Stadsbacken
-                  </NextLink>
+                  <Trans
+                    i18nKey="common:stadsbacken.about"
+                    components={{
+                      Link: <NextLink href={t('common:stadsbacken.aboutUrl')} variant="tertiary" external />,
+                    }}
+                  />
                 </Footer.ListItem>
               </Footer.List>
               <Footer.List>
-                <Footer.ListItem className="text-label-medium">Om innehållet</Footer.ListItem>
+                <Footer.ListItem className="text-label-medium">{t('layout:aboutContent')}</Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink variant="tertiary" href={'/om-webbplatsen'}>
-                    Om webbplatsen
-                  </NextLink>
+                  <Trans
+                    i18nKey="layout:aboutWeb"
+                    components={{
+                      Link: <NextLink href={t('layout:aboutWebUrl')} variant="tertiary" />,
+                    }}
+                  />
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink variant="tertiary" href={'/om-webbplatsen/kakor'}>
-                    Kakor (Cookies)
-                  </NextLink>
+                  <Trans
+                    i18nKey="layout:aboutCookies"
+                    components={{
+                      Link: <NextLink href={t('layout:aboutCookiesUrl')} variant="tertiary" />,
+                    }}
+                  />
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <NextLink variant="tertiary" href={'/om-webbplatsen/tillganglighet'}>
-                    Tillgänglighet
-                  </NextLink>
+                  <Trans
+                    i18nKey="layout:aboutAccessibility"
+                    components={{
+                      Link: <NextLink href={t('layout:aboutAccessibilityUrl')} variant="tertiary" />,
+                    }}
+                  />
                 </Footer.ListItem>
+
                 {customerEngagements.includes('5564786647') && (
                   <Footer.ListItem>
-                    <NextLink
-                      variant="tertiary"
-                      external
-                      href={'https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy'}
-                    >
-                      Personuppgifter Sundsvall Energi
-                    </NextLink>
+                    <Trans
+                      i18nKey="organization:5564786647.personalData"
+                      components={{
+                        Link: (
+                          <NextLink href={t('organization:5564786647.personalDataUrl')} variant="tertiary" external />
+                        ),
+                      }}
+                    />
                   </Footer.ListItem>
                 )}
                 {customerEngagements.includes('5565027223') && (
                   <Footer.ListItem>
-                    <NextLink
-                      variant="tertiary"
-                      external
-                      href={'https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter'}
-                    >
-                      Personuppgifter Sundsvall Elnät
-                    </NextLink>
+                    <Trans
+                      i18nKey="organization:5565027223.personalData"
+                      components={{
+                        Link: (
+                          <NextLink href={t('organization:5565027223.personalDataUrl')} variant="tertiary" external />
+                        ),
+                      }}
+                    />
                   </Footer.ListItem>
                 )}
               </Footer.List>
@@ -166,29 +190,29 @@ export function Layout({ title, children }: { title: string; children: React.Rea
       </div>
 
       <CookieConsent
-        title="Kakor på minasidor.stadsbacken.se"
+        title={t('cookies:consent.title')}
         body={
           <p>
-            Vi använder kakor, cookies, för att ge dig en förbättrad upplevelse, sammanställa statistik och för att viss
-            nödvändig funktionalitet ska fungera på webbplatsen.{' '}
-            <NextLink href="/om-webbplatsen/kakor" variant="tertiary">
-              Läs mer om hur vi använder kakor
-            </NextLink>
+            {t('cookies:consent.body')}
+            <Trans
+              i18nKey="cookies:consent.readMore"
+              components={{
+                Link: <NextLink href={t('cookies:consent.readMoreUrl')} variant="tertiary" />,
+              }}
+            />
           </p>
         }
         cookies={[
           {
             optional: false,
-            displayName: 'Nödvändiga kakor',
-            description:
-              'Dessa kakor är nödvändiga för att webbplatsen ska fungera och kan inte stängas av i våra system.',
+            displayName: t('cookies:consent.necessary.title'),
+            description: t('cookies:consent.necessary.description'),
             cookieName: 'necessary',
           },
           {
             optional: true,
-            displayName: 'Kakor för statistik',
-            description:
-              'Dessa kakor tillåter oss att räkna besök och trafikkällor, så att vi kan mäta och förbättra prestanda på vår webbplats.',
+            displayName: t('cookies:consent.statistics.title'),
+            description: t('cookies:consent.statistics.description'),
             cookieName: 'stats',
           },
         ]}

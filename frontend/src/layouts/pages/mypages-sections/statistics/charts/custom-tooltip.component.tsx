@@ -4,7 +4,7 @@ import { Aggregation, Months } from '@interfaces/measurement-data';
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: { value: number; payload: { previousValue?: number } }[];
+  payload?: { value: number; payload: { previousValue?: number }; name: string }[];
   label?: keyof typeof Months;
   fromDate: string;
   year?: number;
@@ -49,16 +49,25 @@ export default function CustomTooltip({
     return (
       <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
         {formatDate()}
-        <p>
-          <strong>{dayjs(fromDate).format('YYYY')}:</strong> {formatted(payload[0].value)}{' '}
-          {isConsumption ? 'kWh' : 'ºC'}
-        </p>
-        {year && payload[1]?.payload?.previousValue ? (
+
+        {payload[0]?.name === 'value' && (
           <p>
-            <strong>{year}:</strong> {formatted(payload[1]?.payload?.previousValue ?? '')}{' '}
+            <strong>{dayjs(fromDate).format('YYYY')}:</strong> {formatted(payload[0].value)}{' '}
             {isConsumption ? 'kWh' : 'ºC'}
           </p>
-        ) : null}
+        )}
+
+        {year && payload[0]?.name === 'previousValue' && (
+          <p>
+            <strong>{year}:</strong> {formatted(payload[0]?.payload?.previousValue ?? 0)} {isConsumption ? 'kWh' : 'ºC'}
+          </p>
+        )}
+
+        {year && payload[1]?.name === 'previousValue' && (
+          <p>
+            <strong>{year}:</strong> {formatted(payload[1]?.payload?.previousValue ?? 0)} {isConsumption ? 'kWh' : 'ºC'}
+          </p>
+        )}
       </div>
     );
   }

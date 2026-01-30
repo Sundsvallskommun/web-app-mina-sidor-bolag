@@ -2,6 +2,8 @@ import { IInvoice } from '@interfaces/invoice';
 import { getInvoicePdf } from '@services/invoice-service';
 import { Button, Icon, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { ArrowDownToLine } from 'lucide-react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const GetPdfButton: React.FC<{
   isLoading?: { [key: string]: boolean };
@@ -10,6 +12,7 @@ export const GetPdfButton: React.FC<{
 }> = ({ isLoading, setIsLoading, item }) => {
   const message = useSnackbar();
   const { isMinDesktop } = useThemeQueries();
+  const { t } = useTranslation('invoice');
 
   const getPdf = (organizationNumber: string, invoiceNumber: string) => {
     if (setIsLoading) {
@@ -30,7 +33,7 @@ export const GetPdfButton: React.FC<{
           link.click();
         } else {
           message({
-            message: 'Det gick inte att hämta filen.',
+            message: t('invoice:pdf.error'),
             status: 'error',
           });
         }
@@ -48,15 +51,15 @@ export const GetPdfButton: React.FC<{
 
   return (
     <Button
-      aria-label={`Hämta faktura ${item.invoiceDescription}`}
+      aria-label={t('invoice:pdf.fetchInvoice', { invoice: item.invoiceDescription })}
       size={isMinDesktop ? 'sm' : 'lg'}
       variant="secondary"
       loading={isLoading?.[item.invoiceNumber!]}
-      loadingText="Hämtar"
+      loadingText={t('invoice:pdf.fetching')}
       onClick={() => getPdf(item.organizationNumber!, item.invoiceNumber!)}
       rightIcon={<Icon icon={<ArrowDownToLine />} />}
     >
-      Hämta pdf
+      {t('invoice:pdf.fetch')}
     </Button>
   );
 };

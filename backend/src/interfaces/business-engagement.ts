@@ -1,5 +1,6 @@
-import { BusinessInformation } from '@/data-contracts/businessengagements/data-contracts';
+import { LegalEntity2 } from '@/data-contracts/legalentity/data-contracts';
 
-export interface ClientBusinessInformation {
-  companyLocation?: BusinessInformation['companyLocation'];
+export type ClientBusinessInformation = Pick<LegalEntity2, 'address'>;
+export interface BusinessInformation extends ClientBusinessInformation {
+  partyId: string;
 }

@@ -1,5 +1,5 @@
+import { ClientContactSetting } from '@data-contracts/backend/data-contracts';
 import { RepresentingMode } from '@interfaces/app';
-import { ClientContactSetting } from '@interfaces/contactsettings';
 import { ApiResponse } from '@services/api-service';
 import { representingModeDefault } from 'cypress/support/e2e';
 
@@ -7,7 +7,7 @@ export const getContactSettings: (representingMode: RepresentingMode) => ApiResp
   representingMode = representingModeDefault
 ) => ({
   data: {
-    name: `name-${RepresentingMode[representingMode]}`,
+    name: `name-${representingMode}`,
     email: 'test@example.com',
     phone: '+46701740605',
     address: {
@@ -37,8 +37,8 @@ export const patchContactSettings: () => ApiResponse<ClientContactSetting> = () 
     virtual: false,
     alias: 'default',
     notifications: {
-      email_disabled: true,
-      phone_disabled: true,
+      email_enabled: true,
+      phone_enabled: true,
     },
     decicionsAndDocuments: {
       digitalInbox: true,

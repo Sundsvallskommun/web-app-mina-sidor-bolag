@@ -4,7 +4,7 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import { User } from '@interfaces/user';
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import { useApi } from '@services/api-service';
-import { Button, FormLabel, MenuBar, Select } from '@sk-web-gui/react';
+import { Button, FormLabel, NavigationBar, Select } from '@sk-web-gui/react';
 import dayjs, { Dayjs } from 'dayjs';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -13,6 +13,7 @@ import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
+import { useTranslation } from 'react-i18next';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
@@ -21,6 +22,7 @@ export interface StatisticsFilterProps {
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const searchParams = useSearchParams();
   const linkedFacilityId = searchParams?.get('installation');
+  const { t } = useTranslation(['common', 'statistics']);
 
   const { closeHandler } = props;
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
@@ -114,7 +116,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
       <section className="lg:flex lg:justify-between block gap-48 lg:pt-0 pt-24" data-cy="statistics-filter">
         <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-2/5 lg:pt-0 pt-24">
           <div className="block w-full">
-            <FormLabel>Adress</FormLabel>
+            <FormLabel>{t('common:address')}</FormLabel>
 
             <Select {...register('address')} className="w-full mt-8" data-cy="address-select">
               {user?.addresses
@@ -122,14 +124,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                 .sort((a, b) => (a.address > b.address ? 1 : -1))
                 .map((address) => (
                   <Select.Option key={address.address}>
-                    {address.address ? address.address : 'Okänd adress'}
+                    {address.address ? address.address : t('common:unknownAddress')}
                   </Select.Option>
                 ))}
             </Select>
           </div>
 
           <div className="block w-full">
-            <FormLabel>Avtalstyp</FormLabel>
+            <FormLabel>{t('statistics:agreementType')}</FormLabel>
             <Select {...register('facilityId')} className="w-full mt-8" data-cy="contract-select">
               {facilities?.map((facility) => {
                 return (
@@ -145,14 +147,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
         <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-1/2 lg:pt-0 pt-16">
           <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
             <div className="block w-full lg:pt-0 pt-16">
-              <FormLabel>Visa statistik per</FormLabel>
-              <MenuBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
+              <FormLabel>{t('statistics:showBy')}</FormLabel>
+              <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
                 {[
-                  { value: 'year', label: 'År' },
-                  { value: 'month', label: 'Månad' },
-                  { value: 'day', label: 'Dag' },
+                  { value: 'year', label: t('statistics:year') },
+                  { value: 'month', label: t('statistics:month') },
+                  { value: 'day', label: t('statistics:day') },
                 ].map((item, index) => (
-                  <MenuBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
+                  <NavigationBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
                     <Button
                       className="lg:w-auto w-full !h-[12px] !py-0"
                       size="sm"
@@ -164,9 +166,9 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                     >
                       {item.label}
                     </Button>
-                  </MenuBar.Item>
+                  </NavigationBar.Item>
                 ))}
-              </MenuBar>
+              </NavigationBar>
             </div>
           </div>
           {mode === 'year' && <StatisticsFilterYear />}
@@ -174,10 +176,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           {mode === 'day' && <StatisticsFilterDay />}
 
           <div className="block w-full lg:w-2/3 lg:pt-0 pt-16">
-            <FormLabel>Jämför med år</FormLabel>
+            <FormLabel>{t('statistics:compareYear')}</FormLabel>
             <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
               <Select.Option key={0} value="">
-                Välj år
+                {t('statistics:chooseYear')}
               </Select.Option>
               {generateComparableYears(fromDate).map((y) => (
                 <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
@@ -186,7 +188,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           </div>
 
           <Button onClick={closeHandler} className="sm:hidden block w-full mt-48">
-            Använd
+            {t('statistics:use')}
           </Button>
         </div>
       </section>

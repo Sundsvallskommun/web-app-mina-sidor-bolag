@@ -70,6 +70,7 @@ export const FacilityDelegateFilter = () => {
                     className="gap-12"
                     defaultChecked={facilityIsDelegated(facility?.facilityId ?? '')}
                     onChange={(e: BaseSyntheticEvent) => handleFacilityDelegationChange(e, facility)}
+                    data-cy={`facility-id-${facility.facilityId}`}
                   >
                     <p>
                       {facility?.address?.street}, {facility.type}

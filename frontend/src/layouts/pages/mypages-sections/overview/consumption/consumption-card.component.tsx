@@ -2,17 +2,16 @@
 
 import { Icon, Spinner } from '@sk-web-gui/react';
 import { useApi } from '@services/api-service';
-import {
-  calculateYearDifference,
-  getCategoryFromInstalledBaseType,
-  measurementDataByMonthHandler,
-} from '@services/measurement-data-service';
+import { calculateYearDifference, measurementDataByMonthHandler } from '@services/measurement-data-service';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { ArrowDownRight, ArrowUpRight, Lightbulb, Waves } from 'lucide-react';
 import { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
 export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayjs }) => {
   const { facility, date } = props;
+  const { t } = useTranslation('overview');
 
   const getParams = () => {
     const params = new URLSearchParams({});
@@ -46,22 +45,30 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayj
           <div className="flex items-start pt-16">
             {diff === 0 ? (
               <p className="flex items-center text-small pr-4">
-                <strong className="text-vattjom-text">{diff.toString()}% </strong>
+                <strong className="text-vattjom-text">
+                  {t('overview:consumption.card.diff', { diff: diff.toString() })}
+                </strong>
               </p>
             ) : diff <= 0.99 ? (
               <p className="flex items-center text-small pr-4">
                 <Icon icon={<ArrowUpRight />} size={20} color="error" />
-                <strong className="text-error">+{diff.toString().slice(1)}% </strong>
+                <strong className="text-error">
+                  {t('overview:consumption.card.positiveDiff', { diff: diff.toString() })}
+                </strong>
               </p>
             ) : (
               <p className="flex text-small pr-4">
                 <Icon icon={<ArrowDownRight />} size={20} color="gronsta" />
-                <strong className="text-gronsta-text">-{diff}% </strong>
+                <strong className="text-gronsta-text">
+                  {t('overview:consumption.card.negativeDiff', { diff: diff.toString() })}
+                </strong>
               </p>
             )}
             <p className="text-small">
-              jämfört med {date.subtract(1, 'year').format('MMMM YYYY').toLowerCase()} ({measurementData?.previous ?? 0}{' '}
-              kWh)
+              {t('overview:consumption.card.comparison', {
+                date: date.subtract(1, 'year').format('MMMM YYYY').toLowerCase(),
+                consumption: measurementData?.previous ?? 0,
+              })}
             </p>
           </div>
         )}
@@ -92,9 +99,9 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayj
       ) : (
         <div>
           {measurementData?.current ? (
-            <h2>{measurementData.current + 'kWh'}</h2>
+            <h2>{measurementData.current + t('overview:consumption.card.unit')}</h2>
           ) : (
-            <p className="text-small">Det går inte att hitta någon data för perioden.</p>
+            <p className="text-small">{t('overview:consumption.card.noData')}</p>
           )}
           {yearDifference()}
         </div>

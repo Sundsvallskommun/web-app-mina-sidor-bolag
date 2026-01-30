@@ -27,14 +27,14 @@ describe('Ändra representationsläge (privat/företag)', () => {
       cy.intercept('GET', '**/api/representing', { statusCode: 400 }).as('getRepresenting');
 
       // RepresentingSwitchButton
-      cy.contains('[role="menuitem"]', 'Företag').click();
+      cy.get('[data-cy="representing-business-menu-item"]').should('exist').click();
       cy.url().should('include', '/foretag/valj-foretag');
 
       cy.intercept('GET', '**/api/representing', getRepresentingEntity({ mode: RepresentingMode.BUSINESS })).as(
         'getRepresenting'
       );
 
-      // välj företag
+      // välj organisation
       cy.contains('Styrbjörns båtar').click();
       cy.contains('button', 'Fortsätt').click();
       cy.contains('[data-cy="representingLabel"]', 'Styrbjörns båtar');
@@ -49,13 +49,13 @@ describe('Ändra representationsläge (privat/företag)', () => {
         setIntercepts(RepresentingMode.BUSINESS);
 
         // RepresentingSwitchButton
-        cy.contains('[role="menuitem"]', 'Företag').click();
+        cy.get('[data-cy="representing-business-menu-item"]').should('exist').click();
         cy.url().should('include', '/foretag/oversikt');
         cy.contains('Styrbjörns båtar');
       })
       .then(() => {
         setIntercepts(RepresentingMode.PRIVATE);
-        cy.contains('[role="menuitem"]', 'Privat').click();
+        cy.get('[data-cy="representing-private-menu-item"]').should('exist').click();
         cy.url().should('include', '/privat/oversikt');
       });
   });
@@ -66,7 +66,7 @@ describe('Ändra representationsläge (privat/företag)', () => {
       setIntercepts(RepresentingMode.BUSINESS);
 
       // RepresentingSwitchButton
-      cy.contains('[role="menuitem"]', 'Företag').click();
+      cy.get('[data-cy="representing-business-menu-item"]').should('exist').click();
       cy.url().should('include', '/foretag/oversikt');
     });
   });

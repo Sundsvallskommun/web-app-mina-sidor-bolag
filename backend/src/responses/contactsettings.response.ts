@@ -1,9 +1,14 @@
+import {
+  Delegate as IDelegate,
+  Filter as IFilter,
+  Rule as IRule,
+  Operator,
+} from '@/data-contracts/contactsettings/data-contracts';
+import { ContactSettingAddress } from '@/interfaces/contact-settings';
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { User } from '../interfaces/users.interface';
 import { IsNullable } from '../utils/custom-validation-classes';
-import { Address } from '@/data-contracts/businessengagements/data-contracts';
-import { Delegate as IDelegate, Filter as IFilter, Rule as IRule, Operator } from '@/data-contracts/contactsettings/data-contracts';
 
 export class ClientContactSettingNotifications {
   @IsBoolean()
@@ -21,7 +26,7 @@ export class ClientContactSettingDecicionsAndDocuments {
   snailmail: boolean;
 }
 
-export class ClientContactSettingAddress implements Omit<Address, 'careOf'> {
+export class ClientContactSettingAddress implements ContactSettingAddress {
   @IsString()
   @IsOptional()
   street?: string;
@@ -51,24 +56,26 @@ export class ClientContactSetting {
   @IsOptional()
   @IsNullable()
   phone: string | null;
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => ClientContactSettingAddress)
   @IsOptional()
   @IsNullable()
   address?: ClientContactSettingAddress | null;
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => ClientContactSettingNotifications)
   @IsOptional()
   notifications: ClientContactSettingNotifications;
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => ClientContactSettingDecicionsAndDocuments)
   @IsOptional()
   decicionsAndDocuments: ClientContactSettingDecicionsAndDocuments;
   @IsBoolean()
-  virtual: boolean;
+  @IsOptional()
+  virtual?: boolean;
   @IsString()
   @IsNullable()
-  alias: string | null;
+  @IsOptional()
+  alias?: string | null;
   @IsString()
   @IsOptional()
   @IsNullable()

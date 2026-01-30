@@ -5,25 +5,25 @@ import { Info, Pen } from 'lucide-react';
 import { useState } from 'react';
 import ContactSettingsFormLogic from './components/contact-settings-form-logic.component';
 import { ConnectForm } from '@components/form/connect-form.component';
-import { ClientContactSetting } from '@interfaces/contactsettings';
 import { useApi } from '@services/api-service';
+import { useTranslation } from 'react-i18next';
+import { ClientContactSetting } from '@data-contracts/backend/data-contracts';
 
 export const ContactSettings = () => {
   const { data: contactsettings } = useApi<ClientContactSetting>({ url: '/contactsettings', method: 'get' });
   const [isEdit, setIsEdit] = useState(false);
+  const { t } = useTranslation(['profile', 'notifications']);
 
   const getContactWayString = (email: boolean, phone: boolean) => {
-    const contactWayString: string = 'Du har valt att få aviseringar via';
-
     switch (true) {
       case email && phone:
-        return contactWayString.concat(' sms och e-post.');
+        return t('notifications:contactBy', { contactWay: t('notifications:smsAndEmail') });
       case !email && phone:
-        return contactWayString.concat(' e-post.');
+        return t('notifications:contactBy', { contactWay: t('notifications:email') });
       case email && !phone:
-        return contactWayString.concat(' sms.');
+        return t('notifications:contactBy', { contactWay: t('notifications:sms') });
       default:
-        return 'Du får inga aviseringar';
+        return t('notifications:none');
     }
   };
 
@@ -40,9 +40,7 @@ export const ContactSettings = () => {
                 if (isEdit) {
                   return (
                     <FormControl fieldset>
-                      <FormLabel className="text-large">
-                        Aviseringar om avbrott i din strömförsörjning och fjärrvärme
-                      </FormLabel>
+                      <FormLabel className="text-large">{t('notifications:subTitle')}</FormLabel>
                       <Checkbox.Group>
                         <Checkbox
                           {...register('notifications.email_enabled')}
@@ -50,14 +48,12 @@ export const ContactSettings = () => {
                           className="mt-8"
                           disabled={!hasEmail}
                         >
-                          E-post
+                          {t('notifications:byEmail')}
                         </Checkbox>
                         {hasEmail ? null : (
                           <div className="flex items-center gap-6">
                             <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
-                            <p className="text-small">
-                              För att få aviseringar via mail behöver du lägga till en e-post.
-                            </p>
+                            <p className="text-small">{t('notifications:byEmailWarning')}</p>
                           </div>
                         )}
 
@@ -66,14 +62,12 @@ export const ContactSettings = () => {
                           data-cy="notification-channel-sms-checkbox"
                           disabled={!hasPhone}
                         >
-                          Sms
+                          {t('notifications:bySms')}
                         </Checkbox>
                         {hasPhone ? null : (
                           <div className="flex items-center gap-6">
                             <Icon size={16} icon={<Info />} className="ml-32 w-4 h-4 shrink-0" />
-                            <p className="text-small">
-                              För att få aviseringar via sms behöver du lägga till ett mobilnummer.
-                            </p>
+                            <p className="text-small">{t('notifications:bySmsWarning')}</p>
                           </div>
                         )}
                       </Checkbox.Group>
@@ -82,9 +76,7 @@ export const ContactSettings = () => {
                 } else {
                   return (
                     <div className="text-content">
-                      <h3 className="text-large font-bold">
-                        Aviseringar om avbrott i din strömförsörjning och fjärrvärme
-                      </h3>
+                      <h3 className="text-large font-bold">{t('notifications:subTitle')}</h3>
                       <p>
                         {getContactWayString(
                           getValues('notifications.phone_enabled'),
@@ -113,10 +105,10 @@ export const ContactSettings = () => {
                       }}
                       data-cy="cancel-edit-notification-channel-button"
                     >
-                      Avbryt
+                      {t('profile:cancel')}
                     </Button>
                     <Button type="submit" data-cy="save-notification-channel-button">
-                      Spara
+                      {t('profile:save')}
                     </Button>
                   </>
                 ) : (
@@ -131,7 +123,7 @@ export const ContactSettings = () => {
                     }}
                     data-cy="edit-notification-channel-button"
                   >
-                    Ändra aviseringar
+                    {t('notifications:edit')}
                   </Button>
                 )}
               </div>

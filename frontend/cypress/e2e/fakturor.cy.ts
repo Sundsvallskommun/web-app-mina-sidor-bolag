@@ -1,11 +1,12 @@
 import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
-import { getPendingInvoices } from '../fixtures/getInvoices';
-import { getGeneratedInvoices } from '../fixtures/utils';
+import { getInvoices, getPendingInvoices } from '../fixtures/getInvoices';
 
 describe('Fakturor', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
+    cy.intercept('GET', '**/api/invoices?**', getInvoices(RepresentingMode.PRIVATE)).as('getInvoices');
+    cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
     cy.visit('/privat/fakturor');
   });
 
@@ -17,39 +18,27 @@ describe('Fakturor', () => {
     cy.get('h2').should('exist').should('include.text', 'Alla fakturor');
   });
 
-  it('should display table headers correctly', () => {
+  it('should display invoices tables correctly', () => {
     const tableHeaders = ['Leverantör', 'Status', 'Fakturadatum', 'Förfallodatum', 'Belopp', 'Fakturanummer', 'Adress'];
+    const unhandled = cy.get('[data-cy="unhandled-invoices-table"]').should('exist');
+    const all = cy.get('[data-cy="all-invoices-table"]').should('exist');
 
     tableHeaders.forEach((header) => {
-      cy.get('[data-cy="unhandled-invoices-table"]')
-        .should('exist')
-        .within(() => {
-          cy.get('th').should('exist').contains(header);
-        });
-      cy.get('[data-cy="all-invoices-table"]')
-        .should('exist')
-        .within(() => {
-          cy.get('th').should('exist').contains(header);
-        });
-    });
-  });
-
-  it('should display table data correctly', () => {
-    getPendingInvoices().data.invoices.forEach(() => {
-      cy.get('[data-cy="unhandled-invoices-table"]')
-        .should('exist')
-        .within(() => {
-          cy.get('tr').should('exist').contains('240736694');
-          cy.get('tr').should('include.text', 'Obetald');
-        });
+      unhandled.within(() => {
+        cy.get('th').should('exist').contains(header);
+      });
+      all.within(() => {
+        cy.get('th').should('exist').contains(header);
+      });
     });
 
-    getGeneratedInvoices().forEach(() => {
-      cy.get('[data-cy="all-invoices-table"]')
-        .should('exist')
-        .within(() => {
-          cy.get('tr').should('exist').contains('96758235');
-        });
+    unhandled.within(() => {
+      cy.get('tr').should('exist').contains('240736694');
+      cy.get('tr').should('include.text', 'Obetald');
+    });
+
+    all.within(() => {
+      cy.get('tr').should('exist').contains('96758235');
     });
   });
 });
