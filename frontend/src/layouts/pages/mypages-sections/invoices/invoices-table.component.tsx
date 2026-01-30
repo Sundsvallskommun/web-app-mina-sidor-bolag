@@ -14,13 +14,10 @@ export const InvoicesTable = ({
   pageSize,
   setActivePage,
   previousActivePage,
-  previousFacilityIds,
-  representingMode,
   representingName,
   representingModeChanged,
   facilityIds,
   emptyComponent,
-  previousRepresentingMode,
 }: InvoiceTableProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});

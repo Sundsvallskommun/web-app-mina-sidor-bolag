@@ -4,7 +4,6 @@ import { useApi } from '@services/api-service';
 import { InvoicesCardEntry } from './invoices-card-entry.component';
 import { Button, Spinner } from '@sk-web-gui/react';
 import { User } from '@interfaces/user';
-import { RepresentingMode } from '@interfaces/app';
 import { useTranslation } from 'react-i18next';
 
 export const InvoicesCardList = ({
@@ -13,8 +12,6 @@ export const InvoicesCardList = ({
   activePage,
   setActivePage,
   previousActivePage,
-  previousFacilityIds,
-  representingMode,
   representingName,
   representingModeChanged,
   facilityIds,
@@ -24,8 +21,6 @@ export const InvoicesCardList = ({
   const previousRows = useRef<IInvoice[]>([]);
   const totalCount = useRef<number>(0);
   const { t } = useTranslation(['common', 'invoice']);
-
-  const previousRepresentingMode = useRef<RepresentingMode | undefined>(undefined);
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
@@ -51,11 +46,10 @@ export const InvoicesCardList = ({
     () =>
       (organizationNumber: string): string => {
         return (
-          userData?.relations.find((relation) => relation.organizationNumber === organizationNumber)
+          userData?.relations.customerRelations.find((relation) => relation.organizationNumber === organizationNumber)
             ?.organizationName ?? t(`organization:${organizationNumber}.name`, { defaultValue: t('common:unknown') })
         );
       },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [userData]
   );
@@ -63,7 +57,6 @@ export const InvoicesCardList = ({
   if ((!isFetched && !rows.length) || representingModeChanged)
     return (
       <div className="w-full flex justify-center p-md">
-        <Spinner aria-label={t('invoice:fetching')} />
         <Spinner aria-label={t('invoice:fetching')} />
       </div>
     );
@@ -88,9 +81,6 @@ export const InvoicesCardList = ({
       <span className="text-small text-center text-secondary mt-lg">
         {t('invoice:showing', { count: rows.length, total: totalCount.current })}
       </span>
-      <span className="text-small text-center text-secondary mt-lg">
-        {t('invoice:showing', { count: rows.length, total: totalCount.current })}
-      </span>
       {canFetch ? (
         <Button
           className="m-auto mt-[1.2rem]"
@@ -99,7 +89,6 @@ export const InvoicesCardList = ({
           onClick={() => setActivePage(activePage + 1)}
           loading={!isFetched}
         >
-          {t('invoice:showMore')}
           {t('invoice:showMore')}
         </Button>
       ) : undefined}

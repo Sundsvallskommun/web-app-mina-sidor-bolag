@@ -21,8 +21,6 @@ function Login() {
 
   const { t } = useTranslation(['common', 'organization']);
 
-  const { t } = useTranslation(['common', 'organization']);
-
   const isLoggedOut = searchParams?.get('loggedout') === '';
   const failMessage = searchParams?.get('failMessage');
 
@@ -122,7 +120,7 @@ function Login() {
                       >
                         {t('common:person')}
                       </Button>
-                      {/* NOTE: Link to old service temporary 
+                      {/* NOTE: Link to old service temporary */}
                       <Button
                         className="flex-grow"
                         variant="secondary"
