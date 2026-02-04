@@ -45,7 +45,7 @@ export class InvoicesController {
     const delegations = req?.session?.cache?.delegations ?? [];
     const partyIdList: string[] = [getRepresentingPartyId(representing)];
     const allInvoices: Invoice[] = [];
-    const { facilityId, page, limit } = req.query;
+    const { facilityIds, page, limit } = req.query;
 
     const metaData: MetaData = {
       page: Number.parseInt(page.toString()),
@@ -55,7 +55,7 @@ export class InvoicesController {
       count: 12,
     };
 
-    if (!facilityId) {
+    if (!facilityIds) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,
       // this ensures that only invoices for active (plus three years back) facilities are fetched.
       return { data: { ...emptyInvoice }, message: 'Empty response' };
@@ -74,7 +74,7 @@ export class InvoicesController {
     for (const partyId of partyIdList) {
       const params = {
         partyId,
-        facilityId,
+        facilityIds,
         invoiceDateFrom: this.invoiceDateFrom,
         page,
         limit,
@@ -109,7 +109,7 @@ export class InvoicesController {
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
     const representing = req.session?.representing ?? undefined;
-    const { facilityId, page, limit } = req.query;
+    const { facilityIds, page, limit } = req.query;
 
     const delegations = req?.session?.cache?.delegations ?? [];
     const partyIdList: string[] = [getRepresentingPartyId(representing)];
@@ -118,7 +118,7 @@ export class InvoicesController {
       partyIdList.push(delegation.owner);
     });
 
-    if (!facilityId) {
+    if (!facilityIds) {
       // See comment in getInvoices method.
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
@@ -148,7 +148,7 @@ export class InvoicesController {
 
         const params = {
           partyId,
-          facilityId,
+          facilityIds,
           invoiceDateFrom: this.invoiceDateFrom,
           invoiceStatus,
           page,

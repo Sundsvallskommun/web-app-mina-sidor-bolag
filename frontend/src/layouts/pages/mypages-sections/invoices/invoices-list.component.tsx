@@ -38,9 +38,9 @@ export const InvoicesList: React.FC<{
   searchParams.append('limit', pageSize.toString());
   searchParams.append('page', activePage.toString());
   if (facilityIds?.length) {
-    searchParams.append('facilityId', facilityIds.toString());
+    searchParams.append('facilityIds', facilityIds.toString());
   } else if (userData?.facilities?.length) {
-    searchParams.append('facilityId', userData.facilities?.map((f) => f.facilityId).toString());
+    searchParams.append('facilityIds', userData.facilities?.map((f) => f.facilityId).toString());
   }
 
   const base = onlyPending ? '/invoices/pending' : '/invoices';
