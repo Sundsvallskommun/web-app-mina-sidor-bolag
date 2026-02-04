@@ -1,9 +1,10 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { Agreement, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
+import { Agreement, Category, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
 import { Delegation } from '@/data-contracts/installedbase/data-contracts';
 import ApiService from './api.service';
 import dayjs from 'dayjs';
+import { AxiosRequestConfig } from 'axios';
 
 function activeAgreement(agreement: Agreement): boolean {
   // Agreements are considered active if the `toDate` is in the future or undefined (ongoing agreements).
@@ -16,11 +17,11 @@ export const fetchAgreementsForPartyAndDelegations = async (
   delegations: Delegation[],
   user: { username: string },
   includeInactiveAgreements: boolean = false,
+  params: AxiosRequestConfig['params'] = {},
 ): Promise<Agreement[]> => {
   const apiService = new ApiService();
   const apiBase = getApiBase('agreement');
   const url = `${apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-  const params = {};
   const filteredAgreements: Agreement[] = [];
   const agreements: Agreement[] = [];
 
