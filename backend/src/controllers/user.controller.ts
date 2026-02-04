@@ -19,6 +19,7 @@ import {
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
+import { relevantFacility } from '@/utils/facility-utils';
 
 interface UserData {
   name: string;
@@ -158,7 +159,6 @@ export class UserController {
     ) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations?.customerRelations ?? [];
-      const facilities: InstalledBaseItem[] = [];
       const addressDictionary: { [key: string]: string[] } = {};
       let customerItems: InstalledBaseItem[] = [];
       const installedBasePromises = [];
@@ -255,7 +255,7 @@ export class UserController {
         return accumulator;
       }, []);
 
-      facilities.push(...customerItems, ...uniqueFacilities);
+      const facilities = [...customerItems, ...uniqueFacilities].filter(relevantFacility);
 
       for (const installation of facilities) {
         const {
