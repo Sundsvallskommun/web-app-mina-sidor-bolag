@@ -7,7 +7,12 @@ import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { Agreement, AgreementResponse, Category, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
+import {
+  Agreement,
+  AgreementResponse,
+  Category,
+  PagedAgreementResponse,
+} from '@/data-contracts/agreement/data-contracts';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 
@@ -16,10 +21,7 @@ function activeAgreement(agreement: Agreement): boolean {
   return dayjs(agreement.toDate).isAfter(dayjs()) || typeof agreement.toDate === 'undefined';
 }
 
-function relevantCategory(agreement: Agreement): boolean {
-  const relevantCategories: Category[] = [Category.ELECTRICITY, Category.ELECTRICITY_TRADE, Category.DISTRICT_HEATING];
-  return relevantCategories.includes(agreement.category);
-}
+const relevantCategories: Category[] = [Category.ELECTRICITY, Category.ELECTRICITY_TRADE, Category.DISTRICT_HEATING];
 
 @Controller()
 export class AgreementController {
@@ -46,7 +48,7 @@ export class AgreementController {
     }
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-    const params = {};
+    const params = { category: relevantCategories };
 
     const res = await this.apiService.get<PagedAgreementResponse>({ url, params }, req.user);
     filteredAgreements.push(...res.data.agreements.filter(activeAgreement));
@@ -80,10 +82,10 @@ export class AgreementController {
     @Param('facilityId') facilityId: string,
   ): Promise<ApiResponse<Agreement[]>> {
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/agreements/${category}/${facilityId}`;
+    const params = { category: relevantCategories };
+    const res = await this.apiService.get<AgreementResponse>({ url, params }, req.user);
 
-    const res = await this.apiService.get<AgreementResponse>({ url }, req.user);
-
-    const filteredAgreements = res.data.agreementParties[0].agreements.filter(activeAgreement).filter(relevantCategory);
+    const filteredAgreements = res.data.agreementParties[0].agreements.filter(activeAgreement);
     return { data: filteredAgreements, message: 'success' };
   }
 }
