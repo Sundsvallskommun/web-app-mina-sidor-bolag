@@ -50,18 +50,21 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
-              <PopupMenu.Item>
-                <Button
-                  className="!justify-between"
-                  onClick={() => {
-                    router.push('medgivanden');
-                  }}
-                  data-cy="user-menu-eligibility-button"
-                >
-                  {capitalize(t('common:eligibility'))}
-                  <Icon icon={<ArrowRight />} />
-                </Button>
-              </PopupMenu.Item>
+              {/* NOTE: Don't show in production */}
+              {process.env.NODE_ENV !== 'production' && (
+                <PopupMenu.Item>
+                  <Button
+                    className="!justify-between"
+                    onClick={() => {
+                      router.push('medgivanden');
+                    }}
+                    data-cy="user-menu-eligibility-button"
+                  >
+                    {capitalize(t('common:eligibility'))}
+                    <Icon icon={<ArrowRight />} />
+                  </Button>
+                </PopupMenu.Item>
+              )}
               <Divider />
               <PopupMenu.Item>
                 <Button
