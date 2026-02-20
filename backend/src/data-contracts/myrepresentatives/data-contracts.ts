@@ -15,9 +15,9 @@ export interface Problem {
   /** @format uri */
   type?: string;
   parameters?: Record<string, any>;
-  status?: StatusType;
   title?: string;
   detail?: string;
+  status?: StatusType;
 }
 
 export interface StatusType {
@@ -66,7 +66,7 @@ export interface CreateMandate {
    */
   inactiveAfter?: string;
   /** Signing information related to the mandate */
-  signingInfo: SigningInfo;
+  signingInfo?: SigningInfo;
 }
 
 export interface Device {
@@ -201,9 +201,9 @@ export interface ThrowableProblem {
   /** @format uri */
   type?: string;
   parameters?: Record<string, any>;
-  status?: StatusType;
   title?: string;
   detail?: string;
+  status?: StatusType;
   suppressed?: {
     stackTrace?: {
       classLoaderName?: string;
@@ -295,6 +295,8 @@ export interface MandateDetails {
   status?: string;
   /** Signing information related to the mandate */
   signingInfo?: SigningInfo;
+  /** Indicates whether the mandate was created through a whitelisted process */
+  whitelisted?: boolean;
 }
 
 /** Paginated response containing a list of mandate details */
