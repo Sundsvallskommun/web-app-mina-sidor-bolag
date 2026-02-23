@@ -6,7 +6,6 @@ import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
 import { TodoListItem } from './todo-list-item.component';
 import { useTranslation } from 'react-i18next';
-import { handleEligibilityResponse } from '@services/permissions-service';
 import { BFUSCustomerIdsApiResponse } from '@interfaces/eligibility';
 
 export const Todos = () => {
@@ -44,8 +43,8 @@ export const Todos = () => {
     dataHandler: (data) => data,
   });
 
-  const { data: newPermissions } = useApi({
-    url: '/bfus/eligable-party-permissions',
+  const { data: hasNewPermissions } = useApi({
+    url: '/bfus/new-permissions',
     queryKey: ['new-permissions'],
     method: 'get',
     axiosParameters: {
@@ -56,7 +55,6 @@ export const Todos = () => {
     queryOptions: {
       enabled: customerIdsFetched && customerIds && customerIds?.customerIds?.length > 0,
     },
-    dataHandler: handleEligibilityResponse('new'),
   });
 
   return (
@@ -67,7 +65,7 @@ export const Todos = () => {
         <div className="w-full flex justify-center p-md">
           <Spinner aria-label={t('overview:todo.fetching')} />
         </div>
-      ) : invoices?.invoices?.length || (newPermissions && Object.keys(newPermissions).length) ? (
+      ) : invoices?.invoices?.length || hasNewPermissions ? (
         <div className="w-full justify-stretch gap-24">
           {invoices?.invoices?.length ? (
             <TodoListItem
@@ -79,7 +77,7 @@ export const Todos = () => {
             />
           ) : null}
 
-          {newPermissions && Object.keys(newPermissions).length ? (
+          {hasNewPermissions ? (
             <TodoListItem
               type="eligibility"
               title={t('overview:todo.eligibility.description')}

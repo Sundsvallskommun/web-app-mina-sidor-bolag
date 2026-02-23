@@ -48,6 +48,10 @@ export const APIS = [
     name: 'eventlog',
     version: '2.1',
   },
+  {
+    name: 'bfus',
+    version: '1.0.0',
+  },
 ] as const;
 
 type ApiName = (typeof APIS)[number]['name'];

@@ -14,3 +14,10 @@ export class BFUSEligablePartyApiResponse {
   @ValidateNested()
   data: { eligablePartyParts: BFUSEligablePartyPart[] };
 }
+
+export class BFUSNewPermissionApiResponse {
+  @IsString()
+  message: string;
+  @ValidateNested()
+  data: boolean;
+}
