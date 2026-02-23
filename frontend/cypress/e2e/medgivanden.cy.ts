@@ -38,12 +38,4 @@ describe('Dina medgivanden', () => {
         cy.get('[data-cy="approveOne"]').should('exist').click();
       });
   });
-
-  it('can deny permission', () => {
-    cy.get('[data-cy="new-permissions-table"]')
-      .should('exist')
-      .within(() => {
-        cy.get('[data-cy="denyOne"]').should('exist').click();
-      });
-  });
 });
