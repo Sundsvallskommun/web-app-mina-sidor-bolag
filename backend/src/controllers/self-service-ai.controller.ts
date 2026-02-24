@@ -1,18 +1,16 @@
-import { MUNICIPALITY_ID, ENEO_API_KEY } from '@/config';
+import { ENEO_API_KEY, MUNICIPALITY_ID } from '@/config';
+import { getApiBase } from '@/config/api-config';
+import { QuestionResponse } from '@/data-contracts/selfserviceai/data-contracts';
+import { ConversationRequest } from '@/dtos/conversation.dto';
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
-import { Request, Response } from 'express';
-import { Body, Controller, Delete, Get, HttpError, Param, Post, Req, Res, UseBefore } from 'routing-controllers';
-import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
-import { getApiBase } from '@/config/api-config';
-import authMiddleware from '@middlewares/auth.middleware';
-import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { HttpException } from '@exceptions/HttpException';
-import { SessionRequest, SessionResponse } from '@/data-contracts/selfserviceai/data-contracts';
-import { SessionResponse as ISessionResponse } from '@/responses/self-service-ai.response';
-import { ConversationRequest } from '@/responses/eneo-sundsvall.response';
-import Stream from 'node:stream';
 import { ResponseData } from '@interfaces/service';
+import authMiddleware from '@middlewares/auth.middleware';
+import { Request, Response } from 'express';
+import Stream from 'node:stream';
+import { Body, Controller, Get, HttpError, Post, Req, Res, UseBefore } from 'routing-controllers';
+import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
 @UseBefore(authMiddleware)
@@ -21,52 +19,27 @@ export class SelfServiceAiController {
   private selfServiceAIApiBase = getApiBase('selfserviceai');
   private eneoApiBase = getApiBase('eneo-sundsvall');
 
-  @Post('/session')
-  @OpenAPI({
-    summary: 'Create assistant session',
-  })
-  @ResponseSchema(ISessionResponse)
-  @UseBefore(authMiddleware)
-  async create(@Req() req: Request): Promise<ResponseData<SessionResponse>> {
-    console.log('SESSION START REQUEST');
-    const representing = req.session?.representing ?? undefined;
-    const partyId = getRepresentingPartyId(representing);
-    const customerEngagements = req.session.cache.relations.customerRelations ?? [];
-
-    if (!partyId || !customerEngagements.length) {
-      throw new HttpException(400, 'Bad Request');
-    }
-
-    const requestBody: SessionRequest = {
-      partyId: partyId,
-      customerEngagementOrgIds: customerEngagements.map(engagement => engagement.organizationNumber),
-    };
-
-    try {
-      const url = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session`;
-
-      const res = await this.apiService.post<SessionResponse, SessionRequest>({ url, data: requestBody }, req.user);
-      return { data: res.data, message: 'success' };
-    } catch (e) {
-      logger.error('Error creating session', e);
-      throw new HttpError(e?.httpCode ?? 500, e?.message ?? 'Error creating session');
-    }
-  }
-
-  @Get('/isReady/:id')
+  @Get('/ai/isReady')
   @OpenAPI({
     summary: 'Check if assistant is ready for interaction',
   })
   @UseBefore(authMiddleware)
-  async isReady(@Req() req: Request, @Param('id') id: string): Promise<ResponseData<boolean>> {
-    console.log('IS READY REQUEST');
+  async isReady(@Req() req: Request): Promise<ResponseData<boolean>> {
+    const id = req.session?.ai?.sessionId;
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
 
     try {
-      const url = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}/ready`;
-      const res = await this.apiService.get<boolean>({ url: url }, req.user);
+      const sessionUrl = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
+      const readyUrl = `${sessionUrl}/ready`;
+      const res = await this.apiService.get<boolean>({ url: readyUrl }, req.user);
+      if (res.data) {
+        await this.apiService.get<QuestionResponse>(
+          { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
+          req.user,
+        );
+      }
       return { data: res.data, message: 'success' };
     } catch (e) {
       logger.error('Error checking if assistant is ready', e);
@@ -74,7 +47,7 @@ export class SelfServiceAiController {
     }
   }
 
-  @Post('/conversations')
+  @Post('/ai/conversations')
   @OpenAPI({
     summary: 'Chat with an assistant',
   })
@@ -82,22 +55,27 @@ export class SelfServiceAiController {
   async conversation(
     @Req() req: Request,
     @Body() body: ConversationRequest,
-    @Res() response: Response<string | Stream>,
-  ): Promise<Response<string> | Stream> {
-    console.log('CONVERSATION REQUEST');
-    if (!body.assistant_id && !body.group_chat_id && !body.session_id) {
-      throw new HttpError(400, 'No assistant id, group chat id, or session id provided');
-    }
+    @Res() response: Response<QuestionResponse | Stream>,
+  ): Promise<Response<QuestionResponse> | Stream> {
+    const assistant_id = req.session?.ai?.assistantId;
+    const session_id = req.session?.ai?.sessionId;
 
+    if (!assistant_id || !session_id) {
+      throw new HttpException(412, 'Not ready');
+    }
     const url = `${this.eneoApiBase}/conversations/`;
     const responseType = body?.stream ? 'stream' : 'json';
-    const data: ConversationRequest = body;
+    const data: ConversationRequest = {
+      ...body,
+      assistant_id,
+      session_id,
+    };
     try {
       if (responseType === 'json') {
-        const res = await this.apiService.post<string, ConversationRequest>(
+        const res = await this.apiService.post<QuestionResponse, ConversationRequest>(
           {
-            url: url,
-            data: data,
+            url,
+            data,
             headers: { 'api-key': ENEO_API_KEY },
             responseType,
           },
@@ -108,8 +86,8 @@ export class SelfServiceAiController {
       } else {
         const res = await this.apiService.post<Stream, ConversationRequest>(
           {
-            url: url,
-            data: data,
+            url,
+            data,
             headers: { 'api-key': ENEO_API_KEY },
             responseType,
           },
@@ -128,23 +106,6 @@ export class SelfServiceAiController {
     } catch (e) {
       logger.error('Error sending question to conversation.', e);
       throw new HttpError(e?.httpCode ?? 500, e?.message ?? 'Error sending question to conversation.');
-    }
-  }
-
-  @Delete('/session/:id')
-  @OpenAPI({
-    summary: 'Delete session by id',
-  })
-  @UseBefore(authMiddleware)
-  async delete_session(@Req() req: Request, @Param('id') id: string, @Res() response: Response): Promise<Response> {
-    const url = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
-
-    try {
-      await this.apiService.delete({ url: url }, req.user);
-      return response.status(204).send();
-    } catch (e) {
-      logger.error('Error deleting session', e);
-      throw new HttpError(e?.httpCode ?? 500, e?.message ?? 'Could not delete session');
     }
   }
 }
