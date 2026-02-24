@@ -84,11 +84,6 @@ export class InvoicesController {
         const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
         if (res.data) {
           const { invoices, _meta } = res.data;
-          // Debugging for testing purposes only
-          // invoices[0].invoiceNumber = '811338193';
-          // invoices[0].invoiceName = '811338193.pdf';
-          // invoices[0].ocrNumber = '811338193';
-
           allInvoices.push(...invoices);
           metaData.totalRecords += _meta.totalRecords;
           metaData.totalPages += _meta.totalPages;

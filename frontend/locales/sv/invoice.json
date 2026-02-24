@@ -2,6 +2,7 @@
   "title": "Dina fakturor",
   "byAddress": "Visa fakturor per adress",
   "chooseAddress": "Välj adress",
+  "noAddressFound": "Ingen adress hittades",
   "unhandled": "Ohanterade fakturor",
   "all": "Alla fakturor",
   "contractor": "Leverantör",
