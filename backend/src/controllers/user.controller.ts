@@ -19,6 +19,7 @@ import {
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
+import { startAISession } from '@/services/selfserviceai.service';
 
 interface UserData {
   name: string;
@@ -150,6 +151,10 @@ export class UserController {
     req.cache ??= {};
 
     await this.cacheRelations(req);
+
+    if (!req.session?.ai?.sessionId) {
+      await startAISession(req);
+    }
 
     if (
       representing &&
