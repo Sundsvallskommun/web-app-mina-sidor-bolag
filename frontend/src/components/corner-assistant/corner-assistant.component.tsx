@@ -1,33 +1,24 @@
-import React, { useEffect, useMemo } from 'react';
-import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
+import { useApi } from '@services/api-service';
+import { AICornerModule, useAssistantStore } from '@sk-web-gui/ai';
 import { useThemeQueries } from '@sk-web-gui/react';
-import { AICornerModule, useAssistantStore, useChat } from '@sk-web-gui/ai';
-import { SessionResponse } from '@data-contracts/backend/data-contracts';
+import React, { useEffect, useRef, useState } from 'react';
+import { CornerAssistantLoading } from './components/corner-assistant-loading.component';
+import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
+import { useAppContext } from '@contexts/app.context';
 
 export const CornerAssistant: React.FC = () => {
-  const { isMaxLg } = useThemeQueries();
-
+  const [checking, setChecking] = useState(false);
+  const interval = useRef<NodeJS.Timeout>(null);
   const { data: userData } = useApi<User>({
     method: 'get',
     url: '/me',
     queryKey: ['user'],
   });
-  const ownsFacilities = useMemo(() => userData?.facilities?.some((f) => !f.isDelegated) ?? [], [userData?.facilities]);
+  const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
+  const { representingMode } = useAppContext();
 
-  const {
-    data: sessionData,
-    mutateAsync: sessionMutateAsync,
-    isPending,
-  } = useApi<SessionResponse>({
-    url: '/session',
-    method: 'post',
-    queryKey: ['session'],
-    queryOptions: {
-      enabled: false,
-    },
-  });
-
+  const { isMaxLargeDevice } = useThemeQueries();
   const [setSettings, setInfo, setApiBaseUrl, setStream, setApiKey, setApiServiceConfig] = useAssistantStore(
     (state) => [
       state.setSettings,
@@ -39,52 +30,61 @@ export const CornerAssistant: React.FC = () => {
     ]
   );
 
-  const { session, sendQuery, newSession } = useChat({ sessionId: sessionData?.sessionId });
-
   const { data: isReady = false, refetch: checkIsReady } = useApi<boolean>({
-    url: `/isReady/${sessionData?.sessionId}`,
+    url: `/ai/isReady`,
     method: 'get',
-    queryKey: ['readyResponse', sessionData?.sessionId ?? ''],
-    queryOptions: {
-      enabled: !!sessionData?.sessionId,
-    },
+    queryKey: ['readyResponse'],
   });
 
   useEffect(() => {
-    if (ownsFacilities && !isPending) {
-      sessionMutateAsync({}).then((res) => {
-        if (!res.sessionId || !res.assistantId) return;
-        setSettings({ assistantId: res?.assistantId });
-        setApiBaseUrl(process.env.NEXT_PUBLIC_API_URL ?? '');
-        setStream(true);
-        setApiKey('');
-        setApiServiceConfig({ headers: { withCredentials: 'true' } });
-        setInfo({
-          name: 'Assistent',
-          shortName: 'MS',
-          title: 'Mina sidor Bolag',
-          description: 'Har du frågor om dina avtal, fakturor eller statistik?',
-          id: sessionData?.assistantId,
-        });
+    setSettings({ assistantId: 'selfserviceai' });
+    setApiBaseUrl(`${process.env.NEXT_PUBLIC_API_URL}/ai`);
+    setStream(true);
+    setApiKey('');
+    setApiServiceConfig({ credentials: 'include' });
+    setInfo({
+      name: 'Assistent',
+      shortName: 'MS',
+      title: 'Mina sidor Bolag',
+      description: 'Har du frågor om dina avtal, fakturor eller statistik?',
+      id: 'selfserviceai',
+      avatar: '/ai/avatar.png',
+    });
+    setChecking(true);
+    checkIsReady().finally(() => setChecking(false));
 
-        const interval = setInterval(async () => {
-          const { data } = await checkIsReady();
-          if (data) {
-            clearInterval(interval);
-          }
-        }, 2000);
-      });
-    }
+    interval.current = setInterval(async () => {
+      if (!checking) {
+        setChecking(true);
+        await checkIsReady();
+        setChecking(false);
+      }
+    }, 5000);
+
+    return () => {
+      if (interval.current) {
+        clearInterval(interval.current);
+      }
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData?.relations?.customerRelations]);
+  }, [JSON.stringify(userData?.relations?.customerRelations), JSON.stringify(representingEntity), representingMode]);
+
+  useEffect(() => {
+    if (isReady && interval.current) {
+      clearInterval(interval.current);
+    }
+  }, [isReady]);
 
   return isReady ? (
     <AICornerModule
-      sessionId={sessionData?.sessionId}
-      session={session}
-      isMobile={isMaxLg}
-      onNewSession={newSession}
-      onSendQuery={sendQuery}
+      data-cy="corner-assistant"
+      isMobile={isMaxLargeDevice}
+      disableFullscreen
+      showNewSession={false}
+      showFeedback={false}
     />
-  ) : null;
+  ) : (
+    <CornerAssistantLoading isMobile={isMaxLargeDevice} />
+  );
 };
