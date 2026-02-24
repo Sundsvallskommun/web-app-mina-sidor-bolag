@@ -77,12 +77,13 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     }
   };
 
-  const handleApprovePermission = async (contractIds: number[], eligablePartyId: string) => {
+  const handleApprovePermission = async (contractIds: number[], eligablePartyId: string, customerId: number) => {
     await handlePermissionMutation({
       payload: {
         PermissionRequest: {
           ContractIdList: contractIds,
           EligablePartyId: eligablePartyId,
+          CustomerId: customerId,
         },
       },
       mutation: grantPermission,
