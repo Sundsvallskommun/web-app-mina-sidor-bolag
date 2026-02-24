@@ -2,13 +2,13 @@
 
 import { useAppContext } from '@contexts/app.context';
 import { FacilityDelegates } from '@layouts/pages/mypages-sections/profile/profile-facility-delegates.component';
-import { Disclosure, Divider, Icon } from '@sk-web-gui/react';
+import { Divider } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import { Mandates } from './components/mandates/mandates.component';
+import { ProfileAccordion } from './components/profile-accordion.component';
 import { ContactDetails } from './profile-contact-details.component';
 import { ContactSettings } from './profile-contact-settings.component';
 import { DelegatedContactDetails } from './profile-delegate-details.component';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export const Profile = () => {
   const { t } = useTranslation('profile');
@@ -16,68 +16,34 @@ export const Profile = () => {
   return (
     <div className="flex flex-col gap-24">
       <h1 className="mb-16">{t('profile:title')}</h1>
-
-      <Disclosure
-        className="bg-background-content px-24 py-8 rounded-button shadow-50"
+      <ProfileAccordion
         data-cy="contact-information-disclosure"
-        size="lg"
+        title={t('profile:contactSetting.title')}
+        subTitle={t('profile:contactSetting.description')}
       >
-        <Disclosure.Header>
-          <Disclosure.Title className="flex-col items-start gap-4">
-            <h2 className="text-h4-md">{t('profile:contactSetting.title')}</h2>
-            <p className="sm:text-base font-normal mb-0 text-small">{t('profile:contactSetting.description')}</p>
-          </Disclosure.Title>
-          <Disclosure.Button>
-            {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
-          </Disclosure.Button>
-        </Disclosure.Header>
-        <Disclosure.Content>
-          <ContactDetails />
-        </Disclosure.Content>
-      </Disclosure>
+        <ContactDetails />
+      </ProfileAccordion>
 
-      <Disclosure
-        className="bg-background-content px-24 py-8 rounded-button shadow-50"
+      <ProfileAccordion
+        title={t('notifications:title')}
+        subTitle={t('notifications:description')}
         data-cy="notifications-disclosure"
-        size="lg"
       >
-        <Disclosure.Header>
-          <Disclosure.Title className="flex-col items-start gap-4">
-            <h2 className="text-h4-md">{t('notifications:title')}</h2>
-            <p className="sm:text-base font-normal mb-0 text-small">{t('notifications:description')}</p>
-          </Disclosure.Title>
-          <Disclosure.Button>
-            {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
-          </Disclosure.Button>
-        </Disclosure.Header>
-        <Disclosure.Content>
-          <ContactSettings />
+        <ContactSettings />
 
-          <Divider className="my-48 mx-8" />
+        <Divider className="my-48 mx-8" />
 
-          <DelegatedContactDetails />
-        </Disclosure.Content>
-      </Disclosure>
+        <DelegatedContactDetails />
+      </ProfileAccordion>
 
       {isRepresentingModePrivate && (
-        <Disclosure
-          className="bg-background-content px-24 py-8 rounded-button shadow-50"
+        <ProfileAccordion
+          subTitle={t('profile:delegates.description')}
+          title={t('profile:delegates.title')}
           data-cy="facility-delegates-disclosure"
-          size="lg"
         >
-          <Disclosure.Header>
-            <Disclosure.Title className="flex-col items-start gap-4">
-              <h2 className="text-h4-md">{t('profile:delegates.title')}</h2>
-              <p className="text-base font-normal mb-0">{t('profile:delegates.description')}</p>
-            </Disclosure.Title>
-            <Disclosure.Button>
-              {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
-            </Disclosure.Button>
-          </Disclosure.Header>
-          <Disclosure.Content>
-            <FacilityDelegates />
-          </Disclosure.Content>
-        </Disclosure>
+          <FacilityDelegates />
+        </ProfileAccordion>
       )}
 
       {isRepresentingModeBusiness && <Mandates />}

@@ -10,9 +10,7 @@ export const Faq = () => {
       <Accordion className="mt-32">
         <Accordion.Item>
           <Accordion.Item.Header>
-            <Accordion.Item.Title>
-              <label>Varför saknas statistik för senaste dagarna/timmarna?</label>
-            </Accordion.Item.Title>
+            <Accordion.Item.Title>Varför saknas statistik för senaste dagarna/timmarna?</Accordion.Item.Title>
             <Accordion.Item.Button />
           </Accordion.Item.Header>
           <Accordion.Item.Content>
@@ -24,9 +22,7 @@ export const Faq = () => {
 
         <Accordion.Item>
           <Accordion.Item.Header>
-            <Accordion.Item.Title>
-              <label>Hur tolkar jag statistiken för solceller?</label>
-            </Accordion.Item.Title>
+            <Accordion.Item.Title>Hur tolkar jag statistiken för solceller?</Accordion.Item.Title>
             <Accordion.Item.Button />
           </Accordion.Item.Header>
           <Accordion.Item.Content>
@@ -42,9 +38,7 @@ export const Faq = () => {
 
         <Accordion.Item>
           <Accordion.Item.Header>
-            <Accordion.Item.Title>
-              <label>Min förbrukning ser inte ut att stämma?</label>
-            </Accordion.Item.Title>
+            <Accordion.Item.Title>Min förbrukning ser inte ut att stämma?</Accordion.Item.Title>
             <Accordion.Item.Button />
           </Accordion.Item.Header>
           <Accordion.Item.Content>
@@ -54,9 +48,7 @@ export const Faq = () => {
 
         <Accordion.Item>
           <Accordion.Item.Header>
-            <Accordion.Item.Title>
-              <label>Varför ser jag inte statistik över min förbrukning?</label>
-            </Accordion.Item.Title>
+            <Accordion.Item.Title>Varför ser jag inte statistik över min förbrukning?</Accordion.Item.Title>
             <Accordion.Item.Button />
           </Accordion.Item.Header>
           <Accordion.Item.Content>
@@ -74,9 +66,7 @@ export const Faq = () => {
 
         <Accordion.Item>
           <Accordion.Item.Header>
-            <Accordion.Item.Title>
-              <label>Varför ser jag mina gamla anläggningar?</label>
-            </Accordion.Item.Title>
+            <Accordion.Item.Title>Varför ser jag mina gamla anläggningar?</Accordion.Item.Title>
             <Accordion.Item.Button />
           </Accordion.Item.Header>
           <Accordion.Item.Content>
@@ -90,7 +80,7 @@ export const Faq = () => {
         <Accordion.Item>
           <Accordion.Item.Header>
             <Accordion.Item.Title>
-              <label>Varför kan det skilja så mycket i förbrukning mellan månad till månad?</label>
+              Varför kan det skilja så mycket i förbrukning mellan månad till månad?
             </Accordion.Item.Title>
             <Accordion.Item.Button />
           </Accordion.Item.Header>

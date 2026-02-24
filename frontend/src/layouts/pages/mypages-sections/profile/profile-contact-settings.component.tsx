@@ -28,7 +28,7 @@ export const ContactSettings = () => {
   };
 
   return (
-    <div className="pt-40">
+    <div>
       <ContactSettingsFormLogic onSubmitSuccess={() => setIsEdit(false)} formData={contactsettings}>
         <div>
           <div className="flex flex-col gap-y-40 pb-24">
