@@ -2264,10 +2264,10 @@
     "@sk-web-gui/utils" "2.2.2"
     lucide-react "^0.553.0"
 
-"@sk-web-gui/ai@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@sk-web-gui/ai/-/ai-4.3.0.tgz#5c41f55a5ec690b5cdd0042c06bc4d20b7336e8e"
-  integrity sha512-VzuljewrONPQmJ0qB4xrYVz+WI7MVCqM++ZU8JCxnMFqo89/wALmvocuMePyqzIMYojspqk+hgbfSrwCsiGaRA==
+"@sk-web-gui/ai@^4.3.1":
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/@sk-web-gui/ai/-/ai-4.3.1.tgz#c9e653c14660b71cac769f3e53bfe8ff678db794"
+  integrity sha512-l4JQpOD6vu3n/9vgeIIsGWY/fYpbeWzNNf6aYBe0iiAQSPqKCsVgt0D63TPiMyMIcucTFdlFiZWKOXgcZSufag==
   dependencies:
     "@microsoft/fetch-event-source" "^2.0.1"
     "@sk-web-gui/accordion" "3.0.3"

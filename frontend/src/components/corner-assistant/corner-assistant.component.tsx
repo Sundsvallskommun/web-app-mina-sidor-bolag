@@ -83,6 +83,7 @@ export const CornerAssistant: React.FC = () => {
       disableFullscreen
       showNewSession={false}
       showFeedback={false}
+      showSessionHistory={false}
     />
   ) : (
     <CornerAssistantLoading isMobile={isMaxLargeDevice} />
