@@ -1,3 +1,9 @@
 {
+  "info": {
+    "name": "Assistent",
+    "shortName": "MS",
+    "title": "Mina sidor Bolag",
+    "description": "Har du frågor om dina avtal, fakturor eller statistik?"
+  },
   "loading_assistant": "Förbereder din assistent..."
 }

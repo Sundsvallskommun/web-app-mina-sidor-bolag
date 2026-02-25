@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CornerAssistantLoading } from './components/corner-assistant-loading.component';
 import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
 import { useAppContext } from '@contexts/app.context';
+import { useTranslation } from 'react-i18next';
 
 export const CornerAssistant: React.FC = () => {
   const [checking, setChecking] = useState(false);
@@ -15,6 +16,8 @@ export const CornerAssistant: React.FC = () => {
     url: '/me',
     queryKey: ['user'],
   });
+
+  const { t } = useTranslation();
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
   const { representingMode } = useAppContext();
 
@@ -43,10 +46,10 @@ export const CornerAssistant: React.FC = () => {
     setApiKey('');
     setApiServiceConfig({ credentials: 'include' });
     setInfo({
-      name: 'Assistent',
-      shortName: 'MS',
-      title: 'Mina sidor Bolag',
-      description: 'Har du frågor om dina avtal, fakturor eller statistik?',
+      name: t('ai:info.name'),
+      shortName: t('ai:info.shortName'),
+      title: t('ai:info.title'),
+      description: t('ai:info.description'),
       id: 'selfserviceai',
       avatar: '/ai/avatar.png',
     });
