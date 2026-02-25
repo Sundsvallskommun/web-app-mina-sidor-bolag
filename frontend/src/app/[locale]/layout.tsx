@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { ReactNode } from 'react';
 
 const namespaces = [
+  'ai',
   'about',
   'accessibility',
   'agreement',

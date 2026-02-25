@@ -118,3 +118,7 @@ body {
     }
   }
 }
+
+.white-spinner > svg {
+  @apply stroke-light-primary;
+}

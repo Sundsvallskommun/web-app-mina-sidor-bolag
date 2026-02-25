@@ -83,28 +83,36 @@ const ContactSettingsConfirmationContent: React.FC<ContactSettingsConfirmationCo
       <div>
         <Divider className="py-0 my-0" />
         <Accordion>
-          <Accordion.Item header={t('confirmation:personalData.title')}>
-            <p className="pb-16">{t('confirmation:personalData.description')}</p>
-            <p>
-              <Link
-                href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
-                target="_blank"
-                variant="tertiary"
-                external
-              >
-                {t('confirmation:personalData.sundsvallElnatLinkText')}
-              </Link>
-            </p>
-            <p>
-              <Link
-                href="https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
-                target="_blank"
-                variant="tertiary"
-                external
-              >
-                {t('confirmation:personalData.sundsvallEnergiLinkText')}
-              </Link>
-            </p>
+          <Accordion.Item>
+            <Accordion.Item.Header>
+              <Accordion.Item.Title>
+                <label>{t('confirmation:personalData.title')}</label>
+              </Accordion.Item.Title>
+              <Accordion.Item.Button />
+            </Accordion.Item.Header>
+            <Accordion.Item.Content>
+              <p className="pb-16">{t('confirmation:personalData.description')}</p>
+              <p>
+                <Link
+                  href="https://sundsvallelnat.se/om-bolaget/lagar-och-krav/regler-for-hantering-av-personuppgifter"
+                  target="_blank"
+                  variant="tertiary"
+                  external
+                >
+                  {t('confirmation:personalData.sundsvallElnatLinkText')}
+                </Link>
+              </p>
+              <p>
+                <Link
+                  href="https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy"
+                  target="_blank"
+                  variant="tertiary"
+                  external
+                >
+                  {t('confirmation:personalData.sundsvallEnergiLinkText')}
+                </Link>
+              </p>
+            </Accordion.Item.Content>
           </Accordion.Item>
         </Accordion>
         <Divider className="py-0 my-0" />
