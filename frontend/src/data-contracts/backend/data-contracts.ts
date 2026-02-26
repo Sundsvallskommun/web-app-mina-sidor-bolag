@@ -458,3 +458,108 @@ export interface PermissionRequestDto {
 export interface UpdatePermissionDto {
   PermissionRequest: any;
 }
+
+export interface SessionRequest {
+  partyId: string;
+  /** @minItems 1 */
+  customerEngagementOrgIds: string[];
+}
+
+export interface SessionResponse {
+  assistantId?: string;
+  sessionId?: string;
+}
+
+export interface Assistant {
+  id?: string;
+  handle?: string;
+}
+
+export interface File {
+  id?: string;
+  name?: string;
+  mimeType?: string;
+  size?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  transcription?: string;
+}
+
+export interface Metadata {
+  embeddingModelId?: string;
+  url?: string;
+  title?: string;
+  size?: number;
+}
+
+export interface Model {
+  id?: string;
+  name?: string;
+  nickname?: string;
+  family?: string;
+  tokenLimit?: number;
+  deprecated?: boolean;
+  nrBillionParameters?: number;
+  hfLink?: string;
+  stability?: string;
+  hosting?: string;
+  openSource?: boolean;
+  description?: string;
+  deploymentName?: string;
+  org?: string;
+  vision?: boolean;
+  reasoning?: boolean;
+  baseUrl?: string;
+  orgEnabled?: boolean;
+  orgDefault?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Tools {
+  assistants: Assistant;
+}
+
+export interface QuestionResponse {
+  sessionId?: string;
+  question?: string;
+  answer?: string;
+  files: File;
+  references: Reference;
+  model: Model;
+  tools: Tools;
+}
+
+export interface Reference {
+  id?: string;
+  metadata: Metadata;
+  groupId?: string;
+  websiteId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  score?: string;
+}
+
+export interface ModelId {
+  id: string;
+}
+
+export interface UseTools {
+  assistants: ToolAssistant;
+}
+
+export interface ToolAssistant {
+  id: string;
+  handle: string;
+}
+
+export interface ConversationRequest {
+  question: string;
+  session_id: string;
+  assistant_id: string;
+  group_chat_id?: string;
+  files?: ModelId;
+  stream: boolean;
+  tools?: UseTools;
+  use_web_search?: boolean;
+}

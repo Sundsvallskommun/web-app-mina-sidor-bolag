@@ -1,0 +1,111 @@
+import { ENEO_API_KEY, MUNICIPALITY_ID } from '@/config';
+import { getApiBase } from '@/config/api-config';
+import { QuestionResponse } from '@/data-contracts/selfserviceai/data-contracts';
+import { ConversationRequest } from '@/dtos/conversation.dto';
+import ApiService from '@/services/api.service';
+import { logger } from '@/utils/logger';
+import { HttpException } from '@exceptions/HttpException';
+import { ResponseData } from '@interfaces/service';
+import authMiddleware from '@middlewares/auth.middleware';
+import { Request, Response } from 'express';
+import Stream from 'node:stream';
+import { Body, Controller, Get, HttpError, Post, Req, Res, UseBefore } from 'routing-controllers';
+import { OpenAPI } from 'routing-controllers-openapi';
+
+@Controller()
+@UseBefore(authMiddleware)
+export class SelfServiceAiController {
+  private readonly apiService = new ApiService();
+  private readonly selfServiceAIApiBase = getApiBase('selfserviceai');
+  private readonly eneoApiBase = getApiBase('eneo-sundsvall');
+
+  @Get('/ai/isReady')
+  @OpenAPI({
+    summary: 'Check if assistant is ready for interaction',
+  })
+  @UseBefore(authMiddleware)
+  async isReady(@Req() req: Request): Promise<ResponseData<boolean>> {
+    const id = req.session?.ai?.sessionId;
+    if (!id) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    try {
+      const sessionUrl = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
+      const readyUrl = `${sessionUrl}/ready`;
+      const res = await this.apiService.get<boolean>({ url: readyUrl }, req.user);
+      if (res.data) {
+        await this.apiService.get<QuestionResponse>(
+          { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
+          req.user,
+        );
+      }
+      return { data: res.data, message: 'success' };
+    } catch (e) {
+      logger.error('Error checking if assistant is ready', e);
+      throw new HttpError(e?.httpCode ?? 500, e?.message ?? 'Could not check if assistant is ready');
+    }
+  }
+
+  @Post('/ai/conversations')
+  @OpenAPI({
+    summary: 'Chat with an assistant',
+  })
+  @UseBefore(authMiddleware)
+  async conversation(
+    @Req() req: Request,
+    @Body() body: ConversationRequest,
+    @Res() response: Response<QuestionResponse | Stream>,
+  ): Promise<Response<QuestionResponse> | Stream> {
+    const assistant_id = req.session?.ai?.assistantId;
+    const session_id = req.session?.ai?.sessionId;
+
+    if (!assistant_id || !session_id) {
+      throw new HttpException(412, 'Not ready');
+    }
+    const url = `${this.eneoApiBase}/conversations/`;
+    const responseType = body?.stream ? 'stream' : 'json';
+    const data: ConversationRequest = {
+      ...body,
+      assistant_id,
+      session_id,
+    };
+    try {
+      if (responseType === 'json') {
+        const res = await this.apiService.post<QuestionResponse, ConversationRequest>(
+          {
+            url,
+            data,
+            headers: { 'api-key': ENEO_API_KEY },
+            responseType,
+          },
+          req.user,
+        );
+
+        return response.send(res.data);
+      } else {
+        const res = await this.apiService.post<Stream, ConversationRequest>(
+          {
+            url,
+            data,
+            headers: { 'api-key': ENEO_API_KEY },
+            responseType,
+          },
+          req.user,
+        );
+        const dataStream = res.data;
+        dataStream.on('data', (buf: Buffer) => {
+          return buf;
+        });
+
+        dataStream.on('end', () => {
+          return response.end();
+        });
+        return res.data;
+      }
+    } catch (e) {
+      logger.error('Error sending question to conversation.', e);
+      throw new HttpError(e?.httpCode ?? 500, e?.message ?? 'Error sending question to conversation.');
+    }
+  }
+}
