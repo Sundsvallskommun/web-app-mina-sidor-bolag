@@ -2,6 +2,7 @@
   "title": "Dina fakturor",
   "byAddress": "Visa fakturor per adress",
   "chooseAddress": "Välj adress",
+  "noAddressFound": "Ingen adress hittades",
   "unhandled": "Ohanterade fakturor",
   "all": "Alla fakturor",
   "contractor": "Leverantör",
@@ -19,7 +20,8 @@
     "fetch": "Hämta pdf",
     "fetching": "Hämtar pdf",
     "fetchInvoice": "Hämta faktura {{invoice}}",
-    "error": "Det gick inte att hämta filen."
+    "error": "Det gick inte att hämta filen.",
+    "openInBrowser": "Öppna i webbläsaren"
   },
   "card": {
     "amount": "Belopp: {{amount}} kr",

@@ -2,7 +2,7 @@ import { ManualTable, ManualTableColumn } from '@components/manual-table/manual-
 import { IInvoice, InvoiceTableProps } from '@interfaces/invoice';
 import { Label, Spinner } from '@sk-web-gui/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { GetPdfButton } from './get-pdf-button.component';
+import { DownloadPdfButton } from './get-pdf-button.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useTranslation } from 'react-i18next';
@@ -58,12 +58,24 @@ export const InvoicesTable = ({
     [userData]
   );
 
+  const handleInvoiceAddresses = (facilityIds: string[], userData?: User): string[] => {
+    return facilityIds
+      .map((id) => userData?.addresses.find((a) => a.facilityIds.includes(id))?.address)
+      .filter(Boolean) as string[];
+  };
+
   const getInvoiceAddress = useMemo(
     () =>
-      (facilityId: string): string => {
-        return userData?.addresses.find((address) => address.facilityIds.includes(facilityId))?.address ?? '';
+      (facilityIds: string[]): string => {
+        const uniqueAddresses = new Set(handleInvoiceAddresses(facilityIds, userData));
+
+        if (uniqueAddresses.size === 0) {
+          return t('invoice:noAddressFound');
+        }
+
+        return Array.from(uniqueAddresses).join(', ');
       },
-    [userData]
+    [userData, t]
   );
 
   const columns: ManualTableColumn<IInvoice>[] = useMemo(
@@ -124,7 +136,7 @@ export const InvoicesTable = ({
         className: 'max-w-[146px]',
         renderColumn: (_value, item) => (
           <div className="text-left text-small">
-            <span>{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
+            <span>{!!item.facilityIds && getInvoiceAddress(item.facilityIds)}</span>
           </div>
         ),
       },
@@ -135,7 +147,7 @@ export const InvoicesTable = ({
         screenReaderOnly: true,
         renderColumn: (_value, item: IInvoice) => (
           <div className="text-left">
-            <GetPdfButton isLoading={pdfIsLoading} setIsLoading={setPdfIsLoading} item={item} />
+            <DownloadPdfButton isLoading={pdfIsLoading} setIsLoading={setPdfIsLoading} item={item} />
           </div>
         ),
       },

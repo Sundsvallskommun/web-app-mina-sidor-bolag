@@ -1,17 +1,19 @@
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
+import { ClientRepresentingApiResponse } from '@/responses/representing.response';
 import { getBusinessInformation } from '@/services/business-engagements.service';
+import { deleteAISession, startAISession } from '@/services/selfserviceai.service';
 import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
+import { logger } from '@/utils/logger';
 import { RepresentsDto } from '@dtos/represents.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import getDelegatedFacilities from '@services/delegation.service';
+import { Response } from 'express';
 import { Body, Controller, Get, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '../interfaces/representing.interface';
-import { ClientRepresentingApiResponse } from '@/responses/representing.response';
-import { Response } from 'express';
 
 type IntersectByProperties<T, U> = Pick<T & U, Extract<keyof T, keyof U>>;
 
@@ -115,6 +117,12 @@ export class RepresentingController {
     @Res() res: Response<ClientRepresentingApiResponse>,
   ): Promise<Response<ClientRepresentingApiResponse>> {
     const representing = req.session?.representing ?? undefined;
+    try {
+      await deleteAISession(req);
+    } catch (error) {
+      logger.error('Error deleting session', error);
+    }
+
     let newRepresenting = representing;
 
     if (selectedRepresenting.organizationNumber !== undefined) {
@@ -155,6 +163,12 @@ export class RepresentingController {
           return [];
         },
       );
+    }
+
+    try {
+      await startAISession(req);
+    } catch (error) {
+      logger.error('Error starting new AI session', error);
     }
 
     return res.send({ data: this.getRepresentingToSend(newRepresenting), message: 'success' });

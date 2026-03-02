@@ -120,6 +120,7 @@ function Login() {
                       >
                         {t('common:person')}
                       </Button>
+                      {/* NOTE: Link to old service temporary 
                       <Button
                         className="flex-grow"
                         variant="secondary"
@@ -128,7 +129,17 @@ function Login() {
                         onClick={() => onLogin(RepresentingMode.BUSINESS)}
                       >
                         {t('common:organization')}
-                      </Button>
+                      </Button> */}
+                      <a
+                        className="sk-btn sk-btn-lg sk-btn-secondary flex-grow"
+                        href="https://e-tjanster.stadsbacken.se/foretag"
+                        target="_blank"
+                      >
+                        <Button.Content>
+                          {t('common:organization')}
+                          <Icon icon={<ArrowRight />} />
+                        </Button.Content>
+                      </a>
                     </div>
                     {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
                   </div>

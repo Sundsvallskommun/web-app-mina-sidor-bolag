@@ -1,6 +1,12 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { Invoice, InvoicesResponse, InvoiceStatus, MetaData, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
+import {
+  Invoice,
+  InvoicesResponse,
+  InvoiceStatus,
+  MetaData,
+  PdfInvoice,
+} from '@/data-contracts/invoices/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
@@ -41,7 +47,13 @@ export class InvoicesController {
     const allInvoices: Invoice[] = [];
     const { facilityId, page, limit } = req.query;
 
-    const metaData: MetaData = { page: parseInt(page.toString()), limit: parseInt(page.toString()), totalRecords: 0, totalPages: 0, count: 12 };
+    const metaData: MetaData = {
+      page: Number.parseInt(page.toString()),
+      limit: Number.parseInt(limit.toString()),
+      totalRecords: 0,
+      totalPages: 0,
+      count: 12,
+    };
 
     if (!facilityId) {
       // Facility ids must be provided. Together with the filter on facilities in User Controller,

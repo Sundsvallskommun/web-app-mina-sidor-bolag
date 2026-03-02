@@ -46,7 +46,8 @@ describe('Sidöverskridande', () => {
 
     cy.get('[data-cy="user-menu"]').should('exist').contains('Förnamn Efternamn').click();
     cy.get('[data-cy="user-menu-profile-button"]').should('exist').should('have.text', 'Profil och inställningar');
-    cy.get('[data-cy="user-menu-eligibility-button"]').should('exist').should('have.text', 'Medgivanden');
+    // NOTE: Hide until release
+    // cy.get('[data-cy="user-menu-eligibility-button"]').should('exist').should('have.text', 'Medgivanden');
     cy.get('[data-cy="user-menu-logout-button"]').should('exist').should('have.text', 'Logga ut');
     cy.get('[data-cy="desktop-navigation"] li').should('have.length', 5);
   });

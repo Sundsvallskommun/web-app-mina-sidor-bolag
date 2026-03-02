@@ -9,6 +9,24 @@ import { Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
 import { logger } from '@/utils/logger';
 import { HttpError } from 'routing-controllers';
 
+const prioritizeEngagements = (engagements: PersonEngagement[]): PersonEngagement[] => {
+  // Filter out engagements without organization number
+  const validEngagements = engagements.filter(engagement => engagement.organizationNumber);
+
+  if (validEngagements.length === 0) return [];
+
+  // Prioritize Bolagsverket engagements, then add unique engagements from other sources
+  const bolagsverketEngagements = validEngagements.filter(engagement => engagement.source === 'Bolagsverket');
+  const bolagsverketOrgNumbers = new Set(bolagsverketEngagements.map(e => e.organizationNumber));
+  const uniqueOtherEngagements = validEngagements.filter(
+    engagement => engagement.source !== 'Bolagsverket' && !bolagsverketOrgNumbers.has(engagement.organizationNumber),
+  );
+
+  return [...bolagsverketEngagements, ...uniqueOtherEngagements].sort((a, b) =>
+    a.organizationNumber.localeCompare(b.organizationNumber),
+  );
+};
+
 export const getBusinessEngagements = async (user: User): Promise<PersonEngagement[]> => {
   if (!user.personNumber) {
     throw new Error('Bad Request: personalNumber is required');
@@ -47,9 +65,16 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
     }
   }
 
-  await addEngagementFromMandate(user, apiService, apiBase, res);
+  // Add engagements from mandates and just pass if error occurs
+  try {
+    await addEngagementFromMandate(user, apiService, apiBase, res);
+  } catch (error) {
+    logger.error('Could not add engagements from mandate', error);
+  }
 
-  return res.data ?? [];
+  if (!res.data) return [];
+
+  return prioritizeEngagements(res.data);
 };
 
 export const getBusinessInformation = async (

@@ -48,6 +48,18 @@ export const APIS = [
     name: 'eventlog',
     version: '2.1',
   },
+  {
+    name: 'bfus',
+    version: '1.0.0',
+  },
+  {
+    name: 'selfserviceai',
+    version: '1.0',
+  },
+  {
+    name: 'eneo-sundsvall',
+    version: '1.1',
+  },
 ] as const;
 
 type ApiName = (typeof APIS)[number]['name'];

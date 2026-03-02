@@ -1,24 +1,31 @@
-import { BFUS_API_KEY, BFUS_EXTERNAL_ID, BFUS_API_BASE_URL } from '@/config';
+import { API_BASE_URL, BFUS_API_KEY, BFUS_EXTERNAL_ID } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { BFUSCustomerResponse, BFUSEligablePartyResponse } from '@/interfaces/bfus.interface';
+import {
+  BFUSCustomerResponse,
+  BFUSEligablePartyResponse,
+  BFUSHasNewPermissionResponse,
+} from '@/interfaces/bfus.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
-import { BFUSApiResponse, BFUSEligablePartyApiResponse } from '@/responses/bfus.response';
+import { BFUSApiResponse, BFUSEligablePartyApiResponse, BFUSNewPermissionApiResponse } from '@/responses/bfus.response';
 import { logger } from '@/utils/logger';
 import axios, { AxiosResponse } from 'axios';
 import { Response } from 'express';
 import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
 import { sendPermissionRequest } from '@/services/bfus.service';
 import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-request.dto';
 import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
 import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
 import ApiTokenService from '@/services/api-token.service';
+import { getApiBase } from '@/config/api-config';
 import dayjs from 'dayjs';
 
 @Controller('/bfus')
 export class BFUSController {
+  private apiBase = getApiBase('bfus');
+
   async requireToken(): Promise<string> {
     const apiTokenService = new ApiTokenService();
     const token = await apiTokenService.getToken();
@@ -39,6 +46,7 @@ export class BFUSController {
       },
       PermissionRequest: {
         EligablePartyId: request.EligablePartyId,
+        CustomerId: request.CustomerId,
         EndDate: now.toISOString(),
       },
     };
@@ -68,6 +76,7 @@ export class BFUSController {
 
   @Get('/eligable-party-customer-id')
   @OpenAPI({ summary: 'Returns a list with customer id:s from BFUS' })
+  @ResponseSchema(BFUSApiResponse)
   @UseBefore(authMiddleware)
   async getBFUSCustomerId(
     @Req() req: RequestWithUser,
@@ -83,7 +92,7 @@ export class BFUSController {
       const token = await this.requireToken();
       const results = await Promise.allSettled(
         relations.customerNumber.map(cn => {
-          const url = `${BFUS_API_BASE_URL}/bfusewiopenapi3/1.0.0/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
+          const url = `${API_BASE_URL}/${this.apiBase}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
           return axios.get<BFUSCustomerResponse>(url, {
             headers: { Authorization: `Bearer ${token}, ${BFUS_API_KEY}` },
           });
@@ -108,8 +117,53 @@ export class BFUSController {
     }
   }
 
+  @Get('/new-permissions')
+  @OpenAPI({ summary: 'Check if user has new permissions' })
+  @UseBefore(authMiddleware)
+  async hasNewPermissions(
+    @Res() res: Response<BFUSNewPermissionApiResponse>,
+    @QueryParam('customerIds') customerIds: string,
+  ): Promise<Response<BFUSNewPermissionApiResponse>> {
+    if (!customerIds) {
+      throw new HttpException(400, 'No customer ids found');
+    }
+
+    const ids = customerIds
+      .split(',')
+      .map(id => Number(id.trim()))
+      .filter(id => !Number.isNaN(id));
+
+    if (!ids.length) {
+      throw new HttpException(400, 'Customer ids must be numbers');
+    }
+
+    try {
+      const token = await this.requireToken();
+      const responses = await Promise.allSettled(
+        ids.map(cn => {
+          const url = `${API_BASE_URL}/${this.apiBase}/EP/EligableParty/NewPermissions/${BFUS_EXTERNAL_ID}/${cn}`;
+          return axios.get<BFUSHasNewPermissionResponse>(url, {
+            headers: { Authorization: `Bearer ${token}, ${BFUS_API_KEY}` },
+          });
+        }),
+      );
+
+      return res.send({
+        data: responses.some(
+          (r: PromiseFulfilledResult<AxiosResponse<BFUSHasNewPermissionResponse>>) =>
+            r.value.data.Content.NewPermissions.HasPermissions === true,
+        ),
+        message: 'success',
+      });
+    } catch (error: any) {
+      logger.error('Unexpected error in BFUS Customer', error.message);
+      throw new HttpError(500, 'Unexpected server error');
+    }
+  }
+
   @Get('/eligable-party-permissions')
   @OpenAPI({ summary: 'Returns a list of eligable party permissions' })
+  @ResponseSchema(BFUSEligablePartyApiResponse)
   @UseBefore(authMiddleware)
   async GetEligablePartyPermissions(
     @QueryParam('customerIds') customerIds: string,
@@ -132,7 +186,7 @@ export class BFUSController {
       const token = await this.requireToken();
       const responses = await Promise.all(
         ids.map(customerId => {
-          const url = `${BFUS_API_BASE_URL}/bfusewiopenapi3/1.0.0/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}`;
+          const url = `${API_BASE_URL}/${this.apiBase}/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}`;
           return axios.get<BFUSEligablePartyResponse>(url, {
             headers: { Authorization: `Bearer ${token}, ${BFUS_API_KEY}` },
           });

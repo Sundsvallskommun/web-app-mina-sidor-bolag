@@ -119,6 +119,24 @@ export interface BFUSEligablePartyPermissionResponse {
   PermissionRequestExecuted: boolean;
 }
 
+export interface BFUSHasNewPermissionResponse {
+  Header: {
+    ErrorInformation: string | null;
+    ObjectVersion: number;
+    Success: boolean;
+    PerformanceTime: string;
+    InParameters: string | null;
+  };
+  Content: {
+    NewPermissions: NewPermissionsResponseObject;
+  };
+}
+
+export interface NewPermissionsResponseObject {
+  HasPermissions: boolean;
+  ObjectVersion: number;
+}
+
 export enum BFUSStatusCode {
   New = 0,
   Active = 1,

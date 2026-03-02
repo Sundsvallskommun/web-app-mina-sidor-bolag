@@ -21,7 +21,7 @@ export const FacilityDelegates = () => {
   });
 
   return (
-    <div className="pt-24">
+    <div>
       <p>{t('profile:delegates.information')}</p>
 
       {facilityDelegations?.length ? (

@@ -49,7 +49,7 @@ export const ContactDetails = () => {
   };
 
   return (
-    <div className="pt-40">
+    <div>
       <div className="flex items-start max-w-fit mb-40 gap-6">
         <Icon icon={<Info />} className="shrink-0 mr-6" />
         <Trans

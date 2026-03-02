@@ -8,6 +8,8 @@ import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { useApi } from '@services/api-service';
 import React, { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { CornerAssistant } from '@components/corner-assistant/corner-assistant.component';
+import { User } from '@interfaces/user';
 
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
@@ -15,6 +17,9 @@ export function Layout({ title, children }: { title: string; children: React.Rea
 
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
+
+  const { data: user } = useApi<User>({ url: '/me', method: 'get' });
+  const ownsFacilities = useMemo(() => user?.facilities?.some((f) => !f.isDelegated) ?? [], [user?.facilities]);
 
   interface ConsentCookie {
     optional: boolean;
@@ -219,6 +224,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         resetConsentOnInit={false}
         onConsent={cookieConsentHandler}
       />
+      {ownsFacilities ? <CornerAssistant /> : null}
     </>
   );
 }
