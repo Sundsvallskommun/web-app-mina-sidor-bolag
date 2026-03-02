@@ -20,6 +20,10 @@ export class PermissionRequestDto {
   @IsOptional()
   @IsNumber()
   CustomerId?: number;
+
+  @IsOptional()
+  @IsString()
+  EndDate: string;
 }
 
 export class FullPermissionDto {

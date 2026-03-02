@@ -8,6 +8,7 @@ export const sendPermissionRequest = async (dto: UpdatePermissionDto, requireTok
   const token = await requireToken();
   const apiBase = getApiBase('bfus');
   const url = `${API_BASE_URL}/${apiBase}/EP/EligableParty/PermissionRequest`;
+
   const response = await axios.post<BFUSEligablePartyPermissionResponse>(url, dto, {
     headers: { Authorization: `Bearer ${token}, ${BFUS_API_KEY}` },
   });

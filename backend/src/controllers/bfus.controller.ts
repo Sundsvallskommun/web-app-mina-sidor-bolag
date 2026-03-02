@@ -37,6 +37,7 @@ export class BFUSController {
   }
 
   async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto) {
+    const now = new Date().toLocaleDateString();
     const body: FullPermissionDto = {
       Header: {
         ExternalId: BFUS_EXTERNAL_ID,
@@ -45,24 +46,26 @@ export class BFUSController {
       PermissionRequest: {
         EligablePartyId: request.EligablePartyId,
         CustomerId: request.CustomerId,
+        EndDate: now,
       },
     };
 
     if (operation === 'grant' || operation === 'revoke') {
       body.PermissionRequest.ContractIdList = request.ContractIdList;
+      body.PermissionRequest.CustomerId = null;
     } else if (operation === 'deny') {
       body.PermissionRequest.CustomerId = request.CustomerId;
     }
 
     try {
-      const result = await sendPermissionRequest(body, this.requireToken);
-      return {
-        Header: result.Header,
-        Content: result.Content,
-      };
+      const result = await sendPermissionRequest(body, () => this.requireToken());
+      return result;
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
       if (axios.isAxiosError(error) && error.response) {
+        console.error('Status:', error.response?.status);
+        console.error('Data:', JSON.stringify(error.response?.data, null, 2));
+        console.error('Request:', error.config);
         throw new HttpException(error.response.status, error.response.statusText);
       }
       throw new HttpException(500, 'Internal server error');
