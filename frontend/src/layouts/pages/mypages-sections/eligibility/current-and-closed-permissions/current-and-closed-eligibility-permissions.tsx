@@ -35,7 +35,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
         customerIds: customerIds?.toString(),
       },
     },
-    dataHandler: handleEligibilityResponse(['ongoing', 'denied']),
+    dataHandler: handleEligibilityResponse(['ongoing', 'denied', 'revoked']),
   });
 
   const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({

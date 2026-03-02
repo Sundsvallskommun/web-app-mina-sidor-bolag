@@ -13,7 +13,7 @@ export enum BFUSStatusCode {
 }
 
 export enum BFUSEndReason {
-  Revoked = 'Återkallat',
+  Revoked = 'Återkallat av kund',
   Expired = 'Upphört',
   Dismissed = 'Uppsagt',
 }

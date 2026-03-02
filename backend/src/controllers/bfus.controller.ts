@@ -20,7 +20,6 @@ import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
 import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
 import ApiTokenService from '@/services/api-token.service';
 import { getApiBase } from '@/config/api-config';
-import dayjs from 'dayjs';
 
 @Controller('/bfus')
 export class BFUSController {
@@ -38,7 +37,7 @@ export class BFUSController {
   }
 
   async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto) {
-    const now = dayjs();
+    const now = new Date().toLocaleDateString();
     const body: FullPermissionDto = {
       Header: {
         ExternalId: BFUS_EXTERNAL_ID,
@@ -47,7 +46,7 @@ export class BFUSController {
       PermissionRequest: {
         EligablePartyId: request.EligablePartyId,
         CustomerId: request.CustomerId,
-        EndDate: now.toISOString(),
+        EndDate: now,
       },
     };
 
@@ -59,8 +58,7 @@ export class BFUSController {
     }
 
     try {
-      const token = await this.requireToken();
-      const result = await sendPermissionRequest(body, token);
+      const result = await sendPermissionRequest(body, () => this.requireToken());
       return result;
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
