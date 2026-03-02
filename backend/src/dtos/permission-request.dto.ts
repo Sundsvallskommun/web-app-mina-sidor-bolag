@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsNumber, isString } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
 
 export class PermissionHeaderDto {
   @IsString()
