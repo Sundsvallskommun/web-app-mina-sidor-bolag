@@ -2,6 +2,7 @@
   "title": "Dina medgivanden",
   "description": "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden.",
   "noData": "Du har inga medgivanden.",
+  "noCustomerId": "Kunde inte hitta något kund-id. Försök igen.",
   "permissions": {
     "new": "Nytt medgivande",
     "current": "Aktuella",
@@ -17,7 +18,7 @@
       "address": "Adress",
       "facilityId": "Anläggnings-ID",
       "validTime": "Giltighetstid",
-      "approveAll" : "Godkänn medgivandet",
+      "approveAll": "Godkänn medgivandet",
       "approve": "Godkänn",
       "deny": "Neka medgivandet",
       "approveSuccess": "Medgivande godkändes",

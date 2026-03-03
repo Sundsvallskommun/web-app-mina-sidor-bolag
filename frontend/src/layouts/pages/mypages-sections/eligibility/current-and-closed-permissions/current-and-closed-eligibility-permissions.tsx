@@ -5,14 +5,19 @@ import dayjs from 'dayjs';
 import { Badge, Button, Label, Spinner, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions-card-item/current-and-closed-permissions-card-item';
 import { queryClient, useApi } from '@services/api-service';
-import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
+import {
+  BFUSEligiblePartyPermissionsApiResponse,
+  EligablePartyPart,
+  FullPermissionDto,
+  PermissionRequestDto,
+} from '@interfaces/eligibility';
 import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
-  customerIds?: number[];
+  allPermissions: BFUSEligiblePartyPermissionsApiResponse['data'];
 }
 
-const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClosedEligibilityPermissionsProps) => {
+const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState(0);
   const { isMinLg } = useThemeQueries();
@@ -20,22 +25,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
   const formatDate = (date: string | null) =>
     date ? dayjs(date).format('YYYY-MM-DD') : t('eligibility:permissions.table.currentAndClosed.unknownDate');
   const snackBar = useSnackbar();
-
-  const {
-    data: permissions,
-    isLoading,
-    isFetching,
-  } = useApi({
-    url: '/bfus/eligable-party-permissions',
-    queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
-    method: 'get',
-    axiosParameters: {
-      params: {
-        customerIds: customerIds?.toString(),
-      },
-    },
-    dataHandler: handleEligibilityResponse(['ongoing', 'denied', 'revoked', 'expired']),
-  });
+  const permissions = handleEligibilityResponse(['ongoing', 'denied', 'revoked', 'expired'])(allPermissions);
 
   const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
     url: 'bfus/eligable-party-revoke-permission',
@@ -67,7 +57,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
     }
   };
 
-  if (isLoading || isFetching || !permissions) {
+  if (!permissions || Object.keys(permissions).length === 0) {
     return (
       <div className="w-full flex justify-center content-center p-24" data-cy="current-and-closed-permissions-loader">
         <Spinner />
