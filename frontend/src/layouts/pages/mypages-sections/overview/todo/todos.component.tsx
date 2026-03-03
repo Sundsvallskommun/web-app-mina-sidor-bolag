@@ -6,15 +6,11 @@ import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
 import { TodoListItem } from './todo-list-item.component';
 import { useTranslation } from 'react-i18next';
-import { BFUSCustomerIdsApiResponse } from '@interfaces/eligibility';
+import { useGetCustomerId } from '@services/permissions-service';
 
 export const Todos = () => {
   const { t } = useTranslation('overview');
-  const {
-    data: userData,
-    isFetching: userDataIsFetching,
-    isFetched: userIsFetched,
-  } = useApi<User>({
+  const { data: userData, isFetching: userDataIsFetching } = useApi<User>({
     url: '/me',
     method: 'get',
     queryKey: ['user'],
@@ -33,15 +29,7 @@ export const Todos = () => {
     method: 'get',
   });
 
-  const { data: customerIds, isFetched: customerIdsFetched } = useApi<BFUSCustomerIdsApiResponse['data']>({
-    url: '/bfus/eligable-party-customer-id',
-    queryKey: ['bfus-customer-ids'],
-    method: 'get',
-    queryOptions: {
-      enabled: userIsFetched,
-    },
-    dataHandler: (data) => data,
-  });
+  const { data: customerIds, isFetched: customerIdsFetched } = useGetCustomerId(userData);
 
   const { data: hasNewPermissions } = useApi({
     url: '/bfus/new-permissions',
@@ -49,11 +37,11 @@ export const Todos = () => {
     method: 'get',
     axiosParameters: {
       params: {
-        customerIds: customerIds?.customerIds.toString(),
+        customerIds: customerIds?.toString(),
       },
     },
     queryOptions: {
-      enabled: customerIdsFetched && customerIds && customerIds?.customerIds?.length > 0,
+      enabled: customerIdsFetched && customerIds && customerIds?.length > 0,
     },
   });
 
