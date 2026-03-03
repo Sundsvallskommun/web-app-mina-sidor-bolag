@@ -25,7 +25,6 @@ describe('Dina medgivanden', () => {
   });
 
   it('should render a table for new and current and closed eligibility permissions', () => {
-    cy.get('[data-cy="current-and-closed-permissions-loader"]').should('exist');
     cy.wait('@getPartyPermissions', { timeout: 10000 }).its('response.statusCode').should('eq', 200);
     cy.get('[data-cy="current-and-closed-permissions-loader"]').should('not.exist');
     cy.get('[data-cy="current-and-closed-permissions"]').find('table').should('exist');

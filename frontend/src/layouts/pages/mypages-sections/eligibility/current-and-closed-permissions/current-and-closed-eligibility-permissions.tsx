@@ -58,11 +58,7 @@ const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndCl
   };
 
   if (!permissions || Object.keys(permissions).length === 0) {
-    return (
-      <div className="w-full flex justify-center content-center p-24" data-cy="current-and-closed-permissions-loader">
-        <Spinner />
-      </div>
-    );
+    return null;
   }
 
   const currentAndClosedPermissions: EligablePartyPart[] = Object.values(permissions).flat();
