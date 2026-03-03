@@ -10,6 +10,8 @@ import { User } from '@interfaces/user';
 
 export const eligibilityQueryKeys = {
   partyPermissions: 'bfus-eligible-party-permissions',
+  newPermissions: 'eligibility-new-permissions',
+  currentAndClosedPermissions: 'eligibility-current-and-closed-permissions',
   customerIds: 'bfus-customer-ids',
 };
 

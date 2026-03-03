@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { queryClient, useApi } from '@services/api-service';
-import { handleEligibilityResponse } from '@services/permissions-service';
+import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
 import { NewPermissionListItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-list-item/new-permission-list-item.component';
 import React from 'react';
 import { useSnackbar, useThemeQueries } from '@sk-web-gui/react';
@@ -40,7 +40,7 @@ export const NewPermissions = (props: NewPermissionsProps) => {
 
   const { data: newPermissions } = useApi({
     url: '/bfus/eligable-party-permissions',
-    queryKey: ['new-permissions'],
+    queryKey: [eligibilityQueryKeys.newPermissions],
     method: 'get',
     axiosParameters: {
       params: {
@@ -59,12 +59,14 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     try {
       await mutation.mutateAsync(payload);
 
-      await queryClient.invalidateQueries({
-        queryKey: ['new-permissions'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['bfus-eligible-party-permissions'],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [eligibilityQueryKeys.newPermissions],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
+        }),
+      ]);
       snackBar({
         message: successMessage,
         status: 'success',

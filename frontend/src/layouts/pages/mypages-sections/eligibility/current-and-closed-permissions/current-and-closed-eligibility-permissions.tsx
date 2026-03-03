@@ -28,7 +28,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
     isFetching,
   } = useApi({
     url: '/bfus/eligable-party-permissions',
-    queryKey: ['current-and-closed-permissions'],
+    queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
     method: 'get',
     axiosParameters: {
       params: {
@@ -45,26 +45,27 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
 
   const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    await revokeMutation
-      .mutateAsync({
+    try {
+      await revokeMutation.mutateAsync({
         PermissionRequest: {
           EligablePartyId: p.EligablePartyId,
           ContractIdList: [p.ContractId],
         },
-      })
-      .then(() => {
-        snackBar({
-          message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
-          status: 'success',
-        });
-        queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
-      })
-      .catch((e: AxiosError) =>
-        snackBar({
-          message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
-          status: 'error',
-        })
-      );
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
+      });
+      snackBar({
+        message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
+        status: 'success',
+      });
+    } catch {
+      snackBar({
+        message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}`,
+        status: 'error',
+      });
+    }
   };
 
   if (isLoading || isFetching || !permissions) {
