@@ -24,7 +24,7 @@ import { User } from '@/interfaces/users.interface';
 
 @Controller('/bfus')
 export class BFUSController {
-  private apiService = new ApiService();
+  private readonly apiService = new ApiService();
   private apiBase = getApiBase('bfus');
 
   async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto, user: User) {
