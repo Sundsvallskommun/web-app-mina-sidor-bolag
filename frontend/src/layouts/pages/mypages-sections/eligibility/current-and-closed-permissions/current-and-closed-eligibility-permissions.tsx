@@ -2,7 +2,7 @@ import { MouseEvent, useState } from 'react';
 import CurrentAndClosedEligibilityPermissionsTable from './current-and-closed-permissions-table/current-and-closed-eligibility-permissions-table';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { Badge, Button, Label, Spinner, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
+import { Badge, Button, Label, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions-card-item/current-and-closed-permissions-card-item';
 import { queryClient, useApi } from '@services/api-service';
 import {
