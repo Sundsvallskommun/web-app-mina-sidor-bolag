@@ -7,7 +7,6 @@ import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions
 import { queryClient, useApi } from '@services/api-service';
 import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
 import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
-import { AxiosError } from 'axios';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
   customerIds?: number[];
