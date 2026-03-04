@@ -58,10 +58,12 @@ export class UserController {
   cacheRelations = async (req: RequestWithUser) => {
     const delegations = req?.session?.cache?.delegations ?? [];
     const allRelations: CustomerRelation[] = [];
+    const { representing } = req.session ?? {};
 
     if (!req.session.cache.relations) {
       try {
-        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
+        const partyId = getRepresentingPartyId(representing);
+        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${partyId}`;
         const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
         const relations = relationsRes.data?.customerRelations ?? [];
 
@@ -111,6 +113,7 @@ export class UserController {
         customerRelations: allRelations,
         customerNumber: customerNumbers,
       };
+
       return Promise.resolve(true);
     }
   };
