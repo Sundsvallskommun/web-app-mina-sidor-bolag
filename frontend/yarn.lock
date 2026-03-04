@@ -2293,6 +2293,16 @@
     usehooks-ts "^3.1.1"
     zustand "^5.0.11"
 
+"@sk-web-gui/alert@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@sk-web-gui/alert/-/alert-1.1.2.tgz#697761a4ba641d86ac928dc6bcf67baba9091c61"
+  integrity sha512-U7zSEp+5F+Bn1IyzyCyfw25bSuJdh/Qn5lvPLb41pNX0J7YEd9me9rV3myPUH2S4tO/iyQuvvIOG3Hi36i+SEg==
+  dependencies:
+    "@sk-web-gui/button" "2.1.10"
+    "@sk-web-gui/icon" "3.1.2"
+    "@sk-web-gui/utils" "2.2.2"
+    lucide-react "0.537.0"
+
 "@sk-web-gui/avatar@1.2.4":
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/@sk-web-gui/avatar/-/avatar-1.2.4.tgz#0d8c98d17d3fdb23889a4380af4ddfd0ee9ac378"
@@ -7289,6 +7299,11 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+lucide-react@0.537.0, lucide-react@^0.537.0:
+  version "0.537.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.537.0.tgz#2752280dfd51e95456c35813837bc9e0b190303b"
+  integrity sha512-VxWsdxBGeFnlC+HwMg/l08HptN4YRU9o/lRog156jOmRxI1ERKqN+rJiNY/mPcKAdWdM0UbyO8ft1o0jq69SSQ==
+
 lucide-react@0.544.0:
   version "0.544.0"
   resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.544.0.tgz#4719953c10fd53a64dd8343bb0ed16ec79f3eeef"
@@ -7298,11 +7313,6 @@ lucide-react@^0.471.1:
   version "0.471.2"
   resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.471.2.tgz#817ead897ea630e982cb45e3429ee7f786dc3acb"
   integrity sha512-A8fDycQxGeaSOTaI7Bm4fg8LBXO7Qr9ORAX47bDRvugCsjLIliugQO0PkKFoeAD57LIQwlWKd3NIQ3J7hYp84g==
-
-lucide-react@^0.537.0:
-  version "0.537.0"
-  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.537.0.tgz#2752280dfd51e95456c35813837bc9e0b190303b"
-  integrity sha512-VxWsdxBGeFnlC+HwMg/l08HptN4YRU9o/lRog156jOmRxI1ERKqN+rJiNY/mPcKAdWdM0UbyO8ft1o0jq69SSQ==
 
 lucide-react@^0.553.0:
   version "0.553.0"

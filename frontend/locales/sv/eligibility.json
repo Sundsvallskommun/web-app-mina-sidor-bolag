@@ -8,7 +8,7 @@
     "current": "Aktuella",
     "closed": "Avslutade",
     "description": {
-      "new": "Du kan godkänna eller neka begäran om åtkomst till dina mätvärden. Du behöver hantera medgivandet inom 21 dagar från att det mottogs.",
+      "new": "Du kan antingen neka eller godkänna hela förfrågan, eller godkänna anläggningar en i taget. Om du godkänner en anläggning kan hela förfrågan inte längre nekas.",
       "current": "Här ser du aktuella medgivanden. Du kan när som helst återkalla ett medgivande om du inte längre vill dela dina mätvärden.",
       "closed": "Här ser du medgivanden som har löpt ut, nekats eller återkallats."
     },
@@ -26,7 +26,8 @@
       "denySuccess": "Medgivande nekades",
       "denyError": "Något gick fel när medgivande skulle nekas",
       "continuous": "Löpande",
-      "periodOfValidity": "{{start}} - {{end}}"
+      "periodOfValidity": "{{start}} - {{end}}",
+      "processInfo": "När du godkänt en anläggning kan du inte längre neka hela förfrågan. Vill du inte godkänna fler anläggningar kan du låta förfrågan löpa ut."
     },
     "table": {
       "header": {

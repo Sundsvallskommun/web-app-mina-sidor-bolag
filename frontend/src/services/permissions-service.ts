@@ -2,7 +2,6 @@ import {
   BFUSCustomerIdsApiResponse,
   BFUSEligiblePartyPermissionsApiResponse,
   EligablePartyPart,
-  PermissionStatusCategory,
 } from '@interfaces/eligibility';
 import { useApi } from './api-service';
 import { QueryKey } from '@tanstack/react-query';
@@ -26,23 +25,53 @@ export const useGetCustomerId = (user: User | undefined) =>
     },
   });
 
-export const handleEligibilityResponse =
-  (statuses: PermissionStatusCategory | PermissionStatusCategory[]) =>
-  (data: BFUSEligiblePartyPermissionsApiResponse['data']): { [key: string]: EligablePartyPart[] } => {
-    if (!data) {
-      return {};
+export type Group = { parts: EligablePartyPart[]; hasBeenProcessed: boolean };
+
+export interface Permissions {
+  new: Record<string, Group>;
+  current: EligablePartyPart[];
+  closed: EligablePartyPart[];
+}
+
+export const handlePermissionResponse = (data: BFUSEligiblePartyPermissionsApiResponse['data']): Permissions => {
+  const closedStatuses = new Set(['denied', 'ended', 'revoked', 'expired']);
+
+  return data.eligablePartyParts.reduce<Permissions>(
+    (acc, part) => {
+      const { EnergyServiceParty, StatusCategory } = part;
+
+      if (StatusCategory === 'new') {
+        acc.new[EnergyServiceParty] ??= {
+          parts: [],
+          hasBeenProcessed: false,
+        };
+
+        acc.new[EnergyServiceParty].parts.push(part);
+      }
+
+      if (StatusCategory === 'ongoing') {
+        acc.current.push(part);
+      }
+
+      if (closedStatuses.has(StatusCategory)) {
+        acc.closed.push(part);
+      }
+
+      if (StatusCategory !== 'new') {
+        if (acc.new[EnergyServiceParty]) {
+          acc.new[EnergyServiceParty].hasBeenProcessed = true;
+        }
+      }
+
+      return acc;
+    },
+    {
+      new: {},
+      current: [],
+      closed: [],
     }
+  );
+};
 
-    const statusList = Array.isArray(statuses) ? statuses : [statuses];
-
-    return data.eligablePartyParts
-      .filter((part) => statusList.includes(part.StatusCategory))
-      .reduce(
-        (r: { [key: string]: EligablePartyPart[] }, a) => {
-          const key = a.EnergyServiceParty;
-          (r[key] ??= []).push(a);
-          return r;
-        },
-        {} as { [key: string]: EligablePartyPart[] }
-      );
-  };
+export const permissionsHandler = (data: BFUSEligiblePartyPermissionsApiResponse['data']): Permissions =>
+  handlePermissionResponse(data);
