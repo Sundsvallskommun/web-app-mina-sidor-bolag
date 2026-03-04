@@ -2,15 +2,19 @@
 
 import { useTranslation } from 'react-i18next';
 import { queryClient, useApi } from '@services/api-service';
-import { handleEligibilityResponse } from '@services/permissions-service';
+import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
 import { NewPermissionListItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-list-item/new-permission-list-item.component';
 import React from 'react';
 import { useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { NewPermissionCardItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-card-item/new-permission-card-item.component';
-import { EligablePartyPart, PermissionRequestDto } from '@interfaces/eligibility';
+import {
+  BFUSEligiblePartyPermissionsApiResponse,
+  EligablePartyPart,
+  PermissionRequestDto,
+} from '@interfaces/eligibility';
 
 interface NewPermissionsProps {
-  customerIds: number[];
+  allPermissions: BFUSEligiblePartyPermissionsApiResponse['data'];
 }
 
 type PermissionMutationOptions<TPayload> = {
@@ -23,7 +27,7 @@ type PermissionMutationOptions<TPayload> = {
 };
 
 export const NewPermissions = (props: NewPermissionsProps) => {
-  const { customerIds } = props;
+  const { allPermissions } = props;
   const { t } = useTranslation(['common', 'eligibility']);
   const { isMinLg } = useThemeQueries();
 
@@ -38,17 +42,7 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     method: 'post',
   });
 
-  const { data: newPermissions } = useApi({
-    url: '/bfus/eligable-party-permissions',
-    queryKey: ['new-permissions'],
-    method: 'get',
-    axiosParameters: {
-      params: {
-        customerIds: customerIds?.toString(),
-      },
-    },
-    dataHandler: handleEligibilityResponse('new'),
-  });
+  const newPermissions = handleEligibilityResponse('new')(allPermissions);
 
   const handlePermissionMutation = async ({
     payload,
@@ -59,12 +53,14 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     try {
       await mutation.mutateAsync(payload);
 
-      await queryClient.invalidateQueries({
-        queryKey: ['new-permissions'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['bfus-eligible-party-permissions'],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [eligibilityQueryKeys.newPermissions],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
+        }),
+      ]);
       snackBar({
         message: successMessage,
         status: 'success',

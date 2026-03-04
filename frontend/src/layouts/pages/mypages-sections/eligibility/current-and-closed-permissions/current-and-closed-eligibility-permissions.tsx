@@ -2,18 +2,22 @@ import { MouseEvent, useState } from 'react';
 import CurrentAndClosedEligibilityPermissionsTable from './current-and-closed-permissions-table/current-and-closed-eligibility-permissions-table';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { Badge, Button, Label, Spinner, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
+import { Badge, Button, Label, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions-card-item/current-and-closed-permissions-card-item';
 import { queryClient, useApi } from '@services/api-service';
-import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
+import {
+  BFUSEligiblePartyPermissionsApiResponse,
+  EligablePartyPart,
+  FullPermissionDto,
+  PermissionRequestDto,
+} from '@interfaces/eligibility';
 import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
-import { AxiosError } from 'axios';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
-  customerIds?: number[];
+  allPermissions: BFUSEligiblePartyPermissionsApiResponse['data'];
 }
 
-const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClosedEligibilityPermissionsProps) => {
+const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState(0);
   const { isMinLg } = useThemeQueries();
@@ -21,22 +25,7 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
   const formatDate = (date: string | null) =>
     date ? dayjs(date).format('YYYY-MM-DD') : t('eligibility:permissions.table.currentAndClosed.unknownDate');
   const snackBar = useSnackbar();
-
-  const {
-    data: permissions,
-    isLoading,
-    isFetching,
-  } = useApi({
-    url: '/bfus/eligable-party-permissions',
-    queryKey: ['current-and-closed-permissions'],
-    method: 'get',
-    axiosParameters: {
-      params: {
-        customerIds: customerIds?.toString(),
-      },
-    },
-    dataHandler: handleEligibilityResponse(['ongoing', 'denied', 'revoked']),
-  });
+  const permissions = handleEligibilityResponse(['ongoing', 'denied', 'revoked', 'expired'])(allPermissions);
 
   const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
     url: 'bfus/eligable-party-revoke-permission',
@@ -45,34 +34,31 @@ const CurrentAndClosedEligibilityPermissions = ({ customerIds }: CurrentAndClose
 
   const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    await revokeMutation
-      .mutateAsync({
+    try {
+      await revokeMutation.mutateAsync({
         PermissionRequest: {
           EligablePartyId: p.EligablePartyId,
           ContractIdList: [p.ContractId],
         },
-      })
-      .then(() => {
-        snackBar({
-          message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
-          status: 'success',
-        });
-        queryClient.invalidateQueries({ queryKey: [eligibilityQueryKeys.partyPermissions] });
-      })
-      .catch((e: AxiosError) =>
-        snackBar({
-          message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}: "${e.message}"`,
-          status: 'error',
-        })
-      );
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
+      });
+      snackBar({
+        message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
+        status: 'success',
+      });
+    } catch {
+      snackBar({
+        message: `${t('eligibility:permissions.table.currentAndClosed.snackBarMessage.error')}`,
+        status: 'error',
+      });
+    }
   };
 
-  if (isLoading || isFetching || !permissions) {
-    return (
-      <div className="w-full flex justify-center content-center p-24" data-cy="current-and-closed-permissions-loader">
-        <Spinner />
-      </div>
-    );
+  if (!permissions || Object.keys(permissions).length === 0) {
+    return null;
   }
 
   const currentAndClosedPermissions: EligablePartyPart[] = Object.values(permissions).flat();
