@@ -33,44 +33,44 @@ export interface Permissions {
   closed: EligablePartyPart[];
 }
 
-export const handlePermissionResponse: (data: BFUSEligiblePartyPermissionsApiResponse['data']) => Permissions = (
-  data
-) => {
-  const grouped = data.eligablePartyParts.reduce<Record<string, Group>>((acc, part) => {
-    const key = part.EnergyServiceParty;
+export const handlePermissionResponse = (data: BFUSEligiblePartyPermissionsApiResponse['data']): Permissions => {
+  const closedStatuses = new Set(['denied', 'ended', 'revoked', 'expired']);
 
-    acc[key] ??= { parts: [], hasBeenProcessed: false };
-    acc[key].parts.push(part);
+  return data.eligablePartyParts.reduce<Permissions>(
+    (acc, part) => {
+      const { EnergyServiceParty, StatusCategory } = part;
 
-    if (part.StatusCategory !== 'new') {
-      acc[key].hasBeenProcessed = true;
-    }
-
-    return acc;
-  }, {});
-
-  const newPermissions = Object.fromEntries(
-    Object.entries(grouped)
-      .map(([key, group]) => {
-        const nextGroup: Group = {
-          ...group,
-          parts: group.parts.filter((p) => p.StatusCategory === 'new'),
+      if (StatusCategory === 'new') {
+        acc.new[EnergyServiceParty] ??= {
+          parts: [],
+          hasBeenProcessed: false,
         };
-        return [key, nextGroup] as const;
-      })
-      .filter(([, group]) => group.parts.length > 0)
+
+        acc.new[EnergyServiceParty].parts.push(part);
+      }
+
+      if (StatusCategory === 'ongoing') {
+        acc.current.push(part);
+      }
+
+      if (closedStatuses.has(StatusCategory)) {
+        acc.closed.push(part);
+      }
+
+      if (StatusCategory !== 'new') {
+        if (acc.new[EnergyServiceParty]) {
+          acc.new[EnergyServiceParty].hasBeenProcessed = true;
+        }
+      }
+
+      return acc;
+    },
+    {
+      new: {},
+      current: [],
+      closed: [],
+    }
   );
-
-  const currentPermissions = data.eligablePartyParts.filter((part) => part.StatusCategory === 'ongoing');
-
-  const closedStatuses = ['denied', 'ended', 'revoked', 'expired'];
-  const closedPermissions = data.eligablePartyParts.filter((part) => closedStatuses.includes(part.StatusCategory));
-
-  return {
-    new: newPermissions,
-    current: currentPermissions,
-    closed: closedPermissions,
-  };
 };
 
 export const permissionsHandler = (data: BFUSEligiblePartyPermissionsApiResponse['data']): Permissions =>
