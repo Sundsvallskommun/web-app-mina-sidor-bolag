@@ -37,14 +37,18 @@ export class FacilityDelegationController {
       delegations.map(async delegate => {
         try {
           const citizenUrl = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${delegate.delegatedTo}`;
-          const { data: citizen } = await this.apiService.get<CitizenExtended>({ url: citizenUrl }, req.user).catch(() => {
-            throw new HttpException(404, 'CITIZEN_NOT_FOUND');
-          });
+          const { data: citizen } = await this.apiService
+            .get<CitizenExtended>({ url: citizenUrl }, req.user)
+            .catch(() => {
+              throw new HttpException(404, 'CITIZEN_NOT_FOUND');
+            });
 
           const personNumberUrl = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${delegate.delegatedTo}/personnumber`;
-          const { data: personNumber } = await this.apiService.get<number>({ url: personNumberUrl }, req.user).catch(() => {
-            throw new HttpException(404, 'PERSON_NUMBER_NOT_FOUND');
-          });
+          const { data: personNumber } = await this.apiService
+            .get<number>({ url: personNumberUrl }, req.user)
+            .catch(() => {
+              throw new HttpException(404, 'PERSON_NUMBER_NOT_FOUND');
+            });
 
           const maskedPersonNumber = personNumber.toString().slice(0, -4).concat('****');
 
@@ -84,7 +88,10 @@ export class FacilityDelegationController {
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
 
-    const res = await this.apiService.patch<number, UpdateDelegation>({ url, baseURL, data: delegateFacilityData }, req.user);
+    const res = await this.apiService.patch<number, UpdateDelegation>(
+      { url, baseURL, data: delegateFacilityData },
+      req.user,
+    );
 
     return { data: res.data, message: 'Updated facility delegation' };
   }
@@ -93,7 +100,10 @@ export class FacilityDelegationController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Delete a facility delegation' })
   @UseBefore(authMiddleware)
-  async deleteFacilityDelegation(@Req() req: RequestWithUser, @Param('id') delegationId: string): Promise<ResponseData<number>> {
+  async deleteFacilityDelegation(
+    @Req() req: RequestWithUser,
+    @Param('id') delegationId: string,
+  ): Promise<ResponseData<number>> {
     if (!delegationId) {
       throw new HttpException(400, 'Bad Request');
     }
@@ -109,7 +119,10 @@ export class FacilityDelegationController {
   @Get('/personNumber/:personNumber')
   @OpenAPI({ summary: 'Get personId from person number' })
   @UseBefore(authMiddleware)
-  async getPersonIdByPersonNumber(@Req() req: RequestWithUser, @Param('personNumber') personNumber: string): Promise<ResponseData<string>> {
+  async getPersonIdByPersonNumber(
+    @Req() req: RequestWithUser,
+    @Param('personNumber') personNumber: string,
+  ): Promise<ResponseData<string>> {
     try {
       const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
       const res = await this.apiService.get<string>({ url }, req.user);
@@ -127,7 +140,10 @@ export class FacilityDelegationController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Create facility delegation' })
   @UseBefore(authMiddleware)
-  async createDelegate(@Req() req: RequestWithUser, @Body() facilityDelegationData: CreateDelegation): Promise<ResponseData<number>> {
+  async createDelegate(
+    @Req() req: RequestWithUser,
+    @Body() facilityDelegationData: CreateDelegation,
+  ): Promise<ResponseData<number>> {
     const { representing } = req?.session ?? {};
 
     const partyId = getRepresentingPartyId(representing);
@@ -161,7 +177,10 @@ export class FacilityDelegationController {
 
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations`;
-    const res = await this.apiService.post<number, CreateDelegation>({ url, baseURL, data: newFacilityDelegationData }, req.user);
+    const res = await this.apiService.post<number, CreateDelegation>(
+      { url, baseURL, data: newFacilityDelegationData },
+      req.user,
+    );
 
     return { data: res.data, message: 'updated' };
   }
