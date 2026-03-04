@@ -4,55 +4,72 @@ import { useTranslation } from 'react-i18next';
 import { Button, FormControl, Table } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { EligablePartyPart } from '@interfaces/eligibility';
+import Alert from '@sk-web-gui/alert';
 
 interface NewPermissionListItemProps {
   company: string;
   permissions: EligablePartyPart[];
+  hasBeenProcessed: boolean;
   handleApprovePermission: (contractIds: number[], eligablePartyId: string, customerId: number) => void;
   handleDenyPermission: (customerId: number, eligablePartyId: string) => void;
 }
 
 export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
-  const { company, permissions, handleApprovePermission, handleDenyPermission } = props;
+  const { company, permissions, hasBeenProcessed, handleApprovePermission, handleDenyPermission } = props;
   const { t } = useTranslation(['common', 'eligibility']);
 
   return (
     <div className="bg-background-content p-20 rounded-cards shadow-50 my-16 w-full" data-cy="new-permissions-card">
       <div className="p-16">
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-80">
           <div>
             <h4 className="leading-h4-md">{company}</h4>
 
-            <p>{t('eligibility:permissions.item.received', { date: '' })}</p>
+            <p>
+              {t('eligibility:permissions.item.received', {
+                date: dayjs(permissions[0]?.LastDayToApprove).subtract(21, 'days').format('YYYY-MM-DD'),
+              })}
+            </p>
             <p>
               {t('eligibility:permissions.item.handleLatest', {
                 date: dayjs(permissions[0]?.LastDayToApprove).format('YYYY-MM-DD'),
               })}
             </p>
           </div>
-          <div className="flex gap-16">
-            <Button
-              size="md"
-              color="error"
-              inverted
-              onClick={() => handleDenyPermission(permissions[0].CustomerId, permissions[0].EligablePartyId)}
-            >
-              {t('eligibility:permissions.item.deny')}
-            </Button>
-            <Button
-              size="md"
-              color="gronsta"
-              inverted
-              onClick={() =>
-                handleApprovePermission(
-                  permissions.map((p) => p.ContractId),
-                  permissions[0].EligablePartyId,
-                  permissions[0].CustomerId
-                )
-              }
-            >
-              {t('eligibility:permissions.item.approveAll')}
-            </Button>
+          <div className="flex flex-col flex-1 items-end gap-16">
+            <div className="flex gap-16">
+              <Button
+                size="md"
+                color="error"
+                inverted
+                onClick={() => handleDenyPermission(permissions[0].CustomerId, permissions[0].EligablePartyId)}
+                disabled={hasBeenProcessed}
+              >
+                {t('eligibility:permissions.item.deny')}
+              </Button>
+              <Button
+                size="md"
+                color="gronsta"
+                inverted
+                onClick={() =>
+                  handleApprovePermission(
+                    permissions.map((p) => p.ContractId),
+                    permissions[0].EligablePartyId,
+                    permissions[0].CustomerId
+                  )
+                }
+              >
+                {t('eligibility:permissions.item.approveAll')}
+              </Button>
+            </div>
+            <div>
+              <Alert size="sm" type="neutral" className="w-[480px]">
+                <Alert.Icon />
+                <Alert.Content>
+                  <Alert.Content.Description>{t('eligibility:permissions.item.processInfo')}</Alert.Content.Description>
+                </Alert.Content>
+              </Alert>
+            </div>
           </div>
         </div>
       </div>
