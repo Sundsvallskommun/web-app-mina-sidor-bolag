@@ -2,19 +2,15 @@
 
 import { useTranslation } from 'react-i18next';
 import { queryClient, useApi } from '@services/api-service';
-import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
+import { eligibilityQueryKeys, Group } from '@services/permissions-service';
 import { NewPermissionListItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-list-item/new-permission-list-item.component';
 import React from 'react';
 import { useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { NewPermissionCardItem } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permission-card-item/new-permission-card-item.component';
-import {
-  BFUSEligiblePartyPermissionsApiResponse,
-  EligablePartyPart,
-  PermissionRequestDto,
-} from '@interfaces/eligibility';
+import { PermissionRequestDto } from '@interfaces/eligibility';
 
 interface NewPermissionsProps {
-  allPermissions: BFUSEligiblePartyPermissionsApiResponse['data'];
+  permissions: Record<string, Group>;
 }
 
 type PermissionMutationOptions<TPayload> = {
@@ -27,7 +23,7 @@ type PermissionMutationOptions<TPayload> = {
 };
 
 export const NewPermissions = (props: NewPermissionsProps) => {
-  const { allPermissions } = props;
+  const { permissions } = props;
   const { t } = useTranslation(['common', 'eligibility']);
   const { isMinLg } = useThemeQueries();
 
@@ -41,8 +37,6 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     url: `/bfus/eligable-party-deny-permission`,
     method: 'post',
   });
-
-  const newPermissions = handleEligibilityResponse('new')(allPermissions);
 
   const handlePermissionMutation = async ({
     payload,
@@ -102,7 +96,7 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     });
   };
 
-  if (!newPermissions || Object.keys(newPermissions).length === 0) {
+  if (!permissions || Object.keys(permissions).length === 0) {
     return null;
   }
 
@@ -110,10 +104,11 @@ export const NewPermissions = (props: NewPermissionsProps) => {
     <div>
       <h3 className="leading-h3-lg">{t('eligibility:permissions.new')}</h3>
       <p className="pt-8">{t('eligibility:permissions.description.new')}</p>
-      {...Object.entries(newPermissions).map(([company, permissions]: [string, EligablePartyPart[]]) => {
+      {...Object.entries(permissions).map(([company, parts]: [string, Group]) => {
         const commonProps = {
           company,
-          permissions,
+          permissions: parts.parts,
+          hasBeenProcessed: parts.hasBeenProcessed,
           handleApprovePermission,
           handleDenyPermission,
         };

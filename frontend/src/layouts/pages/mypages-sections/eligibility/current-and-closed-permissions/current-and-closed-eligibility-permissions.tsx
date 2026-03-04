@@ -5,19 +5,15 @@ import dayjs from 'dayjs';
 import { Badge, Button, Label, Tabs, useSnackbar, useThemeQueries } from '@sk-web-gui/react';
 import { CurrentAndClosedPermissionCard } from './current-and-closed-permissions-card-item/current-and-closed-permissions-card-item';
 import { queryClient, useApi } from '@services/api-service';
-import {
-  BFUSEligiblePartyPermissionsApiResponse,
-  EligablePartyPart,
-  FullPermissionDto,
-  PermissionRequestDto,
-} from '@interfaces/eligibility';
-import { eligibilityQueryKeys, handleEligibilityResponse } from '@services/permissions-service';
+import { EligablePartyPart, FullPermissionDto, PermissionRequestDto } from '@interfaces/eligibility';
+import { eligibilityQueryKeys } from '@services/permissions-service';
 
 interface CurrentAndClosedEligibilityPermissionsProps {
-  allPermissions: BFUSEligiblePartyPermissionsApiResponse['data'];
+  current: EligablePartyPart[];
+  closed: EligablePartyPart[];
 }
 
-const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndClosedEligibilityPermissionsProps) => {
+const CurrentAndClosedEligibilityPermissions = ({ current, closed }: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState(0);
   const { isMinLg } = useThemeQueries();
@@ -25,7 +21,6 @@ const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndCl
   const formatDate = (date: string | null) =>
     date ? dayjs(date).format('YYYY-MM-DD') : t('eligibility:permissions.table.currentAndClosed.unknownDate');
   const snackBar = useSnackbar();
-  const permissions = handleEligibilityResponse(['ongoing', 'denied', 'revoked', 'expired'])(allPermissions);
 
   const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
     url: 'bfus/eligable-party-revoke-permission',
@@ -57,14 +52,7 @@ const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndCl
     }
   };
 
-  if (!permissions || Object.keys(permissions).length === 0) {
-    return null;
-  }
-
-  const currentAndClosedPermissions: EligablePartyPart[] = Object.values(permissions).flat();
-
-  const filterPermissions = (ongoing: boolean) =>
-    currentAndClosedPermissions.filter((p) => (p.StatusCategory === 'ongoing') === ongoing);
+  const filterPermissions = (ongoing: boolean) => (ongoing ? current : closed);
 
   const tabs = [
     { ongoing: true, index: 0 },
@@ -108,7 +96,7 @@ const CurrentAndClosedEligibilityPermissions = ({ allPermissions }: CurrentAndCl
   return (
     <Tabs className="mt-64" underline data-cy="current-and-closed-permissions" onTabChange={setActivePanel}>
       {tabs.map(({ ongoing, index }) => {
-        const items = filterPermissions(ongoing);
+        const items = ongoing ? current : closed;
         return (
           <Tabs.Item key={index}>
             <Tabs.Button rightIcon={<Badge inverted={activePanel !== index} counter={items.length} />}>

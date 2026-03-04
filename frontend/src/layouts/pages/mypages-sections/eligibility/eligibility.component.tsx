@@ -5,10 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { NewPermissions } from '@layouts/pages/mypages-sections/eligibility/new-permissions/new-permissions.component';
 import { Spinner } from '@sk-web-gui/react';
 import CurrentAndClosedEligibilityPermissions from './current-and-closed-permissions/current-and-closed-eligibility-permissions';
-import { eligibilityQueryKeys, useGetCustomerId } from '@services/permissions-service';
+import { eligibilityQueryKeys, permissionsHandler, useGetCustomerId } from '@services/permissions-service';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { BFUSEligiblePartyPermissionsApiResponse } from '@interfaces/eligibility';
 
 export default function Eligibility() {
   const { t } = useTranslation('eligibility');
@@ -21,9 +20,7 @@ export default function Eligibility() {
 
   const { data: customerIds, isLoading: customerLoading } = useGetCustomerId(userData);
 
-  const { data: allPermissions, isLoading: permissionsLoading } = useApi<
-    BFUSEligiblePartyPermissionsApiResponse['data']
-  >({
+  const { data: permissions, isLoading: permissionsLoading } = useApi({
     url: '/bfus/eligable-party-permissions',
     queryKey: [eligibilityQueryKeys.partyPermissions],
     method: 'get',
@@ -35,11 +32,14 @@ export default function Eligibility() {
     queryOptions: {
       enabled: !!customerIds?.length,
     },
+    dataHandler: permissionsHandler,
   });
 
   const isLoading = userLoading || customerLoading || permissionsLoading;
   const hasCustomerIds = !!customerIds?.length;
-  const hasPermissions = !!allPermissions && allPermissions.eligablePartyParts.length > 0;
+  const hasPermissions =
+    !!permissions &&
+    Boolean(Object.keys(permissions.new).length || permissions.current.length || permissions.closed.length);
 
   return (
     <div>
@@ -56,8 +56,8 @@ export default function Eligibility() {
         {!isLoading && hasCustomerIds && !hasPermissions && <p>{t('eligibility:noData')}</p>}
         {!isLoading && hasCustomerIds && hasPermissions && (
           <>
-            <NewPermissions allPermissions={allPermissions} />
-            <CurrentAndClosedEligibilityPermissions allPermissions={allPermissions} />
+            <NewPermissions permissions={permissions.new} />
+            <CurrentAndClosedEligibilityPermissions current={permissions.current} closed={permissions.closed} />
           </>
         )}
       </div>
