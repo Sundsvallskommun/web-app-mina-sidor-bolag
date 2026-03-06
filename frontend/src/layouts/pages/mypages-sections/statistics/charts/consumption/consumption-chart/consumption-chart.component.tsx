@@ -11,6 +11,13 @@ export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
 }
 
+const BarWithGap = (props: any) => {
+  const { x, y, width, height, fill, radius } = props;
+  const gap = 3;
+  if (height <= gap) return null;
+  return <rect x={x} y={y + gap} width={width} height={height - gap} fill={fill} rx={radius} ry={radius} />;
+};
+
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 480px)');
   const { getValues } = useFormContext();
@@ -34,6 +41,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
               left: 4,
               bottom: 4,
             }}
+            barCategoryGap={5}
           >
             <XAxis
               interval="preserveStartEnd"
@@ -77,14 +85,63 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 />
               }
             />
-            <Bar
-              className="dark:bg-background-content"
-              dataKey="value"
-              fill={isDarkMode ? '#FAE9E7' : '#600724'}
-              radius={[4, 4, 0, 0]}
-              stroke={isDarkMode ? '#FAE9E7' : '#600724'}
-              strokeWidth="1"
-            />
+            {data?.aggregatedOn === 'QUARTER' ? (
+              <>
+                <Bar
+                  className="dark:bg-background-content"
+                  dataKey="values[0]"
+                  fill={isDarkMode ? '#FF6B9D' : '#6B001F'}
+                  radius={3}
+                  stroke={isDarkMode ? '#FF6B9D' : '#6B001F'}
+                  strokeWidth="1"
+                  stackId="a"
+                  barSize={15}
+                  shape={<BarWithGap />}
+                />
+                <Bar
+                  className="dark:bg-background-content"
+                  dataKey="values[1]"
+                  fill={isDarkMode ? '#FF99C8' : '#CFA3AC'}
+                  radius={3}
+                  stroke={isDarkMode ? '#FF99C8' : '#CFA3AC'}
+                  strokeWidth="1"
+                  stackId="a"
+                  barSize={15}
+                  shape={<BarWithGap />}
+                />
+                <Bar
+                  className="dark:bg-background-content"
+                  dataKey="values[2]"
+                  fill={isDarkMode ? '#D97D9F' : '#A35C6B'}
+                  radius={3}
+                  stroke={isDarkMode ? '#D97D9F' : '#A35C6B'}
+                  strokeWidth="1"
+                  stackId="a"
+                  barSize={15}
+                  shape={<BarWithGap />}
+                />
+                <Bar
+                  className="dark:bg-background-content"
+                  dataKey="values[3]"
+                  fill={isDarkMode ? '#B8A8B8' : '#E8D6DA'}
+                  radius={3}
+                  stroke={isDarkMode ? '#B8A8B8' : '#E8D6DA'}
+                  strokeWidth="1"
+                  stackId="a"
+                  barSize={15}
+                  shape={<BarWithGap />}
+                />
+              </>
+            ) : (
+              <Bar
+                className="dark:bg-background-content"
+                dataKey="value"
+                fill={isDarkMode ? '#FAE9E7' : '#600724'}
+                radius={[4, 4, 0, 0]}
+                stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+                strokeWidth="1"
+              />
+            )}
             {getValues().year && (
               <Bar
                 dataKey="previousValue"

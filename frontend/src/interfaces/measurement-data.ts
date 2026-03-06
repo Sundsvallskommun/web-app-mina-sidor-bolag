@@ -8,6 +8,7 @@ export interface MeasurementDataSearchParameters {
 }
 
 export enum Aggregation {
+  QUARTER = 'QUARTER',
   HOUR = 'HOUR',
   DAY = 'DAY',
   MONTH = 'MONTH',
@@ -42,6 +43,7 @@ export interface MeasurementPoints {
   timestamp?: string;
   metaData?: MetaData[];
   chartTimestamp?: string;
+  values?: number[];
 }
 
 export interface MetaData {
@@ -66,6 +68,7 @@ export enum MeasurementDataSearchParametersAggregateOnEnum {
   DAY = 'DAY',
   MONTH = 'MONTH',
   YEAR = 'YEAR',
+  QUARTER = 'QUARTER',
 }
 
 export interface StatisticsMeasurementData {
@@ -87,10 +90,12 @@ export interface MergedStatisticsMeasurementData extends Omit<StatisticsMeasurem
 
 export interface MergedMeasurementPoints {
   value: number | undefined;
+  values?: number[];
   timestamp: string;
   chartTimestamp?: string;
   metaData?: MetaData[];
   previousValue: number | undefined;
+  previousValues?: number[];
 }
 
 export interface MergedMeasurementSeries {

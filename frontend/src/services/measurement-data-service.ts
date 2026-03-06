@@ -10,6 +10,8 @@ import {
 import dayjs from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { toFixedNumber } from '@react-stately/utils';
+import { add } from 'lodash';
+import { TFunction } from 'i18next';
 
 export const handleMeasurementDataByMonthResponse: (data: Data) => {
   current: number;
@@ -62,9 +64,32 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
   const addTimestamps: (series: MeasurementSerie) => void = (series: MeasurementSerie) => {
     series?.measurementPoints?.forEach(addTimestampToMeasurementPoint);
   };
+  const addQuarterValues: (series: MeasurementSerie) => void = (series: MeasurementSerie) => {
+    if (data.aggregateOn === Aggregation.QUARTER && series?.measurementPoints) {
+      series.measurementPoints = groupQuartersByHour(series.measurementPoints);
+    }
+  };
+
+  const groupQuartersByHour = (measurementPoints: MeasurementPoints[]) => {
+    let newPoints: MeasurementPoints[] = [];
+    for (let i = 0; i < measurementPoints.length; i += 4) {
+      const quarterPoints = measurementPoints.slice(i, i + 4);
+      const QuarterValues = quarterPoints.map((point) => point.value ?? 0);
+      const value = quarterPoints.reduce((acc, point) => acc + (point.value ?? 0), 0);
+      const timestamp = quarterPoints[0]?.timestamp;
+      newPoints.push({
+        value,
+        values: QuarterValues,
+        timestamp,
+        chartTimestamp: formatMeasurementDates(timestamp ?? '', Aggregation.QUARTER),
+      });
+    }
+    return newPoints;
+  };
 
   const measurementData = data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [];
   measurementData.forEach(addTimestamps);
+  measurementData.forEach(addQuarterValues);
 
   const peakHourUsage =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'Peakhourusage') ?? [];
@@ -120,6 +145,7 @@ export const calculateYearDifference = (current: number | undefined, previous: n
 
 export const formatMeasurementDates = (date: string, aggregation: string) => {
   switch (aggregation) {
+    case 'QUARTER':
     case 'HOUR':
       return dayjs(date).format('HH').toLowerCase();
     case 'DAY':
@@ -144,23 +170,47 @@ export const calculateTotalConsumption = (measurementData: MeasurementSerie[] | 
 };
 
 export const calculateHighestValue = (aggregateOn?: Aggregation, measurementData: MeasurementSerie[] = []) => {
-  if (measurementData?.[0]?.measurementPoints) {
-    const value = measurementData[0]?.measurementPoints?.reduce((a, b) => Math.max(a, b.value ?? 0), 0);
+  const points = measurementData[0]?.measurementPoints ?? [];
 
-    const measurementPoints = measurementData[0].measurementPoints.filter((measurement) => measurement.value === value);
-
-    return {
-      value: toFixedNumber(value, 2),
-      timestamp: formatHighestValueDate(aggregateOn, measurementPoints[0].timestamp),
-    };
-  } else {
+  if (!points.length) {
     return { value: 0, timestamp: '' };
   }
+
+  return aggregateOn === Aggregation.QUARTER
+    ? calculateHighestQuarterValue(points)
+    : calculateHighestRegularValue(points, aggregateOn);
+};
+
+const calculateHighestQuarterValue = (points: MeasurementPoints[]) => {
+  const quarterValues = points.flatMap((point) => point.values ?? []);
+  const maxValue = Math.max(...quarterValues);
+  const maxPoint = points.find((point) => point.values?.includes(maxValue));
+  const maxIndex = maxPoint?.values?.indexOf(maxValue) ?? 0;
+
+  const baseTime = dayjs(maxPoint?.timestamp);
+  const startTime = baseTime.add(maxIndex * 15, 'minute').format();
+  const endTime = baseTime.add((maxIndex + 1) * 15, 'minute').format();
+
+  return {
+    value: toFixedNumber(maxValue, 2),
+    timestamp: `${formatHighestValueDate(Aggregation.QUARTER, startTime)} – ${formatHighestValueDate(Aggregation.QUARTER, endTime)}`,
+  };
+};
+
+const calculateHighestRegularValue = (points: MeasurementPoints[], aggregateOn?: Aggregation) => {
+  const maxValue = Math.max(...points.map((p) => p.value ?? 0));
+  const maxPoint = points.find((p) => p.value === maxValue);
+
+  return {
+    value: toFixedNumber(maxValue, 2),
+    timestamp: formatHighestValueDate(aggregateOn, maxPoint?.timestamp),
+  };
 };
 
 export const formatHighestValueDate = (aggregateOn?: Aggregation, timestamp?: string) => {
   if (!timestamp) return 'Saknas';
   switch (aggregateOn) {
+    case Aggregation.QUARTER:
     case Aggregation.HOUR:
       return dayjs(timestamp).format('HH:mm');
     case Aggregation.DAY:
@@ -174,9 +224,17 @@ export const formatHighestValueDate = (aggregateOn?: Aggregation, timestamp?: st
 
 export const calculateAverageConsumption = (measurementData: MeasurementSerie[]) => {
   if (measurementData?.[0]?.measurementPoints) {
-    const sum = measurementData[0]?.measurementPoints?.reduce((accumulator, currentValue) => {
+    const points = measurementData[0]?.measurementPoints ?? [];
+
+    const sum = points.reduce((accumulator, currentValue) => {
       return currentValue.value ? accumulator + currentValue?.value : accumulator;
     }, 0);
+
+    // If the data is aggregated by quarter
+    if (points.length && points[0].values?.length === 4) {
+      const count = points.length * points[0].values.length;
+      return Math.round(sum / count);
+    }
 
     return Math.round(sum / measurementData[0]?.measurementPoints.length);
   } else {
@@ -187,6 +245,7 @@ export const calculateAverageConsumption = (measurementData: MeasurementSerie[])
 export const getFormattedDate = (aggregation?: Aggregation, fromDate?: string) => {
   if (!fromDate) return 'Datum saknas';
   switch (aggregation) {
+    case Aggregation.QUARTER:
     case Aggregation.HOUR:
       return dayjs(fromDate).format('D MMMM YYYY').toLowerCase();
     case Aggregation.DAY:
@@ -198,14 +257,16 @@ export const getFormattedDate = (aggregation?: Aggregation, fromDate?: string) =
   }
 };
 
-export const translateAggregateOn = (aggregateOn?: Aggregation) => {
+export const translateAggregateOn = (aggregateOn?: Aggregation, t?: TFunction) => {
   switch (aggregateOn) {
+    case Aggregation.QUARTER:
+      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvartal';
     case Aggregation.HOUR:
-      return 'timme';
+      return t ? t('statistics:hour').toLocaleLowerCase() : 'timme';
     case Aggregation.DAY:
-      return 'dag';
+      return t ? t('statistics:day').toLocaleLowerCase() : 'dag';
     case Aggregation.MONTH:
-      return 'månad';
+      return t ? t('statistics:month').toLocaleLowerCase() : 'månad';
     default:
       return '';
   }

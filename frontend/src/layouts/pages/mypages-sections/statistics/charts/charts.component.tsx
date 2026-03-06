@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Consumption from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption.component';
 import { Button, Divider, Icon } from '@sk-web-gui/react';
 import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
@@ -26,6 +26,7 @@ export default function Charts() {
   const { watch, setValue } = useFormContext();
   const { facilityId, toDate, fromDate, year } = watch();
   const [onlyTrade, setOnlyTrade] = useState(false);
+  const [isHourQuarter, setIsHourQuarter] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
   const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
   const [showEventLog, setShowEventLog] = useState<boolean>(false);
@@ -43,70 +44,93 @@ export default function Charts() {
     dataHandler: pagedAgreementsHandler,
   });
 
-  const getParams = (previous?: boolean) => {
-    const params = new URLSearchParams({});
-
-    user?.facilities?.forEach((facility) => {
-      if (facility.facilityId === facilityId && facility.type !== 'Elhandel') {
-        params.append('category', getCategoryFromInstalledBaseType(facility.type));
-      }
-    });
-
-    params.append('facilityId', facilityId);
-
-    params.append(
-      'fromDate',
-      year && previous
-        ? dayjs(fromDate)
-            .subtract(parseInt(dayjs(fromDate).format('YYYY')) - year, 'year')
-            .utc(true)
-            .startOf('date')
-            .format()
-        : dayjs(fromDate).startOf('date').utc(true).format()
-    );
-
-    params.append(
-      'toDate',
-      year && previous
-        ? dayjs(toDate)
-            .subtract(parseInt(dayjs(toDate).format('YYYY')) - year, 'year')
-            .utc(true)
-            .endOf('date')
-            .format()
-        : dayjs(toDate).endOf('date').utc(true).format()
-    );
-
+  const aggregateOn = useMemo(() => {
     const difference = dayjs(toDate).diff(fromDate, 'days');
-    params.append('aggregateOn', difference < 2 ? 'HOUR' : difference < 31 ? 'DAY' : 'MONTH');
+    return difference < 2 && isHourQuarter ? 'QUARTER' : difference < 2 ? 'HOUR' : difference < 31 ? 'DAY' : 'MONTH';
+  }, [fromDate, toDate, isHourQuarter]);
 
+  const fromDateParam = useMemo(() => {
+    return dayjs(fromDate).startOf('date').utc(true).format();
+  }, [fromDate]);
+  const toDateParam = useMemo(() => {
+    return dayjs(toDate).endOf('date').utc(true).format();
+  }, [toDate]);
+  const fromDatePreviousParam = useMemo(() => {
+    return dayjs(fromDate)
+      .subtract(parseInt(dayjs(fromDate).format('YYYY')) - year, 'year')
+      .utc(true)
+      .startOf('date')
+      .format();
+  }, [fromDate, year]);
+  const toDatePreviousParam = useMemo(() => {
+    return dayjs(toDate)
+      .subtract(parseInt(dayjs(toDate).format('YYYY')) - year, 'year')
+      .utc(true)
+      .endOf('date')
+      .format();
+  }, [toDate, year]);
+  const categoryParam = useMemo(() => {
+    const facility = user?.facilities?.find((f) => f.facilityId === facilityId && f.type !== 'Elhandel');
+    return facility ? getCategoryFromInstalledBaseType(facility.type) : '';
+  }, [user, facilityId]);
+
+  const buildParamsString = (
+    categoryParam: string,
+    facilityId: string,
+    fromDate: string,
+    toDate: string,
+    aggregateOn: string
+  ) => {
+    const params = new URLSearchParams({
+      category: categoryParam ?? '',
+      facilityId,
+      fromDate,
+      toDate,
+      aggregateOn,
+    });
     return params.toString();
   };
 
+  const paramsString = useMemo(
+    () => buildParamsString(categoryParam, facilityId, fromDateParam, toDateParam, aggregateOn),
+    [categoryParam, facilityId, fromDateParam, toDateParam, aggregateOn]
+  );
+
+  const paramsPreviousString = useMemo(
+    () => buildParamsString(categoryParam, facilityId, fromDatePreviousParam, toDatePreviousParam, aggregateOn),
+    [categoryParam, facilityId, fromDatePreviousParam, toDatePreviousParam, aggregateOn]
+  );
+
   const { data: measurementData, isFetching: isFetchingMeasurementData } = useApi({
-    url: `/measurementdata?${getParams()}`,
+    url: `/measurementdata?${paramsString}`,
     method: 'get',
     dataHandler: statisticsMeasurementDataHandler,
-    queryKey: ['statistics', facilityId, getParams()],
+    queryKey: ['statistics', facilityId, paramsString],
     queryOptions: {
-      enabled: !!facilityId && !!toDate && !!fromDate && getParams().includes('category='),
+      enabled:
+        !!facilityId &&
+        !!toDate &&
+        !!fromDate &&
+        paramsString.includes('category=') &&
+        paramsString.includes('aggregateOn='),
     },
   });
 
   const { data: previousMeasurementData, isFetching: isPreviousFetching } = useApi({
-    url: `/measurementdata?${getParams(true)}`,
+    url: `/measurementdata?${paramsPreviousString}`,
     method: 'get',
     dataHandler: statisticsMeasurementDataHandler,
-    queryKey: ['previousStatistics', year, getParams()],
+    queryKey: ['previousStatistics', year, paramsPreviousString],
     queryOptions: {
       enabled: !!year,
     },
   });
 
   useEffect(() => {
-    const category = getCategoryFromFacilityType(user?.facilities, facilityId);
-    setValue('category', category);
+    const categoryForDisplay = getCategoryFromFacilityType(user?.facilities, facilityId);
+    setValue('category', categoryForDisplay);
     setValue('area', getAreaFromFacility(user?.facilities, facilityId));
-    if (category === 'Fjärrvärme') {
+    if (categoryForDisplay === 'Fjärrvärme') {
       setOnlyTrade(false);
     } else {
       const netAgreementExistsForFacility = allAgreements
@@ -146,6 +170,7 @@ export default function Charts() {
             data={mergedMeasurementData ?? measurementData}
             isFetching={isFetchingMeasurementData}
             isPreviousFetching={isPreviousFetching}
+            updateIsHourQuarter={setIsHourQuarter}
           />
 
           {measurementData?.temperatureData?.length ? (
