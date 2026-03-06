@@ -13,7 +13,7 @@ import {
 import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
 import { User } from '@interfaces/user';
-import { MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
+import { Aggregation, MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { OnlyTrade } from '../../overview/consumption/only-trade.component';
 import { pagedAgreementsHandler } from '@services/agreement-service';
@@ -46,7 +46,13 @@ export default function Charts() {
 
   const aggregateOn = useMemo(() => {
     const difference = dayjs(toDate).diff(fromDate, 'days');
-    return difference < 2 && isHourQuarter ? 'QUARTER' : difference < 2 ? 'HOUR' : difference < 31 ? 'DAY' : 'MONTH';
+
+    let aggregationType = Aggregation.MONTH;
+    if (difference < 2 && isHourQuarter) aggregationType = Aggregation.QUARTER;
+    else if (difference < 2) aggregationType = Aggregation.HOUR;
+    else if (difference < 31) aggregationType = Aggregation.DAY;
+
+    return aggregationType;
   }, [fromDate, toDate, isHourQuarter]);
 
   const fromDateParam = useMemo(() => {

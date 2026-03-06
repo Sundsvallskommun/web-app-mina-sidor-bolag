@@ -72,8 +72,7 @@ interface QuarterTooltipProps {
 }
 
 const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ fromDate, label, payload, unit }) => {
-  const values = payload.map((p) => p.value);
-  const total = values.reduce((acc, val) => acc + val, 0);
+  const total = payload.map((p) => p.value).reduce((acc, val) => acc + val, 0);
 
   return (
     <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
@@ -84,10 +83,10 @@ const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ fromDate, label, payloa
           {dayjs(fromDate).format('YYYY')}: {formatNumber(total)} {unit}
         </b>
       </p>
-      {values.map((value, index) => (
-        <p className="ml-8" key={index}>
+      {payload.map((item, index) => (
+        <p className="ml-8" key={`quarter-${fromDate}-${index}`}>
           <b>
-            {(index + 1) * 15}min: {formatNumber(value)} {unit}
+            {(index + 1) * 15}min: {formatNumber(item.value)} {unit}
           </b>
         </p>
       ))}

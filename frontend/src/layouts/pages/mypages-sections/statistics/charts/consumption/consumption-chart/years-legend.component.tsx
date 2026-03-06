@@ -4,7 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { useDarkMode } from 'usehooks-ts';
 
 interface YearsLegendProps {
-  data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
+  readonly data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
 }
 
 export function YearsLegend({ data }: YearsLegendProps) {
