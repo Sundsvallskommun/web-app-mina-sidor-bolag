@@ -35,7 +35,7 @@ Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiver
 1. Klona ner repot.
 
 ```
-git clone git@github.com:Sundsvallskommun/web-app-mina-sidor-bolag.git
+git clone https://github.com/Sundsvallskommun/web-app-mina-sidor-bolag.git
 ```
 
 2. Installera dependencies för både `backend` och `frontend`
