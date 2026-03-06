@@ -18,6 +18,7 @@ import {
 } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+import { logger } from '@utils/logger';
 import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 
@@ -153,7 +154,9 @@ export class UserController {
     await this.cacheRelations(req);
 
     if (!req.session?.ai?.sessionId) {
-      await startAISession(req);
+      await startAISession(req).catch(err => {
+        logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
+      });
     }
 
     if (
