@@ -1,6 +1,5 @@
 'use client';
-import { Button, Icon, NavigationBar } from '@sk-web-gui/react';
-import { BarChart3Icon, TableIcon } from 'lucide-react';
+import { Button, NavigationBar } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 
 interface TimeIntervalSelectorProps {

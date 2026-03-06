@@ -10,7 +10,6 @@ import {
 import dayjs from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { toFixedNumber } from '@react-stately/utils';
-import { add } from 'lodash';
 import { TFunction } from 'i18next';
 
 export const handleMeasurementDataByMonthResponse: (data: Data) => {
@@ -71,7 +70,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
   };
 
   const groupQuartersByHour = (measurementPoints: MeasurementPoints[]) => {
-    let newPoints: MeasurementPoints[] = [];
+    const newPoints: MeasurementPoints[] = [];
     for (let i = 0; i < measurementPoints.length; i += 4) {
       const quarterPoints = measurementPoints.slice(i, i + 4);
       const QuarterValues = quarterPoints.map((point) => point.value ?? 0);

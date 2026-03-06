@@ -11,11 +11,30 @@ export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
 }
 
-const BarWithGap = (props: any) => {
+interface IBarWithGapProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  fill?: string;
+  radius?: number | number[];
+}
+
+const BarWithGap = (props: IBarWithGapProps) => {
   const { x, y, width, height, fill, radius } = props;
   const gap = 3;
-  if (height <= gap) return null;
-  return <rect x={x} y={y + gap} width={width} height={height - gap} fill={fill} rx={radius} ry={radius} />;
+  if (height === undefined || height <= gap) return null;
+  return (
+    <rect
+      x={x}
+      y={(y ?? 0) + gap}
+      width={width}
+      height={height - gap}
+      fill={fill}
+      rx={Array.isArray(radius) ? radius[0] : (radius ?? 0)}
+      ry={Array.isArray(radius) ? radius[0] : (radius ?? 0)}
+    />
+  );
 };
 
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
