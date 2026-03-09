@@ -14,6 +14,7 @@ import { Response } from 'express';
 import { Body, Controller, Get, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '../interfaces/representing.interface';
+import { getIsWhitelisted } from '@services/mandate.service';
 
 type IntersectByProperties<T, U> = Pick<T & U, Extract<keyof T, keyof U>>;
 
@@ -54,12 +55,14 @@ export class RepresentingController {
       'organizationNumber',
     );
     const { address, partyId } = await getBusinessInformation(selected, req.user);
+    const whitelisted = await getIsWhitelisted(req.user, partyId);
 
     return {
       partyId: this.fixGuid(partyId),
       organizationName: selected.name,
       organizationNumber: selected.organizationNumber,
       isAuthorizedSignatory: selected.isAuthorizedSignatory,
+      whitelisted: whitelisted,
       information: { address },
     };
   };
@@ -70,6 +73,7 @@ export class RepresentingController {
           organizationName: newRepresenting?.BUSINESS?.organizationName,
           organizationNumber: newRepresenting?.BUSINESS?.organizationNumber,
           isAuthorizedSignatory: newRepresenting?.BUSINESS?.isAuthorizedSignatory,
+          whitelisted: newRepresenting?.BUSINESS?.whitelisted,
           information: newRepresenting?.BUSINESS?.information,
         }
       : undefined,

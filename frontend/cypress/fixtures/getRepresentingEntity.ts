@@ -15,6 +15,7 @@ export const getBusinessRepresentFromEngagements = (index: number = 0): Represen
     },
   },
   isAuthorizedSignatory: index < 1,
+  whitelisted: index > 1,
 });
 
 export const getPrivateRepresentFromGetMe = () => ({

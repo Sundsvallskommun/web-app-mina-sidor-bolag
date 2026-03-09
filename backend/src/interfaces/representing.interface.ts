@@ -11,6 +11,7 @@ export interface RepresentingBusinessEntity extends Pick<PersonEngagement, 'isAu
   organizationName: string;
   organizationNumber: string;
   information: ClientBusinessInformation;
+  whitelisted?: boolean;
 }
 export type RepresentingBusinessEntityClient = Omit<RepresentingBusinessEntity, 'partyId'>;
 
