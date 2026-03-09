@@ -1,15 +1,18 @@
+import { Category } from '@interfaces/measurement-data';
+import { Cat } from 'lucide-react';
+
 export const getCategoryFromInstalledBaseType = (type: string | undefined): string => {
   switch (type) {
     case 'El':
-      return 'ELECTRICITY';
+      return Category.ELECTRICITY;
     case 'Elförbrukning':
-      return 'ELECTRICITY';
+      return Category.ELECTRICITY;
     case 'Fjärrvärme':
-      return 'DISTRICT_HEATING';
+      return Category.DISTRICT_HEATING;
     case 'Elproduktion':
-      return 'ELECTRICITY';
+      return Category.ELECTRICITY;
     case 'Bredband':
-      return 'COMMUNICATION';
+      return Category.COMMUNICATION;
     default:
       return '';
   }

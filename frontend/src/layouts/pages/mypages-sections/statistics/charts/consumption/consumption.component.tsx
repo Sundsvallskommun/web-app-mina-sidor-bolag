@@ -34,7 +34,8 @@ export default function Consumption(props: ElectricityConsumptionProps) {
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
 
-  const showTimeInterval = dayjs(getValues().toDate).diff(getValues().fromDate, 'days') < 2;
+  const showTimeInterval =
+    dayjs(getValues().toDate).diff(getValues().fromDate, 'days') < 2 && data?.category === 'ELECTRICITY';
 
   useEffect(() => {
     if (updateIsHourQuarter) {
