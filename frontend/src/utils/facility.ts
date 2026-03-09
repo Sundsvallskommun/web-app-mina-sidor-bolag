@@ -1,5 +1,4 @@
 import { Category } from '@interfaces/measurement-data';
-import { Cat } from 'lucide-react';
 
 export const getCategoryFromInstalledBaseType = (type: string | undefined): string => {
   switch (type) {
