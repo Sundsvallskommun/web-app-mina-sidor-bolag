@@ -10,38 +10,37 @@ import { ListMandates } from './components/list-mandates/list-mandates.component
 
 export const Mandates: React.FC = () => {
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
-  const canCreateMandate =
-    representingEntity?.BUSINESS?.isAuthorizedSignatory || representingEntity?.BUSINESS?.whitelisted;
+  const isAuthorized = representingEntity?.BUSINESS?.isAuthorizedSignatory || representingEntity?.BUSINESS?.whitelisted;
 
   const [showCreate, setShowCreate] = useState(false);
   const { t } = useTranslation();
 
   return (
-    <ProfileAccordion
-      data-cy="mandate-disclosure"
-      title={t('profile:mandates.title')}
-      subTitle={t('profile:mandates.description')}
-    >
-      <>
-        {showCreate && <CreateMandateModal open={showCreate} onClose={() => setShowCreate(false)} />}
-        <div className="max-w-[80rem]">
-          <p>{t('profile:mandates.information')}</p>
-          <List listStyle="bullet">
-            <List.Item className="p-0 before:!m-0">
-              <List.Text>{t('profile:mandates.bullets.1')}</List.Text>
-            </List.Item>
-            <List.Item className="p-0 before:!m-0">
-              <List.Text>{t('profile:mandates.bullets.2')}</List.Text>
-            </List.Item>
-            <List.Item className="p-0 before:!m-0">
-              <List.Text>{t('profile:mandates.bullets.3')}</List.Text>
-            </List.Item>
-            <List.Item className="p-0 before:!m-0">
-              <List.Text>{t('profile:mandates.bullets.4')}</List.Text>
-            </List.Item>
-          </List>
-        </div>
-        {canCreateMandate ? (
+    isAuthorized && (
+      <ProfileAccordion
+        data-cy="mandate-disclosure"
+        title={t('profile:mandates.title')}
+        subTitle={t('profile:mandates.description')}
+      >
+        <>
+          {showCreate && <CreateMandateModal open={showCreate} onClose={() => setShowCreate(false)} />}
+          <div className="max-w-[80rem]">
+            <p>{t('profile:mandates.information')}</p>
+            <List listStyle="bullet">
+              <List.Item className="p-0 before:!m-0">
+                <List.Text>{t('profile:mandates.bullets.1')}</List.Text>
+              </List.Item>
+              <List.Item className="p-0 before:!m-0">
+                <List.Text>{t('profile:mandates.bullets.2')}</List.Text>
+              </List.Item>
+              <List.Item className="p-0 before:!m-0">
+                <List.Text>{t('profile:mandates.bullets.3')}</List.Text>
+              </List.Item>
+              <List.Item className="p-0 before:!m-0">
+                <List.Text>{t('profile:mandates.bullets.4')}</List.Text>
+              </List.Item>
+            </List>
+          </div>
           <Button
             data-cy="create-mandate-button"
             className="w-fit grow-0 mt-40"
@@ -50,9 +49,9 @@ export const Mandates: React.FC = () => {
           >
             {t('profile:mandates.create_new')}
           </Button>
-        ) : null}
-        <ListMandates />
-      </>
-    </ProfileAccordion>
+          <ListMandates />
+        </>
+      </ProfileAccordion>
+    )
   );
 };
