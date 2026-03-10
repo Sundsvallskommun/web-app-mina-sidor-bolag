@@ -9,8 +9,6 @@ import { User } from '@interfaces/user';
 
 export const eligibilityQueryKeys = {
   partyPermissions: 'bfus-eligible-party-permissions',
-  newPermissions: 'eligibility-new-permissions',
-  currentAndClosedPermissions: 'eligibility-current-and-closed-permissions',
   customerIds: 'bfus-customer-ids',
 };
 
@@ -37,33 +35,33 @@ export const handlePermissionResponse = (data: BFUSEligiblePartyPermissionsApiRe
   const closedStatuses = new Set(['denied', 'ended', 'revoked', 'expired']);
 
   return data.eligablePartyParts.reduce<Permissions>(
-    (acc, part) => {
+    (permissions, part) => {
       const { EnergyServiceParty, StatusCategory } = part;
 
       if (StatusCategory === 'new') {
-        acc.new[EnergyServiceParty] ??= {
+        permissions.new[EnergyServiceParty] ??= {
           parts: [],
           hasBeenProcessed: false,
         };
 
-        acc.new[EnergyServiceParty].parts.push(part);
+        permissions.new[EnergyServiceParty].parts.push(part);
       }
 
       if (StatusCategory === 'ongoing') {
-        acc.current.push(part);
+        permissions.current.push(part);
       }
 
       if (closedStatuses.has(StatusCategory)) {
-        acc.closed.push(part);
+        permissions.closed.push(part);
       }
 
       if (StatusCategory !== 'new') {
-        if (acc.new[EnergyServiceParty]) {
-          acc.new[EnergyServiceParty].hasBeenProcessed = true;
+        if (permissions.new[EnergyServiceParty]) {
+          permissions.new[EnergyServiceParty].hasBeenProcessed = true;
         }
       }
 
-      return acc;
+      return permissions;
     },
     {
       new: {},

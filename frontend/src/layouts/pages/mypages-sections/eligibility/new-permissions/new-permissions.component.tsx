@@ -11,6 +11,7 @@ import { PermissionRequestDto } from '@interfaces/eligibility';
 
 interface NewPermissionsProps {
   permissions: Record<string, Group>;
+  customerIds: number[];
 }
 
 type PermissionMutationOptions<TPayload> = {
@@ -23,7 +24,7 @@ type PermissionMutationOptions<TPayload> = {
 };
 
 export const NewPermissions = (props: NewPermissionsProps) => {
-  const { permissions } = props;
+  const { permissions, customerIds } = props;
   const { t } = useTranslation(['common', 'eligibility']);
   const { isMinLg } = useThemeQueries();
 
@@ -32,10 +33,25 @@ export const NewPermissions = (props: NewPermissionsProps) => {
   const grantPermission = useApi({
     url: '/bfus/eligable-party-grant-permission',
     method: 'post',
+    mutationOptions: {
+      onSuccess: () => {
+        queryClient.refetchQueries({
+          queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
+        });
+      },
+    },
   });
+
   const denyPermission = useApi({
     url: `/bfus/eligable-party-deny-permission`,
     method: 'post',
+    mutationOptions: {
+      onSuccess: () => {
+        queryClient.refetchQueries({
+          queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
+        });
+      },
+    },
   });
 
   const handlePermissionMutation = async ({
@@ -46,15 +62,9 @@ export const NewPermissions = (props: NewPermissionsProps) => {
   }: PermissionMutationOptions<PermissionRequestDto>) => {
     try {
       await mutation.mutateAsync(payload);
-
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [eligibilityQueryKeys.newPermissions],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
-        }),
-      ]);
+      await queryClient.invalidateQueries({
+        queryKey: [eligibilityQueryKeys.partyPermissions],
+      });
       snackBar({
         message: successMessage,
         status: 'success',

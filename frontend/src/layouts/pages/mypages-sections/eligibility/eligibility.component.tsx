@@ -22,7 +22,7 @@ export default function Eligibility() {
 
   const { data: permissions, isLoading: permissionsLoading } = useApi({
     url: '/bfus/eligable-party-permissions',
-    queryKey: [eligibilityQueryKeys.partyPermissions],
+    queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
     method: 'get',
     axiosParameters: {
       params: {
@@ -56,8 +56,12 @@ export default function Eligibility() {
         {!isLoading && hasCustomerIds && !hasPermissions && <p>{t('eligibility:noData')}</p>}
         {!isLoading && hasCustomerIds && hasPermissions && (
           <>
-            <NewPermissions permissions={permissions.new} />
-            <CurrentAndClosedEligibilityPermissions current={permissions.current} closed={permissions.closed} />
+            <NewPermissions customerIds={customerIds} permissions={permissions.new} />
+            <CurrentAndClosedEligibilityPermissions
+              customerIds={customerIds}
+              current={permissions.current}
+              closed={permissions.closed}
+            />
           </>
         )}
       </div>
