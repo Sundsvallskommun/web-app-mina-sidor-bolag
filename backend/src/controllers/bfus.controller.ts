@@ -29,7 +29,6 @@ export class BFUSController {
   private apiBase = getApiBase('bfus');
 
   async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto, user: User) {
-    const now = new Date().toLocaleDateString();
     const body: FullPermissionDto = {
       Header: {
         ExternalId: BFUS_EXTERNAL_ID,
@@ -38,7 +37,6 @@ export class BFUSController {
       PermissionRequest: {
         EligablePartyId: request.EligablePartyId,
         CustomerId: request.CustomerId,
-        EndDate: now,
       },
     };
 

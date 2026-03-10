@@ -122,7 +122,7 @@ export interface BFUSEligablePartyPermissionResponse {
 export interface BFUSEligablePartyPermissionApiResponse {
   Content: BFUSEligablePartyPermissionResponse;
   Header: {
-    ErrorInformation: string | null;
+    ErrorInformation: { ErrorMessage: string; ErrorCode: string; ObjectVersion: number; ModelStateErrors: null } | null;
     ObjectVersion: number;
     Success: boolean;
     PerformanceTime: string;
