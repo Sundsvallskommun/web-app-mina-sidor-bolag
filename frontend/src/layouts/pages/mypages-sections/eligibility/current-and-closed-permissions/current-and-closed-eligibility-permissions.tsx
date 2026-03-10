@@ -39,8 +39,6 @@ const CurrentAndClosedEligibilityPermissions = ({
     },
   });
 
-  const revokeIsPending = revokeMutation.isPending;
-
   const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
