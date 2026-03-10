@@ -6,36 +6,12 @@ import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
+import { BarShapeHashed, StackBar } from '@components/stackbar';
+import { chartColors } from '@utils/chart-colors.const';
 
 export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
 }
-
-interface IBarWithGapProps {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  fill?: string;
-  radius?: number | number[];
-}
-
-const BarWithGap = (props: IBarWithGapProps) => {
-  const { x, y, width, height, fill, radius } = props;
-  const gap = 3;
-  if (height === undefined || height <= gap) return null;
-  return (
-    <rect
-      x={x}
-      y={(y ?? 0) + gap}
-      width={width}
-      height={height - gap}
-      fill={fill}
-      rx={Array.isArray(radius) ? radius[0] : (radius ?? 0)}
-      ry={Array.isArray(radius) ? radius[0] : (radius ?? 0)}
-    />
-  );
-};
 
 const calculateYAxisDomain = (dataMax: number) => {
   if (dataMax > 0 && dataMax < 10) {
@@ -50,59 +26,6 @@ const calculateYAxisDomain = (dataMax: number) => {
   return (Math.floor(dataMax / 1000) + 1) * 1000;
 };
 
-interface QuarterlyBarsProps {
-  isDarkMode: boolean;
-}
-
-const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => (
-  <>
-    <Bar
-      className="dark:bg-background-content"
-      dataKey="values[0]"
-      fill={isDarkMode ? '#FF6B9D' : '#6B001F'}
-      radius={3}
-      stroke={isDarkMode ? '#FF6B9D' : '#6B001F'}
-      strokeWidth="1"
-      stackId="a"
-      barSize={15}
-      shape={<BarWithGap />}
-    />
-    <Bar
-      className="dark:bg-background-content"
-      dataKey="values[1]"
-      fill={isDarkMode ? '#FF99C8' : '#CFA3AC'}
-      radius={3}
-      stroke={isDarkMode ? '#FF99C8' : '#CFA3AC'}
-      strokeWidth="1"
-      stackId="a"
-      barSize={15}
-      shape={<BarWithGap />}
-    />
-    <Bar
-      className="dark:bg-background-content"
-      dataKey="values[2]"
-      fill={isDarkMode ? '#D97D9F' : '#A35C6B'}
-      radius={3}
-      stroke={isDarkMode ? '#D97D9F' : '#A35C6B'}
-      strokeWidth="1"
-      stackId="a"
-      barSize={15}
-      shape={<BarWithGap />}
-    />
-    <Bar
-      className="dark:bg-background-content"
-      dataKey="values[3]"
-      fill={isDarkMode ? '#B8A8B8' : '#E8D6DA'}
-      radius={3}
-      stroke={isDarkMode ? '#B8A8B8' : '#E8D6DA'}
-      strokeWidth="1"
-      stackId="a"
-      barSize={15}
-      shape={<BarWithGap />}
-    />
-  </>
-);
-
 interface SingleBarProps {
   isDarkMode: boolean;
 }
@@ -111,11 +34,33 @@ const SingleBar = ({ isDarkMode }: SingleBarProps) => (
   <Bar
     className="dark:bg-background-content"
     dataKey="value"
-    fill={isDarkMode ? '#FAE9E7' : '#600724'}
-    radius={[4, 4, 0, 0]}
-    stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+    fill={isDarkMode ? chartColors.singleBar.dark.fill : chartColors.singleBar.light.fill}
+    radius={2}
+    stroke={isDarkMode ? chartColors.singleBar.dark.stroke : chartColors.singleBar.light.stroke}
     strokeWidth="1"
   />
+);
+
+interface QuarterlyBarsProps {
+  isDarkMode: boolean;
+}
+
+const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => (
+  <StackBar radius={2} barSize={14} gap={6} className="dark:bg-background-content">
+    <Bar dataKey="values[0]" fill={isDarkMode ? chartColors.stackBar.dark[0] : chartColors.stackBar.light[0]} />
+    <Bar
+      dataKey="values[1]"
+      fill={isDarkMode ? chartColors.stackBar.dark[1] : chartColors.stackBar.light[1]}
+      shape={<BarShapeHashed stroke={isDarkMode ? chartColors.hashBar.borderDark : chartColors.hashBar.borderLight} />}
+    />
+    <Bar dataKey="values[2]" fill={isDarkMode ? chartColors.stackBar.dark[2] : chartColors.stackBar.light[2]} />
+    <Bar
+      dataKey="values[3]"
+      fill={isDarkMode ? chartColors.stackBar.dark[3] : chartColors.stackBar.light[3]}
+      stroke={isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight}
+      strokeWidth="1"
+    />
+  </StackBar>
 );
 
 interface PreviousValueBarProps {
@@ -125,9 +70,9 @@ interface PreviousValueBarProps {
 const PreviousValueBar = ({ isDarkMode }: PreviousValueBarProps) => (
   <Bar
     dataKey="previousValue"
-    fill={isDarkMode ? '#2F2E2E' : '#FAE9E7'}
+    fill={isDarkMode ? chartColors.previousValue.dark.fill : chartColors.previousValue.light.fill}
     radius={[4, 4, 0, 0]}
-    stroke={isDarkMode ? '#FAE9E7' : '#600724'}
+    stroke={isDarkMode ? chartColors.previousValue.dark.stroke : chartColors.previousValue.light.stroke}
     strokeWidth="1"
   />
 );
@@ -180,7 +125,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             axisLine={false}
             tickLine={false}
             dataKey="chartTimestamp"
-            tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
+            tick={{ fill: isDarkMode ? chartColors.xAxis.dark : chartColors.xAxis.light }}
           />
           {isLargeDevice && (
             <YAxis
@@ -189,7 +134,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
               axisLine={false}
               tickLine={false}
               domain={[0, calculateYAxisDomain]}
-              tick={{ fill: isDarkMode ? '#FFFFFF' : '#444450' }}
+              tick={{ fill: isDarkMode ? chartColors.yAxis.dark : chartColors.yAxis.light }}
             />
           )}
           <Tooltip
