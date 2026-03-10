@@ -50,6 +50,11 @@ export class BFUSController {
 
     try {
       const result = await sendPermissionRequest(body, user, this.apiBase);
+
+      if (result.Content.PermissionRequestExecuted === false) {
+        throw new HttpException(500, 'Internal server error, request was not processed');
+      }
+
       return result;
     } catch (error) {
       logger.error(`Error processing permission (${operation})`, error);
