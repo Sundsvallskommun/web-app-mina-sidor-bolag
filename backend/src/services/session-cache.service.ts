@@ -6,7 +6,7 @@ import { MUNICIPALITY_ID } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
 
 export class SessionCacheService {
-  private apiService = new ApiService();
+  private readonly apiService = new ApiService();
 
   public async cacheRelations(req: RequestWithUser): Promise<void> {
     req.session.cache ??= {};
@@ -51,7 +51,7 @@ export class SessionCacheService {
           customerNumber: customerNumbers,
         };
       } catch (error: any) {
-        throw new HttpException(500, 'Could not fetch customer relations');
+        throw new HttpException(500, `Could not fetch customer relations: ${error}`);
       }
     }
   }
