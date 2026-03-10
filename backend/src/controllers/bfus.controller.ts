@@ -21,6 +21,7 @@ import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
 import { getApiBase } from '@/config/api-config';
 import ApiService from '@/services/api.service';
 import { User } from '@/interfaces/users.interface';
+import { sessionCacheService } from '@/services/session-cache.service';
 
 @Controller('/bfus')
 export class BFUSController {
@@ -64,41 +65,35 @@ export class BFUSController {
   }
 
   @Get('/eligable-party-customer-id')
-  @OpenAPI({ summary: 'Returns a list with customer id:s from BFUS' })
-  @ResponseSchema(BFUSApiResponse)
-  @UseBefore(authMiddleware)
-  async getBFUSCustomerId(
-    @Req() req: RequestWithUser,
-    @Res() res: Response<BFUSApiResponse>,
-  ): Promise<Response<BFUSApiResponse>> {
-    const relations = req?.session?.cache?.relations ?? { customerRelations: [], customerNumber: [] };
+  async getBFUSCustomerId(@Req() req: RequestWithUser, @Res() res: Response<BFUSApiResponse>) {
+    await sessionCacheService.cacheRelations(req);
 
-    if (!relations?.customerNumber?.length) {
+    const relationsCache = req.session.cache.relations!;
+    const allCustomerNumbers = [
+      ...(relationsCache.customerNumber ?? []),
+      ...(relationsCache.customerRelations?.map(r => r.customerNumber).filter(Boolean) ?? []),
+    ];
+    const uniqueCustomerNumbers = Array.from(new Set(allCustomerNumbers));
+
+    if (!uniqueCustomerNumbers.length) {
       throw new HttpException(400, 'No relations or customer number available');
     }
 
-    try {
-      const results = await Promise.allSettled(
-        relations.customerNumber.map(cn => {
-          const url = `${this.apiBase}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
-          return this.apiService.get<BFUSCustomerResponse>({ url }, req.user);
-        }),
-      );
+    const results = await Promise.allSettled(
+      uniqueCustomerNumbers.map(cn => {
+        const url = `${this.apiBase}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${cn}`;
+        return this.apiService.get<BFUSCustomerResponse>({ url }, req.user);
+      }),
+    );
 
-      const customerIds = results
-        .filter(r => r.status === 'fulfilled')
-        .map(r => r.value.data.Content.Customer.CustomerId);
+    const customerIds = results
+      .filter(r => r.status === 'fulfilled')
+      .map(r => r.value.data.Content.Customer.CustomerId);
 
-      return res.send({
-        data: {
-          customerIds: customerIds,
-        },
-        message: 'success',
-      });
-    } catch (error: any) {
-      logger.error('Unexpected error in BFUS Customer', error.message);
-      throw new HttpError(500, 'Unexpected server error');
-    }
+    return res.send({
+      data: { customerIds },
+      message: 'success',
+    });
   }
 
   @Get('/new-permissions')
