@@ -53,7 +53,6 @@ function relevantType(installation: InstalledBaseItem): boolean {
 @Controller()
 export class UserController {
   private apiService = new ApiService();
-  private customerApiBase = getApiBase('customer');
   private installedBaseApiBase = getApiBase('installedbase');
 
   @Get('/me')
