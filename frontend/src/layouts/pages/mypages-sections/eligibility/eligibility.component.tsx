@@ -18,11 +18,16 @@ export default function Eligibility() {
     queryKey: ['user'],
   });
 
-  const { data: customerIds, isLoading: customerLoading } = useGetCustomerId(userData);
+  const {
+    data: customerIds,
+    isLoading: customerLoading,
+    isError: noCustomerIds,
+    isRefetching,
+  } = useGetCustomerId(userData);
 
   const { data: permissions, isLoading: permissionsLoading } = useApi({
     url: '/bfus/eligable-party-permissions',
-    queryKey: [eligibilityQueryKeys.partyPermissions],
+    queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
     method: 'get',
     axiosParameters: {
       params: {
@@ -35,7 +40,7 @@ export default function Eligibility() {
     dataHandler: permissionsHandler,
   });
 
-  const isLoading = userLoading || customerLoading || permissionsLoading;
+  const isLoading = userLoading || customerLoading || permissionsLoading || isRefetching;
   const hasCustomerIds = !!customerIds?.length;
   const hasPermissions =
     !!permissions &&
@@ -45,19 +50,22 @@ export default function Eligibility() {
     <div>
       <h1>{t('eligibility:title')}</h1>
       <p>{t('eligibility:description')}</p>
-
       <div className="pt-40">
         {isLoading && (
           <div className="w-full flex justify-center">
             <Spinner />
           </div>
         )}
-        {!isLoading && !hasCustomerIds && <p>{t('eligibility:noCustomerId')}</p>}
+        {((!isLoading && !hasCustomerIds) || noCustomerIds) && <p>{t('eligibility:noCustomerId')}</p>}
         {!isLoading && hasCustomerIds && !hasPermissions && <p>{t('eligibility:noData')}</p>}
-        {!isLoading && hasCustomerIds && hasPermissions && (
+        {!isLoading && hasCustomerIds && hasPermissions && !noCustomerIds && (
           <>
-            <NewPermissions permissions={permissions.new} />
-            <CurrentAndClosedEligibilityPermissions current={permissions.current} closed={permissions.closed} />
+            <NewPermissions customerIds={customerIds} permissions={permissions.new} />
+            <CurrentAndClosedEligibilityPermissions
+              customerIds={customerIds}
+              current={permissions.current}
+              closed={permissions.closed}
+            />
           </>
         )}
       </div>

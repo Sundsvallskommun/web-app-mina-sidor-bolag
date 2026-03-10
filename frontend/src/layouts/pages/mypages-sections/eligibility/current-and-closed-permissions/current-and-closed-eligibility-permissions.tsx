@@ -11,9 +11,14 @@ import { eligibilityQueryKeys } from '@services/permissions-service';
 interface CurrentAndClosedEligibilityPermissionsProps {
   current: EligablePartyPart[];
   closed: EligablePartyPart[];
+  customerIds: number[];
 }
 
-const CurrentAndClosedEligibilityPermissions = ({ current, closed }: CurrentAndClosedEligibilityPermissionsProps) => {
+const CurrentAndClosedEligibilityPermissions = ({
+  current,
+  closed,
+  customerIds,
+}: CurrentAndClosedEligibilityPermissionsProps) => {
   const { t } = useTranslation('eligibility');
   const [activePanel, setActivePanel] = useState(0);
   const { isMinLg } = useThemeQueries();
@@ -25,6 +30,13 @@ const CurrentAndClosedEligibilityPermissions = ({ current, closed }: CurrentAndC
   const revokeMutation = useApi<PermissionRequestDto, Error, FullPermissionDto>({
     url: 'bfus/eligable-party-revoke-permission',
     method: 'post',
+    mutationOptions: {
+      onSuccess: () => {
+        queryClient.refetchQueries({
+          queryKey: [eligibilityQueryKeys.partyPermissions, customerIds],
+        });
+      },
+    },
   });
 
   const handleRevokePermission = (p: EligablePartyPart) => async (e: MouseEvent<HTMLButtonElement>) => {
@@ -37,9 +49,6 @@ const CurrentAndClosedEligibilityPermissions = ({ current, closed }: CurrentAndC
         },
       });
 
-      await queryClient.invalidateQueries({
-        queryKey: [eligibilityQueryKeys.currentAndClosedPermissions],
-      });
       snackBar({
         message: t('eligibility:permissions.table.currentAndClosed.snackBarMessage.success'),
         status: 'success',
