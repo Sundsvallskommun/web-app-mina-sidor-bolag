@@ -119,6 +119,17 @@ export interface BFUSEligablePartyPermissionResponse {
   PermissionRequestExecuted: boolean;
 }
 
+export interface BFUSEligablePartyPermissionApiResponse {
+  Content: BFUSEligablePartyPermissionResponse;
+  Header: {
+    ErrorInformation: string | null;
+    ObjectVersion: number;
+    Success: boolean;
+    PerformanceTime: string;
+    InParameters: string | null;
+  };
+}
+
 export interface BFUSHasNewPermissionResponse {
   Header: {
     ErrorInformation: string | null;

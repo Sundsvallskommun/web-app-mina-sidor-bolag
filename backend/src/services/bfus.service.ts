@@ -1,5 +1,5 @@
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
-import { BFUSEligablePartyPermissionResponse } from '@/interfaces/bfus.interface';
+import { BFUSEligablePartyPermissionApiResponse } from '@/interfaces/bfus.interface';
 import { HttpException } from '@/exceptions/HttpException';
 import ApiService from './api.service';
 import { User } from '@/interfaces/users.interface';
@@ -7,7 +7,10 @@ import { User } from '@/interfaces/users.interface';
 export const sendPermissionRequest = async (data: UpdatePermissionDto, user: User, apiBase: string) => {
   const apiService = new ApiService();
   const url = `${apiBase}/EP/EligableParty/PermissionRequest`;
-  const response = await apiService.post<BFUSEligablePartyPermissionResponse, UpdatePermissionDto>({ url, data }, user);
+  const response = await apiService.post<BFUSEligablePartyPermissionApiResponse, UpdatePermissionDto>(
+    { url, data },
+    user,
+  );
 
   return response.data;
 };
