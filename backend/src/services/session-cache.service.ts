@@ -4,9 +4,18 @@ import { CustomerRelation, Customer } from '@/data-contracts/customer/data-contr
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { MUNICIPALITY_ID } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
+import { logger } from '@/utils/logger';
 
 export class SessionCacheService {
   private readonly apiService = new ApiService();
+
+  private handleCustomerRelationsError(error: any): void {
+    if (error.status === 404) {
+      logger.info('User has no relations');
+    } else {
+      throw new HttpException(500, 'Could not fetch customer relations');
+    }
+  }
 
   public async cacheRelations(req: RequestWithUser): Promise<void> {
     req.session.cache ??= {};
@@ -50,8 +59,8 @@ export class SessionCacheService {
           customerRelations: allRelations,
           customerNumber: customerNumbers,
         };
-      } catch (error: any) {
-        throw new HttpException(500, `Could not fetch customer relations: ${error}`);
+      } catch (error) {
+        this.handleCustomerRelationsError(error);
       }
     }
   }
