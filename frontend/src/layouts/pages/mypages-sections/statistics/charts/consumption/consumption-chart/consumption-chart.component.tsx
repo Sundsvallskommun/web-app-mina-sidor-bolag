@@ -1,12 +1,11 @@
 'use client';
 
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, BarProps, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
-import { BarShapeHashed, StackBar } from '@components/stackbar';
 import { chartColors } from '@utils/chart-colors.const';
 
 export interface ConsumptionChartProps {
@@ -41,26 +40,82 @@ const SingleBar = ({ isDarkMode }: SingleBarProps) => (
   />
 );
 
-interface QuarterlyBarsProps {
-  isDarkMode: boolean;
-}
+const barShape = (props: BarProps & { index: number; isDarkMode: boolean; stroked?: boolean }) => {
+  let stroke, strokeWidth, y, height;
+  if (props.stroked) {
+    stroke = props.isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight;
+    strokeWidth = '1';
+    y = Number(props.y ?? 0) - 2;
+    height = Number(props.height) + 1;
+  } else {
+    stroke = 'none';
+    strokeWidth = 0;
+    y = Number(props.y ?? 0) + 1;
+    height = Number(props.height) - 1;
+  }
+  return (
+    <rect
+      x={props.x}
+      y={y}
+      width={22}
+      height={height}
+      fill={props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index]}
+      rx={2}
+      ry={2}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
+    />
+  );
+};
 
-const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => (
-  <StackBar radius={2} barSize={14} gap={6} className="dark:bg-background-content">
-    <Bar dataKey="values[0]" fill={isDarkMode ? chartColors.stackBar.dark[0] : chartColors.stackBar.light[0]} />
+const StackedBars = ({ isDarkMode }: SingleBarProps) => (
+  <>
+    <Bar
+      dataKey="values[0]"
+      stackId="a"
+      shape={(props: BarProps) =>
+        barShape({
+          ...props,
+          index: 0,
+          isDarkMode,
+        })
+      }
+    />
     <Bar
       dataKey="values[1]"
-      fill={isDarkMode ? chartColors.stackBar.dark[1] : chartColors.stackBar.light[1]}
-      shape={<BarShapeHashed stroke={isDarkMode ? chartColors.hashBar.borderDark : chartColors.hashBar.borderLight} />}
+      stackId="a"
+      shape={(props: BarProps) =>
+        barShape({
+          ...props,
+          index: 1,
+          isDarkMode,
+        })
+      }
     />
-    <Bar dataKey="values[2]" fill={isDarkMode ? chartColors.stackBar.dark[2] : chartColors.stackBar.light[2]} />
+    <Bar
+      dataKey="values[2]"
+      stackId="a"
+      shape={(props: BarProps) =>
+        barShape({
+          ...props,
+          index: 2,
+          isDarkMode,
+        })
+      }
+    />
     <Bar
       dataKey="values[3]"
-      fill={isDarkMode ? chartColors.stackBar.dark[3] : chartColors.stackBar.light[3]}
-      stroke={isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight}
-      strokeWidth="1"
+      stackId="a"
+      shape={(props: BarProps) =>
+        barShape({
+          ...props,
+          index: 3,
+          isDarkMode,
+          stroked: true,
+        })
+      }
     />
-  </StackBar>
+  </>
 );
 
 interface PreviousValueBarProps {
@@ -85,7 +140,7 @@ interface BarSeriesProps {
 
 const BarSeries = ({ aggregatedOn, isDarkMode, showPreviousYear }: BarSeriesProps) => (
   <>
-    {aggregatedOn === 'QUARTER' ? <QuarterlyBars isDarkMode={isDarkMode} /> : <SingleBar isDarkMode={isDarkMode} />}
+    {aggregatedOn === 'QUARTER' ? <StackedBars isDarkMode={isDarkMode} /> : <SingleBar isDarkMode={isDarkMode} />}
     {showPreviousYear && <PreviousValueBar isDarkMode={isDarkMode} />}
   </>
 );
