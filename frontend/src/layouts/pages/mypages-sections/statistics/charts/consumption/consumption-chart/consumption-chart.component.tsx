@@ -41,82 +41,42 @@ const SingleBar = ({ isDarkMode }: SingleBarProps) => (
 );
 
 const barShape = (props: BarProps & { index: number; isDarkMode: boolean; stroked?: boolean }) => {
-  let stroke, strokeWidth, y, height;
-  if (props.stroked) {
-    stroke = props.isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight;
-    strokeWidth = '1';
-    y = Number(props.y ?? 0) - 2;
-    height = Number(props.height) + 1;
-  } else {
-    stroke = 'none';
-    strokeWidth = 0;
-    y = Number(props.y ?? 0) + 1;
-    height = Number(props.height) - 1;
-  }
+  const gap = 3;
+  const strokeWidth = props.stroked ? 1 : 0;
   return (
     <rect
-      x={props.x}
-      y={y}
-      width={22}
-      height={height}
+      x={Number(props.x ?? 0) + 5}
+      y={Number(props.y ?? 0)}
+      width={18}
+      height={Number(props.height) - (gap + strokeWidth)}
       fill={props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index]}
       rx={2}
       ry={2}
-      stroke={stroke}
+      stroke={props.isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight}
       strokeWidth={strokeWidth}
     />
   );
 };
 
-const StackedBars = ({ isDarkMode }: SingleBarProps) => (
-  <>
-    <Bar
-      dataKey="values[0]"
-      stackId="a"
-      shape={(props: BarProps) =>
-        barShape({
-          ...props,
-          index: 0,
-          isDarkMode,
-        })
-      }
-    />
-    <Bar
-      dataKey="values[1]"
-      stackId="a"
-      shape={(props: BarProps) =>
-        barShape({
-          ...props,
-          index: 1,
-          isDarkMode,
-        })
-      }
-    />
-    <Bar
-      dataKey="values[2]"
-      stackId="a"
-      shape={(props: BarProps) =>
-        barShape({
-          ...props,
-          index: 2,
-          isDarkMode,
-        })
-      }
-    />
-    <Bar
-      dataKey="values[3]"
-      stackId="a"
-      shape={(props: BarProps) =>
-        barShape({
-          ...props,
-          index: 3,
-          isDarkMode,
-          stroked: true,
-        })
-      }
-    />
-  </>
-);
+const StackedBars = ({ isDarkMode }: SingleBarProps) => {
+  return [0, 1, 2, 3].map((b, idx) => {
+    return (
+      <Bar
+        key={`bar-${b}`}
+        dataKey={`values[${idx}]`}
+        stackId="a"
+        shape={(props: BarProps) =>
+          barShape({
+            ...props,
+            index: idx,
+            isDarkMode,
+            stroked: true,
+          })
+        }
+      />
+    );
+  });
+};
 
 interface PreviousValueBarProps {
   isDarkMode: boolean;
