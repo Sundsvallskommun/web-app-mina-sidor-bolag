@@ -40,22 +40,42 @@ const SingleBar = ({ isDarkMode }: SingleBarProps) => (
   />
 );
 
-const barShape = (props: BarProps & { index: number; isDarkMode: boolean; stroked?: boolean }) => {
-  const gap = 3;
-  const strokeWidth = props.stroked ? 1 : 0;
-  return (
-    <rect
-      x={Number(props.x ?? 0) + 5}
-      y={Number(props.y ?? 0)}
-      width={18}
-      height={Number(props.height) - (gap + strokeWidth)}
-      fill={props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index]}
-      rx={2}
-      ry={2}
-      stroke={props.isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight}
-      strokeWidth={strokeWidth}
-    />
-  );
+const barShape = (
+  props: BarProps & {
+    index: number;
+    isDarkMode: boolean;
+    stroked?: boolean;
+  }
+) => {
+  const gap = 2;
+  const strokeWidth = props.stroked && Number(props.width) > 4 ? 1 : 0;
+  const rt = props.index === 3 ? 2 : 0;
+  const rb = props.index === 0 ? 2 : 0;
+
+  const x = Number(props.x ?? 0);
+  const y = Number(props.y ?? 0);
+  const w = Number(props.width);
+  const h = Number(props.height) - (gap + strokeWidth);
+
+  const fill = props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index];
+  const stroke = props.isDarkMode
+    ? chartColors.stackBar.borderDark[props.index]
+    : chartColors.stackBar.borderLight[props.index];
+
+  const d = [
+    `M ${x + rt} ${y}`,
+    `H ${x + w - rt}`,
+    `Q ${x + w} ${y} ${x + w} ${y + rt}`,
+    `V ${y + h - rb}`,
+    `Q ${x + w} ${y + h} ${x + w - rb} ${y + h}`,
+    `H ${x + rb}`,
+    `Q ${x} ${y + h} ${x} ${y + h - rb}`,
+    `V ${y + rt}`,
+    `Q ${x} ${y} ${x + rt} ${y}`,
+    `Z`,
+  ].join(' ');
+
+  return <path d={d} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
 };
 
 const StackedBars = ({ isDarkMode }: SingleBarProps) => {

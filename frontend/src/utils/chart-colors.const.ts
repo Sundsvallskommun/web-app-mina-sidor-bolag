@@ -20,8 +20,8 @@ export const chartColors = {
   stackBar: {
     light: ['#600724', '#803950', '#A06A7C', '#DFCDD3'],
     dark: ['#DFCDD3', '#BF9CA7', '#A06A7C', '#803950'],
-    borderLight: '#803950',
-    borderDark: '#BF9CA7',
+    borderLight: ['#600724', '#803950', '#A06A7C', '#803950'],
+    borderDark: ['#DFCDD3', '#BF9CA7', '#A06A7C', '#BF9CA7'],
   },
   hashBar: {
     borderLight: '#FFFFFF',
