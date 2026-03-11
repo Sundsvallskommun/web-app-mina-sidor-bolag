@@ -23,46 +23,54 @@ export class SessionCacheService {
     const allRelations: CustomerRelation[] = [];
     const { representing } = req.session ?? {};
 
-    if (!req.session.cache.relations) {
+    if (req.session.cache.relations) return;
+
+    const partyId = getRepresentingPartyId(representing);
+    if (!partyId) throw new HttpException(400, 'Representing partyId not available');
+
+    try {
+      const url = `/customer/${MUNICIPALITY_ID}/relations/${partyId}`;
+      const res = await this.apiService.get<Customer>({ url }, req.user);
+
+      const relations = res.data?.customerRelations ?? [];
+
+      relations.forEach(r =>
+        allRelations.push({
+          ...r,
+          organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
+        }),
+      );
+    } catch (error) {
+      this.handleCustomerRelationsError(error);
+    }
+
+    for (const delegation of delegations) {
       try {
-        const partyId = getRepresentingPartyId(representing);
-        if (!partyId) throw new HttpException(400, 'Representing partyId not available');
+        const url = `/customer/${MUNICIPALITY_ID}/relations/${delegation.owner}`;
+        const res = await this.apiService.get<Customer>({ url }, req.user);
 
-        const relationsUrl = `/customer/${MUNICIPALITY_ID}/relations/${partyId}`;
-        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
-        const relations = relationsRes.data?.customerRelations ?? [];
-        relations.forEach(r =>
-          allRelations.push({
-            ...r,
-            organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
-          }),
-        );
+        const relations = res.data?.customerRelations ?? [];
 
-        for (const delegation of delegations) {
-          const url = `/customer/${MUNICIPALITY_ID}/relations/${delegation.owner}`;
-          const res = await this.apiService.get<Customer>({ url }, req.user);
-          const relations = res.data?.customerRelations ?? [];
-          relations.forEach(r => {
-            if (!allRelations.some(existing => existing.organizationNumber === r.organizationNumber)) {
-              allRelations.push({
-                customerNumber: r.customerNumber,
-                organizationNumber: r.organizationNumber,
-                organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
-              });
-            }
-          });
-        }
-
-        const customerNumbers = Array.from(new Set(allRelations.map(r => r.customerNumber).filter(Boolean)));
-
-        req.session.cache.relations = {
-          customerRelations: allRelations,
-          customerNumber: customerNumbers,
-        };
+        relations.forEach(r => {
+          if (!allRelations.some(existing => existing.organizationNumber === r.organizationNumber)) {
+            allRelations.push({
+              customerNumber: r.customerNumber,
+              organizationNumber: r.organizationNumber,
+              organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
+            });
+          }
+        });
       } catch (error) {
         this.handleCustomerRelationsError(error);
       }
     }
+
+    const customerNumbers = Array.from(new Set(allRelations.map(r => r.customerNumber).filter(Boolean)));
+
+    req.session.cache.relations = {
+      customerRelations: allRelations,
+      customerNumber: customerNumbers,
+    };
   }
 }
 
