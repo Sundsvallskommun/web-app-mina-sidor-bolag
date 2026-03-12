@@ -1,12 +1,11 @@
 'use client';
 
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, BarStack, BarProps, BarShapeProps } from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
-import { BarShapeHashed, StackBar } from '@components/stackbar';
 import { chartColors } from '@utils/chart-colors.const';
 
 export interface ConsumptionChartProps {
@@ -45,23 +44,91 @@ interface QuarterlyBarsProps {
   isDarkMode: boolean;
 }
 
-const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => (
-  <StackBar radius={2} barSize={14} gap={6} className="dark:bg-background-content">
-    <Bar dataKey="values[0]" fill={isDarkMode ? chartColors.stackBar.dark[0] : chartColors.stackBar.light[0]} />
-    <Bar
-      dataKey="values[1]"
-      fill={isDarkMode ? chartColors.stackBar.dark[1] : chartColors.stackBar.light[1]}
-      shape={<BarShapeHashed stroke={isDarkMode ? chartColors.hashBar.borderDark : chartColors.hashBar.borderLight} />}
+const barShape = (
+  props: BarShapeProps & {
+    index: number;
+    isDarkMode: boolean;
+    stroked?: boolean;
+    masked?: boolean;
+    maskId?: string;
+    radius?: number;
+    gap?: number;
+  }
+) => {
+  const gap = props.gap ?? 4;
+  const r = props.radius ?? 2;
+  const width = Number(props.width);
+  const strokeWidth = props.stroked && width > 4 ? 1 : 0;
+
+  const fill = props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index];
+  const stroke = props.isDarkMode
+    ? chartColors.stackBar.borderDark[props.index]
+    : chartColors.stackBar.borderLight[props.index];
+
+  return (
+    <rect
+      mask={props.masked ? `url(#${props.maskId})` : ''}
+      x={Number(props.x ?? 0)}
+      y={Number(props.y ?? 0)}
+      width={width}
+      height={Math.max(0, Number(props.height) - (gap + strokeWidth))}
+      rx={r}
+      ry={r}
+      fill={fill}
+      stroke={stroke}
+      strokeWidth={strokeWidth}
     />
-    <Bar dataKey="values[2]" fill={isDarkMode ? chartColors.stackBar.dark[2] : chartColors.stackBar.light[2]} />
-    <Bar
-      dataKey="values[3]"
-      fill={isDarkMode ? chartColors.stackBar.dark[3] : chartColors.stackBar.light[3]}
-      stroke={isDarkMode ? chartColors.stackBar.borderDark : chartColors.stackBar.borderLight}
-      strokeWidth="1"
-    />
-  </StackBar>
-);
+  );
+};
+
+const mask = (maskId: string, stripSize: number, maskSize: number) => {
+  return (
+    <>
+      <pattern
+        id="pattern-stripe"
+        width={stripSize}
+        height={stripSize}
+        patternUnits="userSpaceOnUse"
+        patternTransform="rotate(55)"
+      >
+        <rect width={maskSize} height={stripSize} transform="translate(0,0)" fill="white"></rect>
+      </pattern>
+      <mask id={maskId}>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-stripe)" />
+      </mask>
+    </>
+  );
+};
+
+const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => {
+  return (
+    <>
+      {mask('mask-stripe', 3, 2)}
+      {[0, 1, 2, 3].map((b, idx) => {
+        return (
+          <Bar
+            key={`bar-${b}`}
+            dataKey={`values[${idx}]`}
+            barSize={14}
+            stackId="a"
+            shape={(props) =>
+              barShape({
+                ...props,
+                index: idx,
+                isDarkMode,
+                stroked: true,
+                masked: idx === 1,
+                maskId: 'mask-stripe',
+                radius: 2,
+                gap: 4,
+              })
+            }
+          />
+        );
+      })}
+    </>
+  );
+};
 
 interface PreviousValueBarProps {
   isDarkMode: boolean;

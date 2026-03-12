@@ -1,6 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import { Aggregation, Months } from '@interfaces/measurement-data';
+import { chartColors } from '@utils/chart-colors.const';
 
 // Constants
 const LOCALE = 'se';
@@ -14,7 +15,7 @@ const PAYLOAD_NAMES = {
 // Types
 type PayloadItem = {
   value: number;
-  payload: { previousValue?: number };
+  payload: { previousValue?: number; timestamp?: string };
   name: string;
 };
 
@@ -63,33 +64,114 @@ const formatDateLabel = (
   }
 };
 
+// Mask component
+interface MaskProps {
+  stripSize: number;
+  maskSize: number;
+  maskId: string;
+}
+
+const Mask: React.FC<MaskProps> = ({ stripSize, maskSize, maskId }) => {
+  return (
+    <defs>
+      <pattern
+        id="pattern-stripe"
+        width={stripSize}
+        height={stripSize}
+        patternUnits="userSpaceOnUse"
+        patternTransform="rotate(55)"
+      >
+        <rect width={maskSize} height={stripSize} transform="translate(0,0)" fill="white"></rect>
+      </pattern>
+      <mask id={maskId}>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-stripe)" />
+      </mask>
+    </defs>
+  );
+};
+
 // Sub-components
 interface QuarterTooltipProps {
-  fromDate: string;
-  label?: keyof typeof Months;
   payload: PayloadItem[];
   unit: string;
 }
 
-const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ fromDate, label, payload, unit }) => {
-  const total = payload.map((p) => p.value).reduce((acc, val) => acc + val, 0);
+const legendTeckShape = (props: {
+  index: number;
+  isDarkMode: boolean;
+  stroked?: boolean;
+  masked?: boolean;
+  maskId?: string;
+  radius?: number;
+  height?: number;
+  width?: number;
+}) => {
+  const r = props.radius ?? 2;
+  const width = Number(props.width);
+  const stripSize = 2;
+  const maskSize = 1;
+  const strokeWidth = props.stroked && width > 4 ? 1 : 0;
+
+  const fill = props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index];
+  const stroke = props.isDarkMode
+    ? chartColors.stackBar.borderDark[props.index]
+    : chartColors.stackBar.borderLight[props.index];
 
   return (
-    <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
-      {formatDateLabel(Aggregation.QUARTER, fromDate, label)}
+    <svg width={width} height={Number(props.height)} style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+      {props.masked && <Mask stripSize={stripSize} maskSize={maskSize} maskId={props.maskId ?? 'mask'} />}
+      <rect
+        mask={props.masked ? `url(#${props.maskId})` : ''}
+        x={0}
+        y={0}
+        width={width}
+        height={Number(props.height) - strokeWidth}
+        rx={r}
+        ry={r}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+      />
+    </svg>
+  );
+};
 
-      <p>
-        <b>
-          {dayjs(fromDate).format('YYYY')}: {formatNumber(total)} {unit}
-        </b>
-      </p>
-      {payload.map((item, index) => (
-        <p className="ml-8" key={`quarter-${fromDate}-${index}`}>
-          <b>
-            {(index + 1) * 15}min: {formatNumber(item.value)} {unit}
+const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit }) => {
+  const items = payload.map((item, index) => {
+    const fromMin = dayjs(item.payload.timestamp)
+      .add(index * 15, 'minute')
+      .format('HH:mm');
+    const toMin = dayjs(item.payload.timestamp)
+      .add((index + 1) * 15, 'minute')
+      .format('HH:mm');
+    return (
+      <div key={'quarter-tooltip-item-' + index} className="flex flex-row items-center">
+        <div className="h-18 m-0 flex items-center flex-row">
+          {legendTeckShape({
+            index,
+            isDarkMode: false,
+            width: 14,
+            height: 14,
+            masked: index === 1,
+            maskId: 'tool-mask',
+            stroked: true,
+          })}
+        </div>
+        <div className="h-18 ml-4 flex items-center">
+          {fromMin} – {toMin}
+          <b className={'ml-12'}>
+            {formatNumber(item.value)} {unit}
           </b>
-        </p>
-      ))}
+        </div>
+      </div>
+    );
+  });
+
+  const reversedItems = [...items].reverse();
+
+  return (
+    <div className="flex flex-col gap-8 justify-evenly shadow-100 rounded-8 p-8 bg-background-content">
+      {reversedItems}
     </div>
   );
 };
@@ -146,7 +228,7 @@ export default function CustomTooltip({
   const unit = getUnit(isConsumption);
 
   if (aggregatedOn === Aggregation.QUARTER) {
-    return <QuarterTooltip fromDate={fromDate} label={label} payload={payload} unit={unit} />;
+    return <QuarterTooltip payload={payload} unit={unit} />;
   }
 
   return (

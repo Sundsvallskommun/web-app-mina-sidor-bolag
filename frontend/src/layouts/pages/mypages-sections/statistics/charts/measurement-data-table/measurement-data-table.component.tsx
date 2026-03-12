@@ -57,9 +57,6 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
                 timestamp: dayjs(point.timestamp)
                   .add(index * 15, 'minute')
                   .toISOString(),
-                previousValue: (point as MergedMeasurementPoints).previousValues
-                  ? (point as MergedMeasurementPoints).previousValues?.[index]
-                  : undefined,
               }) as MeasurementPoints | MergedMeasurementPoints
           );
         }
