@@ -95,7 +95,6 @@ export interface MergedMeasurementPoints {
   chartTimestamp?: string;
   metaData?: MetaData[];
   previousValue: number | undefined;
-  previousValues?: number[];
 }
 
 export interface MergedMeasurementSeries {

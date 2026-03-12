@@ -28,6 +28,7 @@ export interface ElectricityConsumptionProps {
 }
 
 export default function Consumption(props: ElectricityConsumptionProps) {
+  const { setValue } = useFormContext();
   const { data, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
   const [viewMode, setViewMode] = useState<EnumViewMode>(EnumViewMode.graph);
   const [timeInterval, setTimeInterval] = useState<EnumTimeInterval>(EnumTimeInterval.hour);
@@ -41,7 +42,9 @@ export default function Consumption(props: ElectricityConsumptionProps) {
     if (updateIsHourQuarter) {
       updateIsHourQuarter(timeInterval === EnumTimeInterval.quarter);
     }
-  }, [timeInterval, updateIsHourQuarter]);
+
+    setValue('isHourQuarter', timeInterval === EnumTimeInterval.quarter);
+  }, [timeInterval, updateIsHourQuarter, setValue]);
 
   return (
     <div>
@@ -57,7 +60,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
           <ConsumptionInformation data={data} />
 
           <div className="md:flex md:mt-56 mt-0 mb-32 md:justify-between">
-            {getValues().year && viewMode === EnumViewMode.graph && (
+            {getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter && (
               <div className="content-center">
                 <YearsLegend data={data} />
               </div>

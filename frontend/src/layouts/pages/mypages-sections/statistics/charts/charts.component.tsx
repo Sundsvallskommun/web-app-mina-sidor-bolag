@@ -42,6 +42,7 @@ export default function Charts() {
     url: `/paged/all-agreements`,
     method: 'get',
     dataHandler: pagedAgreementsHandler,
+    queryKey: ['all-agreements'],
   });
 
   const categoryParam = useMemo(() => {
@@ -149,8 +150,7 @@ export default function Charts() {
 
       setOnlyTrade(!netAgreementExistsForFacility);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [measurementData, facilityId]);
+  }, [facilityId, user?.facilities, allAgreements, setValue]);
 
   useEffect(() => {
     if (measurementData && previousMeasurementData) {
