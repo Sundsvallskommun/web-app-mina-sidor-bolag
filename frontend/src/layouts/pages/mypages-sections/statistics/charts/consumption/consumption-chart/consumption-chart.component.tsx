@@ -75,7 +75,19 @@ const barShape = (
     `Z`,
   ].join(' ');
 
-  return <path d={d} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
+  return (
+    <svg>
+      <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
+        <path
+          d="M-1,1 l2,-2
+           M0,4 l4,-4
+           M3,5 l2,-2"
+          style={{ stroke: stroke, strokeWidth: 1 }}
+        />
+      </pattern>
+      <path d={d} fill={props.index === 1 ? 'url(#diagonalHatch)' : fill} stroke={stroke} strokeWidth={strokeWidth} />
+    </svg>
+  );
 };
 
 const StackedBars = ({ isDarkMode }: SingleBarProps) => {
