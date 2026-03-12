@@ -70,6 +70,18 @@ export const useBannerMenuItems = () => {
         </NextLink>
       )}
     </>,
+    <>
+      {/* NOTE: Don't show in production */}
+      {process.env.NODE_ENV !== 'production' && (
+        <NextLink
+          key={`banner-menu-item-5`}
+          className="w-full flex items-center justify-center"
+          href={`${myPagesRoute}/vaxla-anvandare`}
+        >
+          Växla användare
+        </NextLink>
+      )}
+    </>,
   ];
 
   return isMinDesktop ? bannerItems : mobileMenuItems;

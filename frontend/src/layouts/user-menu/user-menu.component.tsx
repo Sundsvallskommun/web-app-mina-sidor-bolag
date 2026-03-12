@@ -65,6 +65,21 @@ export const UserMenu = () => {
                   </Button>
                 </PopupMenu.Item>
               )}
+              {/* NOTE: Don't show in production */}
+              {process.env.NODE_ENV !== 'production' && (
+                <PopupMenu.Item>
+                  <Button
+                    className="!justify-between"
+                    onClick={() => {
+                      router.push('vaxla-anvandare');
+                    }}
+                    data-cy="user-menu-eligibility-button"
+                  >
+                    Växla användare
+                    <Icon icon={<ArrowRight />} />
+                  </Button>
+                </PopupMenu.Item>
+              )}
               <Divider />
               <PopupMenu.Item>
                 <Button
