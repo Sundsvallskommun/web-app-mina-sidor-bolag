@@ -1,6 +1,6 @@
 'use client';
 
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, BarStack, BarProps, BarShapeProps } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, BarShapeProps } from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
