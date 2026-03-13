@@ -15,8 +15,13 @@ export const startAISession = async (req: RequestWithUser) => {
   const partyId = representing ? getRepresentingPartyId(representing) : undefined;
   const customerEngagements = req?.session?.cache?.relations?.customerRelations ?? [];
 
-  if (!partyId || !customerEngagements.length) {
-    throw new HttpException(400, 'Bad Request');
+  if (!partyId) {
+    throw new HttpException(400, 'Bad Request - missing party ID');
+  }
+
+  if (!customerEngagements.length) {
+    logger.info('Did not start the AI session because of missing customer engagements');
+    return;
   }
 
   const requestBody: SessionRequest = {
@@ -37,17 +42,26 @@ export const startAISession = async (req: RequestWithUser) => {
 };
 
 export const deleteAISession = async (req: RequestWithUser) => {
-  const id = req.session.ai.sessionId;
-  if (!id) return;
+  const id = req.session?.ai?.sessionId;
+
+  if (!id) return false;
 
   const url = `${selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
 
   try {
-    await apiService.delete({ url: url }, req.user);
-    req.session.ai = undefined;
+    await apiService.delete({ url }, req.user);
+
+    if (req.session?.ai) {
+      delete req.session.ai;
+    }
+
     return true;
   } catch (e) {
-    logger.error('Error deleting session', e);
-    throw new HttpException(e?.httpCode ?? 500, e?.message ?? 'Could not delete session');
+    logger.error('Error deleting AI session', e);
+    if (req.session?.ai) {
+      delete req.session.ai;
+    }
+
+    return false;
   }
 };
