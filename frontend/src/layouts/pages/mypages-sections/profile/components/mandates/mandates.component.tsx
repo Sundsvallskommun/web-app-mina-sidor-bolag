@@ -10,12 +10,13 @@ import { ListMandates } from './components/list-mandates/list-mandates.component
 
 export const Mandates: React.FC = () => {
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
+  const isAuthorized = representingEntity?.BUSINESS?.isAuthorizedSignatory || representingEntity?.BUSINESS?.whitelisted;
 
   const [showCreate, setShowCreate] = useState(false);
   const { t } = useTranslation();
 
   return (
-    representingEntity?.BUSINESS?.isAuthorizedSignatory && (
+    isAuthorized && (
       <ProfileAccordion
         data-cy="mandate-disclosure"
         title={t('profile:mandates.title')}
@@ -42,7 +43,7 @@ export const Mandates: React.FC = () => {
           </div>
           <Button
             data-cy="create-mandate-button"
-            className="w-fit grow-0"
+            className="w-fit grow-0 mt-40"
             leftIcon={<Icon icon={<Plus />} />}
             onClick={() => setShowCreate(true)}
           >
