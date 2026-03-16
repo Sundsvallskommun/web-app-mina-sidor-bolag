@@ -1,9 +1,11 @@
 import { RepresentingMode } from '@interfaces/app';
 import { setIntercepts } from 'cypress/support/e2e';
+import { getPendingInvoices } from '../fixtures/getInvoices';
 
 describe('Sidöverskridande', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
+    cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
   });
 
   it('Set focus to main', () => {
@@ -26,7 +28,7 @@ describe('Sidöverskridande', () => {
 
     cy.get('button[aria-label="Meny"]').should('be.visible').click();
     cy.get('button[aria-label="Stäng meny"]').should('be.visible');
-    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 7);
+    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 8);
 
     // foretag
     setIntercepts(RepresentingMode.BUSINESS);
@@ -48,6 +50,7 @@ describe('Sidöverskridande', () => {
     cy.get('[data-cy="user-menu-profile-button"]').should('exist').should('have.text', 'Profil och inställningar');
     // NOTE: Hide until release
     // cy.get('[data-cy="user-menu-eligibility-button"]').should('exist').should('have.text', 'Medgivanden');
+    cy.get('[data-cy="user-menu-impersonate-user-button"]').should('exist').should('have.text', 'Växla användare');
     cy.get('[data-cy="user-menu-logout-button"]').should('exist').should('have.text', 'Logga ut');
     cy.get('[data-cy="desktop-navigation"] li').should('have.length', 5);
   });

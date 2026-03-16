@@ -73,7 +73,7 @@ export const UserMenu = () => {
                     onClick={() => {
                       router.push('vaxla-anvandare');
                     }}
-                    data-cy="user-menu-eligibility-button"
+                    data-cy="user-menu-impersonate-user-button"
                   >
                     Växla användare
                     <Icon icon={<ArrowRight />} />
