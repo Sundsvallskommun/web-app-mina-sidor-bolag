@@ -56,8 +56,10 @@ export default function Eligibility() {
             <Spinner />
           </div>
         )}
-        {((!isLoading && !hasCustomerIds) || noCustomerIds) && <p>{t('eligibility:noCustomerId')}</p>}
-        {!isLoading && hasCustomerIds && !hasPermissions && <p>{t('eligibility:noData')}</p>}
+        {((!isLoading && !hasCustomerIds) || noCustomerIds) && (
+          <p data-cy="no-customer-id">{t('eligibility:noCustomerId')}</p>
+        )}
+        {!isLoading && hasCustomerIds && !hasPermissions && <p data-cy="no-data">{t('eligibility:noData')}</p>}
         {!isLoading && hasCustomerIds && hasPermissions && !noCustomerIds && (
           <>
             <NewPermissions customerIds={customerIds} permissions={permissions.new} />

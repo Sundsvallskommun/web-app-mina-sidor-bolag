@@ -42,6 +42,7 @@
         "status": {
           "denied": "Nekad",
           "ended": "Löpt ut",
+          "expired": "Löpt ut",
           "revoked": "Återkallad",
           "ongoing": "Pågående"
         },

@@ -23,7 +23,7 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
 }: CurrentAndClosedEligibilityPermissionsProps) => {
   return (
     <div className="bg-background-content p-20 rounded-cards shadow-50">
-      <Table>
+      <Table data-cy="current-and-closed-permissions-table">
         <Table.Header>
           <Table.HeaderColumn>{headerLabel('company')}</Table.HeaderColumn>
           <Table.HeaderColumn>{headerLabel('address')}</Table.HeaderColumn>

@@ -78,7 +78,13 @@ const CurrentAndClosedEligibilityPermissions = ({
 
   const revokeActionButton = (p: EligablePartyPart) =>
     activePanel === 0 ? (
-      <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
+      <Button
+        variant="tertiary"
+        size={isMinLg ? 'sm' : 'lg'}
+        onClick={handleRevokePermission(p)}
+        className="flex-1"
+        data-cy="revoke-button"
+      >
         {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
       </Button>
     ) : (
