@@ -8,22 +8,25 @@ export const getMe: ApiResponse<User> = {
       feedbackLifespan: FeedbackLifespan.oneMonth,
       readNotificationsClearedDate: '2025-01-01',
     },
-    relations: [
-      {
-        customerNumber: '1',
-        organizationNumber: '5564786647',
-        organizationName: 'Sundsvall Energi AB',
-        active: true,
-        moveInDate: '2025-01-01',
-      },
-      {
-        customerNumber: '1',
-        organizationNumber: '5565027223',
-        organizationName: 'Sundsvall Elnät',
-        active: true,
-        moveInDate: '2025-01-01',
-      },
-    ],
+    relations: {
+      customerNumber: '1',
+      customerRelations: [
+        {
+          customerNumber: '1',
+          organizationNumber: '5564786647',
+          organizationName: 'Sundsvall Energi AB',
+          active: true,
+          moveInDate: '2025-01-01',
+        },
+        {
+          customerNumber: '1',
+          organizationNumber: '5565027223',
+          organizationName: 'Sundsvall Elnät',
+          active: true,
+          moveInDate: '2025-01-01',
+        },
+      ],
+    },
     addresses: [
       {
         address: 'Storgatan 1',
@@ -32,7 +35,7 @@ export const getMe: ApiResponse<User> = {
     ],
     facilities: [
       {
-        type: 'Elhandel',
+        type: 'El',
         facilityId: '111',
         placementId: -1,
         facilityCommitmentStartDate: '2025-01-01',
@@ -297,15 +300,18 @@ export const getMeOnlyTrade: ApiResponse<User> = {
       feedbackLifespan: FeedbackLifespan.oneMonth,
       readNotificationsClearedDate: '2025-01-01',
     },
-    relations: [
-      {
-        customerNumber: '1',
-        organizationNumber: '5565027223',
-        organizationName: 'Sundsvall Elnät',
-        active: true,
-        moveInDate: '2025-01-01',
-      },
-    ],
+    relations: {
+      customerNumber: '1',
+      customerRelations: [
+        {
+          customerNumber: '1',
+          organizationNumber: '5565027223',
+          organizationName: 'Sundsvall Elnät',
+          active: true,
+          moveInDate: '2025-01-01',
+        },
+      ],
+    },
     addresses: [
       {
         address: 'Storgatan 1',
@@ -314,7 +320,7 @@ export const getMeOnlyTrade: ApiResponse<User> = {
     ],
     facilities: [
       {
-        type: 'Elhandel',
+        type: 'El',
         facilityId: '111',
         placementId: -2,
         facilityCommitmentStartDate: '2025-01-01',
