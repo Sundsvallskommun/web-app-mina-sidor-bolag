@@ -73,12 +73,12 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     const newPoints: MeasurementPoints[] = [];
     for (let i = 0; i < measurementPoints.length; i += 4) {
       const quarterPoints = measurementPoints.slice(i, i + 4);
-      const QuarterValues = quarterPoints.map((point) => point.value ?? 0);
+      const quarterValues = quarterPoints.map((point) => point.value ?? 0);
       const value = quarterPoints.reduce((acc, point) => acc + (point.value ?? 0), 0);
       const timestamp = quarterPoints[0]?.timestamp;
       newPoints.push({
         value,
-        values: QuarterValues,
+        values: quarterValues,
         timestamp,
         chartTimestamp: formatMeasurementDates(timestamp ?? '', Aggregation.QUARTER),
       });
@@ -182,6 +182,11 @@ export const calculateHighestValue = (aggregateOn?: Aggregation, measurementData
 
 const calculateHighestQuarterValue = (points: MeasurementPoints[]) => {
   const quarterValues = points.flatMap((point) => point.values ?? []);
+
+  if (quarterValues.length === 0) {
+    return { value: 0, timestamp: '' };
+  }
+
   const maxValue = Math.max(...quarterValues);
   const maxPoint = points.find((point) => point.values?.includes(maxValue));
   const maxIndex = maxPoint?.values?.indexOf(maxValue) ?? 0;
