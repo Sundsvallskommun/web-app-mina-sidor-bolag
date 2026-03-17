@@ -11,6 +11,10 @@ export const getBusinessEngagements: ApiResponse<PersonEngagement[]> = {
       name: 'Styrbjörns cyklar',
       organizationNumber: '2021005449',
     },
+    {
+      name: 'Styrbjörns bilar',
+      organizationNumber: '2021005450',
+    },
   ],
   message: 'success',
 };
