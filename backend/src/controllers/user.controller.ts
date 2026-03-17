@@ -21,6 +21,7 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { logger } from '@utils/logger';
 import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
+import { logger } from '@/utils/logger';
 
 interface UserData {
   name: string;
@@ -56,6 +57,14 @@ export class UserController {
   private customerApiBase = getApiBase('customer');
   private installedBaseApiBase = getApiBase('installedbase');
 
+  private handleCustomerRelationsError(error: any): void {
+    if (error.status === 404) {
+      logger.info('User has no relations');
+    } else {
+      throw new HttpException(500, 'Could not fetch customer relations');
+    }
+  }
+
   cacheRelations = async (req: RequestWithUser) => {
     const delegations = req?.session?.cache?.delegations ?? [];
     const allRelations: CustomerRelation[] = [];
@@ -69,13 +78,11 @@ export class UserController {
         relations.forEach(relation =>
           allRelations.push({
             ...relation,
-            organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+            organizationName: (relation.organizationName ?? '').replace(/\s*(AB)\s*$/g, ''),
           }),
         );
       } catch (error) {
-        if (error.status === 500) {
-          throw new HttpException(500, 'Could not fetch customer relations');
-        }
+        this.handleCustomerRelationsError(error);
       }
 
       if (delegations.length) {
@@ -90,15 +97,13 @@ export class UserController {
                 allRelations.push({
                   customerNumber: relation.customerNumber,
                   organizationNumber: relation.organizationNumber,
-                  organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
+                  organizationName: (relation.organizationName ?? '').replace(/\s*(AB)\s*$/g, ''),
                 });
               }
             });
           }
         } catch (error) {
-          if (error.status === 500) {
-            throw new HttpException(500, 'Could not fetch customer relations');
-          }
+          this.handleCustomerRelationsError(error);
         }
       }
 
