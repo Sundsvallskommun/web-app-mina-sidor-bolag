@@ -18,7 +18,6 @@ import {
 } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
-import { logger } from '@utils/logger';
 import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 import { logger } from '@/utils/logger';
