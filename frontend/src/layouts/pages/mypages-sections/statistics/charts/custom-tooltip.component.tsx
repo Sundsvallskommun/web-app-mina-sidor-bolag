@@ -2,8 +2,8 @@ import React from 'react';
 import dayjs from 'dayjs';
 import { Aggregation, Months } from '@interfaces/measurement-data';
 import { chartColors } from '@utils/chart-colors.const';
+import { makeMask } from './mask.component';
 
-// Constants
 const LOCALE = 'se';
 const UNIT_CONSUMPTION = 'kWh';
 const UNIT_TEMPERATURE = 'ºC';
@@ -12,7 +12,6 @@ const PAYLOAD_NAMES = {
   PREVIOUS: 'previousValue',
 } as const;
 
-// Types
 type PayloadItem = {
   value: number;
   payload: { previousValue?: number; timestamp?: string };
@@ -27,6 +26,7 @@ interface CustomTooltipProps {
   year?: number;
   isConsumption: boolean;
   aggregatedOn?: Aggregation;
+  isDarkMode?: boolean;
 }
 
 // Helper functions
@@ -64,53 +64,20 @@ const formatDateLabel = (
   }
 };
 
-// Mask component
-interface MaskProps {
-  stripSize: number;
-  maskSize: number;
-  maskId: string;
-}
-
-const Mask: React.FC<MaskProps> = ({ stripSize, maskSize, maskId }) => {
-  return (
-    <defs>
-      <pattern
-        id="pattern-stripe"
-        width={stripSize}
-        height={stripSize}
-        patternUnits="userSpaceOnUse"
-        patternTransform="rotate(55)"
-      >
-        <rect width={maskSize} height={stripSize} transform="translate(0,0)" fill="white"></rect>
-      </pattern>
-      <mask id={maskId}>
-        <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-stripe)" />
-      </mask>
-    </defs>
-  );
-};
-
-// Sub-components
 interface QuarterTooltipProps {
   payload: PayloadItem[];
   unit: string;
+  isDarkMode: boolean;
 }
 
-const legendTeckShape = (props: {
-  index: number;
-  isDarkMode: boolean;
-  stroked?: boolean;
-  masked?: boolean;
-  maskId?: string;
-  radius?: number;
-  height?: number;
-  width?: number;
-}) => {
-  const r = props.radius ?? 2;
-  const width = Number(props.width);
+const legendTeckShape = (props: { index: number; isDarkMode: boolean; maskId?: string }) => {
+  const stroked = true;
+  const width = 14;
+  const height = 14;
+  const radius = 2;
   const stripSize = 2;
   const maskSize = 1;
-  const strokeWidth = props.stroked && width > 4 ? 1 : 0;
+  const strokeWidth = stroked && width > 4 ? 1 : 0;
 
   const fill = props.isDarkMode ? chartColors.stackBar.dark[props.index] : chartColors.stackBar.light[props.index];
   const stroke = props.isDarkMode
@@ -118,16 +85,16 @@ const legendTeckShape = (props: {
     : chartColors.stackBar.borderLight[props.index];
 
   return (
-    <svg width={width} height={Number(props.height)} style={{ marginRight: '8px', verticalAlign: 'middle' }}>
-      {props.masked && <Mask stripSize={stripSize} maskSize={maskSize} maskId={props.maskId ?? 'mask'} />}
+    <svg width={width} height={height} style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+      {props.maskId && makeMask(props.maskId, stripSize, maskSize)}
       <rect
-        mask={props.masked ? `url(#${props.maskId})` : ''}
+        mask={props.maskId ? `url(#${props.maskId})` : ''}
         x={0}
         y={0}
         width={width}
-        height={Number(props.height) - strokeWidth}
-        rx={r}
-        ry={r}
+        height={height - strokeWidth}
+        rx={radius}
+        ry={radius}
         fill={fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
@@ -136,7 +103,7 @@ const legendTeckShape = (props: {
   );
 };
 
-const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit }) => {
+const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit, isDarkMode }) => {
   const items = payload.map((item, index) => {
     const fromMin = dayjs(item.payload.timestamp)
       .add(index * 15, 'minute')
@@ -149,12 +116,8 @@ const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit }) => {
         <div className="h-18 m-0 flex items-center flex-row">
           {legendTeckShape({
             index,
-            isDarkMode: false,
-            width: 14,
-            height: 14,
-            masked: index === 1,
-            maskId: 'tool-mask',
-            stroked: true,
+            isDarkMode: isDarkMode ?? false,
+            maskId: index === 1 ? 'tool-mask' : undefined,
           })}
         </div>
         <div className="h-18 ml-4 flex items-center">
@@ -220,6 +183,7 @@ export default function CustomTooltip({
   year,
   isConsumption,
   aggregatedOn,
+  isDarkMode,
 }: CustomTooltipProps) {
   if (!active || !payload?.length) {
     return null;
@@ -228,7 +192,7 @@ export default function CustomTooltip({
   const unit = getUnit(isConsumption);
 
   if (aggregatedOn === Aggregation.QUARTER) {
-    return <QuarterTooltip payload={payload} unit={unit} />;
+    return <QuarterTooltip payload={payload} unit={unit} isDarkMode={isDarkMode ?? false} />;
   }
 
   return (

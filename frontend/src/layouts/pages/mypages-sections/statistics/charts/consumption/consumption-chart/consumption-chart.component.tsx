@@ -7,6 +7,7 @@ import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@int
 import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 import { chartColors } from '@utils/chart-colors.const';
+import { makeMask } from '../../mask.component';
 
 export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -49,7 +50,6 @@ const barShape = (
     index: number;
     isDarkMode: boolean;
     stroked?: boolean;
-    masked?: boolean;
     maskId?: string;
     radius?: number;
     gap?: number;
@@ -67,7 +67,7 @@ const barShape = (
 
   return (
     <rect
-      mask={props.masked ? `url(#${props.maskId})` : ''}
+      mask={props.maskId ? `url(#${props.maskId})` : ''}
       x={Number(props.x ?? 0)}
       y={Number(props.y ?? 0)}
       width={width}
@@ -81,29 +81,10 @@ const barShape = (
   );
 };
 
-const mask = (maskId: string, stripSize: number, maskSize: number) => {
-  return (
-    <>
-      <pattern
-        id="pattern-stripe"
-        width={stripSize}
-        height={stripSize}
-        patternUnits="userSpaceOnUse"
-        patternTransform="rotate(55)"
-      >
-        <rect width={maskSize} height={stripSize} transform="translate(0,0)" fill="white"></rect>
-      </pattern>
-      <mask id={maskId}>
-        <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-stripe)" />
-      </mask>
-    </>
-  );
-};
-
 const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => {
   return (
     <>
-      {mask('mask-stripe', 3, 2)}
+      {makeMask('mask-stripe', 3, 2)}
       {[0, 1, 2, 3].map((b, idx) => {
         return (
           <Bar
@@ -117,8 +98,7 @@ const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => {
                 index: idx,
                 isDarkMode,
                 stroked: true,
-                masked: idx === 1,
-                maskId: 'mask-stripe',
+                maskId: idx === 1 ? 'mask-stripe' : undefined,
                 radius: 2,
                 gap: 4,
               })
@@ -214,6 +194,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 active={undefined}
                 payload={undefined}
                 label={undefined}
+                isDarkMode={isDarkMode}
               />
             }
           />

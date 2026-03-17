@@ -74,7 +74,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     for (let i = 0; i < measurementPoints.length; i += 4) {
       const quarterPoints = measurementPoints.slice(i, i + 4);
       const quarterValues = quarterPoints.map((point) => point.value ?? 0);
-      const value = quarterPoints.reduce((acc, point) => acc + (point.value ?? 0), 0);
+      const value = quarterValues.reduce((acc, v) => acc + v, 0);
       const timestamp = quarterPoints[0]?.timestamp;
       newPoints.push({
         value,
