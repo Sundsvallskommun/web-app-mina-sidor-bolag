@@ -158,7 +158,9 @@ export class UserController {
     await this.cacheRelations(req);
 
     if (!req.session?.ai?.sessionId) {
-      await startAISession(req);
+      await startAISession(req).catch(error => {
+        logger.error('Failed to start AI session', { error });
+      });
     }
 
     if (
