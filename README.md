@@ -5,11 +5,11 @@
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
 | API               | Version |
-|-------------------|--------:|
+| ----------------- | ------: |
 | ContactSettings   |     2.0 |
 | Citizen           |     3.0 |
 | Disturbances      |     5.0 |
-| Invoices          |     9.0 |
+| Invoices          |     9.1 |
 | SimulatorServer   |     2.0 |
 | Customer          |     4.0 |
 | Installedbase     |     3.1 |

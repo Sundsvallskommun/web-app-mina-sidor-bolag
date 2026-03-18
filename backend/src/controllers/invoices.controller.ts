@@ -85,6 +85,7 @@ export class InvoicesController {
     const organizationNumbers = customerRelations.map(c => c.organizationNumber);
 
     let allInvoices: Invoice[] = [];
+    let totalRecords = 0;
 
     for (const status of pendingStatuses) {
       const result = await this.invoicesService.fetchInvoices(req, {
@@ -92,28 +93,24 @@ export class InvoicesController {
         organizationNumbers,
         facilityId: facilityId as string[],
         invoiceDateFrom: this.invoiceDateFrom,
-        page: 1,
-        limit: 1000,
+        page: Number(page),
+        limit: Number(limit),
         invoiceStatus: status,
       });
 
       allInvoices.push(...result.invoices);
+      totalRecords += result.meta?.totalRecords ?? 0;
     }
-
-    allInvoices.sort((a, b) => new Date(b.invoiceDate).getTime() - new Date(a.invoiceDate).getTime());
-
-    const start = (Number(page) - 1) * Number(limit);
-    const paged = allInvoices.slice(start, start + Number(limit));
 
     return {
       data: {
-        invoices: paged,
+        invoices: allInvoices,
         _meta: {
           page: Number(page),
           limit: Number(limit),
-          totalRecords: allInvoices.length,
-          totalPages: Math.ceil(allInvoices.length / Number(limit)),
-          count: paged.length,
+          totalRecords,
+          totalPages: Math.ceil(totalRecords / Number(limit)),
+          count: allInvoices.length,
         },
       },
       message: 'success',
