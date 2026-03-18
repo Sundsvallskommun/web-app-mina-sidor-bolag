@@ -15,8 +15,8 @@ type FetchParams = {
 };
 
 export default class InvoicesService {
-  private api = new ApiService();
-  private baseUrl = getApiBase('invoices');
+  private readonly api = new ApiService();
+  private readonly baseUrl = getApiBase('invoices');
 
   private getExcludedOrgs(): string[] {
     const value = INVOICE_ORG_EXCLUDED;
