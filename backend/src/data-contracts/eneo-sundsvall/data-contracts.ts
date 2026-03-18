@@ -229,6 +229,13 @@ export enum ActionType {
   SecurityClassificationLevelsUpdated = 'security_classification_levels_updated',
   SecurityClassificationEnabled = 'security_classification_enabled',
   SecurityClassificationDisabled = 'security_classification_disabled',
+  McpServerCreated = 'mcp_server_created',
+  McpServerUpdated = 'mcp_server_updated',
+  McpServerDeleted = 'mcp_server_deleted',
+  McpServerEnabled = 'mcp_server_enabled',
+  McpServerDisabled = 'mcp_server_disabled',
+  McpServerToolEnabled = 'mcp_server_tool_enabled',
+  McpServerToolDisabled = 'mcp_server_tool_disabled',
   RetentionPolicyApplied = 'retention_policy_applied',
   EncryptionKeyRotated = 'encryption_key_rotated',
   SystemMaintenance = 'system_maintenance',
@@ -336,6 +343,44 @@ export interface AllowedOriginPublic {
   id: string;
   /** Url */
   url: string;
+}
+
+/** AnalysisJobStatus */
+export enum AnalysisJobStatus {
+  Queued = 'queued',
+  Processing = 'processing',
+  Completed = 'completed',
+  Failed = 'failed',
+}
+
+/** AnalysisJobStatusResponse */
+export interface AnalysisJobStatusResponse {
+  /**
+   * Job Id
+   * @format uuid
+   */
+  job_id: string;
+  status: AnalysisJobStatus;
+  /** Answer */
+  answer?: string | null;
+  /** Error */
+  error?: string | null;
+  /**
+   * Created At
+   * @format date-time
+   */
+  created_at: string;
+  /**
+   * Updated At
+   * @format date-time
+   */
+  updated_at: string;
+}
+
+/** AnalysisProcessingMode */
+export enum AnalysisProcessingMode {
+  Sync = 'sync',
+  Auto = 'auto',
 }
 
 /** ApiKey */
@@ -506,7 +551,7 @@ export interface AppTemplateAdminCreate {
   /** Prompt */
   prompt?: string | null;
   /** Completion Model Kwargs */
-  completion_model_kwargs?: Record<string, any> | null;
+  completion_model_kwargs?: Record<string, any>;
   wizard?: AppTemplateWizard | null;
   /** Input Type */
   input_type: string;
@@ -546,7 +591,7 @@ export interface AppTemplateAdminPublic {
   /** Prompt Text */
   prompt_text?: string | null;
   /** Completion Model Kwargs */
-  completion_model_kwargs?: Record<string, any> | null;
+  completion_model_kwargs?: Record<string, any>;
   /** Completion Model Id */
   completion_model_id?: string | null;
   /** Completion Model Name */
@@ -779,6 +824,21 @@ export interface AskResponse {
   model?: CompletionModelPublic | null;
 }
 
+/**
+ * AssistantActivityStats
+ * Statistics about assistant activity within a period.
+ */
+export interface AssistantActivityStats {
+  /** Active Assistant Count */
+  active_assistant_count: number;
+  /** Total Trackable Assistants */
+  total_trackable_assistants: number;
+  /** Active Assistant Pct */
+  active_assistant_pct: number;
+  /** Active User Count */
+  active_user_count: number;
+}
+
 /** AssistantCreatePublic */
 export interface AssistantCreatePublic {
   /** Name */
@@ -826,6 +886,13 @@ export interface AssistantCreatePublic {
    */
   integration_knowledge_list?: ModelId[];
   /**
+   * Mcp Servers
+   * This field is deprecated and will be ignored
+   * @deprecated
+   * @default []
+   */
+  mcp_servers?: ModelId[];
+  /**
    * This field is deprecated and will be ignored
    * @deprecated
    */
@@ -864,6 +931,27 @@ export interface AssistantInTemplatePublic {
   /** Completion Model Kwargs */
   completion_model_kwargs?: Record<string, any>;
   prompt: PromptPublicAssistantTemplate | null;
+}
+
+/** AssistantInsightQuestion */
+export interface AssistantInsightQuestion {
+  /**
+   * Id
+   * @format uuid
+   */
+  id: string;
+  /** Question */
+  question: string;
+  /**
+   * Created At
+   * @format date-time
+   */
+  created_at: string;
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
 }
 
 /** AssistantMetadata */
@@ -916,6 +1004,10 @@ export interface AssistantPublic {
   websites: WebsitePublic[];
   /** Integration Knowledge List */
   integration_knowledge_list: IntegrationKnowledgePublic[];
+  /** Mcp Servers */
+  mcp_servers: Record<string, any>[];
+  /** Mcp Tools */
+  mcp_tools?: MCPToolSetting[];
   completion_model?: CompletionModelSparse | null;
   /**
    * Published
@@ -1030,7 +1122,7 @@ export interface AssistantTemplateAdminCreate {
   /** Prompt */
   prompt?: string | null;
   /** Completion Model Kwargs */
-  completion_model_kwargs?: Record<string, any> | null;
+  completion_model_kwargs?: Record<string, any>;
   wizard?: AssistantTemplateWizard | null;
   /** Icon Name */
   icon_name?: string | null;
@@ -1066,7 +1158,7 @@ export interface AssistantTemplateAdminPublic {
   /** Prompt Text */
   prompt_text?: string | null;
   /** Completion Model Kwargs */
-  completion_model_kwargs?: Record<string, any> | null;
+  completion_model_kwargs?: Record<string, any>;
   /** Completion Model Id */
   completion_model_id?: string | null;
   /** Completion Model Name */
@@ -1562,6 +1654,11 @@ export interface CompletionModel {
   vision: boolean;
   /** Reasoning */
   reasoning: boolean;
+  /**
+   * Supports Tool Calling
+   * @default false
+   */
+  supports_tool_calling?: boolean;
   /** Base Url */
   base_url?: string | null;
   /** Litellm Model Name */
@@ -1614,6 +1711,11 @@ export interface CompletionModelCreate {
   vision: boolean;
   /** Reasoning */
   reasoning: boolean;
+  /**
+   * Supports Tool Calling
+   * @default false
+   */
+  supports_tool_calling?: boolean;
   /** Base Url */
   base_url?: string | null;
   /** Litellm Model Name */
@@ -1661,6 +1763,11 @@ export interface CompletionModelPublic {
   vision: boolean;
   /** Reasoning */
   reasoning: boolean;
+  /**
+   * Supports Tool Calling
+   * @default false
+   */
+  supports_tool_calling?: boolean;
   /** Base Url */
   base_url?: string | null;
   /** Litellm Model Name */
@@ -1759,6 +1866,11 @@ export interface CompletionModelSecurityStatus {
   vision: boolean;
   /** Reasoning */
   reasoning: boolean;
+  /**
+   * Supports Tool Calling
+   * @default false
+   */
+  supports_tool_calling?: boolean;
   /** Base Url */
   base_url?: string | null;
   /** Litellm Model Name */
@@ -1841,6 +1953,11 @@ export interface CompletionModelSparse {
   vision: boolean;
   /** Reasoning */
   reasoning: boolean;
+  /**
+   * Supports Tool Calling
+   * @default false
+   */
+  supports_tool_calling?: boolean;
   /** Base Url */
   base_url?: string | null;
   /** Litellm Model Name */
@@ -1909,6 +2026,11 @@ export interface ConversationRequest {
    * @default false
    */
   use_web_search?: boolean;
+  /**
+   * Require Tool Approval
+   * @default false
+   */
+  require_tool_approval?: boolean;
 }
 
 /** Counts */
@@ -2325,6 +2447,28 @@ export interface CreateSpaceServiceResponse {
   user: UserSparse;
 }
 
+/** CursorPaginatedResponse[AssistantInsightQuestion] */
+export interface CursorPaginatedResponseAssistantInsightQuestion {
+  /**
+   * Items
+   * List of items returned in the response
+   */
+  items: AssistantInsightQuestion[];
+  /** Limit */
+  limit?: number | null;
+  /** Next Cursor */
+  next_cursor?: string | null;
+  /** Previous Cursor */
+  previous_cursor?: string | null;
+  /** Total Count */
+  total_count: number;
+  /**
+   * Count
+   * Number of items returned in the response
+   */
+  count: number;
+}
+
 /** CursorPaginatedResponse[SessionMetadataPublic] */
 export interface CursorPaginatedResponseSessionMetadataPublic {
   /**
@@ -2433,6 +2577,10 @@ export interface DefaultAssistant {
   websites: WebsitePublic[];
   /** Integration Knowledge List */
   integration_knowledge_list: IntegrationKnowledgePublic[];
+  /** Mcp Servers */
+  mcp_servers: Record<string, any>[];
+  /** Mcp Tools */
+  mcp_tools?: MCPToolSetting[];
   completion_model?: CompletionModelSparse | null;
   /**
    * Published
@@ -2873,6 +3021,8 @@ export enum EntityType {
   EmbeddingModel = 'embedding_model',
   TranscriptionModel = 'transcription_model',
   AuditLog = 'audit_log',
+  McpServer = 'mcp_server',
+  McpServerTool = 'mcp_server_tool',
 }
 
 /** ErrorCodes */
@@ -3712,6 +3862,8 @@ export interface IntegrationPreviewData {
   name: string;
   /** Url */
   url: string;
+  /** Category */
+  category?: string | null;
 }
 
 /** IntegrationPreviewDataList */
@@ -3780,6 +3932,257 @@ export interface LoggingDetailsPublic {
   json_body: any;
 }
 
+/**
+ * MCPConnectionStatus
+ * Status of MCP server connection attempt.
+ */
+export interface MCPConnectionStatus {
+  /** Success */
+  success: boolean;
+  /**
+   * Tools Discovered
+   * @default 0
+   */
+  tools_discovered?: number;
+  /** Error Message */
+  error_message?: string | null;
+}
+
+/**
+ * MCPServerCreate
+ * DTO for creating an MCP server (admin only, uses Streamable HTTP transport).
+ */
+export interface MCPServerCreate {
+  /** Name */
+  name: string;
+  /**
+   * Http Url
+   * @format uri
+   * @minLength 1
+   */
+  http_url: string;
+  /**
+   * Http Auth Type
+   * @default "none"
+   */
+  http_auth_type?: McpServerCreateHttpAuthTypeEnum;
+  /** Description */
+  description?: string | null;
+  /** Http Auth Config Schema */
+  http_auth_config_schema?: Record<string, any> | null;
+  /** Tags */
+  tags?: string[] | null;
+  /** Icon Url */
+  icon_url?: string | null;
+  /** Documentation Url */
+  documentation_url?: string | null;
+}
+
+/**
+ * MCPServerCreateResponse
+ * Response for MCP server creation including connection status.
+ */
+export interface MCPServerCreateResponse {
+  /** Public DTO for MCP server (HTTP-only, uses Streamable HTTP transport). */
+  server: MCPServerPublic;
+  /** Status of MCP server connection attempt. */
+  connection: MCPConnectionStatus;
+}
+
+/**
+ * MCPServerPublic
+ * Public DTO for MCP server (HTTP-only, uses Streamable HTTP transport).
+ */
+export interface MCPServerPublic {
+  /**
+   * Id
+   * @format uuid
+   */
+  id: string;
+  /** Name */
+  name: string;
+  /** Description */
+  description: string | null;
+  /** Http Url */
+  http_url: string;
+  /** Http Auth Type */
+  http_auth_type: string;
+  /** Has Credentials */
+  has_credentials: boolean;
+  /** Credential Preview */
+  credential_preview?: string | null;
+  /** Tags */
+  tags: string[] | null;
+  /** Icon Url */
+  icon_url: string | null;
+  /** Documentation Url */
+  documentation_url: string | null;
+}
+
+/**
+ * MCPServerSettingsCreate
+ * DTO for enabling an MCP server for tenant.
+ */
+export interface MCPServerSettingsCreate {
+  /** Env Vars */
+  env_vars?: Record<string, any> | null;
+}
+
+/**
+ * MCPServerSettingsPublic
+ * DTO for MCP server with tenant settings.
+ */
+export interface MCPServerSettingsPublic {
+  /**
+   * Id
+   * @format uuid
+   */
+  id: string;
+  /** Name */
+  name: string;
+  /** Description */
+  description: string | null;
+  /** Http Url */
+  http_url: string;
+  /** Http Auth Type */
+  http_auth_type: string;
+  /** Has Credentials */
+  has_credentials: boolean;
+  /** Credential Preview */
+  credential_preview?: string | null;
+  /** Tags */
+  tags: string[] | null;
+  /** Icon Url */
+  icon_url: string | null;
+  /** Documentation Url */
+  documentation_url: string | null;
+  /**
+   * Mcp Server Id
+   * @format uuid
+   */
+  mcp_server_id: string;
+  /** Is Org Enabled */
+  is_org_enabled: boolean;
+  /**
+   * Tools
+   * @default []
+   */
+  tools?: MCPServerToolPublic[];
+  /**
+   * Tools Count
+   * Number of tools available on this server.
+   */
+  tools_count: number;
+  /**
+   * Is Available
+   * Whether this MCP is enabled and available for use.
+   */
+  is_available: boolean;
+}
+
+/**
+ * MCPServerSettingsUpdate
+ * DTO for updating MCP server settings.
+ */
+export interface MCPServerSettingsUpdate {
+  /** Is Org Enabled */
+  is_org_enabled?: boolean | null;
+  /** Env Vars */
+  env_vars?: Record<string, any> | null;
+}
+
+/** MCPServerToolList */
+export interface MCPServerToolList {
+  /** Items */
+  items: MCPServerToolPublic[];
+  /** Count */
+  count: number;
+}
+
+/**
+ * MCPServerToolPublic
+ * DTO for MCP server tool.
+ */
+export interface MCPServerToolPublic {
+  /**
+   * Id
+   * @format uuid
+   */
+  id: string;
+  /**
+   * Mcp Server Id
+   * @format uuid
+   */
+  mcp_server_id: string;
+  /** Name */
+  name: string;
+  /** Description */
+  description: string | null;
+  /** Input Schema */
+  input_schema: Record<string, any> | null;
+  /** Is Enabled By Default */
+  is_enabled_by_default: boolean;
+}
+
+/**
+ * MCPServerToolSyncResponse
+ * Response for tool sync operation including connection status.
+ */
+export interface MCPServerToolSyncResponse {
+  /** Tools */
+  tools: MCPServerToolPublic[];
+  /** Status of MCP server connection attempt. */
+  connection: MCPConnectionStatus;
+  /** Count */
+  count: number;
+}
+
+/**
+ * MCPServerToolUpdate
+ * DTO for updating tenant-level tool settings.
+ */
+export interface MCPServerToolUpdate {
+  /** Is Enabled */
+  is_enabled: boolean;
+}
+
+/**
+ * MCPServerUpdate
+ * DTO for updating an MCP server (admin only, uses Streamable HTTP transport).
+ */
+export interface MCPServerUpdate {
+  /** Name */
+  name?: string | null;
+  /** Http Url */
+  http_url?: string | null;
+  /** Http Auth Type */
+  http_auth_type?: McpServerUpdateHttpAuthTypeEnum | null;
+  /** Description */
+  description?: string | null;
+  /** Http Auth Config Schema */
+  http_auth_config_schema?: Record<string, any> | null;
+  /** Tags */
+  tags?: string[] | null;
+  /** Icon Url */
+  icon_url?: string | null;
+  /** Documentation Url */
+  documentation_url?: string | null;
+}
+
+/**
+ * MCPToolSetting
+ * MCP server tool enablement setting.
+ */
+export interface MCPToolSetting {
+  /**
+   * Tool Id
+   * @format uuid
+   */
+  tool_id: string;
+  /** Is Enabled */
+  is_enabled: boolean;
+}
+
 /** Message */
 export interface Message {
   /** Created At */
@@ -3802,6 +4205,11 @@ export interface Message {
   generated_files: FilePublic[];
   /** Web Search References */
   web_search_references: WebSearchResultPublic[];
+  /**
+   * Tool Calls
+   * @default []
+   */
+  tool_calls?: ToolCallInfo[];
 }
 
 /** MessageLogging */
@@ -3826,7 +4234,23 @@ export interface MessageLogging {
   generated_files: FilePublic[];
   /** Web Search References */
   web_search_references: WebSearchResultPublic[];
+  /**
+   * Tool Calls
+   * @default []
+   */
+  tool_calls?: ToolCallInfo[];
   logging_details: LoggingDetailsPublic;
+}
+
+/** MetadataCount */
+export interface MetadataCount {
+  /**
+   * Created At
+   * @format date-time
+   */
+  created_at: string;
+  /** Count */
+  count: number;
 }
 
 /** MetadataStatistics */
@@ -3837,6 +4261,16 @@ export interface MetadataStatistics {
   sessions: SessionMetadata[];
   /** Questions */
   questions: QuestionMetadata[];
+}
+
+/** MetadataStatisticsAggregated */
+export interface MetadataStatisticsAggregated {
+  /** Assistants */
+  assistants: MetadataCount[];
+  /** Sessions */
+  sessions: MetadataCount[];
+  /** Questions */
+  questions: MetadataCount[];
 }
 
 /**
@@ -3892,6 +4326,14 @@ export enum ModelHostingLocation {
   Usa = 'usa',
   Eu = 'eu',
   Swe = 'swe',
+  Chn = 'chn',
+  Can = 'can',
+  Gbr = 'gbr',
+  Isr = 'isr',
+  Kor = 'kor',
+  Deu = 'deu',
+  Fra = 'fra',
+  Jpn = 'jpn',
 }
 
 /** ModelId */
@@ -4739,6 +5181,34 @@ export interface PaginatedResponseJobPublic {
   count: number;
 }
 
+/** PaginatedResponse[MCPServerPublic] */
+export interface PaginatedResponseMCPServerPublic {
+  /**
+   * Items
+   * List of items returned in the response
+   */
+  items: MCPServerPublic[];
+  /**
+   * Count
+   * Number of items returned in the response
+   */
+  count: number;
+}
+
+/** PaginatedResponse[MCPServerSettingsPublic] */
+export interface PaginatedResponseMCPServerSettingsPublic {
+  /**
+   * Items
+   * List of items returned in the response
+   */
+  items: MCPServerSettingsPublic[];
+  /**
+   * Count
+   * Number of items returned in the response
+   */
+  count: number;
+}
+
 /** PaginatedResponse[Message] */
 export interface PaginatedResponseMessage {
   /**
@@ -5107,6 +5577,12 @@ export interface PartialAssistantUpdatePublic {
    */
   integration_knowledge_list?: ModelId[] | null;
   /**
+   * Mcp Servers
+   * This field is deprecated and will be ignored
+   * @deprecated
+   */
+  mcp_servers?: ModelId[] | null;
+  /**
    * This field is deprecated and will be ignored
    * @deprecated
    */
@@ -5118,6 +5594,8 @@ export interface PartialAssistantUpdatePublic {
   completion_model?: ModelId | null;
   /** Attachments */
   attachments?: ModelId[] | null;
+  /** Mcp Tools */
+  mcp_tools?: MCPToolSetting[] | null;
   /**
    * Description
    * A description of the assitant that will be used as default description in GroupChatAssistantPublic
@@ -5175,6 +5653,8 @@ export interface PartialCompletionModelUpdate {
   vision?: boolean | null;
   /** Reasoning */
   reasoning?: boolean | null;
+  /** Supports Tool Calling */
+  supports_tool_calling?: boolean | null;
   /** Base Url */
   base_url?: string | null;
   /** Litellm Model Name */
@@ -5245,6 +5725,10 @@ export interface PartialUpdateSpaceRequest {
   completion_models?: ModelId[] | null;
   /** Transcription Models */
   transcription_models?: ModelId[] | null;
+  /** Mcp Servers */
+  mcp_servers?: ModelId[] | null;
+  /** Mcp Tools */
+  mcp_tools?: MCPToolSetting[] | null;
   /**
    * Security Classification
    * ID of the security classification to apply to this space. Set to null to remove the security classification. Omit to keep the current security classification unchanged.
@@ -5296,7 +5780,7 @@ export enum Permission {
   Editor = 'editor',
   Admin = 'admin',
   Websites = 'websites',
-  IntegrationKnowledgeList = 'integration_knowledge_list',
+  Integrations = 'integrations',
 }
 
 /** PermissionPublic */
@@ -5827,7 +6311,7 @@ export interface ServiceCreatePublic {
   name: string;
   /** Prompt */
   prompt: string;
-  completion_model_kwargs?: ModelKwargs | null;
+  completion_model_kwargs?: ModelKwargs;
   /**
    * Groups
    * @default []
@@ -5915,7 +6399,7 @@ export interface ServiceSparse {
   name: string;
   /** Prompt */
   prompt: string;
-  completion_model_kwargs?: ModelKwargs | null;
+  completion_model_kwargs?: ModelKwargs;
   /**
    * Permissions
    * @default []
@@ -6321,6 +6805,8 @@ export interface SpacePublic {
   completion_models: CompletionModelPublic[];
   /** Transcription Models */
   transcription_models: TranscriptionModelPublic[];
+  /** Mcp Servers */
+  mcp_servers: Record<string, any>[];
   knowledge: Knowledge;
   members: PaginatedPermissionsSpaceMember;
   group_members: PaginatedPermissionsSpaceGroupMember;
@@ -6587,6 +7073,7 @@ export enum Task {
   PullSharepointContent = 'pull_sharepoint_content',
   SyncSharepointDelta = 'sync_sharepoint_delta',
   UpdateModelUsageStats = 'update_model_usage_stats',
+  AnalyzeConversationInsights = 'analyze_conversation_insights',
 }
 
 /** TemplateCreate */
@@ -6711,11 +7198,23 @@ export interface TenantCompletionModelCreate {
    */
   reasoning?: boolean;
   /**
+   * Supports Tool Calling
+   * Supports function/tool calling
+   * @default false
+   */
+  supports_tool_calling?: boolean;
+  /**
    * Hosting
    * Hosting location (swe, eu, usa)
    * @default "swe"
    */
   hosting?: string;
+  /**
+   * Family
+   * Model family (e.g., 'openai', 'anthropic', 'deepseek')
+   * @default "openai"
+   */
+  family?: string;
   /**
    * Is Active
    * Enable in organization
@@ -6762,6 +7261,11 @@ export interface TenantCompletionModelUpdate {
    * Supports extended reasoning
    */
   reasoning?: boolean | null;
+  /**
+   * Supports Tool Calling
+   * Supports function/tool calling
+   */
+  supports_tool_calling?: boolean | null;
   /**
    * Hosting
    * Hosting location (swe, eu, usa)
@@ -7131,6 +7635,12 @@ export interface TenantTranscriptionModelCreate {
    */
   hosting?: string;
   /**
+   * Family
+   * Model family (e.g., 'openai', 'anthropic', 'deepseek')
+   * @default "openai"
+   */
+  family?: string;
+  /**
    * Is Active
    * Enable in organization
    * @default true
@@ -7351,6 +7861,17 @@ export interface TokenUsageSummary {
   total_token_usage: number;
 }
 
+/**
+ * ToolApprovalDecision
+ * Decision for a single tool call.
+ */
+export interface ToolApprovalDecision {
+  /** Tool Call Id */
+  tool_call_id: string;
+  /** Approved */
+  approved: boolean;
+}
+
 /** ToolAssistant */
 export interface ToolAssistant {
   /**
@@ -7360,6 +7881,23 @@ export interface ToolAssistant {
   id: string;
   /** Handle */
   handle: string;
+}
+
+/**
+ * ToolCallInfo
+ * Info about a single tool being called.
+ */
+export interface ToolCallInfo {
+  /** Server Name */
+  server_name: string;
+  /** Tool Name */
+  tool_name: string;
+  /** Arguments */
+  arguments?: Record<string, any> | null;
+  /** Tool Call Id */
+  tool_call_id?: string | null;
+  /** Approved */
+  approved?: boolean | null;
 }
 
 /** TranscriptionModelPublic */
@@ -8322,6 +8860,24 @@ export interface UserUpdatePublic {
   state?: UserState | null;
 }
 
+/**
+ * ValidateModelRequest
+ * Request model for validating a model against a provider.
+ */
+export interface ValidateModelRequest {
+  /**
+   * Model Name
+   * Model name to validate
+   */
+  model_name: string;
+  /**
+   * Model Type
+   * Model type: completion, embedding, or transcription
+   * @default "completion"
+   */
+  model_type?: string;
+}
+
 /** ValidationError */
 export interface ValidationError {
   /** Location */
@@ -8887,6 +9443,114 @@ export interface IntricWebsitesPresentationWebsiteModelsCrawlRunPublic {
 
 export enum IntricEventType {
   GeneratingImage = 'generating_image',
+  ToolCall = 'tool_call',
+  ToolApprovalRequired = 'tool_approval_required',
+}
+
+/** SSEText */
+export interface SSEText {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  /** Answer */
+  answer: string;
+  /** References */
+  references: any[];
+}
+
+/** SSEIntricEvent */
+export interface SSEIntricEvent {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  intric_event_type: any;
+}
+
+/**
+ * SSEToolCall
+ * Event emitted when MCP tools are being executed.
+ */
+export interface SSEToolCall {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  /** @default "tool_call" */
+  intric_event_type?: any;
+  /** Tools */
+  tools: any[];
+}
+
+/**
+ * SSEToolApprovalRequired
+ * Event emitted when MCP tools require user approval before execution.
+ */
+export interface SSEToolApprovalRequired {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  /** @default "tool_approval_required" */
+  intric_event_type?: any;
+  /** Approval Id */
+  approval_id: string;
+  /** Tools */
+  tools: any[];
+}
+
+/** SSEFiles */
+export interface SSEFiles {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  /** Generated Files */
+  generated_files: any[];
+}
+
+/** SSEFirstChunk */
+export interface SSEFirstChunk {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  /** Question */
+  question: string;
+  /** Answer */
+  answer: string;
+  /** Files */
+  files: any[];
+  /** Generated Files */
+  generated_files: any[];
+  /** References */
+  references: any[];
+  tools: any;
+  /** Web Search References */
+  web_search_references: any[];
+}
+
+/** SSEError */
+export interface SSEError {
+  /**
+   * Session Id
+   * @format uuid
+   */
+  session_id: string;
+  /** Error */
+  error: string;
+  /**
+   * Error Code
+   * @default null
+   */
+  error_code?: number | null;
 }
 
 /** Status */
@@ -8911,6 +9575,20 @@ export enum FederationInfoEncryptionStatusEnum {
 export enum IntegrationKnowledgePublicIntegrationTypeEnum {
   Confluence = 'confluence',
   Sharepoint = 'sharepoint',
+}
+
+/**
+ * Http Auth Type
+ * @default "none"
+ */
+export enum McpServerCreateHttpAuthTypeEnum {
+  None = 'none',
+  Bearer = 'bearer',
+}
+
+export enum McpServerUpdateHttpAuthTypeEnum {
+  None = 'none',
+  Bearer = 'bearer',
 }
 
 export enum PartialServiceUpdatePublicOutputFormatEnum {
