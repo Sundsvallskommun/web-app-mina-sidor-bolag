@@ -23,7 +23,7 @@ export enum Category {
 
 export interface Data {
   category?: Category;
-  facilityId?: string;
+  facilityId?: string[];
   aggregateOn?: Aggregation;
   fromDate?: string;
   toDate?: string;
