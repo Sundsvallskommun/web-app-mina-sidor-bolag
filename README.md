@@ -86,6 +86,14 @@ För att lägga till en organisation måste du ange dess id i listan i `frontend
 Sen måste en logotyp i format svg för lightmode och darkmode placeras i `frontend/public/logotypes` med filnamn `<orgnummer>-lightmode.svg` respektive `<orgnummer>-darkmode.svg`.  
 Alt-text för logotyperna läggs i `frontend/locales/<lang>/organization.json`
 
+### Synca datamodeller för api:er
+
+Se till att README och `/backend/src/config/api-config.ts` matchar och justera utefter de api:er som önskas användas.
+
+**För backend**, i `/backend` kör `yarn generate:contracts` för att få ned de senaste datamodellerna för samtliga api:er -- Justera om så behövs utifrån de uppdaterade modellerna
+
+**För frontend**, se till att backend är igång (`yarn dev`), i `/frontend` kör `yarn generate:contracts` för att synca backend med frontend -- Justera om så behövs utifrån de uppdaterade modellerna
+
 ## Git Hooks
 
 Behöver man skippa Git hooks (Husky) så kan man följa: https://typicode.github.io/husky/#/?id=bypass-hooks
