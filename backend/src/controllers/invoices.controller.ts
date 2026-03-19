@@ -37,8 +37,6 @@ export class InvoicesController {
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser) {
     const representing = req.session?.representing;
-    const customerRelations = req.session.cache.relations.customerRelations;
-
     const { facilityId, page, limit } = req.query;
 
     if (!facilityId) {
@@ -47,7 +45,11 @@ export class InvoicesController {
 
     const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
 
-    const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    // TO DO: add orgNr's when Invoices is updated to 9.x
+    // Also, remember to add INVOICE_ORG_EXCLUDED if neceseary
+    // const customerRelations = req.session.cache.relations.customerRelations;
+    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    const organizationNumbers = [];
 
     const result = await this.invoicesService.fetchInvoices(req, {
       partyIds,
@@ -72,8 +74,6 @@ export class InvoicesController {
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser) {
     const representing = req.session?.representing;
-    const customerRelations = req.session.cache.relations.customerRelations;
-
     const { facilityId, page, limit } = req.query;
 
     if (!facilityId) {
@@ -82,7 +82,11 @@ export class InvoicesController {
 
     const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
 
-    const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    // TO DO: add orgNr's when Invoices is updated to 9.x
+    // Also, remember to add INVOICE_ORG_EXCLUDED if neceseary
+    // const customerRelations = req.session.cache.relations.customerRelations;
+    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    const organizationNumbers = [];
 
     let allInvoices: Invoice[] = [];
     let totalRecords = 0;
