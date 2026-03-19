@@ -6,6 +6,8 @@
   "year": "År",
   "month": "Månad",
   "day": "Dag",
+  "hour": "Timme",
+  "quarter": "Kvartal",
   "compareYear": "Jämför med år",
   "chooseYear": "Välj år",
   "use": "Använd",
@@ -23,7 +25,8 @@
     "highest": "Högsta {{label}}",
     "average": "Genomsnittlig {{label}}",
     "peakEffect": "Högsta effekt",
-    "peakEffectAmount": "{{amount}} W"
+    "peakEffectAmount": "{{amount}} W",
+    "timeInterval": "Tidsintervall"
   },
   "temperature": {
     "title": "Utetemperatur"

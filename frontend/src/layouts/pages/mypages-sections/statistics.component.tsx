@@ -23,6 +23,7 @@ export interface StatisticsForm {
   /** two digit string */
   selectedDay?: string;
   year?: string;
+  isHourQuarter?: boolean;
 }
 
 export default function Statistics() {
@@ -33,6 +34,7 @@ export default function Statistics() {
     mode: 'onChange',
     defaultValues: {
       category: '',
+      isHourQuarter: false,
     },
   });
 

@@ -28,7 +28,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [mode, setMode] = useState<'day' | 'month' | 'year'>('month');
-  const { address, fromDate, selectedDay, selectedMonth, selectedYear } = watch();
+  const { address, fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter } = watch();
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -145,7 +145,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-1/2 lg:pt-0 pt-16">
-          <div className="block w-full lg:pt-0 pt-16 lg:justify-end justify-center">
+          <div className="lg:pt-0 pt-16 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
             <div className="block w-full lg:pt-0 pt-16">
               <FormLabel>{t('statistics:showBy')}</FormLabel>
               <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
@@ -171,23 +171,27 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </NavigationBar>
             </div>
           </div>
-          {mode === 'year' && <StatisticsFilterYear />}
-          {mode === 'month' && <StatisticsFilterMonth />}
-          {mode === 'day' && <StatisticsFilterDay />}
-
-          <div className="block w-full lg:w-2/3 lg:pt-0 pt-16">
-            <FormLabel>{t('statistics:compareYear')}</FormLabel>
-            <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
-              <Select.Option key={0} value="">
-                {t('statistics:chooseYear')}
-              </Select.Option>
-              {generateComparableYears(fromDate).map((y) => (
-                <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
-              ))}
-            </Select>
+          <div className="lg:flex-[0_0_auto] w-full lg:w-auto">
+            {mode === 'year' && <StatisticsFilterYear />}
+            {mode === 'month' && <StatisticsFilterMonth />}
+            {mode === 'day' && <StatisticsFilterDay />}
           </div>
 
-          <Button onClick={closeHandler} className="sm:hidden block w-full mt-48">
+          {!isHourQuarter && (
+            <div className="w-full lg:w-[115px] lg:pt-0 pt-16 flex-shrink-0">
+              <FormLabel>{t('statistics:compareYear')}</FormLabel>
+              <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
+                <Select.Option key={0} value="">
+                  {t('statistics:chooseYear')}
+                </Select.Option>
+                {generateComparableYears(fromDate).map((y) => (
+                  <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
+                ))}
+              </Select>
+            </div>
+          )}
+
+          <Button onClick={closeHandler} className="sm:hidden block w-full lg:w-auto lg:flex-[0_0_auto] mt-48">
             {t('statistics:use')}
           </Button>
         </div>
