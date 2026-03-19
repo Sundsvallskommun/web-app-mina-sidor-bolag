@@ -5,7 +5,7 @@
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
 | API               | Version |
-|-------------------|--------:|
+| ----------------- | ------: |
 | ContactSettings   |     2.0 |
 | Citizen           |     3.0 |
 | Disturbances      |     5.0 |
@@ -14,7 +14,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Customer          |     4.0 |
 | Installedbase     |     3.1 |
 | Agreement         |     4.1 |
-| MeasurementData   |     3.0 |
+| MeasurementData   |     3.1 |
 | MyRepresentatives |     4.2 |
 | LegalEntity       |     2.0 |
 | Eventlog          |     2.1 |
@@ -85,6 +85,14 @@ yarn prisma:migrate
 För att lägga till en organisation måste du ange dess id i listan i `frontend/src/utils/app-organizations.ts`.  
 Sen måste en logotyp i format svg för lightmode och darkmode placeras i `frontend/public/logotypes` med filnamn `<orgnummer>-lightmode.svg` respektive `<orgnummer>-darkmode.svg`.  
 Alt-text för logotyperna läggs i `frontend/locales/<lang>/organization.json`
+
+### Synca datamodeller för api:er
+
+Se till att README och `/backend/src/config/api-config.ts` matchar och justera utefter de api:er som önskas användas.
+
+**För backend**, i `/backend` kör `yarn generate:contracts` för att få ned de senaste datamodellerna för samtliga api:er -- Justera om så behövs utifrån de uppdaterade modellerna
+
+**För frontend**, se till att backend är igång (`yarn dev`), i `/frontend` kör `yarn generate:contracts` för att synca backend med frontend -- Justera om så behövs utifrån de uppdaterade modellerna
 
 ## Git Hooks
 

@@ -72,7 +72,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
             <h4 data-cy="average-consumption-value">
               {t('statistics:consumption.amount', { consumption: data.averageConsumption })}
             </h4>
-            <p>per {translateAggregateOn(data.aggregatedOn)}</p>
+            <p>per {translateAggregateOn(data.aggregatedOn, t)}</p>
           </div>
         </div>
 

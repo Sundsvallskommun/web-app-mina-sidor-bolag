@@ -41,10 +41,11 @@ export class MeasurementDataController {
       const params = {
         partyId,
         category,
-        facilityId,
+        facilityIds: facilityId ? [facilityId] : [],
         fromDate,
         toDate,
         aggregateOn,
+        display: 'AGGREGATE',
       };
 
       const res = await this.apiService.get<Data>({ url, params }, req.user);

@@ -97,6 +97,8 @@ export const generateStatisticsData = (fromDate: string, aggregateOn: string) =>
     switch (aggregateOn) {
       case 'HOUR':
         return 24;
+      case 'QUARTER':
+        return 96; // 24 hours × 4 quarters per hour
       case 'DAY':
         return parseInt(dayjs().format('DD'));
       case 'MONTH':
@@ -109,6 +111,8 @@ export const generateStatisticsData = (fromDate: string, aggregateOn: string) =>
   const getStartOf = () => {
     switch (aggregateOn) {
       case 'HOUR':
+        return 'day';
+      case 'QUARTER':
         return 'day';
       case 'DAY':
         return 'month';
@@ -124,14 +128,26 @@ export const generateStatisticsData = (fromDate: string, aggregateOn: string) =>
   const startOf = getStartOf();
 
   for (let i = 0; i < measurementMax; i++) {
-    measurements.push({
-      value: i * i,
-      timestamp: dayjs(fromDate)
-        .startOf(startOf)
-        .add(i, aggregateOn as ManipulateType)
-        .format('YYYY-MM-DD HH:mm')
-        .toString(),
-    });
+    if (aggregateOn === 'QUARTER') {
+      // Generate raw 15-min points; service groupQuartersByHour will group them 4-by-4 into hourly blocks
+      measurements.push({
+        value: (i + 1) * 10,
+        timestamp: dayjs(fromDate)
+          .startOf(startOf)
+          .add(i * 15, 'minute')
+          .format('YYYY-MM-DD HH:mm')
+          .toString(),
+      });
+    } else {
+      measurements.push({
+        value: i * i,
+        timestamp: dayjs(fromDate)
+          .startOf(startOf)
+          .add(i, aggregateOn as ManipulateType)
+          .format('YYYY-MM-DD HH:mm')
+          .toString(),
+      });
+    }
   }
 
   return measurements;

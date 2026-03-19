@@ -9,31 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-/** Measurement date request parameters */
-export interface MeasurementDataSearchParameters {
-  /** Party ID, either private or enterprise uuid */
-  partyId: string;
-  /** Category */
-  category: MeasurementDataSearchParametersCategoryEnum;
-  /**
-   * Facility ID
-   * @minLength 1
-   */
-  facilityId: string;
-  /**
-   * From date
-   * @format date-time
-   */
-  fromDate: string;
-  /**
-   * To date
-   * @format date-time
-   */
-  toDate: string;
-  /** Data point aggregation granularity */
-  aggregateOn: MeasurementDataSearchParametersAggregateOnEnum;
-}
-
 /** Measurement meta data */
 export interface MetaData {
   /** key */
@@ -84,7 +59,6 @@ export enum Category {
 export interface Data {
   /** Category */
   category?: Category;
-  facilityId?: string;
   /** Aggregation granularity */
   aggregateOn?: Aggregation;
   /**
@@ -98,6 +72,7 @@ export interface Data {
    */
   toDate?: string;
   measurementSeries?: MeasurementSerie[];
+  facilityId?: string[];
 }
 
 export interface Problem {
@@ -105,97 +80,35 @@ export interface Problem {
   instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, any>;
-  status?: StatusType;
   title?: string;
   detail?: string;
-}
-
-export interface StatusType {
   /** @format int32 */
-  statusCode?: number;
-  reasonPhrase?: string;
+  status?: number;
 }
 
 export interface ConstraintViolationProblem {
-  cause?: ThrowableProblem;
-  stackTrace?: {
-    classLoaderName?: string;
-    moduleName?: string;
-    moduleVersion?: string;
-    methodName?: string;
-    fileName?: string;
-    /** @format int32 */
-    lineNumber?: number;
-    className?: string;
-    nativeMethod?: boolean;
-  }[];
   /** @format uri */
   type?: string;
-  status?: StatusType;
+  /** @format int32 */
+  status?: number;
   violations?: Violation[];
   title?: string;
-  message?: string;
   /** @format uri */
   instance?: string;
-  parameters?: Record<string, any>;
   detail?: string;
-  suppressed?: {
-    stackTrace?: {
-      classLoaderName?: string;
-      moduleName?: string;
-      moduleVersion?: string;
-      methodName?: string;
-      fileName?: string;
-      /** @format int32 */
-      lineNumber?: number;
-      className?: string;
-      nativeMethod?: boolean;
-    }[];
-    message?: string;
-    localizedMessage?: string;
-  }[];
-  localizedMessage?: string;
+  causeAsProblem?: ThrowableProblem;
 }
 
 export interface ThrowableProblem {
-  cause?: any;
-  stackTrace?: {
-    classLoaderName?: string;
-    moduleName?: string;
-    moduleVersion?: string;
-    methodName?: string;
-    fileName?: string;
-    /** @format int32 */
-    lineNumber?: number;
-    className?: string;
-    nativeMethod?: boolean;
-  }[];
-  message?: string;
-  /** @format uri */
-  instance?: string;
   /** @format uri */
   type?: string;
-  parameters?: Record<string, any>;
-  status?: StatusType;
   title?: string;
+  /** @format int32 */
+  status?: number;
   detail?: string;
-  suppressed?: {
-    stackTrace?: {
-      classLoaderName?: string;
-      moduleName?: string;
-      moduleVersion?: string;
-      methodName?: string;
-      fileName?: string;
-      /** @format int32 */
-      lineNumber?: number;
-      className?: string;
-      nativeMethod?: boolean;
-    }[];
-    message?: string;
-    localizedMessage?: string;
-  }[];
-  localizedMessage?: string;
+  /** @format uri */
+  instance?: string;
+  causeAsProblem?: any;
 }
 
 export interface Violation {
@@ -204,17 +117,23 @@ export interface Violation {
 }
 
 /** Category */
-export enum MeasurementDataSearchParametersCategoryEnum {
+export enum GetMeasurementDataParamsCategoryEnum {
   DISTRICT_HEATING = 'DISTRICT_HEATING',
   ELECTRICITY = 'ELECTRICITY',
   COMMUNICATION = 'COMMUNICATION',
   WASTE_MANAGEMENT = 'WASTE_MANAGEMENT',
 }
 
-/** Data point aggregation granularity */
-export enum MeasurementDataSearchParametersAggregateOnEnum {
+/** Aggregation granularity */
+export enum GetMeasurementDataParamsAggregateOnEnum {
   QUARTER = 'QUARTER',
   HOUR = 'HOUR',
   DAY = 'DAY',
   MONTH = 'MONTH',
+}
+
+/** Display mode for aggregated series */
+export enum GetMeasurementDataParamsDisplayEnum {
+  AGGREGATE = 'AGGREGATE',
+  ONLYAGGREGATED = 'ONLYAGGREGATED',
 }
