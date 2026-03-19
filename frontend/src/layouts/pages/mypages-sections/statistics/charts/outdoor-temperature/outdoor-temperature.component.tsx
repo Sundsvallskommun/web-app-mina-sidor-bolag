@@ -38,7 +38,7 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
                     <div className="flex w-90 items-center md:left">
                       <Divider className="max-w-30 border-2 border-[#600724] dark:border-[#FAE9E7]" />
                       <p className="pl-16">
-                        {dayjs(data?.measurementData?.[0].measurementPoints?.[0].timestamp).format('YYYY')}
+                        {dayjs(data?.measurementData?.[0]?.measurementPoints?.[0]?.timestamp).format('YYYY')}
                       </p>
                     </div>
 
