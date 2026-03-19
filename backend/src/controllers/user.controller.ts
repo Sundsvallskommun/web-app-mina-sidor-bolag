@@ -158,6 +158,7 @@ export class UserController {
     await this.cacheRelations(req);
 
     if (!req.session?.ai?.sessionId) {
+
       await startAISession(req).catch(err => {
         logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
       });
