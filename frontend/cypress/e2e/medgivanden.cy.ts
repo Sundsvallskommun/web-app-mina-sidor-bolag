@@ -85,7 +85,7 @@ describe('Dina medgivanden', () => {
 
   it('can handle user without customerIds or permissions', () => {
     cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', { fixture: null });
-    cy.intercept('GET', '**/api/bfus/eligable-party-permissions?customerIds=**', { fixture: null });
+    cy.intercept('GET', '**/api/bfus/eligable-party-permissions?customerIds=12345678', { fixture: null });
 
     cy.get('[data-cy="no-customer-id"]').should('exist').contains('Kunde inte hitta något kund-id. Försök igen.');
   });
