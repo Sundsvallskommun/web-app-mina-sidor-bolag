@@ -269,7 +269,7 @@ export interface Invoice {
    * Facility-id
    * @uniqueItems true
    */
-  facilityIds?: string[];
+  facilityId?: string;
   /** Invoice origin (invoices originates from either commercial or public activities) */
   invoiceOrigin?: InvoiceOrigin;
 }
