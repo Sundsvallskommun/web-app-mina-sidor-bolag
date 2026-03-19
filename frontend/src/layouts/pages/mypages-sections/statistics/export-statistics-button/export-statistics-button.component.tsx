@@ -55,7 +55,7 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
           exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
           fromDate: getValues().fromDate,
           toDate: getValues().toDate,
-          aggregation: translateAggregateOn(data?.aggregatedOn).toUpperCase(),
+          aggregation: translateAggregateOn(data?.aggregatedOn, t).toUpperCase(),
         },
       ];
 
