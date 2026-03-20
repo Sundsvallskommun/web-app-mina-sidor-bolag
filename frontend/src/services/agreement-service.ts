@@ -5,8 +5,8 @@ const visibleCategories = ['ELECTRICITY', 'ELECTRICITY_TRADE', 'DISTRICT_HEATING
 export const agreementCategories = {
   DISTRICT_COOLING: { label: 'Fjärrkyla', color: 'vattjom', icon: 'snowflake', contractor: 'Sundsvall energi' },
   DISTRICT_HEATING: { label: 'Fjärrvärme', color: 'vattjom', icon: 'waves', contractor: 'Sundsvall energi' },
-  ELECTRICITY: { label: 'Elnät', color: 'warning', icon: 'utility', contractor: 'Sundsvall Elnät' },
-  ELECTRICITY_TRADE: { label: 'Elhandel', color: 'vattjom', icon: 'lightbulb', contractor: 'Sundsvall Elnät' },
+  ELECTRICITY: { label: 'Elnät', color: 'warning', icon: 'utility', contractor: 'Sundsvall elnät' },
+  ELECTRICITY_TRADE: { label: 'Elhandel', color: 'vattjom', icon: 'lightbulb', contractor: 'Sundsvall elnät' },
   WASTE_MANAGEMENT: { label: 'Avfall', color: 'warning', icon: 'trash', contractor: 'Sundsvall energi' },
   COMMUNICATION: { label: 'Bredband', color: 'vattjom', icon: 'wifi', contractor: 'Servanet' },
   UNKNOWN: { label: 'Okänd', color: 'gray', icon: 'question', contractor: 'Okänd' },
