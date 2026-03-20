@@ -289,6 +289,7 @@ export const getMe: ApiResponse<User> = {
         ],
       },
     ],
+    extendedView: true,
   },
   message: 'success',
 };
@@ -358,6 +359,7 @@ export const getMeOnlyTrade: ApiResponse<User> = {
         ],
       },
     ],
+    extendedView: false,
   },
   message: 'success',
 };

@@ -5,7 +5,7 @@
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
 | API               | Version |
-| ----------------- | ------: |
+|-------------------|--------:|
 | ContactSettings   |     2.0 |
 | Citizen           |     3.0 |
 | Disturbances      |     5.0 |
@@ -20,6 +20,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Eventlog          |     2.1 |
 | SelfServiceAI     |     1.0 |
 | Eneo-Sundsvall    |     1.1 |
+| ActiveDirectory   |     2.0 |
 
 Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 

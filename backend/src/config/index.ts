@@ -47,4 +47,5 @@ export const {
   BFUS_EXTERNAL_ID,
   BFUS_API_KEY,
   ENEO_API_KEY,
+  ADMIN_GROUP,
 } = process.env;
