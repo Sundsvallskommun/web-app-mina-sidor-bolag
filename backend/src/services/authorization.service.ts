@@ -13,14 +13,14 @@ export const defaultPermissions: () => Permissions = () => ({
 export const getPermissions = (groups: string[]): Permissions => {
   const permissions: Permissions = defaultPermissions();
 
+  if (!ADMIN_GROUP) {
+    return permissions;
+  }
+
   const groupsList = groups.map((g: string) => g.toLowerCase());
   const adminGroup = ADMIN_GROUP.toLowerCase();
 
-  groupsList.forEach(group => {
-    if (group === adminGroup) {
-      permissions.canImpersonateUser = true;
-    }
-  });
+  permissions.canImpersonateUser = groupsList.includes(adminGroup);
 
   return permissions;
 };
@@ -33,7 +33,7 @@ export const getUserGroups = async (username: string | undefined) => {
     const apiBase = getApiBase('activedirectory');
     const url = `${apiBase}/${MUNICIPALITY_ID}/usergroups/PERSONAL/${username}`;
     const userGroups = await apiService.get<OUChildren[]>({ url }, { username: username });
-    return userGroups.data.map(group => group.name);
+    return userGroups.data.filter(g => !!g.name).map(group => group.name);
   } catch (error) {
     if (error.status === 404) {
       logger.info('User has no groups');
