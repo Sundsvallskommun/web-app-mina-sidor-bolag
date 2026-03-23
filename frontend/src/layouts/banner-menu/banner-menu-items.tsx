@@ -4,11 +4,14 @@ import { getRepresentingModeRoute } from '../../utils/representingModeRoute';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
 import { useThemeQueries } from '@sk-web-gui/react';
+import { useApi } from '@services/api-service';
+import { User } from '@interfaces/user';
 
 export const useBannerMenuItems = () => {
   const { representingMode } = useAppContext();
   const myPagesRoute = getRepresentingModeRoute(representingMode);
   const { t } = useTranslation('common');
+  const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   const { isMinDesktop } = useThemeQueries();
 
@@ -71,14 +74,13 @@ export const useBannerMenuItems = () => {
       )}
     </>,
     <>
-      {/* NOTE: Don't show in production */}
-      {process.env.NODE_ENV !== 'production' && (
+      {user?.extendedView && (
         <NextLink
           key={`banner-menu-item-5`}
           className="w-full flex items-center justify-center"
           href={`${myPagesRoute}/vaxla-anvandare`}
         >
-          Växla användare
+          {capitalize(t('common:impersonation'))}
         </NextLink>
       )}
     </>,

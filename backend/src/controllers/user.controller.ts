@@ -29,6 +29,7 @@ interface UserData {
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
+  extendedView: boolean;
 }
 
 export class PatchUserSettingsDto {
@@ -124,7 +125,7 @@ export class UserController {
   @OpenAPI({ summary: 'Return current user' })
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
-    const { name } = req.user;
+    const { name, permissions } = req.user;
     const representing = req.session?.representing ?? undefined;
 
     if (!name) {
@@ -158,7 +159,6 @@ export class UserController {
     await this.cacheRelations(req);
 
     if (!req.session?.ai?.sessionId) {
-
       await startAISession(req).catch(err => {
         logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
       });
@@ -307,6 +307,7 @@ export class UserController {
       relations,
       addresses,
       facilities,
+      extendedView: permissions.canImpersonateUser,
     };
 
     return response.send({ data: userData, message: 'success' });

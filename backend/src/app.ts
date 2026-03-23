@@ -59,6 +59,7 @@ import { additionalConverters } from './utils/custom-validation-classes';
 import { isValidOrigin } from './utils/isValidOrigin';
 import { isValidUrl } from './utils/util';
 import { deleteAISession } from './services/selfserviceai.service';
+import { getPermissions, getUserGroups } from '@services/authorization.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -98,7 +99,7 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
-    const { firstname: givenName, Surname: surname, citizenIdentifier } = profile;
+    const { firstname: givenName, Surname: surname, citizenIdentifier, username } = profile;
 
     if (!givenName || !surname || !citizenIdentifier) {
       return done(null, null, {
@@ -121,6 +122,8 @@ const samlStrategy = new Strategy(
         });
       }
 
+      const userGroups = await getUserGroups(username ?? undefined);
+
       const findUser: User = {
         partyId: personId,
         personNumber: personNumber,
@@ -131,6 +134,7 @@ const samlStrategy = new Strategy(
         nameID: profile.nameID,
         nameIDFormat: profile.nameIDFormat,
         sessionIndex: profile.sessionIndex,
+        permissions: getPermissions(userGroups),
       };
 
       const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
@@ -293,7 +297,7 @@ class App {
       `${BASE_URL_PREFIX}/saml/logout/callback`,
       samlLimiter,
       bodyParser.urlencoded({ extended: false }),
-      (req, res, next) => {
+      (req, res) => {
         logger.info('SAML logout callback received', { query: req.query, body: req.body, user: req.user });
         req.logout(err => {
           if (err) return res.status(500).send(err);

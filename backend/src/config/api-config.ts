@@ -56,6 +56,10 @@ export const APIS = [
     name: 'eneo-sundsvall',
     version: '1.1',
   },
+  {
+    name: 'activedirectory',
+    version: '2.0',
+  },
 ] as const;
 
 type ApiName = (typeof APIS)[number]['name'];

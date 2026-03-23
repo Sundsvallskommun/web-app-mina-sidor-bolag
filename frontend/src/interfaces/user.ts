@@ -23,4 +23,5 @@ export interface User {
   relations: { customerNumber: string; customerRelations: CustomerRelation[] };
   addresses: FacilityAddress[];
   facilities: (InstalledBaseItem & { isDelegated?: boolean })[];
+  extendedView: boolean;
 }

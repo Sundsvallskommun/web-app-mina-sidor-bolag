@@ -8,4 +8,9 @@ export interface User extends Record<string, unknown> {
   nameID?: string;
   nameIDFormat?: string;
   sessionIndex?: string;
+  permissions: Permissions;
+}
+
+export interface Permissions {
+  canImpersonateUser: boolean;
 }

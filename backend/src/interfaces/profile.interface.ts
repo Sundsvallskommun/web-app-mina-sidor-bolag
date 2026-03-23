@@ -8,6 +8,7 @@ export interface Profile extends SamlProfile {
   surname: string;
   Surname: string;
   attributes: { [key: string]: any };
+  username?: string;
 }
 
 /** VerifiedCallback from 'passport-saml' */
