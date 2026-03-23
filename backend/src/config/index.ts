@@ -47,5 +47,4 @@ export const {
   BFUS_EXTERNAL_ID,
   BFUS_API_KEY,
   ENEO_API_KEY,
-  INVOICE_ORG_EXCLUDED,
 } = process.env;

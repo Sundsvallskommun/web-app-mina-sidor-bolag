@@ -46,7 +46,6 @@ export class InvoicesController {
     const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
 
     // TO DO: add orgNr's when Invoices is updated to 9.x
-    // Also, remember to add INVOICE_ORG_EXCLUDED if neceseary
     // const customerRelations = req.session.cache.relations.customerRelations;
     // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
     const organizationNumbers = [];
@@ -83,7 +82,6 @@ export class InvoicesController {
     const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
 
     // TO DO: add orgNr's when Invoices is updated to 9.x
-    // Also, remember to add INVOICE_ORG_EXCLUDED if neceseary
     // const customerRelations = req.session.cache.relations.customerRelations;
     // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
     const organizationNumbers = [];
