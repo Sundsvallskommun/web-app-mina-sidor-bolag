@@ -142,7 +142,7 @@ export const AgreementComponent = () => {
                       <div className="md:flex justify-between pt-24">
                         <div className="md:pb-0 pb-32">
                           <strong>{t('agreement:item.contractor')}</strong>
-                          <p>{a.category.contractor}</p>
+                          <p className="capitalize">{a.category.contractor}</p>
                         </div>
                         <div className="md:pb-0 pb-32">
                           <strong>{t('agreement:item.facilityId')}</strong>
