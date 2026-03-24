@@ -28,7 +28,7 @@ const baseInvoice = {
     city: 'Sundsvall',
     careOf: 'Kalle',
   },
-  facilityId: 'string',
+  facilityId: '111',
   invoiceOrigin: 'COMMERCIAL',
 };
 

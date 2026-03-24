@@ -47,7 +47,7 @@ export const getPendingInvoices: () => ApiResponse<InvoicesResponse> = () => ({
         },
         fromDate: '',
         toDate: '',
-        facilityId: '1',
+        facilityId: '111',
         invoiceOrigin: 'COMMERCIAL',
       },
     ],

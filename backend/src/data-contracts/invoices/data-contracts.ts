@@ -18,6 +18,20 @@ export enum InvoiceOrigin {
   PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
 }
 
+/** Status of invoice */
+export enum InvoiceStatus {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
+}
+
 /** Type of invoice */
 export enum InvoiceType {
   INVOICE = 'INVOICE',
@@ -33,18 +47,63 @@ export enum InvoiceType {
   UNKNOWN = 'UNKNOWN',
 }
 
-/** Status of invoice */
-export enum InvoiceStatus {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
+/** Invoice request parameters model */
+export interface InvoicesParameters {
+  /**
+   * Page number
+   * @format int32
+   * @min 1
+   * @default 1
+   */
+  page?: number;
+  /**
+   * Result size per page
+   * @format int32
+   * @min 1
+   * @max 1000
+   * @default 100
+   */
+  limit?: number;
+  /**
+   * @minItems 1
+   * @uniqueItems true
+   */
+  partyId: string[];
+  facilityId?: string[];
+  /** Invoice number */
+  invoiceNumber?: string;
+  /**
+   * Earliest invoice date. Format is YYYY-MM-DD.
+   * @format date
+   */
+  invoiceDateFrom?: string;
+  /**
+   * Latest invoice date. Format is YYYY-MM-DD.
+   * @format date
+   */
+  invoiceDateTo?: string;
+  /** invoice name */
+  invoiceName?: string;
+  /** Invoice type */
+  invoiceType?: InvoiceType;
+  /** Invoice status */
+  invoiceStatus?: InvoiceStatus;
+  /** Ocr number */
+  ocrNumber?: string;
+  /**
+   * Earliest due date. Format is YYYY-MM-DD.
+   * @format date
+   */
+  dueDateFrom?: string;
+  /**
+   * Latest due date. Format is YYYY-MM-DD.
+   * @format date
+   */
+  dueDateTo?: string;
+  /** Creditor organization number */
+  organizationNumber?: string;
+  /** Organization group */
+  organizationGroup?: string;
 }
 
 export interface Address {
@@ -128,18 +187,12 @@ export interface Invoice {
   invoiceName?: string;
   /** Type of invoice */
   invoiceType?: InvoiceType;
-  /**
-   * Invoice-description
-   * @uniqueItems true
-   */
-  invoiceDescriptions?: string[];
+  /** Invoice-description */
+  invoiceDescription?: string;
   /** Invoice-address */
   invoiceAddress?: Address;
-  /**
-   * Facility-id
-   * @uniqueItems true
-   */
-  facilityIds?: string[];
+  /** Facility-id */
+  facilityId?: string;
   /** Invoice origin (invoices originates from either commercial or public activities) */
   invoiceOrigin?: InvoiceOrigin;
 }
@@ -281,10 +334,6 @@ export interface InvoiceDetail {
    * @format date
    */
   toDate?: string;
-  /** Facility id */
-  facilityId?: string;
-  /** Administration */
-  administration?: string;
 }
 
 export interface InvoiceDetailsResponse {
