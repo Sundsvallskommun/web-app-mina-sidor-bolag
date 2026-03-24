@@ -43,7 +43,8 @@
           "denied": "Nekad",
           "ended": "Löpt ut",
           "revoked": "Återkallad",
-          "ongoing": "Pågående"
+          "ongoing": "Pågående",
+          "revoking": "Återkallas"
         },
         "revokeAction": "Återkalla medgivande",
         "snackBarMessage": {

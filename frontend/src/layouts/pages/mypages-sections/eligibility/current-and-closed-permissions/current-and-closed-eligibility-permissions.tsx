@@ -78,9 +78,15 @@ const CurrentAndClosedEligibilityPermissions = ({
 
   const revokeActionButton = (p: EligablePartyPart) =>
     activePanel === 0 ? (
-      <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
-        {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
-      </Button>
+      p.UserRevokedContractTime ? (
+        <Label rounded inverted color="warning">
+          {t(`eligibility:permissions.table.currentAndClosed.status.revoking`)}
+        </Label>
+      ) : (
+        <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
+          {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
+        </Button>
+      )
     ) : (
       closedLabel(p.StatusCategory)
     );
