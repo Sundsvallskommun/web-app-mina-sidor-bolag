@@ -12,6 +12,7 @@ export default defineConfig({
       mockEmail: 'mail@example.com',
       // The value below is a test phone number from Post- och telestyrelsen, it is not a real phone number
       mockPhoneNumber: '0701740635',
+      aiAssistantEnabled: process.env.NEXT_PUBLIC_FEATURE_AI_ASSISTANT,
     },
     video: false,
     screenshotOnRunFailure: false,

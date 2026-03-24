@@ -3,7 +3,16 @@ import { RepresentingMode } from '../../src/interfaces/app';
 import { isReady } from 'cypress/fixtures/ai';
 
 describe('Corner Assistant', () => {
-  beforeEach(() => {
+  before(() => {
+    if (Cypress.env('aiAssistantEnabled') !== 'true') {
+      cy.log('NEXT_PUBLIC_FEATURE_AI_ASSISTANT is not enabled, skipping tests');
+    }
+  });
+
+  beforeEach(function () {
+    if (Cypress.env('aiAssistantEnabled') !== 'true') {
+      this.skip();
+    }
     setIntercepts(RepresentingMode.PRIVATE);
     cy.visit('/privat/oversikt');
   });
