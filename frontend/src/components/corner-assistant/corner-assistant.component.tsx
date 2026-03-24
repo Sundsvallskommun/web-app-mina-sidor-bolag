@@ -17,6 +17,8 @@ export const CornerAssistant: React.FC = () => {
     queryKey: ['user'],
   });
 
+  if (process.env.NEXT_PUBLIC_FEATURE_AI_ASSISTANT === 'false') return null;
+
   const { t } = useTranslation();
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
   const { representingMode } = useAppContext();
