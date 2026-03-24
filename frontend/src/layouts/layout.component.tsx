@@ -224,7 +224,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         resetConsentOnInit={false}
         onConsent={cookieConsentHandler}
       />
-      {ownsFacilities ? <CornerAssistant /> : null}
+      {ownsFacilities && process.env.NEXT_PUBLIC_FEATURE_AI_ASSISTANT === 'true' ? <CornerAssistant /> : null}
     </>
   );
 }
