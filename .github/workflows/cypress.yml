@@ -33,3 +33,4 @@ jobs:
           HEALTH_AUTH: false
           HEALTH_USERNAME: ""
           HEALTH_PASSWORD: ""
+          NEXT_PUBLIC_FEATURE_AI_ASSISTANT: "false"
