@@ -27,9 +27,11 @@ describe('Fakturor', () => {
     tableHeaders.forEach((header) => {
       unhandled.within(() => {
         cy.get('th').should('exist').contains(header);
+        cy.get('[data-cy="invoice-address"]').should('not.be.empty');
       });
       all.within(() => {
         cy.get('th').should('exist').contains(header);
+        cy.get('[data-cy="invoice-address"]').should('not.be.empty');
       });
     });
 

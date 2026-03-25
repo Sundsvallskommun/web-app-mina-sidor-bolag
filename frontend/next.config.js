@@ -20,6 +20,7 @@ envalid.cleanEnv(process.env, {
   HEALTH_AUTH: envalid.bool(),
   HEALTH_USERNAME: authDependent(),
   HEALTH_PASSWORD: authDependent(),
+  NEXT_PUBLIC_FEATURE_AI_ASSISTANT: envalid.bool(),
 });
 
 module.exports = withBundleAnalyzer({

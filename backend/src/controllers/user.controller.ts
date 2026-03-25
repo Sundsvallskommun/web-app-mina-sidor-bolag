@@ -21,6 +21,7 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
+import { logger } from '@/utils/logger';
 
 interface UserData {
   name: string;
@@ -93,7 +94,9 @@ export class UserController {
     await sessionCacheService.cacheRelations(req);
 
     if (!req.session?.ai?.sessionId) {
-      await startAISession(req);
+      await startAISession(req).catch(err => {
+        logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
+      });
     }
 
     if (
