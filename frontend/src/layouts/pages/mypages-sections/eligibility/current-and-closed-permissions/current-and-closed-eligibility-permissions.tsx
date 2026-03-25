@@ -78,7 +78,7 @@ const CurrentAndClosedEligibilityPermissions = ({
 
   const revokeActionButton = (p: EligablePartyPart) =>
     activePanel === 0 ? (
-      p.UserRevokedContractTime ? (
+      p.UserRevokedContractTime && p.StatusCategory === 'ongoing' ? (
         <Label rounded inverted color="warning">
           {t(`eligibility:permissions.table.currentAndClosed.status.revoking`)}
         </Label>
