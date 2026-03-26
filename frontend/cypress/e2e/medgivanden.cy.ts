@@ -10,11 +10,10 @@ describe('Dina medgivanden', () => {
       '**/api/bfus/eligable-party-permissions?customerIds=12345678',
       getBfusPartyPermissions(RepresentingMode.PRIVATE)
     ).as('getPartyPermissions');
-    cy.visit('/privat/medgivanden');
-    cy.wait('@getCustomerIds').its('response.body.data.customerIds').should('deep.equal', [12345678]);
   });
 
   it('should render list items for new eligibility permissions', () => {
+    handleVisitWait();
     getBfusPartyPermissions(RepresentingMode.PRIVATE).data.eligablePartyParts.forEach((part) => {
       if (part.StatusCategory === 'new') {
         cy.get(`[data-cy="new-permissions-card-${part.EnergyServiceParty}"]`).should('exist');
@@ -23,6 +22,7 @@ describe('Dina medgivanden', () => {
   });
 
   it('should render a table for current and closed eligibility permissions', () => {
+    handleVisitWait();
     cy.wait('@getPartyPermissions', { timeout: 10000 }).its('response.statusCode').should('eq', 200);
     cy.get('[data-cy="current-and-closed-permissions-loader"]').should('not.exist');
     cy.get('[data-cy="revoke-button"]').should('exist').contains('Återkalla medgivande');
@@ -37,6 +37,7 @@ describe('Dina medgivanden', () => {
       '**/api/bfus/eligable-party-grant-permission',
       getBfusPartyPermissions(RepresentingMode.PRIVATE)
     ).as('getPartyPermissions');
+    handleVisitWait();
     cy.get('[data-cy="new-permissions-card-99887 - Demo Grid Services"]')
       .should('exist')
       .within(() => {
@@ -50,6 +51,7 @@ describe('Dina medgivanden', () => {
       '**/api/bfus/eligable-party-deny-permission',
       getBfusPartyPermissions(RepresentingMode.PRIVATE)
     ).as('getPartyPermissions');
+    handleVisitWait();
 
     // New permission requests with multiple facilities that have already been handled (individual facilities have been approved) can not be denied
     cy.get('[data-cy="new-permissions-card-99887 - Demo Grid Services"]')
@@ -71,6 +73,7 @@ describe('Dina medgivanden', () => {
       '**/api/bfus/eligable-party-revoke-permission',
       getBfusPartyPermissions(RepresentingMode.PRIVATE)
     ).as('getPartyPermissions');
+    handleVisitWait();
 
     cy.get('[data-cy="current-and-closed-permissions-table"]').should('exist');
     cy.get('[data-cy="revoke-button"]').should('exist').contains('Återkalla medgivande').click();
@@ -80,13 +83,20 @@ describe('Dina medgivanden', () => {
     cy.intercept('GET', '**/api/bfus/eligable-party-permissions?customerIds=12345678', { fixture: null }).as(
       'getPartyPermissions'
     );
+    handleVisitWait();
     cy.get('[data-cy="no-data"]').should('exist').contains('Du har inga medgivanden.');
   });
 
   it('can handle user without customerIds or permissions', () => {
-    cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', { fixture: null });
+    cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', { fixture: null }).as('getCustomerIds');
     cy.intercept('GET', '**/api/bfus/eligable-party-permissions?customerIds=12345678', { fixture: null });
+    cy.visit('/privat/medgivanden');
 
     cy.get('[data-cy="no-customer-id"]').should('exist').contains('Kunde inte hitta något kund-id. Försök igen.');
   });
 });
+
+const handleVisitWait = () => {
+  cy.visit('/privat/medgivanden');
+  cy.wait('@getCustomerIds').its('response.body.data.customerIds').should('deep.equal', [12345678]);
+};
