@@ -77,6 +77,10 @@ const CurrentAndClosedEligibilityPermissions = ({
   };
 
   const revokeActionButton = (p: EligablePartyPart) => {
+    if (activePanel !== 0) {
+      return closedLabel(p.StatusCategory);
+    }
+
     if (p.UserRevokedContractTime && p.StatusCategory === 'ongoing') {
       return (
         <Label rounded inverted color="warning">
@@ -86,7 +90,13 @@ const CurrentAndClosedEligibilityPermissions = ({
     }
 
     return (
-      <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
+      <Button
+        variant="tertiary"
+        size={isMinLg ? 'sm' : 'lg'}
+        onClick={handleRevokePermission(p)}
+        className="flex-1"
+        daya-cy="revoke-button"
+      >
         {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
       </Button>
     );
