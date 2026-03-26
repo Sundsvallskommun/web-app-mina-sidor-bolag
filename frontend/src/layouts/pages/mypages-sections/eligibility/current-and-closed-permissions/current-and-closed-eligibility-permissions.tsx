@@ -95,7 +95,7 @@ const CurrentAndClosedEligibilityPermissions = ({
         size={isMinLg ? 'sm' : 'lg'}
         onClick={handleRevokePermission(p)}
         className="flex-1"
-        daya-cy="revoke-button"
+        data-cy="revoke-button"
       >
         {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
       </Button>
