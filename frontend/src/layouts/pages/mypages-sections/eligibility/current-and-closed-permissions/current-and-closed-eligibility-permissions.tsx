@@ -76,20 +76,21 @@ const CurrentAndClosedEligibilityPermissions = ({
     );
   };
 
-  const revokeActionButton = (p: EligablePartyPart) =>
-    activePanel === 0 ? (
-      p.UserRevokedContractTime && p.StatusCategory === 'ongoing' ? (
+  const revokeActionButton = (p: EligablePartyPart) => {
+    if (p.UserRevokedContractTime && p.StatusCategory === 'ongoing') {
+      return (
         <Label rounded inverted color="warning">
           {t(`eligibility:permissions.table.currentAndClosed.status.revoking`)}
         </Label>
-      ) : (
-        <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
-          {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
-        </Button>
-      )
-    ) : (
-      closedLabel(p.StatusCategory)
+      );
+    }
+
+    return (
+      <Button variant="tertiary" size={isMinLg ? 'sm' : 'lg'} onClick={handleRevokePermission(p)} className="flex-1">
+        {t('eligibility:permissions.table.currentAndClosed.revokeAction')}
+      </Button>
     );
+  };
 
   const handleEndDate = (p: EligablePartyPart) => {
     if (p.StatusCategory === 'revoked') return p.UserRevokedContractTime;
