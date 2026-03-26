@@ -19,7 +19,10 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
   const { t } = useTranslation(['common', 'eligibility']);
 
   return (
-    <div className="bg-background-content p-20 rounded-cards shadow-50 my-16 w-full" data-cy="new-permissions-card">
+    <div
+      className="bg-background-content p-20 rounded-cards shadow-50 my-16 w-full"
+      data-cy={`new-permissions-card-${company}`}
+    >
       <div className="p-16">
         <div className="flex justify-between gap-80">
           <div>
@@ -44,6 +47,7 @@ export const NewPermissionListItem = (props: NewPermissionListItemProps) => {
                 inverted
                 onClick={() => handleDenyPermission(permissions[0].CustomerId, permissions[0].EligablePartyId)}
                 disabled={hasBeenProcessed}
+                data-cy="denyRequest"
               >
                 {t('eligibility:permissions.item.deny')}
               </Button>
