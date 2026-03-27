@@ -15,14 +15,18 @@ import { translateAggregateOn } from '@services/measurement-data-service';
 import { useTranslation } from 'react-i18next';
 import { EventResponse } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
-import { getEventCategory } from '@utils/facility';
+import { getCategoryFromInstalledBaseType, getEventCategory } from '@utils/facility';
 import { CreateLogEventData } from '@interfaces/event';
+import { useState } from 'react';
+import { Category } from '@interfaces/measurement-data';
+import { ExportStatisticsModal } from './export-statistics-modal.component';
 
 export interface ExportStatisticsButtonProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
   isFetching: boolean;
 }
 export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
+  const [showModal, setShowModal] = useState(false);
   const { data, isFetching } = props;
   const { getValues } = useFormContext();
   const { t } = useTranslation(['statistics', 'event']);
@@ -110,15 +114,27 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   };
 
   return (
-    <Button
-      size="lg"
-      rightIcon={<Download />}
-      disabled={isFetching || !data?.measurementData?.length}
-      onClick={() => exportStatistics()}
-      className="lg:w-auto w-full"
-      data-cy="export-statistics-button"
-    >
-      {t('statistics:export')}
-    </Button>
+    <div className="lg:w-auto w-full">
+      <Button
+        size="lg"
+        rightIcon={<Download />}
+        disabled={isFetching || !data?.measurementData?.length}
+        onClick={() => setShowModal(true)}
+        className="lg:w-auto w-full"
+        data-cy="export-statistics-button"
+      >
+        {t('statistics:export')}
+      </Button>
+      <ExportStatisticsModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onExport={exportStatistics}
+        initialCategory={(getCategoryFromInstalledBaseType(getValues().category) as Category) || undefined}
+        initialFromDate={getValues().fromDate}
+        initialToDate={getValues().toDate}
+        initialTimeResolution={data?.aggregatedOn?.toLowerCase()}
+        initialFacilityId={getValues().facilityId}
+      />
+    </div>
   );
 };
