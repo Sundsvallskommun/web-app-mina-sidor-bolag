@@ -35,5 +35,36 @@
   "onlyTrade": {
     "unknownNetOwner": "Okänd elnätsägare",
     "text": "Din {{consumption}} ser du hos ditt elnätsbolag. För denna anläggning ser vi att du har {{netOwner}}."
+  },
+  "exportModal": {
+    "title": "Exportera statistik till Excel",
+    "category": {
+      "title": "Kategori",
+      "DISTRICT_HEATING": "Fjärrvärme",
+      "ELECTRICITY": "Elförbrukning",
+      "COMMUNICATION": "Bredband",
+      "WASTE_MANAGEMENT": "Avfallshantering"
+    },
+    "timeResolution": {
+      "title": "Tidsupplösning",
+      "hour": "Timme",
+      "day": "Dag",
+      "month": "Månad",
+      "year": "År",
+      "quarter": "Kvartal"
+    },
+    "chooseTimePeriod": "Välj tidsperiod",
+    "from": "Från",
+    "to": "Till",
+    "facilities": "Anläggningar",
+    "selection": "{{count}} av {{total}} valda",
+    "searchFacilities": "Sök adress eller anläggning",
+    "selectAll": "Markera alla",
+    "includeTemperature": "Inkludera utetemperatur",
+    "exportComment": "Exporteringen inkluderar {{count}} av dina {{total}} anläggningar*",
+    "cancel": "Avbryt",
+    "export": "Exportera",
+    "datesResetByResolution": "Datumen återställdes när tidsupplösningen ändrades. Välj ny tidsperiod.",
+    "dateRangeError": "Från-datum kan inte vara senare än till-datum"
   }
 }
