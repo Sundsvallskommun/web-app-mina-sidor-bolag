@@ -66,6 +66,7 @@ export const useCheckboxTree = (groups: CheckboxTreeGroup[], initialCheckedKeys?
   };
 
   return {
+    checkedItems,
     checkedCount,
     totalCount,
     allChecked,

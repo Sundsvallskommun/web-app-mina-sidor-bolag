@@ -48,10 +48,19 @@ const lastDayOfMonth = (yearMonth: string): string => {
   return `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
 };
 
+export interface ExportModalData {
+  category: Category;
+  fromDate: string;
+  toDate: string;
+  timeResolution: string;
+  selectedFacilities: Array<{ facilityId: string; address: string }>;
+  temperatureIncluded: boolean;
+}
+
 interface ExportStatisticsModalProps {
   show: boolean;
   onClose: () => void;
-  onExport: () => void;
+  onExport: (data: ExportModalData) => void;
   initialCategory?: Category;
   initialFromDate?: string;
   initialToDate?: string;
@@ -113,6 +122,7 @@ export const ExportStatisticsModal = ({
   );
 
   const {
+    checkedItems,
     checkedCount: checkedFacilitiesCount,
     totalCount: totalFacilitiesCount,
     allChecked: allFacilitiesChecked,
@@ -401,7 +411,18 @@ export const ExportStatisticsModal = ({
         <Button variant="secondary" className="lg:flex-none flex-1" onClick={onClose}>
           {t('statistics:exportModal.cancel')}
         </Button>
-        <Button variant="primary" className="lg:flex-none flex-1" onClick={onExport} disabled={!isValid}>
+        <Button
+          variant="primary"
+          className="lg:flex-none flex-1"
+          onClick={() => {
+            const selectedFacilities = Array.from(checkedItems).map((key) => {
+              const [address, facilityId] = key.split('::');
+              return { facilityId, address };
+            });
+            onExport({ category, fromDate, toDate, timeResolution, selectedFacilities, temperatureIncluded });
+          }}
+          disabled={!isValid}
+        >
           {t('statistics:exportModal.export')}
         </Button>
       </Modal.Footer>
