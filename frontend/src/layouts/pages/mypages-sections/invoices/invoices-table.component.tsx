@@ -58,24 +58,12 @@ export const InvoicesTable = ({
     [userData]
   );
 
-  const handleInvoiceAddresses = (facilityIds: string[], userData?: User): string[] => {
-    return facilityIds
-      .map((id) => userData?.addresses.find((a) => a.facilityIds.includes(id))?.address)
-      .filter(Boolean) as string[];
-  };
-
   const getInvoiceAddress = useMemo(
     () =>
-      (facilityIds: string[]): string => {
-        const uniqueAddresses = new Set(handleInvoiceAddresses(facilityIds, userData));
-
-        if (uniqueAddresses.size === 0) {
-          return t('invoice:noAddressFound');
-        }
-
-        return Array.from(uniqueAddresses).join(', ');
+      (facilityId: string): string => {
+        return userData?.addresses.find((address) => address.facilityIds.includes(facilityId))?.address ?? '';
       },
-    [userData, t]
+    [userData]
   );
 
   const columns: ManualTableColumn<IInvoice>[] = useMemo(
@@ -136,7 +124,7 @@ export const InvoicesTable = ({
         className: 'max-w-[146px]',
         renderColumn: (_value, item) => (
           <div className="text-left text-small">
-            <span>{!!item.facilityIds && getInvoiceAddress(item.facilityIds)}</span>
+            <span data-cy="invoice-address">{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
           </div>
         ),
       },
