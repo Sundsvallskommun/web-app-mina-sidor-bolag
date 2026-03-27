@@ -17,7 +17,7 @@ import {
   SearchField,
 } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react';
 import { useCheckboxTree } from './use-checkbox-tree';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
@@ -25,36 +25,27 @@ import { getCategoryFromInstalledBaseType } from '@utils/facility';
 import { Category } from '@interfaces/measurement-data';
 
 const categories = Object.values(Category);
-const timeResolutions = ['month', 'day', 'hour', 'quarter'];
+const timeResolutions = ['year', 'month', 'day', 'hour', 'quarter'];
+const minYear = 2000;
+const currentYear = new Date().getFullYear();
 
-const getDatePickerType = (resolution: string): 'date' | 'month' | 'datetime-local' => {
+const getDatePickerType = (resolution: string): 'date' | 'month' | 'year' => {
   if (resolution === 'month') return 'month';
-  if (resolution === 'hour' || resolution === 'quarter') return 'datetime-local';
+  if (resolution === 'year') return 'year';
   return 'date';
 };
 
-const formatDateForInputType = (
-  date: string,
-  inputType: 'date' | 'month' | 'datetime-local',
-  isEndDate = false
-): string => {
+const formatDateForInputType = (date: string, inputType: 'date' | 'month' | 'year'): string => {
   if (!date) return '';
+  if (inputType === 'year') return date.slice(0, 4);
   if (inputType === 'month') return date.slice(0, 7);
-  if (inputType === 'datetime-local') return date.length === 10 ? `${date}T${isEndDate ? '23:00' : '00:00'}` : date;
   return date.slice(0, 10);
 };
 
-const snapDateTimeToResolution = (value: string, resolution: string): string => {
-  if (!value || value.length < 16) return value;
-  const [datePart, timePart] = value.split('T');
-  const [hours, minutes] = timePart.split(':').map(Number);
-  if (resolution === 'hour') return `${datePart}T${String(hours).padStart(2, '0')}:00`;
-  if (resolution === 'quarter') {
-    const snappedMinutes = Math.round(minutes / 15) * 15;
-    const snappedHours = hours + Math.floor(snappedMinutes / 60);
-    return `${datePart}T${String(snappedHours % 24).padStart(2, '0')}:${String(snappedMinutes % 60).padStart(2, '0')}`;
-  }
-  return value;
+const lastDayOfMonth = (yearMonth: string): string => {
+  const [year, month] = yearMonth.split('-').map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
 };
 
 interface ExportStatisticsModalProps {
@@ -85,7 +76,6 @@ export const ExportStatisticsModal = ({
   const [fromDate, setFromDate] = useState(initialFromDate ?? '');
   const [toDate, setToDate] = useState(initialToDate ?? '');
   const [timeResolution, setTimeResolution] = useState(initialTimeResolution ?? timeResolutions[0]);
-  const [datesResetByResolution, setDatesResetByResolution] = useState(false);
   const { t } = useTranslation(['statistics']);
 
   const { data: user } = useApi<User>({
@@ -140,10 +130,9 @@ export const ExportStatisticsModal = ({
     const resolution = initialTimeResolution ?? timeResolutions[0];
     const inputType = getDatePickerType(resolution);
     setCategory(initialCategory ?? categories[0]);
-    setDatesResetByResolution(false);
     setTimeResolution(resolution);
     setFromDate(formatDateForInputType(initialFromDate ?? '', inputType));
-    setToDate(formatDateForInputType(initialToDate ?? '', inputType, true));
+    setToDate(formatDateForInputType(initialToDate ?? '', inputType));
     setTemperatureIncluded(false);
     setSearchValue('');
     setIsSearchDirty(false);
@@ -163,13 +152,66 @@ export const ExportStatisticsModal = ({
   const datePickerType = getDatePickerType(timeResolution);
 
   const handleTimeResolutionChange = (resolution: string) => {
+    const oldType = getDatePickerType(timeResolution);
+    const newType = getDatePickerType(resolution);
     setTimeResolution(resolution);
-    setFromDate('');
-    setToDate('');
-    setDatesResetByResolution(true);
+
+    if (oldType === newType) return;
+
+    if (newType === 'year') {
+      setFromDate(fromDate ? fromDate.slice(0, 4) : '');
+      setToDate(toDate ? toDate.slice(0, 4) : '');
+    } else if (newType === 'month') {
+      if (oldType === 'year') {
+        setFromDate(fromDate ? `${fromDate}-01` : '');
+        setToDate(toDate ? `${toDate}-12` : '');
+      } else {
+        // date --> month: truncate to YYYY-MM
+        setFromDate(fromDate ? fromDate.slice(0, 7) : '');
+        setToDate(toDate ? toDate.slice(0, 7) : '');
+      }
+    } else {
+      if (oldType === 'year') {
+        setFromDate(fromDate ? `${fromDate}-01-01` : '');
+        setToDate(toDate ? `${toDate}-12-31` : '');
+      } else {
+        // month --> date: first day for "from", last day for "to"
+        setFromDate(fromDate ? `${fromDate}-01` : '');
+        setToDate(toDate ? lastDayOfMonth(toDate) : '');
+      }
+    }
   };
 
   const renderDateField = (name: string, value: string, setValue: (v: string) => void) => {
+    if (datePickerType === 'year') {
+      return (
+        <Input
+          type="number"
+          name={name}
+          value={value}
+          min={minYear}
+          max={currentYear}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const raw = e.target.value;
+            if (raw.length <= 4) {
+              setValue(raw);
+            }
+          }}
+          onBlur={() => {
+            const num = Number(value);
+            if (value && (num < minYear || num > currentYear || !Number.isInteger(num))) {
+              setValue(String(Math.min(currentYear, Math.max(minYear, Math.round(num)))));
+            }
+          }}
+          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-' || e.key === '.') {
+              e.preventDefault();
+            }
+          }}
+          className="self-stretch"
+        />
+      );
+    }
     if (datePickerType === 'month') {
       return (
         <Input
@@ -178,7 +220,6 @@ export const ExportStatisticsModal = ({
           value={value}
           onChange={(e: ChangeEvent<HTMLInputElement>) => {
             setValue(e.target.value);
-            setDatesResetByResolution(false);
           }}
           className="self-stretch"
         />
@@ -190,11 +231,9 @@ export const ExportStatisticsModal = ({
         name={name}
         value={value}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          setValue(snapDateTimeToResolution(e.target.value, timeResolution));
-          setDatesResetByResolution(false);
+          setValue(e.target.value);
         }}
         className="self-stretch"
-        step={timeResolution === 'quarter' ? 900 : datePickerType === 'datetime-local' ? 3600 : undefined}
       />
     );
   };
@@ -255,9 +294,6 @@ export const ExportStatisticsModal = ({
                 {renderDateField('toDate', toDate, setToDate)}
               </div>
             </div>
-            {datesResetByResolution && (
-              <Text className="text-error text-small mt-4">{t('statistics:exportModal.datesResetByResolution')}</Text>
-            )}
             {dateRangeInvalid && (
               <Text className="text-error text-small mt-4">{t('statistics:exportModal.dateRangeError')}</Text>
             )}
