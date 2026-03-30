@@ -47,12 +47,11 @@
       "WASTE_MANAGEMENT": "Avfallshantering"
     },
     "timeResolution": {
-      "title": "Tidsupplösning",
       "hour": "Timme",
       "day": "Dag",
       "month": "Månad",
       "year": "År",
-      "quarter": "Kvartal"
+      "quarter": "Kvart"
     },
     "chooseTimePeriod": "Välj tidsperiod",
     "timeInterval": "Tidsupplösning",
