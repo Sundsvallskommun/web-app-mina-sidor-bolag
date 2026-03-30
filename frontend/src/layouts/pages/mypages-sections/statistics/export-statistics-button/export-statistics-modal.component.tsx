@@ -273,11 +273,11 @@ export const ExportStatisticsModal = ({
             <div className="flex lg:flex-row flex-col items-start gap-40 self-stretch">
               <div className="flex flex-col justify-center items-start gap-8 lg:flex-1 self-stretch">
                 <FormLabel className="text-label-medium">{t('statistics:exportModal.from')}</FormLabel>
-                <CustomDatePicker type={datePickerType} name="fromDate" value={fromDate} onChange={setFromDate} />
+                <CustomDatePicker type={datePickerType} value={fromDate} onChange={setFromDate} />
               </div>
               <div className="flex flex-col justify-center items-start gap-8 lg:flex-1 self-stretch">
                 <FormLabel className="text-label-medium">{t('statistics:exportModal.to')}</FormLabel>
-                <CustomDatePicker type={datePickerType} name="toDate" value={toDate} onChange={setToDate} />
+                <CustomDatePicker type={datePickerType} value={toDate} onChange={setToDate} />
               </div>
             </div>
             {dateRangeInvalid && (

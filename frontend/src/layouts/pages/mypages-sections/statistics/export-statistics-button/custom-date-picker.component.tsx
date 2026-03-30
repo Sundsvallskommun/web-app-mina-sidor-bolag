@@ -8,18 +8,16 @@ import dayjs from 'dayjs';
 
 interface CustomDatePickerProps {
   type: 'year' | 'month' | 'date';
-  name: string;
   value: string;
   onChange: (value: string) => void;
 }
 
-export const CustomDatePicker = ({ type, name, value, onChange }: CustomDatePickerProps) => {
+export const CustomDatePicker = ({ type, value, onChange }: CustomDatePickerProps) => {
   const selectableYears = useMemo(() => generateSelectableYears(dayjs().format('YYYY-MM-DD')), []);
 
   if (type === 'year') {
     return (
       <Select
-        name={name}
         value={value}
         onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
         className="self-stretch w-full"
@@ -40,7 +38,6 @@ export const CustomDatePicker = ({ type, name, value, onChange }: CustomDatePick
     return (
       <DatePicker
         type="date"
-        name={name}
         value={value}
         onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         className="self-stretch"
@@ -51,7 +48,6 @@ export const CustomDatePicker = ({ type, name, value, onChange }: CustomDatePick
   return (
     <Input
       type="month"
-      name={name}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
       className="self-stretch"
