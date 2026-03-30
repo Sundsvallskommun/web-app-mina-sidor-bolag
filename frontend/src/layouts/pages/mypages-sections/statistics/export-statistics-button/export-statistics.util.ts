@@ -66,6 +66,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
         t('statistics:exportModal.excelHeadings.from'),
         t('statistics:exportModal.excelHeadings.to'),
         t('statistics:exportModal.excelHeadings.consumption', { year: dayjs(modalData.fromDate).format('YYYY') }),
+        ...(modalData.temperatureIncluded ? [t('statistics:exportModal.excelHeadings.temperature')] : []),
       ],
     ];
 
@@ -81,6 +82,10 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
       },
     ];
 
+    const temperatureLookup = new Map<string, number | undefined>(
+      (facilityData?.temperatureData?.[0]?.measurementPoints ?? []).map((tp) => [tp.timestamp ?? '', tp.value])
+    );
+
     const exportData =
       facilityData?.measurementData?.[0]?.measurementPoints?.flatMap((measurement: MeasurementPoints) => {
         if (aggregation === Aggregation.QUARTER && measurement.values?.length) {
@@ -90,6 +95,9 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
               fromDate: from.format('YYYY-MM-DD HH:mm'),
               toDate: from.add(14, 'minute').format('YYYY-MM-DD HH:mm'),
               consumption: quarterValue,
+              ...(modalData.temperatureIncluded
+                ? { temperature: temperatureLookup.get(measurement.timestamp ?? '') }
+                : {}),
             };
           });
         }
@@ -100,6 +108,9 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
               .endOf(aggregation.toLowerCase() as OpUnitType)
               .format('YYYY-MM-DD HH:mm'),
             consumption: measurement.value,
+            ...(modalData.temperatureIncluded
+              ? { temperature: temperatureLookup.get(measurement.timestamp ?? '') }
+              : {}),
           },
         ];
       }) ?? [];

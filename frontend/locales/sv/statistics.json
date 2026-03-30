@@ -77,7 +77,8 @@
       "detailLevel": "Detaljnivå",
       "from": "Från",
       "to": "Till",
-      "consumption": "Förbrukning {{year}} (kWh)"
+      "consumption": "Förbrukning {{year}} (kWh)",
+      "temperature": "Utetemperatur (°C)"
     }
   }
 }
