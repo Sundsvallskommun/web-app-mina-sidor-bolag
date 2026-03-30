@@ -28,7 +28,8 @@ export const buildLogInformation = (modalData: ExportModalData): CreateLogEventD
 export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatisticsOptions): Promise<boolean> => {
   const aggregation = modalData.timeResolution.toUpperCase() as Aggregation;
   const fromDateParam = dayjs(modalData.fromDate).startOf('date').utc(true).format();
-  const toDateParam = dayjs(modalData.toDate).endOf('date').utc(true).format();
+  const toDateEndOf: OpUnitType = aggregation === 'MONTH' ? 'year' : aggregation === 'DAY' ? 'month' : 'date';
+  const toDateParam = dayjs(modalData.toDate).endOf(toDateEndOf).utc(true).format();
 
   const wb = utils.book_new();
 
@@ -67,13 +68,27 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
     ];
 
     const exportData =
-      facilityData?.measurementData?.[0]?.measurementPoints?.map((measurement: MeasurementPoints) => ({
-        fromDate: dayjs(measurement.timestamp).format('YYYY-MM-DD HH:mm'),
-        toDate: dayjs(measurement?.timestamp)
-          .endOf(aggregation.toLowerCase() as OpUnitType)
-          .format('YYYY-MM-DD HH:ss'),
-        consumption: measurement.value,
-      })) ?? [];
+      facilityData?.measurementData?.[0]?.measurementPoints?.flatMap((measurement: MeasurementPoints) => {
+        if (aggregation === Aggregation.QUARTER && measurement.values?.length) {
+          return measurement.values.map((quarterValue, index) => {
+            const from = dayjs(measurement.timestamp).add(index * 15, 'minute');
+            return {
+              fromDate: from.format('YYYY-MM-DD HH:mm'),
+              toDate: from.add(14, 'minute').format('YYYY-MM-DD HH:mm'),
+              consumption: quarterValue,
+            };
+          });
+        }
+        return [
+          {
+            fromDate: dayjs(measurement.timestamp).format('YYYY-MM-DD HH:mm'),
+            toDate: dayjs(measurement.timestamp)
+              .endOf(aggregation.toLowerCase() as OpUnitType)
+              .format('YYYY-MM-DD HH:mm'),
+            consumption: measurement.value,
+          },
+        ];
+      }) ?? [];
 
     const ws = utils.json_to_sheet([]);
     utils.sheet_add_aoa(ws, exportInformationHeadings);
