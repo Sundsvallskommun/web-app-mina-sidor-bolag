@@ -6,6 +6,7 @@ import {
   Checkbox,
   DatePicker,
   Divider,
+  FormErrorMessage,
   FormLabel,
   Input,
   Text,
@@ -260,7 +261,7 @@ export const ExportStatisticsModal = ({
     >
       <Modal.Content>
         <div className="flex flex-col gap-40 items-start self-stretch px-0 pt-8 pb-16">
-          <FormControl className="lg:w-[276px] w-full">
+          <FormControl id="export-category" name="category" className="lg:w-[276px] w-full">
             <FormLabel className="text-label-medium">{t('statistics:exportModal.category.title')}</FormLabel>
             <Select
               className="self-stretch w-full"
@@ -274,9 +275,9 @@ export const ExportStatisticsModal = ({
               ))}
             </Select>
           </FormControl>
-          <FormControl>
+          <FormControl fieldset name="timeResolution">
             <FormLabel className="text-label-medium">{t('statistics:exportModal.timeResolution.title')}</FormLabel>
-            <fieldset className="flex lg:flex-row flex-col items-start gap-16">
+            <div className="flex lg:flex-row flex-col items-start gap-16">
               {timeResolutions
                 .filter((r) => r !== 'quarter' || category === Category.ELECTRICITY)
                 .map((resolution) => (
@@ -290,9 +291,9 @@ export const ExportStatisticsModal = ({
                     {t(`statistics:exportModal.timeResolution.${resolution}`)}
                   </RadioButton>
                 ))}
-            </fieldset>
+            </div>
           </FormControl>
-          <FormControl className="w-full">
+          <FormControl className="w-full" invalid={dateRangeInvalid}>
             <FormLabel className="text-label-medium">{t('statistics:exportModal.chooseTimePeriod')}</FormLabel>
             <div className="flex lg:flex-row flex-col items-start gap-40 self-stretch">
               <div className="flex flex-col justify-center items-start gap-8 lg:flex-1 self-stretch">
@@ -305,10 +306,12 @@ export const ExportStatisticsModal = ({
               </div>
             </div>
             {dateRangeInvalid && (
-              <Text className="text-error text-small mt-4">{t('statistics:exportModal.dateRangeError')}</Text>
+              <FormErrorMessage className="text-error text-small mt-4">
+                {t('statistics:exportModal.dateRangeError')}
+              </FormErrorMessage>
             )}
           </FormControl>
-          <FormControl className="w-full">
+          <div className="w-full">
             <Accordion className="mr-0">
               <Accordion.Item className="mr-0">
                 <Accordion.Item.Header className="flex flex-row items-start">
@@ -391,20 +394,20 @@ export const ExportStatisticsModal = ({
                 <Divider />
               </Accordion.Item>
             </Accordion>
-          </FormControl>
-          <FormControl className="w-full">
+          </div>
+          <div className="w-full">
             <Checkbox checked={temperatureIncluded} onChange={() => setTemperatureIncluded((prev) => !prev)}>
               {t('statistics:exportModal.includeTemperature')}
             </Checkbox>
-          </FormControl>
-          <FormControl className="w-full">
+          </div>
+          <div className="w-full">
             <Text>
               {t('statistics:exportModal.exportComment', {
                 count: checkedFacilitiesCount,
                 total: totalFacilitiesCount,
               })}
             </Text>
-          </FormControl>
+          </div>
         </div>
       </Modal.Content>
       <Modal.Footer className="w-full flex flex-row lg:items-start items-center gap-16 self-stretch justify-start">
