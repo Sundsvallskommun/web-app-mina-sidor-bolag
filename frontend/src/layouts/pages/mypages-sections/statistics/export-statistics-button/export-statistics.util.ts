@@ -51,9 +51,23 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
     }
 
     const exportInformationHeadings = [
-      ['Anläggnings-id', 'Adress', 'Kategori', 'Tidpunkt för export', 'Starttidpunkt', 'Sluttidpunkt', 'Detaljnivå'],
+      [
+        t('statistics:exportModal.excelHeadings.facilityId'),
+        t('statistics:exportModal.excelHeadings.address'),
+        t('statistics:exportModal.excelHeadings.category'),
+        t('statistics:exportModal.excelHeadings.exportTimestamp'),
+        t('statistics:exportModal.excelHeadings.startDate'),
+        t('statistics:exportModal.excelHeadings.endDate'),
+        t('statistics:exportModal.excelHeadings.detailLevel'),
+      ],
     ];
-    const exportDataHeadings = [['Från', 'Till', `Förbrukning ${dayjs(modalData.fromDate).format('YYYY')} (kWh)`]];
+    const exportDataHeadings = [
+      [
+        t('statistics:exportModal.excelHeadings.from'),
+        t('statistics:exportModal.excelHeadings.to'),
+        t('statistics:exportModal.excelHeadings.consumption', { year: dayjs(modalData.fromDate).format('YYYY') }),
+      ],
+    ];
 
     const exportInformation = [
       {

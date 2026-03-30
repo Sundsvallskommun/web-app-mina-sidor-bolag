@@ -66,6 +66,18 @@
     "cancel": "Avbryt",
     "export": "Exportera",
     "datesResetByResolution": "Datumen återställdes när tidsupplösningen ändrades. Välj ny tidsperiod.",
-    "dateRangeError": "Från-datum kan inte vara senare än till-datum"
+    "dateRangeError": "Från-datum kan inte vara senare än till-datum",
+    "excelHeadings": {
+      "facilityId": "Anläggnings-id",
+      "address": "Adress",
+      "category": "Kategori",
+      "exportTimestamp": "Tidpunkt för export",
+      "startDate": "Starttidpunkt",
+      "endDate": "Sluttidpunkt",
+      "detailLevel": "Detaljnivå",
+      "from": "Från",
+      "to": "Till",
+      "consumption": "Förbrukning {{year}} (kWh)"
+    }
   }
 }
