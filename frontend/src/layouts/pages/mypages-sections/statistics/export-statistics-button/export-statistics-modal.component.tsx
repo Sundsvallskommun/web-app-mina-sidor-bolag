@@ -7,7 +7,6 @@ import {
   Divider,
   FormErrorMessage,
   FormLabel,
-  Input,
   Text,
   Modal,
   RadioButton,
@@ -125,11 +124,17 @@ export const ExportStatisticsModal = ({
     return facilitiesGroupedByAddresses
       .map((group) => {
         if (group.address.toLowerCase().includes(query)) return group;
-        const matchingFacilities = group.facilities.filter((f) => f.toLowerCase().includes(query));
+        const matchingFacilities = group.facilities.filter((facilityId) => {
+          if (facilityId.toLowerCase().includes(query)) return true;
+          const facility = user?.facilities?.find((f) => f.facilityId === facilityId);
+          const categoryKey = getCategoryFromInstalledBaseType(facility?.type);
+          const typeLabel = categoryKey ? t(`statistics:exportModal.category.${categoryKey}`) : (facility?.type ?? '');
+          return typeLabel.toLowerCase().includes(query);
+        });
         return matchingFacilities.length > 0 ? { ...group, facilities: matchingFacilities } : null;
       })
       .filter(Boolean) as typeof facilitiesGroupedByAddresses;
-  }, [searchValue, facilitiesGroupedByAddresses]);
+  }, [searchValue, facilitiesGroupedByAddresses, user, t]);
 
   const checkboxGroups = useMemo(
     () => facilitiesGroupedByAddresses.map((group) => ({ key: group.address, items: group.facilities })),
@@ -178,6 +183,21 @@ export const ExportStatisticsModal = ({
 
   const datePickerType = getDatePickerType(datePeriod);
   const aggregation = datePeriod === 'year' ? 'month' : datePeriod === 'month' ? 'day' : timeInterval;
+
+  const handleExport = () => {
+    const selectedFacilities = Array.from(checkedItems).map((key) => {
+      const [address, facilityId] = key.split('::');
+      return { facilityId, address };
+    });
+    onExport({
+      category,
+      fromDate,
+      toDate,
+      timeResolution: aggregation,
+      selectedFacilities,
+      temperatureIncluded,
+    });
+  };
 
   const handleDatePeriodChange = (period: 'year' | 'month' | 'day') => {
     const oldType = getDatePickerType(datePeriod);
@@ -247,23 +267,19 @@ export const ExportStatisticsModal = ({
             <div className="flex flex-col gap-8 w-full lg:pt-0 pt-16">
               <FormLabel>{t('statistics:exportBy')}</FormLabel>
               <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
-                {datePeriods
-                  .map((interval) => ({ value: interval, label: t(`statistics:${interval}`) }))
-                  .map((item, index) => (
-                    <NavigationBar.Item key={`time-interval-${item.label}`} className="lg:w-auto w-full !p-0 !m-0">
-                      <Button
-                        className="lg:w-auto w-full !h-[12px] !py-0"
-                        size="sm"
-                        inverted={datePeriod === item.value}
-                        onClick={() => {
-                          handleDatePeriodChange(item.value as 'year' | 'month' | 'day');
-                        }}
-                        data-cy={`date-toggle-${item.value}-button`}
-                      >
-                        {item.label}
-                      </Button>
-                    </NavigationBar.Item>
-                  ))}
+                {datePeriods.map((interval) => (
+                  <NavigationBar.Item key={`time-interval-${interval}`} className="lg:w-auto w-full !p-0 !m-0">
+                    <Button
+                      className="lg:w-auto w-full !h-[12px] !py-0"
+                      size="sm"
+                      inverted={datePeriod === interval}
+                      onClick={() => handleDatePeriodChange(interval as 'year' | 'month' | 'day')}
+                      data-cy={`date-toggle-${interval}-button`}
+                    >
+                      {t(`statistics:${interval}`)}
+                    </Button>
+                  </NavigationBar.Item>
+                ))}
               </NavigationBar>
             </div>
           </div>
@@ -367,7 +383,11 @@ export const ExportStatisticsModal = ({
                             <div className="pl-16 flex flex-col gap-4 items-start self-stretch">
                               {group.facilities.map((facilityId) => {
                                 const facility = user?.facilities?.find((f) => f.facilityId === facilityId);
-                                const displayName = `${facility?.type === 'El' ? t('statistics:exportModal.category.ELECTRICITY') : (facility?.type ?? facilityId)} (${facilityId})`;
+                                const categoryKey = getCategoryFromInstalledBaseType(facility?.type);
+                                const typeLabel = categoryKey
+                                  ? t(`statistics:exportModal.category.${categoryKey}`)
+                                  : (facility?.type ?? facilityId);
+                                const displayName = `${typeLabel} (${facilityId})`;
                                 return (
                                   <Checkbox
                                     key={facilityId}
@@ -409,25 +429,7 @@ export const ExportStatisticsModal = ({
         <Button variant="secondary" className="lg:flex-none flex-1" onClick={onClose}>
           {t('statistics:exportModal.cancel')}
         </Button>
-        <Button
-          variant="primary"
-          className="lg:flex-none flex-1"
-          onClick={() => {
-            const selectedFacilities = Array.from(checkedItems).map((key) => {
-              const [address, facilityId] = key.split('::');
-              return { facilityId, address };
-            });
-            onExport({
-              category,
-              fromDate,
-              toDate,
-              timeResolution: aggregation,
-              selectedFacilities,
-              temperatureIncluded,
-            });
-          }}
-          disabled={!isValid}
-        >
+        <Button variant="primary" className="lg:flex-none flex-1" onClick={handleExport} disabled={!isValid}>
           {t('statistics:exportModal.export')}
         </Button>
       </Modal.Footer>
