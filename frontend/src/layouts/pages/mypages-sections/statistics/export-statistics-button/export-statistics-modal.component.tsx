@@ -4,7 +4,6 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
   Button,
   Checkbox,
-  DatePicker,
   Divider,
   FormErrorMessage,
   FormLabel,
@@ -16,9 +15,11 @@ import {
   Accordion,
   FormControl,
   SearchField,
+  NavigationBar,
 } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
-import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { CustomDatePicker } from './custom-date-picker.component';
 import { useCheckboxTree } from './use-checkbox-tree';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
@@ -26,17 +27,15 @@ import { getCategoryFromInstalledBaseType } from '@utils/facility';
 import { Category } from '@interfaces/measurement-data';
 
 const categories = Object.values(Category);
-const timeResolutions = ['year', 'month', 'day', 'hour', 'quarter'];
-const minYear = 2000;
-const currentYear = new Date().getFullYear();
-
-const getDatePickerType = (resolution: string): 'date' | 'month' | 'year' => {
-  if (resolution === 'month') return 'month';
-  if (resolution === 'year') return 'year';
+const datePeriods = ['year', 'month', 'day'];
+const timeIntervals = ['hour', 'quarter'];
+const getDatePickerType = (period: 'year' | 'month' | 'day'): 'year' | 'month' | 'date' => {
+  if (period === 'year') return 'year';
+  if (period === 'month') return 'month';
   return 'date';
 };
 
-const formatDateForInputType = (date: string, inputType: 'date' | 'month' | 'year'): string => {
+const formatDateForInputType = (date: string, inputType: 'year' | 'month' | 'date'): string => {
   if (!date) return '';
   if (inputType === 'year') return date.slice(0, 4);
   if (inputType === 'month') return date.slice(0, 7);
@@ -47,6 +46,16 @@ const lastDayOfMonth = (yearMonth: string): string => {
   const [year, month] = yearMonth.split('-').map(Number);
   const lastDay = new Date(year, month, 0).getDate();
   return `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
+};
+
+const getInitialDatePeriod = (resolution?: string): 'year' | 'month' | 'day' => {
+  if (resolution === 'month') return 'year';
+  if (resolution === 'day') return 'month';
+  return 'day';
+};
+
+const getInitialTimeInterval = (resolution?: string): 'hour' | 'quarter' => {
+  return resolution === 'quarter' ? 'quarter' : 'hour';
 };
 
 export interface ExportModalData {
@@ -85,7 +94,12 @@ export const ExportStatisticsModal = ({
   const [category, setCategory] = useState<Category>(initialCategory ?? categories[0]);
   const [fromDate, setFromDate] = useState(initialFromDate ?? '');
   const [toDate, setToDate] = useState(initialToDate ?? '');
-  const [timeResolution, setTimeResolution] = useState(initialTimeResolution ?? timeResolutions[0]);
+  const [datePeriod, setDatePeriod] = useState<'year' | 'month' | 'day'>(() =>
+    getInitialDatePeriod(initialTimeResolution)
+  );
+  const [timeInterval, setTimeInterval] = useState<'hour' | 'quarter'>(() =>
+    getInitialTimeInterval(initialTimeResolution)
+  );
   const { t } = useTranslation(['statistics']);
 
   const { data: user } = useApi<User>({
@@ -138,10 +152,11 @@ export const ExportStatisticsModal = ({
 
   useEffect(() => {
     if (!show) return;
-    const resolution = initialTimeResolution ?? timeResolutions[0];
-    const inputType = getDatePickerType(resolution);
+    const initialPeriod = getInitialDatePeriod(initialTimeResolution);
+    const inputType = getDatePickerType(initialPeriod);
     setCategory(initialCategory ?? categories[0]);
-    setTimeResolution(resolution);
+    setDatePeriod(initialPeriod);
+    setTimeInterval(getInitialTimeInterval(initialTimeResolution));
     setFromDate(formatDateForInputType(initialFromDate ?? '', inputType));
     setToDate(formatDateForInputType(initialToDate ?? '', inputType));
     setTemperatureIncluded(false);
@@ -158,22 +173,28 @@ export const ExportStatisticsModal = ({
 
   useEffect(() => {
     resetFacilities([]);
+    setTimeInterval('hour');
   }, [category]);
 
-  const datePickerType = getDatePickerType(timeResolution);
+  const datePickerType = getDatePickerType(datePeriod);
+  const aggregation = datePeriod === 'year' ? 'month' : datePeriod === 'month' ? 'day' : timeInterval;
 
-  const handleTimeResolutionChange = (resolution: string) => {
-    const oldType = getDatePickerType(timeResolution);
-    const newType = getDatePickerType(resolution);
-    setTimeResolution(resolution);
+  const handleDatePeriodChange = (period: 'year' | 'month' | 'day') => {
+    const oldType = getDatePickerType(datePeriod);
+    const newType = getDatePickerType(period);
+    setDatePeriod(period);
+
+    if (period !== 'day') setTimeInterval('hour');
 
     if (oldType === newType) return;
 
     if (newType === 'year') {
+      // month/date --> year: truncate to YYYY
       setFromDate(fromDate ? fromDate.slice(0, 4) : '');
       setToDate(toDate ? toDate.slice(0, 4) : '');
     } else if (newType === 'month') {
       if (oldType === 'year') {
+        // year --> month: append -01 / -12
         setFromDate(fromDate ? `${fromDate}-01` : '');
         setToDate(toDate ? `${toDate}-12` : '');
       } else {
@@ -183,74 +204,20 @@ export const ExportStatisticsModal = ({
       }
     } else {
       if (oldType === 'year') {
+        // year --> date: first/last day of year
         setFromDate(fromDate ? `${fromDate}-01-01` : '');
         setToDate(toDate ? `${toDate}-12-31` : '');
       } else {
-        // month --> date: first day for "from", last day for "to"
+        // month --> date: first day / last day of month
         setFromDate(fromDate ? `${fromDate}-01` : '');
         setToDate(toDate ? lastDayOfMonth(toDate) : '');
       }
     }
   };
 
-  const renderDateField = (name: string, value: string, setValue: (v: string) => void) => {
-    if (datePickerType === 'year') {
-      return (
-        <Input
-          type="number"
-          name={name}
-          value={value}
-          min={minYear}
-          max={currentYear}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            const raw = e.target.value;
-            if (raw.length <= 4) {
-              setValue(raw);
-            }
-          }}
-          onBlur={() => {
-            const num = Number(value);
-            if (value && (num < minYear || num > currentYear || !Number.isInteger(num))) {
-              setValue(String(Math.min(currentYear, Math.max(minYear, Math.round(num)))));
-            }
-          }}
-          onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-' || e.key === '.') {
-              e.preventDefault();
-            }
-          }}
-          className="self-stretch"
-        />
-      );
-    }
-    if (datePickerType === 'month') {
-      return (
-        <Input
-          type="month"
-          name={name}
-          value={value}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            setValue(e.target.value);
-          }}
-          className="self-stretch"
-        />
-      );
-    }
-    return (
-      <DatePicker
-        type={datePickerType}
-        name={name}
-        value={value}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          setValue(e.target.value);
-        }}
-        className="self-stretch"
-      />
-    );
-  };
-
   const dateRangeInvalid = !!fromDate && !!toDate && fromDate > toDate;
   const isValid = checkedFacilitiesCount > 0 && !!fromDate && !!toDate && !dateRangeInvalid;
+  const showTimeIntervalOption = datePeriod === 'day' && category === Category.ELECTRICITY;
 
   return (
     <Modal
@@ -275,34 +242,42 @@ export const ExportStatisticsModal = ({
               ))}
             </Select>
           </FormControl>
-          <FormControl fieldset name="timeResolution">
-            <FormLabel className="text-label-medium">{t('statistics:exportModal.timeResolution.title')}</FormLabel>
-            <div className="flex lg:flex-row flex-col items-start gap-16">
-              {timeResolutions
-                .filter((r) => r !== 'quarter' || category === Category.ELECTRICITY)
-                .map((resolution) => (
-                  <RadioButton
-                    key={resolution}
-                    value={resolution}
-                    name="timeResolution"
-                    checked={timeResolution === resolution}
-                    onChange={() => handleTimeResolutionChange(resolution)}
-                  >
-                    {t(`statistics:exportModal.timeResolution.${resolution}`)}
-                  </RadioButton>
-                ))}
+
+          <div className="lg:pt-0 pt-16 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
+            <div className="flex flex-col gap-8 w-full lg:pt-0 pt-16">
+              <FormLabel>{t('statistics:exportBy')}</FormLabel>
+              <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
+                {datePeriods
+                  .map((interval) => ({ value: interval, label: t(`statistics:${interval}`) }))
+                  .map((item, index) => (
+                    <NavigationBar.Item key={`time-interval-${item.label}`} className="lg:w-auto w-full !p-0 !m-0">
+                      <Button
+                        className="lg:w-auto w-full !h-[12px] !py-0"
+                        size="sm"
+                        inverted={datePeriod === item.value}
+                        onClick={() => {
+                          handleDatePeriodChange(item.value as 'year' | 'month' | 'day');
+                        }}
+                        data-cy={`date-toggle-${item.value}-button`}
+                      >
+                        {item.label}
+                      </Button>
+                    </NavigationBar.Item>
+                  ))}
+              </NavigationBar>
             </div>
-          </FormControl>
+          </div>
+
           <FormControl className="w-full" invalid={dateRangeInvalid}>
             <FormLabel className="text-label-medium">{t('statistics:exportModal.chooseTimePeriod')}</FormLabel>
             <div className="flex lg:flex-row flex-col items-start gap-40 self-stretch">
               <div className="flex flex-col justify-center items-start gap-8 lg:flex-1 self-stretch">
                 <FormLabel className="text-label-medium">{t('statistics:exportModal.from')}</FormLabel>
-                {renderDateField('fromDate', fromDate, setFromDate)}
+                <CustomDatePicker type={datePickerType} name="fromDate" value={fromDate} onChange={setFromDate} />
               </div>
               <div className="flex flex-col justify-center items-start gap-8 lg:flex-1 self-stretch">
                 <FormLabel className="text-label-medium">{t('statistics:exportModal.to')}</FormLabel>
-                {renderDateField('toDate', toDate, setToDate)}
+                <CustomDatePicker type={datePickerType} name="toDate" value={toDate} onChange={setToDate} />
               </div>
             </div>
             {dateRangeInvalid && (
@@ -311,6 +286,26 @@ export const ExportStatisticsModal = ({
               </FormErrorMessage>
             )}
           </FormControl>
+          {showTimeIntervalOption && (
+            <FormControl fieldset name="timeInterval">
+              <FormLabel className="text-label-medium">{t('statistics:exportModal.timeInterval')}</FormLabel>
+              <div className="flex lg:flex-row flex-col items-start gap-16">
+                {timeIntervals.map((interval) => (
+                  <RadioButton
+                    key={interval}
+                    value={interval}
+                    name="timeInterval"
+                    checked={timeInterval === interval}
+                    onChange={() => {
+                      setTimeInterval(interval as 'hour' | 'quarter');
+                    }}
+                  >
+                    {t(`statistics:exportModal.timeResolution.${interval}`)}
+                  </RadioButton>
+                ))}
+              </div>
+            </FormControl>
+          )}
           <div className="w-full">
             <Accordion className="mr-0">
               <Accordion.Item className="mr-0">
@@ -422,7 +417,14 @@ export const ExportStatisticsModal = ({
               const [address, facilityId] = key.split('::');
               return { facilityId, address };
             });
-            onExport({ category, fromDate, toDate, timeResolution, selectedFacilities, temperatureIncluded });
+            onExport({
+              category,
+              fromDate,
+              toDate,
+              timeResolution: aggregation,
+              selectedFacilities,
+              temperatureIncluded,
+            });
           }}
           disabled={!isValid}
         >

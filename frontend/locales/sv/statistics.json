@@ -3,6 +3,7 @@
   "filter": "Filter",
   "agreementType": "Avtalstyp",
   "showBy": "Visa statistik per",
+  "exportBy": "Exportera statistik per",
   "year": "År",
   "month": "Månad",
   "day": "Dag",
@@ -54,6 +55,7 @@
       "quarter": "Kvartal"
     },
     "chooseTimePeriod": "Välj tidsperiod",
+    "timeInterval": "Tidsupplösning",
     "from": "Från",
     "to": "Till",
     "facilities": "Anläggningar",
