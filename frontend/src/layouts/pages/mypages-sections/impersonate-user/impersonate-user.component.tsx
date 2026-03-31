@@ -40,12 +40,12 @@ export interface ImpersonateFormData {
   accessReason: string;
 }
 
-function BackButton({ fallbackHref = '/oversikt' }: { fallbackHref?: string }) {
+function BackButton({ fallbackHref = '/oversikt' }: Readonly<{ fallbackHref?: string }>) {
   const { t } = useTranslation('impersonation');
   const router = useRouter();
 
   const goBack = () => {
-    if (window.history.length > 1) router.back();
+    if (globalThis.history.length > 1) router.back();
     else router.push(fallbackHref);
   };
 
@@ -93,7 +93,7 @@ export default function ImpersonateUser() {
     };
   }, []);
 
-  const userEngagementsLoaded = userEngagements && userEngagements.canRepresent?.length && isFetched;
+  const userEngagementsLoaded = Boolean(userEngagements?.canRepresent?.length && isFetched);
   const noUserEngagements = userEngagements && !userEngagements.canRepresent?.length && isFetched;
 
   const onResetHandler = () => {
