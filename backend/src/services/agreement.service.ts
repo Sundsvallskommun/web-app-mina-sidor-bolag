@@ -1,6 +1,6 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { Agreement, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
+import { Agreement, AgreementParameters, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
 import { Delegation } from '@/data-contracts/installedbase/data-contracts';
 import ApiService from './api.service';
 import dayjs from 'dayjs';
@@ -20,11 +20,10 @@ export const fetchAgreementsForPartyAndDelegations = async (
   const apiService = new ApiService();
   const apiBase = getApiBase('agreement');
   const url = `${apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
-  const params = {};
+  const params: AgreementParameters = { limit: 1000, page: 1 };
   const filteredAgreements: Agreement[] = [];
   const agreements: Agreement[] = [];
 
-  // Fetch agreements for the main party
   const res = await apiService.get<PagedAgreementResponse>({ url, params }, user);
   let mainAgreements = res.data.agreements;
   if (!includeInactiveAgreements) {
@@ -32,9 +31,8 @@ export const fetchAgreementsForPartyAndDelegations = async (
   }
   filteredAgreements.push(...mainAgreements);
 
-  // Fetch agreements for delegated parties
-  for (const partyIdItem of partyIdList) {
-    const delegationUrl = `${apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyIdItem}`;
+  for (const partyId of partyIdList) {
+    const delegationUrl = `${apiBase}/${MUNICIPALITY_ID}/paged/agreements/${partyId}`;
     const { data: delegationData } = await apiService.get<PagedAgreementResponse>({ url: delegationUrl, params }, user);
     const delegationAgreements = includeInactiveAgreements
       ? delegationData.agreements
@@ -43,7 +41,6 @@ export const fetchAgreementsForPartyAndDelegations = async (
     agreements.push(...delegationAgreements);
   }
 
-  // Filter delegated agreements by delegation facilities
   agreements.forEach(agreement => {
     const hasMatch = delegations.some(delegation => {
       return delegation.facilities.some(facility => facility.id === agreement.facilityId);
