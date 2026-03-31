@@ -424,7 +424,13 @@ export const ExportStatisticsModal = ({
         <Button variant="secondary" className="lg:flex-none flex-1" onClick={onClose}>
           {t('statistics:exportModal.cancel')}
         </Button>
-        <Button variant="primary" className="lg:flex-none flex-1" onClick={handleExport} disabled={!isValid}>
+        <Button
+          variant="primary"
+          className="lg:flex-none flex-1"
+          onClick={handleExport}
+          disabled={!isValid}
+          data-cy="export-modal-confirm-button"
+        >
           {t('statistics:exportModal.export')}
         </Button>
       </Modal.Footer>

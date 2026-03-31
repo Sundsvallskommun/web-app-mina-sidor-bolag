@@ -185,10 +185,11 @@ describe('Statistik', () => {
     const downloadsFolder = Cypress.config('downloadsFolder');
     const exportFileName = path.join(
       downloadsFolder,
-      `Export-${getMe.data.facilities[0].address?.street}-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`
+      `Export-${Category.DISTRICT_HEATING}-${dayjs().format('YYYY-MM-DD')}.xlsx`
     );
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
+    cy.get('[data-cy="export-modal-confirm-button"]').should('not.be.disabled').click();
     cy.readFile(exportFileName);
   });
 
