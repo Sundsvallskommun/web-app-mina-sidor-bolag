@@ -69,7 +69,7 @@ export class AdministratorController {
       const LEResponse = await this.apiService.get<PersonEngagement[]>({ url: LEUrl }, req.user);
 
       if (LEResponse.data) {
-        LEResponse.data.map(engagement => {
+        LEResponse.data.forEach(engagement => {
           userEngagements.canRepresent.push({
             name: engagement.name,
             representingNumber: engagement.organizationNumber,
