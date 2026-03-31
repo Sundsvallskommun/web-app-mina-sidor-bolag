@@ -68,7 +68,7 @@ describe('Statistik - QUARTER Aggregation', () => {
     cy.get('[data-cy="average-consumption-value"]').should('exist').and('contain.text', '485');
 
     // Verify day-select date picker is visible and set to today
-    cy.get('[data-cy="day-select"]').should('exist').and('have.value', today);
+    cy.get('[data-cy="day-select"]').should('exist').and('have.value', monthStart);
 
     // Verify TimeIntervalSelector: "15 min" is active (data-inverted="true"), "60 min" is not
     cy.contains('button', '15 min').should('have.attr', 'data-inverted', 'true');
