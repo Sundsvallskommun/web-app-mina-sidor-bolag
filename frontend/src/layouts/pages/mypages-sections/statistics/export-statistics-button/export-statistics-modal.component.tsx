@@ -36,9 +36,9 @@ const getDatePickerType = (period: 'year' | 'month' | 'day'): 'year' | 'month' |
 
 const formatDateForInputType = (date: string, inputType: 'year' | 'month' | 'date'): string => {
   if (!date) return '';
-  if (inputType === 'year') return date.slice(0, 4);
-  if (inputType === 'month') return date.slice(0, 7);
-  return date.slice(0, 10);
+  if (inputType === 'year') return date.slice(0, 4); // YYYY
+  if (inputType === 'month') return date.slice(0, 7); // YYYY-MM
+  return date.slice(0, 10); // YYYY-MM-DD
 };
 
 const lastDayOfMonth = (yearMonth: string): string => {
