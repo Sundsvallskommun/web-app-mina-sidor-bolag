@@ -14,7 +14,7 @@ export const StatisticsFilterMonth: React.FC = () => {
 
   const { setValue: setFormValue, watch } = useFormContext<StatisticsForm>();
 
-  const { selectedYear, selectedMonth, selectedDay } = watch();
+  const { selectedYear, selectedMonth } = watch();
 
   const [value, setValue] = useState<string>(
     `${selectedYear ?? dayjs().format('YYYY')}-${selectedMonth ?? dayjs().format('MM')}-01`
