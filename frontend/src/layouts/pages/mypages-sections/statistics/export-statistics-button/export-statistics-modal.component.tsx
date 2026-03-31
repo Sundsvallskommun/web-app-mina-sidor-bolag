@@ -249,6 +249,7 @@ export const ExportStatisticsModal = ({
               className="self-stretch w-full"
               value={category}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value as Category)}
+              data-cy="export-category-select"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
@@ -261,7 +262,11 @@ export const ExportStatisticsModal = ({
           <div className="lg:pt-0 pt-16 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
             <div className="flex flex-col gap-8 w-full lg:pt-0 pt-16">
               <FormLabel>{t('statistics:exportBy')}</FormLabel>
-              <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
+              <NavigationBar
+                className="!py-6 bg-tertiary-surface flex justify-around"
+                size="md"
+                data-cy="export-modal-date-toggle"
+              >
                 {datePeriods.map((interval) => (
                   <NavigationBar.Item key={`time-interval-${interval}`} className="lg:w-auto w-full !p-0 !m-0">
                     <Button
@@ -269,7 +274,7 @@ export const ExportStatisticsModal = ({
                       size="sm"
                       inverted={datePeriod === interval}
                       onClick={() => handleDatePeriodChange(interval as DatePeriod)}
-                      data-cy={`date-toggle-${interval}-button`}
+                      data-cy={`export-modal-date-toggle-${interval}-button`}
                     >
                       {t(`statistics:${interval}`)}
                     </Button>
@@ -320,7 +325,10 @@ export const ExportStatisticsModal = ({
           <div className="w-full">
             <Accordion className="mr-0">
               <Accordion.Item className="mr-0">
-                <Accordion.Item.Header className="flex flex-row items-start">
+                <Accordion.Item.Header
+                  className="flex flex-row items-start"
+                  data-cy="export-facilities-accordion-header"
+                >
                   <Accordion.Item.Title className="flex flex-col items-start gap-6 flex-1">
                     <Text className="text-label-medium">{t('statistics:exportModal.facilities')}</Text>
                     <Text className="text-small font-normal">
@@ -361,6 +369,7 @@ export const ExportStatisticsModal = ({
                         indeterminate={!allFacilitiesChecked && !allFacilitiesUnchecked}
                         onChange={toggleAllFacilities}
                         className="py-8 px-2 flex items-center self-stretch gap-10"
+                        data-cy="export-facilities-select-all"
                       >
                         {t('statistics:exportModal.selectAll')}
                       </Checkbox>
@@ -421,7 +430,12 @@ export const ExportStatisticsModal = ({
         </div>
       </Modal.Content>
       <Modal.Footer className="w-full flex flex-row lg:items-start items-center gap-16 self-stretch justify-start">
-        <Button variant="secondary" className="lg:flex-none flex-1" onClick={onClose}>
+        <Button
+          variant="secondary"
+          className="lg:flex-none flex-1"
+          onClick={onClose}
+          data-cy="export-modal-cancel-button"
+        >
           {t('statistics:exportModal.cancel')}
         </Button>
         <Button

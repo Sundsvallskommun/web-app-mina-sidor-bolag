@@ -178,6 +178,40 @@ describe('Statistik', () => {
     cy.get('[data-cy="event-log-toggle"]').should('exist').contains('Dölj exporter').click({ force: true });
   });
 
+  it('can open and close export modal', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
+    cy.contains('Exportera statistik till Excel').should('exist');
+    cy.get('[data-cy="export-modal-cancel-button"]').click();
+    cy.contains('Exportera statistik till Excel').should('not.exist');
+  });
+
+  it('export modal has facility pre-selected and export button is enabled', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
+    cy.get('[data-cy="export-modal-confirm-button"]').should('not.be.disabled');
+  });
+
+  it('export modal disables export when all facilities are deselected', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
+    cy.get('[data-cy="export-facilities-accordion-header"]').click();
+    cy.get('[data-cy="export-facilities-select-all"]').click();
+    cy.get('[data-cy="export-modal-confirm-button"]').should('be.disabled');
+  });
+
+  it('export modal shows time interval option for electricity day period', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
+    cy.get('[data-cy="export-category-select"]').select(Category.ELECTRICITY);
+    cy.get('[data-cy="export-modal-date-toggle-day-button"]').click();
+    cy.contains('Tidsupplösning').should('exist');
+  });
+
   it('can export statistics and create event', () => {
     statisticsDataIntercept();
     cy.intercept('POST', '**/api/event/create**', createEvent());
