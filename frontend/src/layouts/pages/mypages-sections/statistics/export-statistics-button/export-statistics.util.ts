@@ -28,10 +28,14 @@ export const buildLogInformation = (modalData: ExportModalData): CreateLogEventD
 export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatisticsOptions): Promise<boolean> => {
   const aggregation = modalData.timeResolution.toUpperCase() as Aggregation;
   const fromDateParam = dayjs(modalData.fromDate).startOf('date').utc(true).format();
-  const toDateEndOf: OpUnitType = aggregation === 'MONTH' ? 'year' : aggregation === 'DAY' ? 'month' : 'date';
+  const toDateEndOfByAggregation: Partial<Record<Aggregation, OpUnitType>> = {
+    [Aggregation.MONTH]: 'year',
+    [Aggregation.DAY]: 'month',
+  };
+  const toDateEndOf: OpUnitType = toDateEndOfByAggregation[aggregation] ?? 'date';
   const toDateParam = dayjs(modalData.toDate).endOf(toDateEndOf).utc(true).format();
 
-  const wb = utils.book_new();
+  const workbook = utils.book_new();
 
   for (const facility of modalData.selectedFacilities) {
     const params = new URLSearchParams({
@@ -47,6 +51,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
       const response = await apiService.get<ApiResponse<Data>>(`/measurementdata?${params.toString()}`);
       facilityData = statisticsMeasurementDataHandler(response.data.data);
     } catch {
+      // If fetching data for a facility fails, we skip it and continue with the others. The export will still work for the facilities that were fetched successfully.
       continue;
     }
 
@@ -86,47 +91,48 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
       (facilityData?.temperatureData?.[0]?.measurementPoints ?? []).map((tp) => [tp.timestamp ?? '', tp.value])
     );
 
-    const exportData =
-      facilityData?.measurementData?.[0]?.measurementPoints?.flatMap((measurement: MeasurementPoints) => {
-        if (aggregation === Aggregation.QUARTER && measurement.values?.length) {
-          return measurement.values.map((quarterValue, index) => {
-            const from = dayjs(measurement.timestamp).add(index * 15, 'minute');
-            return {
-              fromDate: from.format('YYYY-MM-DD HH:mm'),
-              toDate: from.add(14, 'minute').format('YYYY-MM-DD HH:mm'),
-              consumption: quarterValue,
-              ...(modalData.temperatureIncluded
-                ? { temperature: temperatureLookup.get(measurement.timestamp ?? '') }
-                : {}),
-            };
-          });
-        }
-        return [
-          {
-            fromDate: dayjs(measurement.timestamp).format('YYYY-MM-DD HH:mm'),
-            toDate: dayjs(measurement.timestamp)
-              .endOf(aggregation.toLowerCase() as OpUnitType)
-              .format('YYYY-MM-DD HH:mm'),
-            consumption: measurement.value,
-            ...(modalData.temperatureIncluded
-              ? { temperature: temperatureLookup.get(measurement.timestamp ?? '') }
-              : {}),
-          },
-        ];
-      }) ?? [];
+    const withTemperature = (timestamp: string) =>
+      modalData.temperatureIncluded ? { temperature: temperatureLookup.get(timestamp) } : {};
 
-    const ws = utils.json_to_sheet([]);
-    utils.sheet_add_aoa(ws, exportInformationHeadings);
-    utils.sheet_add_json(ws, exportInformation, { origin: 'A2', skipHeader: true });
-    utils.sheet_add_aoa(ws, exportDataHeadings, { origin: 'A5' });
-    utils.sheet_add_json(ws, exportData, { origin: 'A6', skipHeader: true });
+    const mapQuarterRows = (measurement: MeasurementPoints) =>
+      (measurement.values ?? []).map((quarterValue, index) => {
+        const from = dayjs(measurement.timestamp).add(index * 15, 'minute');
+        return {
+          fromDate: from.format('YYYY-MM-DD HH:mm'),
+          toDate: from.add(14, 'minute').format('YYYY-MM-DD HH:mm'),
+          consumption: quarterValue,
+          ...withTemperature(measurement.timestamp ?? ''),
+        };
+      });
+
+    const mapMeasurementRow = (measurement: MeasurementPoints) => ({
+      fromDate: dayjs(measurement.timestamp).format('YYYY-MM-DD HH:mm'),
+      toDate: dayjs(measurement.timestamp)
+        .endOf(aggregation.toLowerCase() as OpUnitType)
+        .format('YYYY-MM-DD HH:mm'),
+      consumption: measurement.value,
+      ...withTemperature(measurement.timestamp ?? ''),
+    });
+
+    const measurementPoints = facilityData?.measurementData?.[0]?.measurementPoints ?? [];
+    const exportData = measurementPoints.flatMap((measurement: MeasurementPoints) =>
+      aggregation === Aggregation.QUARTER && measurement.values?.length
+        ? mapQuarterRows(measurement)
+        : [mapMeasurementRow(measurement)]
+    );
+
+    const workSheet = utils.json_to_sheet([]);
+    utils.sheet_add_aoa(workSheet, exportInformationHeadings);
+    utils.sheet_add_json(workSheet, exportInformation, { origin: 'A2', skipHeader: true });
+    utils.sheet_add_aoa(workSheet, exportDataHeadings, { origin: 'A5' });
+    utils.sheet_add_json(workSheet, exportData, { origin: 'A6', skipHeader: true });
 
     const sheetName = facility.facilityId.slice(0, 31);
-    utils.book_append_sheet(wb, ws, sheetName);
+    utils.book_append_sheet(workbook, workSheet, sheetName);
   }
 
-  if (wb.SheetNames.length > 0) {
-    writeFile(wb, `Export-${modalData.category}-${dayjs().format('YYYY-MM-DD')}.xlsx`);
+  if (workbook.SheetNames.length > 0) {
+    writeFile(workbook, `Export-${modalData.category}-${dayjs().format('YYYY-MM-DD')}.xlsx`);
     return true;
   }
 
