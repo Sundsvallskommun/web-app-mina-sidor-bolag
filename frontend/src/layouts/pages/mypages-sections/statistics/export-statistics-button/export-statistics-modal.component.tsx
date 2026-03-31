@@ -25,16 +25,19 @@ import { User } from '@interfaces/user';
 import { getCategoryFromInstalledBaseType } from '@utils/facility';
 import { Category } from '@interfaces/measurement-data';
 
+type DatePeriod = 'year' | 'month' | 'day';
+type DatePickerType = 'year' | 'month' | 'date';
+
 const categories = Object.values(Category);
 const datePeriods = ['year', 'month', 'day'];
 const timeIntervals = ['hour', 'quarter'];
-const getDatePickerType = (period: 'year' | 'month' | 'day'): 'year' | 'month' | 'date' => {
+const getDatePickerType = (period: DatePeriod): DatePickerType => {
   if (period === 'year') return 'year';
   if (period === 'month') return 'month';
   return 'date';
 };
 
-const formatDateForInputType = (date: string, inputType: 'year' | 'month' | 'date'): string => {
+const formatDateForInputType = (date: string, inputType: DatePickerType): string => {
   if (!date) return '';
   if (inputType === 'year') return date.slice(0, 4); // YYYY
   if (inputType === 'month') return date.slice(0, 7); // YYYY-MM
@@ -47,7 +50,21 @@ const lastDayOfMonth = (yearMonth: string): string => {
   return `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
 };
 
-const getInitialDatePeriod = (resolution?: string): 'year' | 'month' | 'day' => {
+const adaptStartDate = (date: string, from: DatePickerType, to: DatePickerType): string => {
+  if (!date || from === to) return date;
+  if (to === 'year') return date.slice(0, 4);
+  if (to === 'month') return from === 'year' ? `${date}-01` : date.slice(0, 7);
+  return from === 'year' ? `${date}-01-01` : `${date}-01`;
+};
+
+const adaptEndDate = (date: string, from: DatePickerType, to: DatePickerType): string => {
+  if (!date || from === to) return date;
+  if (to === 'year') return date.slice(0, 4);
+  if (to === 'month') return from === 'year' ? `${date}-12` : date.slice(0, 7);
+  return from === 'year' ? `${date}-12-31` : lastDayOfMonth(date);
+};
+
+const getInitialDatePeriod = (resolution?: string): DatePeriod => {
   if (resolution === 'month') return 'year';
   if (resolution === 'day') return 'month';
   return 'day';
@@ -93,9 +110,7 @@ export const ExportStatisticsModal = ({
   const [category, setCategory] = useState<Category>(initialCategory ?? categories[0]);
   const [fromDate, setFromDate] = useState(initialFromDate ?? '');
   const [toDate, setToDate] = useState(initialToDate ?? '');
-  const [datePeriod, setDatePeriod] = useState<'year' | 'month' | 'day'>(() =>
-    getInitialDatePeriod(initialTimeResolution)
-  );
+  const [datePeriod, setDatePeriod] = useState<DatePeriod>(() => getInitialDatePeriod(initialTimeResolution));
   const [timeInterval, setTimeInterval] = useState<'hour' | 'quarter'>(() =>
     getInitialTimeInterval(initialTimeResolution)
   );
@@ -121,19 +136,20 @@ export const ExportStatisticsModal = ({
   const filteredGroups = useMemo(() => {
     const query = searchValue.toLowerCase().trim();
     if (!query) return facilitiesGroupedByAddresses;
-    return facilitiesGroupedByAddresses
-      .map((group) => {
-        if (group.address.toLowerCase().includes(query)) return group;
-        const matchingFacilities = group.facilities.filter((facilityId) => {
-          if (facilityId.toLowerCase().includes(query)) return true;
-          const facility = user?.facilities?.find((f) => f.facilityId === facilityId);
-          const categoryKey = getCategoryFromInstalledBaseType(facility?.type);
-          const typeLabel = categoryKey ? t(`statistics:exportModal.category.${categoryKey}`) : (facility?.type ?? '');
-          return typeLabel.toLowerCase().includes(query);
-        });
-        return matchingFacilities.length > 0 ? { ...group, facilities: matchingFacilities } : null;
-      })
-      .filter(Boolean) as typeof facilitiesGroupedByAddresses;
+
+    const matchesFacilityQuery = (facilityId: string): boolean => {
+      if (facilityId.toLowerCase().includes(query)) return true;
+      const facility = user?.facilities?.find((f) => f.facilityId === facilityId);
+      const categoryKey = getCategoryFromInstalledBaseType(facility?.type);
+      const typeLabel = categoryKey ? t(`statistics:exportModal.category.${categoryKey}`) : (facility?.type ?? '');
+      return typeLabel.toLowerCase().includes(query);
+    };
+
+    return facilitiesGroupedByAddresses.flatMap((group) => {
+      if (group.address.toLowerCase().includes(query)) return [group];
+      const matchingFacilities = group.facilities.filter(matchesFacilityQuery);
+      return matchingFacilities.length > 0 ? [{ ...group, facilities: matchingFacilities }] : [];
+    });
   }, [searchValue, facilitiesGroupedByAddresses, user, t]);
 
   const checkboxGroups = useMemo(
@@ -182,7 +198,12 @@ export const ExportStatisticsModal = ({
   }, [category]);
 
   const datePickerType = getDatePickerType(datePeriod);
-  const aggregation = datePeriod === 'year' ? 'month' : datePeriod === 'month' ? 'day' : timeInterval;
+
+  const aggregationByPeriod: Partial<Record<DatePeriod, string>> = {
+    year: 'month',
+    month: 'day',
+  };
+  const aggregation = aggregationByPeriod[datePeriod] ?? timeInterval;
 
   const handleExport = () => {
     const selectedFacilities = Array.from(checkedItems).map((key) => {
@@ -199,40 +220,14 @@ export const ExportStatisticsModal = ({
     });
   };
 
-  const handleDatePeriodChange = (period: 'year' | 'month' | 'day') => {
+  const handleDatePeriodChange = (period: DatePeriod) => {
     const oldType = getDatePickerType(datePeriod);
     const newType = getDatePickerType(period);
     setDatePeriod(period);
-
     if (period !== 'day') setTimeInterval('hour');
-
     if (oldType === newType) return;
-
-    if (newType === 'year') {
-      // month/date --> year: truncate to YYYY
-      setFromDate(fromDate ? fromDate.slice(0, 4) : '');
-      setToDate(toDate ? toDate.slice(0, 4) : '');
-    } else if (newType === 'month') {
-      if (oldType === 'year') {
-        // year --> month: append -01 / -12
-        setFromDate(fromDate ? `${fromDate}-01` : '');
-        setToDate(toDate ? `${toDate}-12` : '');
-      } else {
-        // date --> month: truncate to YYYY-MM
-        setFromDate(fromDate ? fromDate.slice(0, 7) : '');
-        setToDate(toDate ? toDate.slice(0, 7) : '');
-      }
-    } else {
-      if (oldType === 'year') {
-        // year --> date: first/last day of year
-        setFromDate(fromDate ? `${fromDate}-01-01` : '');
-        setToDate(toDate ? `${toDate}-12-31` : '');
-      } else {
-        // month --> date: first day / last day of month
-        setFromDate(fromDate ? `${fromDate}-01` : '');
-        setToDate(toDate ? lastDayOfMonth(toDate) : '');
-      }
-    }
+    setFromDate(adaptStartDate(fromDate, oldType, newType));
+    setToDate(adaptEndDate(toDate, oldType, newType));
   };
 
   const dateRangeInvalid = !!fromDate && !!toDate && fromDate > toDate;
@@ -273,7 +268,7 @@ export const ExportStatisticsModal = ({
                       className="lg:w-auto w-full !h-[12px] !py-0"
                       size="sm"
                       inverted={datePeriod === interval}
-                      onClick={() => handleDatePeriodChange(interval as 'year' | 'month' | 'day')}
+                      onClick={() => handleDatePeriodChange(interval as DatePeriod)}
                       data-cy={`date-toggle-${interval}-button`}
                     >
                       {t(`statistics:${interval}`)}

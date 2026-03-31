@@ -1,8 +1,7 @@
 'use client';
 
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useMemo } from 'react';
 import { DatePicker, Input, Select } from '@sk-web-gui/react';
-import { useMemo } from 'react';
 import { generateSelectableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import dayjs from 'dayjs';
 

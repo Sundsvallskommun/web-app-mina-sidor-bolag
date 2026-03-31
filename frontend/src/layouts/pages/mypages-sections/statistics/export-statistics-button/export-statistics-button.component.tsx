@@ -2,14 +2,13 @@
 
 import { Download } from 'lucide-react';
 import { Button, useSnackbar } from '@sk-web-gui/react';
-import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
+import { MergedStatisticsMeasurementData, StatisticsMeasurementData, Category } from '@interfaces/measurement-data';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { EventResponse } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
 import { getCategoryFromInstalledBaseType } from '@utils/facility';
 import { useState } from 'react';
-import { Category } from '@interfaces/measurement-data';
 import { ExportModalData, ExportStatisticsModal } from './export-statistics-modal.component';
 import { buildLogInformation, exportStatisticsToExcel } from './export-statistics.util';
 
