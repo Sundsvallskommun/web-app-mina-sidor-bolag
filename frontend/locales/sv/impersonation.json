@@ -10,9 +10,6 @@
   "accessReason": {
     "title": "Åtkomstskäl *",
     "chooseAlternative": "Välj ett alternativ",
-    "customerRequest": "I samtal med kunden",
-    "errand": "Inkommit ärende",
-    "customerOther": "Annan överenskommelse med kunden",
     "error": "Åtkomstskäl måste anges."
   },
   "error": {

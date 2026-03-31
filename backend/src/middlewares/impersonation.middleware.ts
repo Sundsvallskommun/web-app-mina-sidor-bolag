@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { HttpException } from '@exceptions/HttpException';
 import { logger } from '@utils/logger';
 
-const adminMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
+const impersonationMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     if (req.user.permissions.canImpersonateUser) {
       next();
@@ -17,4 +17,4 @@ const adminMiddleware = async (req: Request, _res: Response, next: NextFunction)
   }
 };
 
-export default adminMiddleware;
+export default impersonationMiddleware;

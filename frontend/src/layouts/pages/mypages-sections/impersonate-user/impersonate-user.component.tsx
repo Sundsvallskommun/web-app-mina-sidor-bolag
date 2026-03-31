@@ -58,6 +58,7 @@ function BackButton({ fallbackHref = '/oversikt' }: Readonly<{ fallbackHref?: st
 
 export default function ImpersonateUser() {
   const { t } = useTranslation('impersonation');
+  const accessReasons = ['I samtal med kunden', 'Inkommit ärende', 'Annan överenskommelse med kunden'];
 
   const {
     register,
@@ -75,15 +76,12 @@ export default function ImpersonateUser() {
 
   const {
     data: userEngagements,
-    isFetching,
-    isFetched,
-    refetch,
+    mutateAsync: fetchEngagements,
+    isPending,
+    isSuccess,
   } = useApi<UserEngagement>({
-    url: `/user-engagements/${watch('searchPersonNumber') ?? ''}`,
-    method: 'get',
-    queryOptions: {
-      enabled: false,
-    },
+    url: '/user-engagements',
+    method: 'post',
     queryKey: ['user-engagements'],
   });
 
@@ -93,8 +91,8 @@ export default function ImpersonateUser() {
     };
   }, []);
 
-  const userEngagementsLoaded = Boolean(userEngagements?.canRepresent?.length && isFetched);
-  const noUserEngagements = userEngagements && !userEngagements.canRepresent?.length && isFetched;
+  const userEngagementsLoaded = Boolean(userEngagements?.canRepresent?.length && isSuccess);
+  const noUserEngagements = userEngagements && !userEngagements.canRepresent?.length && isSuccess;
 
   const onResetHandler = () => {
     queryClient
@@ -106,7 +104,7 @@ export default function ImpersonateUser() {
 
   const onSearchHandler = async () => {
     const valid = await trigger('searchPersonNumber');
-    if (valid) await refetch();
+    if (valid) await fetchEngagements({ personNumber: watch('searchPersonNumber') });
   };
 
   const handleSelectRepresenting = (representingNumber: string) => {
@@ -150,7 +148,7 @@ export default function ImpersonateUser() {
             </FormErrorMessage>
           )}
 
-          {isFetching ? <Spinner className="mx-auto my-16" /> : null}
+          {isPending ? <Spinner className="mx-auto my-16" /> : null}
 
           {userEngagementsLoaded ? (
             <Table className="border-1 border-divider my-16" background>
@@ -188,15 +186,11 @@ export default function ImpersonateUser() {
             <FormLabel>{t('impersonation:accessReason.title')}</FormLabel>
             <Select {...register('accessReason')} className="w-full">
               <Select.Option value="">{t('impersonation:accessReason.chooseAlternative')}</Select.Option>
-              <Select.Option value={t('impersonation:accessReason.customerRequest')}>
-                {t('impersonation:accessReason.customerRequest')}
-              </Select.Option>
-              <Select.Option value={t('impersonation:accessReason.errand')}>
-                {t('impersonation:accessReason.errand')}
-              </Select.Option>
-              <Select.Option value={t('impersonation:accessReason.customerOther')}>
-                {t('impersonation:accessReason.customerOther')}
-              </Select.Option>
+              {accessReasons.map((reason) => (
+                <Select.Option key={reason} value={reason}>
+                  {reason}
+                </Select.Option>
+              ))}
             </Select>
             {errors.accessReason && (
               <FormErrorMessage className="text-error flex flex-row items-center justify-start mt-8">

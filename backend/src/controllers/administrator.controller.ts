@@ -5,10 +5,10 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import { ApiResponse } from '@/interfaces/service';
 import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
-import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
+import { Body, Controller, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
-import adminMiddleware from '@middlewares/admin.middleware';
+import impersonationMiddleware from '@middlewares/impersonation.middleware';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { UserEngagement } from '@interfaces/users.interface';
@@ -16,21 +16,27 @@ import { logger } from '@utils/logger';
 
 @Controller()
 @UseBefore(authMiddleware)
-@UseBefore(adminMiddleware)
+@UseBefore(impersonationMiddleware)
 export class AdministratorController {
   private readonly apiService = new ApiService();
   private readonly CitizenApiBase = getApiBase('citizen');
   private readonly LEApiBase = getApiBase('legalentity');
 
-  @Get('/user-engagements/:personNumber')
+  @Post('/user-engagements')
   @OpenAPI({ summary: 'Get engagements by person number' })
   async getUserEngagements(
     @Req() req: RequestWithUser,
-    @Param('personNumber') personNumber: string,
+    @Body() body: { personNumber: string },
   ): Promise<ApiResponse<UserEngagement>> {
+    const { personNumber } = body;
     const representing = req.session?.representing ?? undefined;
     const partyId = getRepresentingPartyId(representing);
-    const userEngagements: UserEngagement = {} as UserEngagement;
+
+    const userEngagements: UserEngagement = {
+      userPersonNumber: '',
+      userPartyId: '',
+      canRepresent: [],
+    };
 
     if (!partyId || !personNumber) {
       throw new HttpException(400, 'Bad Request');
@@ -48,12 +54,10 @@ export class AdministratorController {
         if (citizenResponse.data) {
           userEngagements.userPersonNumber = personNumber;
           userEngagements.userPartyId = userPartyId;
-          userEngagements.canRepresent = [
-            {
-              name: `${citizenResponse.data.givenname} ${citizenResponse.data.lastname}`,
-              representingNumber: personNumber,
-            },
-          ];
+          userEngagements.canRepresent.push({
+            name: `${citizenResponse.data.givenname} ${citizenResponse.data.lastname}`,
+            representingNumber: personNumber,
+          });
         }
       }
     } catch (error) {
