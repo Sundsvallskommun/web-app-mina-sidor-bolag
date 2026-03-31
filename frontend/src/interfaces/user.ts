@@ -7,13 +7,7 @@ export enum FeedbackLifespan {
   'twoWeeks' = 'twoWeeks',
   'oneMonth' = 'oneMonth',
 }
-export interface OverviewFormModel {
-  feedbackLifespan: FeedbackLifespan;
-}
 
-export const defaultOverviewsSettings: OverviewFormModel = {
-  feedbackLifespan: FeedbackLifespan.oneMonth,
-};
 export interface User {
   name: string;
   userSettings: {
@@ -24,4 +18,15 @@ export interface User {
   addresses: FacilityAddress[];
   facilities: (InstalledBaseItem & { isDelegated?: boolean })[];
   extendedView: boolean;
+}
+
+export interface UserEngagement {
+  userPersonNumber: string;
+  userPartyId: string;
+  canRepresent: CanRepresent[];
+}
+
+export interface CanRepresent {
+  name: string;
+  representingNumber: string;
 }

@@ -19,6 +19,7 @@ import { CitizenController } from './controllers/citizen.controller';
 import EventLogController from '@controllers/event-log.controller';
 import { BFUSController } from './controllers/bfus.controller';
 import { SelfServiceAiController } from '@controllers/self-service-ai.controller';
+import { AdministratorController } from '@controllers/administrator.controller';
 
 validateEnv();
 
@@ -42,6 +43,7 @@ const app = new App([
   EventLogController,
   BFUSController,
   SelfServiceAiController,
+  AdministratorController,
 ]);
 
 app.listen();

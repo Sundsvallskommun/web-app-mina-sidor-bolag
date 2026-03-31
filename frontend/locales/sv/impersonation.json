@@ -1,3 +1,25 @@
 {
-  "title": "Växla användare"
+  "title": "Växla användare",
+  "description": "Ange kundens personnummer för att logga in och ta del av kundens Mina sidor.",
+  "searchFieldLabel": "Sök personnummer (ååååmmddnnnn)",
+  "search": "Sök",
+  "tableHeader": {
+    "name": "Namn/Företag",
+    "representingNumber": "Person-/Organisationsnummer"
+  },
+  "accessReason": {
+    "title": "Åtkomstskäl *",
+    "chooseAlternative": "Välj ett alternativ",
+    "customerRequest": "I samtal med kunden",
+    "errand": "Inkommit ärende",
+    "customerOther": "Annan överenskommelse med kunden",
+    "error": "Åtkomstskäl måste anges."
+  },
+  "error": {
+    "personNumber": "Fyll i ett korrekt personnummer",
+    "accessReason": "Åtkomstskäl måste anges",
+    "representingNumber": "Välj en person eller företag att växla till"
+  },
+  "goBack": "Tillbaka",
+  "impersonate": "Växla till användare"
 }
