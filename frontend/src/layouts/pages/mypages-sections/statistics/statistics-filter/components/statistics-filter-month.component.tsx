@@ -21,8 +21,7 @@ export const StatisticsFilterMonth: React.FC = () => {
   );
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const dateArr = event.target.value.split('-');
-    const newDate = dayjs(`${dateArr[0]}-${dateArr[1]}-${selectedDay}`);
+    const newDate = dayjs(event.target.value);
 
     const year = newDate.format('YYYY');
     const month = newDate.format('MM');
