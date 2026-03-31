@@ -199,7 +199,7 @@ describe('Statistik', () => {
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.get('[data-cy="export-facilities-accordion-header"]').click();
-    cy.get('[data-cy="export-facilities-select-all"]').click();
+    cy.get('[data-cy="export-facilities-select-all"]').click({ force: true });
     cy.get('[data-cy="export-modal-confirm-button"]').should('be.disabled');
   });
 
