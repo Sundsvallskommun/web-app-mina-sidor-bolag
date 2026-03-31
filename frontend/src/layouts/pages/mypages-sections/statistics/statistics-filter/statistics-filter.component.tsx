@@ -91,11 +91,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
   useEffect(() => {
     const setDate = (by: 'year' | 'month' | 'day', _date?: Dayjs) => {
-      const date =
-        _date ??
-        dayjs(
-          `${selectedYear ?? dayjs().format('YYYY')}-${selectedMonth ?? dayjs().format('MM')}-${selectedDay ?? dayjs().format('DD')}`
-        );
+      const y = selectedYear ?? dayjs().format('YYYY');
+      const m = selectedMonth ?? dayjs().format('MM');
+      const d = selectedDay ?? dayjs().format('DD');
+      const date = _date ?? dayjs(`${y}-${m}-${by === 'day' ? d : '01'}`);
       const fromDate = date.startOf(by).format('YYYY-MM-DD');
       const toDate = date.endOf(by).format('YYYY-MM-DD');
       const year = date.format('YYYY');
