@@ -79,7 +79,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
       {
         facilityId: facility.facilityId,
         facilityAddress: facility.address,
-        category: modalData.category,
+        category: t(`statistics:exportModal.category.${modalData.category}`),
         exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
         fromDate: modalData.fromDate,
         toDate: modalData.toDate,
@@ -132,7 +132,10 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   }
 
   if (workbook.SheetNames.length > 0) {
-    writeFile(workbook, `Export-${modalData.category}-${dayjs().format('YYYY-MM-DD')}.xlsx`);
+    writeFile(
+      workbook,
+      `Export-${t(`statistics:exportModal.category.${modalData.category}`)}-${dayjs().format('YYYY-MM-DD')}.xlsx`
+    );
     return true;
   }
 
