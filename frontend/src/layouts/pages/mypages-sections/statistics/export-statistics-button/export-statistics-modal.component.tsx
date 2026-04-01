@@ -330,13 +330,15 @@ export const ExportStatisticsModal = ({
                   data-cy="export-facilities-accordion-header"
                 >
                   <Accordion.Item.Title className="flex flex-col items-start gap-6 flex-1">
-                    <Text className="text-label-medium">{t('statistics:exportModal.facilities')}</Text>
-                    <Text className="text-small font-normal">
-                      {t('statistics:exportModal.selection', {
-                        count: checkedFacilitiesCount,
-                        total: totalFacilitiesCount,
-                      })}
-                    </Text>
+                    <div className="flex flex-col items-start gap-6">
+                      <Text className="text-label-medium">{t('statistics:exportModal.facilities')}</Text>
+                      <Text className="text-small font-normal">
+                        {t('statistics:exportModal.selection', {
+                          count: checkedFacilitiesCount,
+                          total: totalFacilitiesCount,
+                        })}
+                      </Text>
+                    </div>
                   </Accordion.Item.Title>
                   <Accordion.Item.Button>
                     {(open: boolean) => (open ? <ChevronUp /> : <ChevronDown />)}
@@ -368,7 +370,7 @@ export const ExportStatisticsModal = ({
                         checked={!allFacilitiesUnchecked}
                         indeterminate={!allFacilitiesChecked && !allFacilitiesUnchecked}
                         onChange={toggleAllFacilities}
-                        className="py-8 px-2 flex items-center self-stretch gap-10"
+                        className="py-8 pr-2 flex items-center self-stretch"
                         data-cy="export-facilities-select-all"
                       >
                         {t('statistics:exportModal.selectAll')}
@@ -380,7 +382,7 @@ export const ExportStatisticsModal = ({
                               checked={addressStates.get(group.address)?.checked ?? false}
                               indeterminate={addressStates.get(group.address)?.indeterminate ?? false}
                               onChange={() => toggleAddress(group.address, group.facilities)}
-                              className="flex self-stretch gap-10 py-8 px-2 text-small font-normal"
+                              className="flex self-stretch py-8 pr-2 text-small font-normal"
                             >
                               {group.address}
                             </Checkbox>
@@ -397,7 +399,7 @@ export const ExportStatisticsModal = ({
                                     key={facilityId}
                                     checked={isFacilityChecked(group.address, facilityId)}
                                     onChange={() => toggleFacility(group.address, facilityId)}
-                                    className="py-8 px-2"
+                                    className="py-8 pr-2 self-stretch"
                                   >
                                     {displayName}
                                   </Checkbox>
