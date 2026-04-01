@@ -90,6 +90,12 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   }, []);
 
   useEffect(() => {
+    if (mode !== 'day') {
+      setValue('isHourQuarter', false);
+    }
+  }, [mode, setValue]);
+
+  useEffect(() => {
     const setDate = (by: 'year' | 'month' | 'day', _date?: Dayjs) => {
       const date =
         _date ??
