@@ -420,12 +420,12 @@ export const ExportStatisticsModal = ({
             </Checkbox>
           </div>
           <div className="w-full">
-            <Text>
+            <div className="text-content">
               {t('statistics:exportModal.exportComment', {
                 count: checkedFacilitiesCount,
                 total: totalFacilitiesCount,
               })}
-            </Text>
+            </div>
           </div>
         </div>
       </Modal.Content>
