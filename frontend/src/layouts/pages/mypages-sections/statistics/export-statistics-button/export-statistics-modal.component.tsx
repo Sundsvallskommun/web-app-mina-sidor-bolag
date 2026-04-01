@@ -28,7 +28,7 @@ import { Category } from '@interfaces/measurement-data';
 type DatePeriod = 'year' | 'month' | 'day';
 type DatePickerType = 'year' | 'month' | 'date';
 
-const categories = Object.values(Category);
+const categories = Object.values(Category).filter((c) => c !== Category.COMMUNICATION); // Exclude non-facility category
 const datePeriods = ['year', 'month', 'day'];
 const timeIntervals = ['hour', 'quarter'];
 const getDatePickerType = (period: DatePeriod): DatePickerType => {
