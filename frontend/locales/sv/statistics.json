@@ -43,6 +43,7 @@
       "title": "Kategori",
       "DISTRICT_HEATING": "Fjärrvärme",
       "ELECTRICITY": "Elförbrukning",
+      "ELECTRICITY_PRODUCTION": "Elproduktion",
       "COMMUNICATION": "Bredband",
       "WASTE_MANAGEMENT": "Avfallshantering"
     },

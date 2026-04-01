@@ -21,7 +21,7 @@ import { CustomDatePicker } from './custom-date-picker.component';
 import { useCheckboxTree } from './use-checkbox-tree';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { getCategoryFromInstalledBaseType } from '@utils/facility';
+import { getCategoryFromInstalledBaseType, getEventCategory } from '@utils/facility';
 import { Category } from '@interfaces/measurement-data';
 
 type DatePeriod = 'year' | 'month' | 'day';
@@ -388,8 +388,10 @@ export const ExportStatisticsModal = ({
                             </Checkbox>
                             <div className="pl-16 flex flex-col gap-4 items-start self-stretch">
                               {group.facilities.map((facilityId) => {
-                                const facility = user?.facilities?.find((f) => f.facilityId === facilityId);
-                                const categoryKey = getCategoryFromInstalledBaseType(facility?.type);
+                                const facility = user?.facilities?.find(
+                                  (f) => f.facilityId === facilityId && f.type !== 'Elhandel'
+                                );
+                                const categoryKey = getEventCategory(facility?.type);
                                 const typeLabel = categoryKey
                                   ? t(`statistics:exportModal.category.${categoryKey}`)
                                   : (facility?.type ?? facilityId);
