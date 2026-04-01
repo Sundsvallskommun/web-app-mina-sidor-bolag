@@ -27,10 +27,7 @@ export class AgreementController {
   private apiService = new ApiService();
   private apiBase = getApiBase('agreement');
 
-  @Get('/paged/agreements')
-  @OpenAPI({ summary: 'Get agreements by party id' })
-  @UseBefore(authMiddleware)
-  async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
+  private async fetchAgreements(req: RequestWithUser, includeInactive: boolean): Promise<ApiResponse<Agreement[]>> {
     const representing = req.session?.representing ?? undefined;
     const delegations = req?.session?.cache?.delegations ?? [];
     const partyId = getRepresentingPartyId(representing);
@@ -40,27 +37,28 @@ export class AgreementController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const data = await fetchAgreementsForPartyAndDelegations(partyId, partyIdList, delegations, req.user, false);
-
+    const data = await fetchAgreementsForPartyAndDelegations(
+      partyId,
+      partyIdList,
+      delegations,
+      req.user,
+      includeInactive,
+    );
     return { data, message: 'success' };
+  }
+
+  @Get('/paged/agreements')
+  @OpenAPI({ summary: 'Get agreements by party id' })
+  @UseBefore(authMiddleware)
+  async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
+    return this.fetchAgreements(req, false);
   }
 
   @Get('/paged/all-agreements')
   @OpenAPI({ summary: 'Get all agreements (active and inactive) by party id' })
   @UseBefore(authMiddleware)
   async getAllAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
-    const representing = req.session?.representing ?? undefined;
-    const delegations = req?.session?.cache?.delegations ?? [];
-    const partyId = getRepresentingPartyId(representing);
-    const partyIdList: string[] = delegations.map(delegation => delegation.owner);
-
-    if (!partyId) {
-      throw new HttpException(400, 'Bad Request');
-    }
-
-    const data = await fetchAgreementsForPartyAndDelegations(partyId, partyIdList, delegations, req.user, true);
-
-    return { data, message: 'success' };
+    return this.fetchAgreements(req, true);
   }
 
   @Get('/agreement/:category/:facilityId')
