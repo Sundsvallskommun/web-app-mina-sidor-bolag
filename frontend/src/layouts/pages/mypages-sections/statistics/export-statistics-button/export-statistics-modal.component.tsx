@@ -330,14 +330,12 @@ export const ExportStatisticsModal = ({
                   data-cy="export-facilities-accordion-header"
                 >
                   <Accordion.Item.Title className="flex flex-col items-start gap-6 flex-1">
-                    <div className="flex flex-col items-start gap-6">
-                      <Text className="text-label-medium">{t('statistics:exportModal.facilities')}</Text>
-                      <Text className="text-small font-normal">
-                        {t('statistics:exportModal.selection', {
-                          count: checkedFacilitiesCount,
-                          total: totalFacilitiesCount,
-                        })}
-                      </Text>
+                    <div className="text-content text-label-medium">{t('statistics:exportModal.facilities')}</div>
+                    <div className="text-content text-small font-normal">
+                      {t('statistics:exportModal.selection', {
+                        count: checkedFacilitiesCount,
+                        total: totalFacilitiesCount,
+                      })}
                     </div>
                   </Accordion.Item.Title>
                   <Accordion.Item.Button>
