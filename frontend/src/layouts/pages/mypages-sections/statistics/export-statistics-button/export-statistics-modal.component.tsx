@@ -7,7 +7,6 @@ import {
   Divider,
   FormErrorMessage,
   FormLabel,
-  Text,
   Modal,
   RadioButton,
   Select,
@@ -183,6 +182,7 @@ export const ExportStatisticsModal = ({
     setTemperatureIncluded(false);
     setSearchValue('');
     setIsSearchDirty(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show]);
 
   useEffect(() => {
@@ -190,11 +190,13 @@ export const ExportStatisticsModal = ({
     const facility = user.facilities?.find((f) => f.facilityId === initialFacilityId);
     const address = facility?.address?.street;
     resetFacilities(address ? [`${address}::${initialFacilityId}`] : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, user, initialFacilityId]);
 
   useEffect(() => {
     resetFacilities([]);
     setTimeInterval('hour');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
 
   const datePickerType = getDatePickerType(datePeriod);
