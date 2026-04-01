@@ -132,10 +132,9 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   }
 
   if (workbook.SheetNames.length > 0) {
-    writeFile(
-      workbook,
-      `Export-${t(`statistics:exportModal.category.${modalData.category}`)}-${dayjs().format('YYYY-MM-DD')}.xlsx`
-    );
+    const categoryLabel = t('statistics:exportModal.category.' + modalData.category);
+    const filename = 'Export-' + categoryLabel + '-' + dayjs().format('YYYY-MM-DD') + '.xlsx';
+    writeFile(workbook, filename);
     return true;
   }
 
