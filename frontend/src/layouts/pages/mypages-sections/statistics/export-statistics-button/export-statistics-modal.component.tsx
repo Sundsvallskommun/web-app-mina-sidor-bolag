@@ -23,55 +23,19 @@ import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { getCategoryFromInstalledBaseType, getEventCategory } from '@utils/facility';
 import { Category } from '@interfaces/measurement-data';
-
-type DatePeriod = 'year' | 'month' | 'day';
-type DatePickerType = 'year' | 'month' | 'date';
+import {
+  DatePeriod,
+  getDatePickerType,
+  formatDateForInputType,
+  adaptStartDate,
+  adaptEndDate,
+  getInitialDatePeriod,
+  getInitialTimeInterval,
+} from './date-picker.util';
 
 const categories = [Category.DISTRICT_HEATING, Category.ELECTRICITY];
 const datePeriods = ['year', 'month', 'day'];
 const timeIntervals = ['hour', 'quarter'];
-const getDatePickerType = (period: DatePeriod): DatePickerType => {
-  if (period === 'year') return 'year';
-  if (period === 'month') return 'month';
-  return 'date';
-};
-
-const formatDateForInputType = (date: string, inputType: DatePickerType): string => {
-  if (!date) return '';
-  if (inputType === 'year') return date.slice(0, 4); // YYYY
-  if (inputType === 'month') return date.slice(0, 7); // YYYY-MM
-  return date.slice(0, 10); // YYYY-MM-DD
-};
-
-const lastDayOfMonth = (yearMonth: string): string => {
-  const [year, month] = yearMonth.split('-').map(Number);
-  const lastDay = new Date(year, month, 0).getDate();
-  return `${yearMonth}-${String(lastDay).padStart(2, '0')}`;
-};
-
-const adaptStartDate = (date: string, from: DatePickerType, to: DatePickerType): string => {
-  if (!date || from === to) return date;
-  if (to === 'year') return date.slice(0, 4);
-  if (to === 'month') return from === 'year' ? `${date}-01` : date.slice(0, 7);
-  return from === 'year' ? `${date}-01-01` : `${date}-01`;
-};
-
-const adaptEndDate = (date: string, from: DatePickerType, to: DatePickerType): string => {
-  if (!date || from === to) return date;
-  if (to === 'year') return date.slice(0, 4);
-  if (to === 'month') return from === 'year' ? `${date}-12` : date.slice(0, 7);
-  return from === 'year' ? `${date}-12-31` : lastDayOfMonth(date);
-};
-
-const getInitialDatePeriod = (resolution?: string): DatePeriod => {
-  if (resolution === 'month') return 'year';
-  if (resolution === 'day') return 'month';
-  return 'day';
-};
-
-const getInitialTimeInterval = (resolution?: string): 'hour' | 'quarter' => {
-  return resolution === 'quarter' ? 'quarter' : 'hour';
-};
 
 export interface ExportModalData {
   category: Category;
