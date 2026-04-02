@@ -14,3 +14,9 @@ export interface User extends Record<string, unknown> {
 export interface Permissions {
   canImpersonateUser: boolean;
 }
+
+export interface UserEngagement {
+  userPersonNumber: string;
+  userPartyId: string;
+  canRepresent: { name: string; representingNumber: string }[];
+}
