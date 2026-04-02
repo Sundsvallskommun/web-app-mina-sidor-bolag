@@ -7,7 +7,7 @@ import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from '
 import { User } from '@interfaces/user';
 import { Category } from '@interfaces/measurement-data';
 import { getCategoryFromInstalledBaseType, getEventCategory } from '@utils/facility';
-import { useCheckboxTree } from './use-checkbox-tree';
+import { useCheckboxTree } from '../../../../../utils/use-checkbox-tree';
 
 interface FacilitiesAccordionProps {
   show: boolean;
