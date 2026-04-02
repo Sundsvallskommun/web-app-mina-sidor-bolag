@@ -41,7 +41,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   };
   const toDateEndOf: OpUnitType = toDateEndOfByAggregation[aggregation] ?? 'date';
   const toDateParam = dayjs(modalData.toDate).endOf(toDateEndOf).utc(true).format();
-
+  const excelMaxSheetName = 31;
   const workbook = utils.book_new();
 
   for (const facility of modalData.selectedFacilities) {
@@ -134,7 +134,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
     utils.sheet_add_aoa(workSheet, exportDataHeadings, { origin: 'A5' });
     utils.sheet_add_json(workSheet, exportData, { origin: 'A6', skipHeader: true });
 
-    const sheetName = facility.facilityId.slice(0, 31);
+    const sheetName = facility.facilityId.slice(0, excelMaxSheetName);
     utils.book_append_sheet(workbook, workSheet, sheetName);
   }
 
