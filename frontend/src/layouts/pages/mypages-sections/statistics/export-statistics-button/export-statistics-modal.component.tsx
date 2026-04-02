@@ -27,6 +27,7 @@ import {
   getInitialDatePeriod,
   getInitialTimeInterval,
 } from './date-picker.util';
+import { aggregationByPeriod } from './export-statistics.util';
 
 const categories = [Category.DISTRICT_HEATING, Category.ELECTRICITY];
 const timeIntervals = ['hour', 'quarter'];
@@ -101,10 +102,6 @@ export const ExportStatisticsModal = ({
 
   const datePickerType = getDatePickerType(datePeriod);
 
-  const aggregationByPeriod: Partial<Record<DatePeriod, string>> = {
-    year: 'month',
-    month: 'day',
-  };
   const aggregation = aggregationByPeriod[datePeriod] ?? timeInterval;
 
   const handleExport = () => {

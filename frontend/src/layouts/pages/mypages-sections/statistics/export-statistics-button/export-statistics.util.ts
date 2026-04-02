@@ -7,6 +7,13 @@ import { getEventCategory } from '@utils/facility';
 import { CreateLogEventData } from '@interfaces/event';
 import { ExportModalData } from './export-statistics-modal.component';
 import { TFunction } from 'i18next';
+import { DatePeriod } from './date-picker.util';
+
+/** Maps a date period to the corresponding aggregation level used for the export. */
+export const aggregationByPeriod: Partial<Record<DatePeriod, string>> = {
+  year: 'month',
+  month: 'day',
+};
 
 export interface ExportStatisticsOptions {
   modalData: ExportModalData;
