@@ -127,7 +127,8 @@ export const FacilitiesAccordion = ({
             <div className="pb-8 flex flex-col items-start self-stretch gap-8">
               <SearchField
                 placeholder={t('statistics:exportModal.searchFacilities')}
-                className="py-8 pr-4 pl-4 flex-1 flex items-center self-stretch gap-8"
+                className="py-8 w-full"
+                size="md"
                 value={searchValue}
                 showSearchButton={isSearchDirty}
                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
