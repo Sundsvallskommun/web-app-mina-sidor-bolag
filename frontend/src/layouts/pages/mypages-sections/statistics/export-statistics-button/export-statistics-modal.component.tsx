@@ -217,14 +217,12 @@ export const ExportStatisticsModal = ({
               {t('statistics:exportModal.includeTemperature')}
             </Checkbox>
           </div>
-          <div className="w-full">
-            <div className="text-content">
-              {t('statistics:exportModal.exportComment', {
-                count: checkedFacilitiesCount,
-                total: totalFacilitiesCount,
-              })}
-            </div>
-          </div>
+          <p className="my-0">
+            {t('statistics:exportModal.exportComment', {
+              count: checkedFacilitiesCount,
+              total: totalFacilitiesCount,
+            })}
+          </p>
         </div>
       </Modal.Content>
       <Modal.Footer className="w-full flex flex-row lg:items-start items-center gap-16 self-stretch justify-start">
