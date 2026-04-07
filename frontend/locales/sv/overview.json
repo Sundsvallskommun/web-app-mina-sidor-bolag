@@ -3,6 +3,7 @@
     "title": "Aktuell förbrukning och produktion",
     "description": "Visar din förbrukning och produktion för {{month}}.",
     "noConsumption": "Det finns ingen förbrukning att visa.",
+    "fetchingPagesStatus": "Kontrollerar om adresser har avtal. Sida {{currentPage}} från avtal.",
     "card": {
       "noData": "Det går inte att hitta någon data för perioden.",
       "unit": "kWh",
