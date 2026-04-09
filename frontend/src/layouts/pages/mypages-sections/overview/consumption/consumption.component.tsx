@@ -24,15 +24,14 @@ export const Consumption = () => {
     isFetching: isAgreementsFetching,
     isDone: isAgreementsDone,
     currentPage,
+    error: agreementsError,
   } = usePagedAgreements(200);
 
   const [address, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [hasInitialAddress, setHasInitialAddress] = useState(false);
   const { t } = useTranslation(['common', 'overview']);
-
-  const hasAgreement = (a: FacilityAddress) => Boolean(a.address && agreements?.[a.address]?.length);
-
+  const hasAgreement = (a: FacilityAddress) => a.address && agreements?.[a.address]?.length;
   const addressesWithAgreements = user?.addresses?.filter(hasAgreement) ?? [];
 
   useEffect(() => {
@@ -65,9 +64,16 @@ export const Consumption = () => {
   }, [agreements, address, user]);
 
   const thisMonth = dayjs();
-
   const isLoading = isUserFetching || (isAgreementsFetching && addressesWithAgreements.length === 0);
   const hasData = user && addressesWithAgreements.length > 0 && facilities?.length;
+
+  if (agreementsError) {
+    return (
+      <div className="mb-16">
+        <p>{t('overview:consumption.agreementsError')}</p>
+      </div>
+    );
+  }
 
   const consumption = hasData ? (
     <div>

@@ -4,6 +4,7 @@
     "description": "Visar din förbrukning och produktion för {{month}}.",
     "noConsumption": "Det finns ingen förbrukning att visa.",
     "fetchingPagesStatus": "Kontrollerar om adresser har avtal. Sida {{currentPage}} från avtal.",
+    "agreementsError": "Kunde inte hämta avtal att kontrollera mot adresser",
     "card": {
       "noData": "Det går inte att hitta någon data för perioden.",
       "unit": "kWh",
