@@ -13,7 +13,7 @@ export const CornerAssistantState: React.FC<CornerAssistantStateProps> = ({ isMo
   return (
     <div
       className="sk-ai-corner-module"
-      data-cy="corner-assistant-loading"
+      data-cy="corner-assistant-state"
       data-fullscreen="false"
       data-docked="true"
       data-mobile={isMobile}
