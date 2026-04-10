@@ -332,7 +332,9 @@ class App {
       samlLimiter,
       bodyParser.urlencoded({ extended: false }),
       (req, res, next) => {
+        console.log('In POST login/callback');
         const relay = typeof req?.body?.RelayState === 'string' ? JSON.parse(req.body.RelayState) : null;
+        console.log('relay', JSON.stringify(relay));
 
         let successRedirect;
         if (
@@ -347,6 +349,8 @@ class App {
         } else {
           successRedirect = SAML_SUCCESS_REDIRECT;
         }
+
+        console.log('Success redirect is:', successRedirect);
 
         let failureRedirect;
         if (req.session.messages?.length > 0) {
@@ -403,6 +407,7 @@ class App {
               req.session.cache.delegations = delegations;
               req.session.save(saveErr => {
                 if (saveErr) return next(saveErr);
+                console.log('Redirecting to', successRedirect);
                 res.redirect(successRedirect);
               });
             });

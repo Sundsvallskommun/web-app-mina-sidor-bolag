@@ -32,8 +32,14 @@ function Login() {
     (representingMode: RepresentingMode) => {
       // NOTE: send user to login with SSO
       const path = searchParams?.get('path') || '';
+      console.log('Login path:', path);
       const myPagesAdjustedPathname =
         getAdjustedPathname(path, representingMode) || getRepresentingModeRoute(representingMode);
+      console.log('Adjusted pathname:', myPagesAdjustedPathname);
+      console.log(
+        'Redirecting to:',
+        `${process.env.NEXT_PUBLIC_API_URL}/saml/login?successRedirect=${`${appURL()}${myPagesAdjustedPathname}&representingMode=${representingMode}`}`
+      );
       router.push(
         `${process.env.NEXT_PUBLIC_API_URL}/saml/login?successRedirect=${`${appURL()}${myPagesAdjustedPathname}&representingMode=${representingMode}`}`
       );
