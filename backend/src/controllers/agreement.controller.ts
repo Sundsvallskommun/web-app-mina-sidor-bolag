@@ -17,10 +17,7 @@ function activeAgreement(agreement: Agreement): boolean {
   return dayjs(agreement.toDate).isAfter(dayjs()) || typeof agreement.toDate === 'undefined';
 }
 
-function relevantCategory(agreement: Agreement): boolean {
-  const relevantCategories: Category[] = [Category.ELECTRICITY, Category.ELECTRICITY_TRADE, Category.DISTRICT_HEATING];
-  return relevantCategories.includes(agreement.category);
-}
+const relevantCategories: Category[] = [Category.ELECTRICITY, Category.ELECTRICITY_TRADE, Category.DISTRICT_HEATING];
 
 @Controller()
 export class AgreementController {
@@ -73,7 +70,7 @@ export class AgreementController {
 
     const res = await this.apiService.get<AgreementResponse>({ url }, req.user);
 
-    const filteredAgreements = res.data.agreementParties[0].agreements.filter(activeAgreement).filter(relevantCategory);
+    const filteredAgreements = res.data.agreementParties[0].agreements.filter(activeAgreement);
     return { data: filteredAgreements, message: 'success' };
   }
 }
