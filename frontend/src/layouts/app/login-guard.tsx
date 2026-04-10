@@ -4,6 +4,7 @@ import { useAppContext } from '@contexts/app.context';
 import { RepresentingMode } from '@interfaces/app';
 import { getRepresentingModeRoute } from '@utils/representingModeRoute';
 import { usePathname, useRouter } from 'next/navigation';
+import axios from 'axios';
 import { useEffect } from 'react';
 import { User } from '../../interfaces/user';
 import { useApi } from '../../services/api-service';
@@ -39,11 +40,13 @@ export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode 
 
   useEffect(() => {
     if (!userIsFetching && userError && !pathname?.includes('login')) {
-      // alert('Pathname: ' + pathname + '\nError: ' + JSON.stringify(userError));
-      setTimeout(() => {
-        const path = !window.location.pathname.includes('logout') ? window.location.pathname : '/';
-        router.push(`/login?path=${path}`);
-      }, 500);
+      // Ignore aborted requests — these happen when Next.js navigates (e.g. redirects)
+      // before the /me request completes, and are not actual auth failures
+      if (axios.isAxiosError(userError) && userError.code === 'ECONNABORTED') {
+        return;
+      }
+      const path = !window.location.pathname.includes('logout') ? window.location.pathname : '/';
+      router.push(`/login?path=${path}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userIsFetching, userError]);
