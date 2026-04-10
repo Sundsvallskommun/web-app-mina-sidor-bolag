@@ -386,7 +386,7 @@ class App {
                 } catch {}
               }
 
-              await getBusinessEngagements(user.personNumber)
+              await getBusinessEngagements(user)
                 .then(engagements => {
                   req.session.representingBusinessChoices = engagements;
                 })
