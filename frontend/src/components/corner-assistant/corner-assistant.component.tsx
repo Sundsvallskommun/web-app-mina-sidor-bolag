@@ -3,8 +3,8 @@ import { useApi } from '@services/api-service';
 import { AICornerModule, useAssistantStore } from '@sk-web-gui/ai';
 import { useThemeQueries } from '@sk-web-gui/react';
 import React, { useEffect, useRef, useState } from 'react';
-import { CornerAssistantLoading } from './components/corner-assistant-loading.component';
-import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
+import { CornerAssistantState } from './components/corner-assistant-state.component';
+import { RepresentingEntity, SessionStatusResponse } from '@data-contracts/backend/data-contracts';
 import { useAppContext } from '@contexts/app.context';
 import { useTranslation } from 'react-i18next';
 
@@ -33,11 +33,15 @@ export const CornerAssistant: React.FC = () => {
     ]
   );
 
-  const { data: isReady = false, refetch: checkIsReady } = useApi<boolean>({
+  const { data: status, refetch: checkIsReady } = useApi<SessionStatusResponse>({
     url: `/ai/isReady`,
     method: 'get',
     queryKey: ['readyResponse'],
   });
+
+  const isPending = !status || status?.status === 'PENDING';
+  const isReady = status?.status === 'READY';
+  const failed = status?.status === 'FAILED';
 
   useEffect(() => {
     setSettings({ assistantId: 'selfserviceai' });
@@ -74,10 +78,10 @@ export const CornerAssistant: React.FC = () => {
   }, [JSON.stringify(userData?.relations?.customerRelations), JSON.stringify(representingEntity), representingMode]);
 
   useEffect(() => {
-    if (isReady && interval.current) {
+    if ((isReady || failed) && interval.current) {
       clearInterval(interval.current);
     }
-  }, [isReady]);
+  }, [isReady, failed]);
 
   return isReady ? (
     <AICornerModule
@@ -89,6 +93,6 @@ export const CornerAssistant: React.FC = () => {
       showSessionHistory={false}
     />
   ) : (
-    <CornerAssistantLoading isMobile={isMaxLargeDevice} />
+    <CornerAssistantState isMobile={isMaxLargeDevice} isPending={isPending} />
   );
 };
