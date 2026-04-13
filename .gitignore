@@ -3,6 +3,5 @@ node_modules
 .env
 .DS_Store
 .vscode/launch.json
-
 .claude/
 CLAUDE.md
