@@ -1,7 +1,7 @@
 'use client';
 
 import { ConsumptionCard } from '@layouts/pages/mypages-sections/overview/consumption/consumption-card.component';
-import { Select, Spinner } from '@sk-web-gui/react';
+import { ProgressBar, Select, Spinner } from '@sk-web-gui/react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useEffect, useState } from 'react';
@@ -24,8 +24,9 @@ export const Consumption = () => {
     isFetching: isAgreementsFetching,
     isDone: isAgreementsDone,
     currentPage,
+    totalPages,
     error: agreementsError,
-  } = usePagedAgreements(200);
+  } = usePagedAgreements(20);
 
   const [address, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
@@ -93,9 +94,8 @@ export const Consumption = () => {
         </div>
       )}
       {!isAgreementsDone && (
-        <div className="flex items-center gap-8 mb-16">
-          <Spinner size={2} />
-          <p className="text-small"> {t('overview:consumption.fetchingPagesStatus', { currentPage })}</p>
+        <div className="flex gap-8 mb-24 w-1/2 pr-24">
+          <ProgressBar current={currentPage} steps={totalPages} size="md" color="vattjom" className="w-full" />
         </div>
       )}
       <div className="w-full md:flex md:flex-wrap md:gap-24 block" data-cy="consumption-card-wrapper">

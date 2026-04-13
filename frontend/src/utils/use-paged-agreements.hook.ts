@@ -8,6 +8,7 @@ export function usePagedAgreements(pageLimit: number) {
   const [isFetching, setIsFetching] = useState(true);
   const [isDone, setIsDone] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [error, setError] = useState<Error | null>(null);
 
   const mergeAgreements = useCallback((incoming: AgreementData, prev: AgreementData): AgreementData => {
@@ -37,6 +38,7 @@ export function usePagedAgreements(pageLimit: number) {
           setCurrentPage(page);
 
           totalPages = pageData._meta?.totalPages ?? 1;
+          setTotalPages(totalPages);
         }
       } catch (e) {
         if (!cancelled) {
@@ -57,5 +59,5 @@ export function usePagedAgreements(pageLimit: number) {
     };
   }, [mergeAgreements]);
 
-  return { agreements, isFetching, isDone, currentPage, error };
+  return { agreements, isFetching, isDone, currentPage, totalPages, error };
 }
