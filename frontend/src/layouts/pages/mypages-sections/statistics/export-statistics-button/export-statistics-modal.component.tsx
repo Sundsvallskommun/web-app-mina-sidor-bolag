@@ -44,7 +44,7 @@ export interface ExportModalData {
 interface ExportStatisticsModalProps {
   show: boolean;
   onClose: () => void;
-  onExport: (data: ExportModalData) => void;
+  onExport: (data: ExportModalData) => Promise<void>;
   initialCategory?: Category;
   initialFromDate?: string;
   initialToDate?: string;
@@ -73,6 +73,7 @@ export const ExportStatisticsModal = ({
   const [timeInterval, setTimeInterval] = useState<'hour' | 'quarter'>(() =>
     getInitialTimeInterval(initialTimeResolution)
   );
+  const [exporting, setExporting] = useState(false);
   const { t } = useTranslation(['statistics']);
 
   const handleFacilitySelectionChange = useCallback((items: Set<string>, count: number, total: number) => {
@@ -104,19 +105,24 @@ export const ExportStatisticsModal = ({
 
   const aggregation = aggregationByPeriod[datePeriod] ?? timeInterval;
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const selectedFacilities = Array.from(checkedFacilities).map((key) => {
       const [address, facilityId] = key.split('::');
       return { facilityId, address };
     });
-    onExport({
-      category,
-      fromDate,
-      toDate,
-      timeResolution: aggregation,
-      selectedFacilities,
-      temperatureIncluded,
-    });
+    setExporting(true);
+    try {
+      await onExport({
+        category,
+        fromDate,
+        toDate,
+        timeResolution: aggregation,
+        selectedFacilities,
+        temperatureIncluded,
+      });
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleDatePeriodChange = (period: DatePeriod) => {
@@ -239,6 +245,8 @@ export const ExportStatisticsModal = ({
           className="lg:flex-none flex-1"
           onClick={handleExport}
           disabled={!isValid}
+          loading={exporting}
+          loadingText={t('statistics:exportModal.exporting')}
           data-cy="export-modal-confirm-button"
         >
           {t('statistics:exportModal.export')}
