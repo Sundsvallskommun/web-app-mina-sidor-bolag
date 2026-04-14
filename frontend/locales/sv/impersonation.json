@@ -4,9 +4,10 @@
   "searchFieldLabel": "Sök personnummer (ååååmmddnnnn)",
   "search": "Sök",
   "tableHeader": {
-    "name": "Namn/Företag",
-    "representingNumber": "Person-/Organisationsnummer"
+    "name": "Namn",
+    "representingNumber": "Personnummer"
   },
+  "canRepresent": "{{name}}, {{personNumber}} företräder följande organisationer:",
   "accessReason": {
     "title": "Åtkomstskäl *",
     "chooseAlternative": "Välj ett alternativ",
@@ -18,5 +19,7 @@
     "representingNumber": "Välj en person eller företag att växla till"
   },
   "goBack": "Tillbaka",
-  "impersonate": "Växla till användare"
+  "impersonate": "Växla till användare",
+  "bannerInfo": "Du är inloggad på kontot som Administratör",
+  "exit": "Avsluta och gå tillbaka"
 }

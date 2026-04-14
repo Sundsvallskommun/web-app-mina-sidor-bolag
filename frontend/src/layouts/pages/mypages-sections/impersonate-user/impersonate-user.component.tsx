@@ -6,6 +6,7 @@ import {
   Button,
   FormErrorMessage,
   FormLabel,
+  List,
   RadioButton,
   SearchField,
   Select,
@@ -26,7 +27,7 @@ export const formSchema = yup
   .object({
     searchPersonNumber: personNumberFormat,
     toImpersonatePersonNumber: personNumberFormat,
-    toImpersonateRepresentingNumber: yup.string().required(),
+    toImpersonateName: yup.string().required(),
     toImpersonatePartyId: yup.string().required(),
     accessReason: yup.string().min(1).required(),
   })
@@ -35,7 +36,7 @@ export const formSchema = yup
 export interface ImpersonateFormData {
   searchPersonNumber: string;
   toImpersonatePersonNumber: string;
-  toImpersonateRepresentingNumber: string;
+  toImpersonateName: string;
   toImpersonatePartyId: string;
   accessReason: string;
 }
@@ -85,14 +86,20 @@ export default function ImpersonateUser() {
     queryKey: ['user-engagements'],
   });
 
+  const { mutateAsync: impersonateUser } = useApi({
+    url: '/impersonate-user',
+    method: 'post',
+    queryKey: ['impersonate-user'],
+  });
+
   useEffect(() => {
     return () => {
       queryClient.removeQueries({ queryKey: ['user-engagements'], exact: false });
     };
   }, []);
 
-  const userEngagementsLoaded = Boolean(userEngagements?.canRepresent?.length && isSuccess);
-  const noUserEngagements = userEngagements && !userEngagements.canRepresent?.length && isSuccess;
+  const userEngagementsLoaded = Boolean(userEngagements && userEngagements.userPersonNumber && isSuccess);
+  const noUserEngagements = !userEngagements?.userPartyId && isSuccess;
 
   const onResetHandler = () => {
     queryClient
@@ -107,15 +114,17 @@ export default function ImpersonateUser() {
     if (valid) await fetchEngagements({ personNumber: watch('searchPersonNumber') });
   };
 
-  const handleSelectRepresenting = (representingNumber: string) => {
+  const handleSelectRepresenting = () => {
     if (!userEngagements) return;
-    setValue('toImpersonateRepresentingNumber', representingNumber, { shouldValidate: true });
+    setValue('toImpersonateName', userEngagements.userName);
     setValue('toImpersonatePersonNumber', userEngagements.userPersonNumber);
     setValue('toImpersonatePartyId', userEngagements.userPartyId);
   };
 
-  const _onSubmit = (data: ImpersonateFormData) => {
-    console.log('submit', data);
+  const _onSubmit = async (data: ImpersonateFormData) => {
+    await impersonateUser(data).then(() => {
+      globalThis.location.assign('/oversikt');
+    });
   };
 
   return (
@@ -150,37 +159,52 @@ export default function ImpersonateUser() {
 
           {isPending ? <Spinner className="mx-auto my-16" /> : null}
 
-          {userEngagementsLoaded ? (
-            <Table className="border-1 border-divider my-16" background>
-              <Table.Header className="bg-background-content border-b-1 border-primary-darkest">
-                <Table.HeaderColumn />
-                <Table.HeaderColumn>{t('impersonation:tableHeader.name')}</Table.HeaderColumn>
-                <Table.HeaderColumn>{t('impersonation:tableHeader.representingNumber')}</Table.HeaderColumn>
-              </Table.Header>
+          {userEngagementsLoaded && userEngagements ? (
+            <>
+              <Table className="border-1 border-divider my-16" background>
+                <Table.Header className="bg-background-content border-b-1 border-primary-darkest">
+                  <Table.HeaderColumn />
+                  <Table.HeaderColumn>{t('impersonation:tableHeader.name')}</Table.HeaderColumn>
+                  <Table.HeaderColumn>{t('impersonation:tableHeader.representingNumber')}</Table.HeaderColumn>
+                </Table.Header>
 
-              <Table.Body>
-                {userEngagements?.canRepresent?.map((r) => (
-                  <Table.Row key={r.representingNumber}>
+                <Table.Body>
+                  <Table.Row key={userEngagements.userPartyId}>
                     <Table.Column>
                       <RadioButton
-                        {...register('toImpersonateRepresentingNumber')}
-                        onChange={() => handleSelectRepresenting(r.representingNumber)}
-                        value={r.representingNumber}
+                        {...register('toImpersonatePersonNumber')}
+                        onClick={() => handleSelectRepresenting()}
+                        value={userEngagements.userPersonNumber}
                       />
                     </Table.Column>
-                    <Table.Column className="font-bold">{r.name}</Table.Column>
-                    <Table.Column>{r.representingNumber}</Table.Column>
+                    <Table.Column className="font-bold">{userEngagements.userName}</Table.Column>
+                    <Table.Column>{userEngagements.userPersonNumber}</Table.Column>
                   </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          ) : null}
+                </Table.Body>
+              </Table>
 
-          {errors.toImpersonateRepresentingNumber && (
-            <FormErrorMessage className="text-error flex flex-row items-center justify-start">
-              {t('impersonation:error.representingNumber')}
-            </FormErrorMessage>
-          )}
+              {userEngagements.canRepresent.length ? (
+                <div className="mt-16">
+                  <p className="font-bold">
+                    {t('impersonation:canRepresent', {
+                      name: userEngagements.userName,
+                      personNumber: userEngagements.userPersonNumber,
+                    })}
+                  </p>
+
+                  <List listStyle="bullet">
+                    {userEngagements.canRepresent.map((representing) => (
+                      <List.Item className="p-0 before:!m-0" key={representing.representingNumber}>
+                        <List.Text>
+                          {representing.name}, {representing.representingNumber}
+                        </List.Text>
+                      </List.Item>
+                    ))}
+                  </List>
+                </div>
+              ) : null}
+            </>
+          ) : null}
 
           <div className="my-32">
             <FormLabel>{t('impersonation:accessReason.title')}</FormLabel>

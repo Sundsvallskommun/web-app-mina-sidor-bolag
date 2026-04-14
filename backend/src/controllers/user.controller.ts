@@ -30,6 +30,7 @@ interface UserData {
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
   extendedView: boolean;
+  isExtendingView: boolean;
 }
 
 export class PatchUserSettingsDto {
@@ -69,7 +70,7 @@ export class UserController {
     const delegations = req?.session?.cache?.delegations ?? [];
     const allRelations: CustomerRelation[] = [];
 
-    if (!req.session.cache.relations) {
+    if (req.user.permissions.isImpersonatingUser || !req.session.cache.relations) {
       try {
         const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
         const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
@@ -308,6 +309,7 @@ export class UserController {
       addresses,
       facilities,
       extendedView: permissions.canImpersonateUser,
+      isExtendingView: permissions.isImpersonatingUser,
     };
 
     return response.send({ data: userData, message: 'success' });
