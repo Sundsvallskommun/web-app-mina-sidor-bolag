@@ -66,6 +66,7 @@
     "exportComment": "Exporteringen inkluderar {{count}} av dina {{total}} anläggningar*",
     "cancel": "Avbryt",
     "export": "Exportera",
+    "exporting": "Exporterar...",
     "datesResetByResolution": "Datumen återställdes när tidsupplösningen ändrades. Välj ny tidsperiod.",
     "dateRangeError": "Från-datum kan inte vara senare än till-datum",
     "excelHeadings": {
