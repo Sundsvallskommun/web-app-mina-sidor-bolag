@@ -98,7 +98,7 @@ export default function ImpersonateUser() {
     };
   }, []);
 
-  const userEngagementsLoaded = Boolean(userEngagements && userEngagements.userPersonNumber && isSuccess);
+  const userEngagementsLoaded = Boolean(userEngagements?.userPersonNumber && isSuccess);
   const noUserEngagements = !userEngagements?.userPartyId && isSuccess;
 
   const onResetHandler = () => {
