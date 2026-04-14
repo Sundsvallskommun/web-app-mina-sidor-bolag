@@ -66,10 +66,13 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error: Error) => {
         let shouldRetry = false;
         if (axios.isAxiosError(error)) {
-          shouldRetry = (error.response?.status === 500 && failureCount < 3) || error.message === 'Network Error';
+          // Retry on aborted requests (e.g. navigation interrupted the request)
+          shouldRetry =
+            (error.code === 'ECONNABORTED' && failureCount < 2) ||
+            (error.response?.status === 500 && failureCount < 3) ||
+            error.message === 'Network Error';
         }
         if (shouldRetry) console.log('Retrying ....!');
-        // retry on 500 or network errors for max 3 times
         return shouldRetry;
       },
     },
