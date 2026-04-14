@@ -4,7 +4,7 @@ import { ConsumptionCard } from '@layouts/pages/mypages-sections/overview/consum
 import { ProgressBar, Select, Spinner } from '@sk-web-gui/react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import dayjs from 'dayjs';
 import { RefinedAgreement } from '@interfaces/agreement';
@@ -32,8 +32,10 @@ export const Consumption = () => {
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [hasInitialAddress, setHasInitialAddress] = useState(false);
   const { t } = useTranslation(['common', 'overview']);
-  const hasAgreement = (a: FacilityAddress) => a.address && agreements?.[a.address]?.length;
-  const addressesWithAgreements = user?.addresses?.filter(hasAgreement) ?? [];
+  const addressesWithAgreements = useMemo(
+    () => user?.addresses?.filter((a: FacilityAddress) => a.address && agreements?.[a.address]?.length) ?? [],
+    [user?.addresses, agreements]
+  );
 
   useEffect(() => {
     if (!hasInitialAddress && addressesWithAgreements.length > 0) {
