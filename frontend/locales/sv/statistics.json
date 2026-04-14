@@ -3,6 +3,7 @@
   "filter": "Filter",
   "agreementType": "Avtalstyp",
   "showBy": "Visa statistik per",
+  "exportBy": "Exportera statistik per",
   "year": "År",
   "month": "Månad",
   "day": "Dag",
@@ -35,5 +36,50 @@
   "onlyTrade": {
     "unknownNetOwner": "Okänd elnätsägare",
     "text": "Din {{consumption}} ser du hos ditt elnätsbolag. För denna anläggning ser vi att du har {{netOwner}}."
+  },
+  "exportModal": {
+    "title": "Exportera statistik till Excel",
+    "category": {
+      "title": "Kategori",
+      "DISTRICT_HEATING": "Fjärrvärme",
+      "ELECTRICITY": "Elförbrukning",
+      "ELECTRICITY_PRODUCTION": "Elproduktion",
+      "COMMUNICATION": "Bredband",
+      "WASTE_MANAGEMENT": "Avfallshantering"
+    },
+    "timeResolution": {
+      "hour": "Timme",
+      "day": "Dag",
+      "month": "Månad",
+      "year": "År",
+      "quarter": "Kvart"
+    },
+    "chooseTimePeriod": "Välj tidsperiod",
+    "timeInterval": "Tidsupplösning",
+    "from": "Från",
+    "to": "Till",
+    "facilities": "Anläggningar",
+    "selection": "{{count}} av {{total}} valda",
+    "searchFacilities": "Sök adress eller anläggning",
+    "selectAll": "Markera alla",
+    "includeTemperature": "Inkludera utetemperatur",
+    "exportComment": "Exporteringen inkluderar {{count}} av dina {{total}} anläggningar*",
+    "cancel": "Avbryt",
+    "export": "Exportera",
+    "datesResetByResolution": "Datumen återställdes när tidsupplösningen ändrades. Välj ny tidsperiod.",
+    "dateRangeError": "Från-datum kan inte vara senare än till-datum",
+    "excelHeadings": {
+      "facilityId": "Anläggnings-id",
+      "address": "Adress",
+      "category": "Kategori",
+      "exportTimestamp": "Tidpunkt för export",
+      "startDate": "Starttidpunkt",
+      "endDate": "Sluttidpunkt",
+      "detailLevel": "Detaljnivå",
+      "from": "Från",
+      "to": "Till",
+      "consumption": "Förbrukning {{year}} (kWh)",
+      "temperature": "Utetemperatur (°C)"
+    }
   }
 }

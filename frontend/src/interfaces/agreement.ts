@@ -51,3 +51,16 @@ export interface RefinedAgreement extends Omit<Agreement, 'category'> {
 export interface AgreementData {
   [siteAddress: string]: RefinedAgreement[];
 }
+
+export interface PagingMetaData {
+  page?: number;
+  limit?: number;
+  count?: number;
+  totalRecords?: number;
+  totalPages?: number;
+}
+
+export interface PagedAgreementsResponse {
+  agreements: Agreement[];
+  _meta: PagingMetaData;
+}

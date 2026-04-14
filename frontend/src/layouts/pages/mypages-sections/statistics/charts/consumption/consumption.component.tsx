@@ -28,15 +28,24 @@ export interface ElectricityConsumptionProps {
 }
 
 export default function Consumption(props: ElectricityConsumptionProps) {
-  const { setValue } = useFormContext();
+  const { setValue, getValues, watch } = useFormContext();
   const { data, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
   const [viewMode, setViewMode] = useState<EnumViewMode>(EnumViewMode.graph);
   const [timeInterval, setTimeInterval] = useState<EnumTimeInterval>(EnumTimeInterval.hour);
-  const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
 
   const showTimeInterval =
     dayjs(getValues().toDate).diff(getValues().fromDate, 'days') < 2 && data?.category === 'ELECTRICITY';
+
+  const isHourQuarter = watch('isHourQuarter');
+
+  useEffect(() => {
+    const expected = isHourQuarter ? EnumTimeInterval.quarter : EnumTimeInterval.hour;
+    if (timeInterval !== expected) {
+      setTimeInterval(expected);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHourQuarter]);
 
   useEffect(() => {
     if (updateIsHourQuarter) {
