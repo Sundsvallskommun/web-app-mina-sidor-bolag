@@ -7,52 +7,38 @@ import {
   MergedStatisticsMeasurementData,
   StatisticsMeasurementData,
 } from '@interfaces/measurement-data';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { toFixedNumber } from '@react-stately/utils';
 import { TFunction } from 'i18next';
 
-export const handleMeasurementDataByMonthResponse: (data: Data) => {
-  current: number;
-  previous: number;
-} = (data) => {
-  const previous = dayjs(data.fromDate).endOf('month').format('YYYY-MM-DD');
-  const current = dayjs(data.toDate).endOf('month').format('YYYY-MM-DD');
+export const handleMeasurementDataByMonthResponse = (
+  data: Data,
+  date: Dayjs
+): { current: number; previous: number } => {
+  const currentMonth = date.startOf('month');
+  const previousMonth = date.subtract(1, 'year').startOf('month');
 
-  const measurementSeries =
-    data.measurementSeries?.filter(
-      (measurement) => measurement.measurementType === 'Energy' || measurement.measurementType === 'energy'
-    ) ?? [];
+  const energySeries = data.measurementSeries?.find(
+    (m) => m.measurementType === 'Energy' || m.measurementType === 'energy'
+  );
+  const points = energySeries?.measurementPoints ?? [];
 
-  const currentMeasurements = measurementSeries?.[0].measurementPoints
-    ? measurementSeries[0].measurementPoints.filter((measurement) => {
-        return measurement?.timestamp?.includes(current);
-      })
-    : 0;
-
-  const previousMeasurements = measurementSeries?.[0].measurementPoints
-    ? measurementSeries[0].measurementPoints.filter((measurement) => {
-        return measurement?.timestamp?.includes(previous);
-      })
-    : 0;
-
-  const currentValue =
-    Array.isArray(currentMeasurements) && currentMeasurements.length > 0 ? currentMeasurements[0].value : 0;
-  const previousValue =
-    Array.isArray(previousMeasurements) && previousMeasurements.length > 0 ? previousMeasurements[0].value : 0;
+  const valueForMonth = (month: Dayjs): number => {
+    const point = points.find((p) => dayjs(p.timestamp).isSame(month, 'month'));
+    return Math.round(point?.value ?? 0);
+  };
 
   return {
-    current: Math.round(currentValue ?? 0),
-    previous: Math.round(previousValue ?? 0),
+    current: valueForMonth(currentMonth),
+    previous: valueForMonth(previousMonth),
   };
 };
 
-export const measurementDataByMonthHandler = (
-  data: Data
-): {
-  current: number;
-  previous: number;
-} => handleMeasurementDataByMonthResponse(data);
+export const measurementDataByMonthHandler =
+  (date: Dayjs) =>
+  (data: Data): { current: number; previous: number } =>
+    handleMeasurementDataByMonthResponse(data, date);
 
 export const handleStatisticsMeasurementDataResponse: (data: Data) => StatisticsMeasurementData = (data) => {
   const addTimestampToMeasurementPoint: (m: MeasurementPoints) => MeasurementPoints = (m) =>
