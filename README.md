@@ -18,6 +18,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | MyRepresentatives |     4.2 |
 | LegalEntity       |     2.0 |
 | Eventlog          |     2.1 |
+| BFUS              |   1.0.0 |
 | SelfServiceAI     |     1.0 |
 | Eneo-Sundsvall    |     1.1 |
 

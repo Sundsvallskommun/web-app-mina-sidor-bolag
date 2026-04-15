@@ -49,6 +49,10 @@ export const APIS = [
     version: '2.1',
   },
   {
+    name: 'bfus',
+    version: '1.0.0',
+  },
+  {
     name: 'selfserviceai',
     version: '2.0',
   },

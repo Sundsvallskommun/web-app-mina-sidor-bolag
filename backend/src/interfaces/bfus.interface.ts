@@ -114,6 +114,23 @@ export interface BFUSEligablePartyPart {
 }
 
 export interface BFUSEligablePartyPermissionResponse {
+  EligablePartyId: string;
+  Action: string;
+  PermissionRequestExecuted: boolean;
+}
+
+export interface BFUSEligablePartyPermissionApiResponse {
+  Content: BFUSEligablePartyPermissionResponse;
+  Header: {
+    ErrorInformation: { ErrorMessage: string; ErrorCode: string; ObjectVersion: number; ModelStateErrors: null } | null;
+    ObjectVersion: number;
+    Success: boolean;
+    PerformanceTime: string;
+    InParameters: string | null;
+  };
+}
+
+export interface BFUSHasNewPermissionResponse {
   Header: {
     ErrorInformation: string | null;
     ObjectVersion: number;
@@ -122,10 +139,13 @@ export interface BFUSEligablePartyPermissionResponse {
     InParameters: string | null;
   };
   Content: {
-    EligablePartyId: string;
-    Action: string;
-    PermissionRequestExecuted: boolean;
+    NewPermissions: NewPermissionsResponseObject;
   };
+}
+
+export interface NewPermissionsResponseObject {
+  HasPermissions: boolean;
+  ObjectVersion: number;
 }
 
 export enum BFUSStatusCode {
@@ -136,7 +156,7 @@ export enum BFUSStatusCode {
 }
 
 export enum BFUSEndReason {
-  Revoked = 'Återkallat',
+  Revoked = 'Återkallat av kund',
   Expired = 'Upphört',
   Dismissed = 'Uppsagt',
 }

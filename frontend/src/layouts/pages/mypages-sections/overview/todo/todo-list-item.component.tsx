@@ -3,10 +3,10 @@
 import { useAppContext } from '@contexts/app.context';
 import { Button, Icon } from '@sk-web-gui/react';
 import { getAdjustedPathname } from '@utils/representingModeRoute';
-import { ChevronRight, Files, Mail } from 'lucide-react';
+import { ChevronRight, FileCheck, Files } from 'lucide-react';
 import NextLink from 'next/link';
 
-type TodoTypeUnion = 'messaging' | 'invoices';
+type TodoTypeUnion = 'eligibility' | 'invoices';
 
 interface TodoListItemProps {
   type: TodoTypeUnion;
@@ -21,8 +21,8 @@ const getIcon = (type: TodoTypeUnion) => {
     case 'invoices':
       return <Files />;
 
-    case 'messaging':
-      return <Mail />;
+    case 'eligibility':
+      return <FileCheck />;
 
     default:
       return <></>;
@@ -38,7 +38,7 @@ export const TodoListItem = (props: TodoListItemProps) => {
   const IconComponent = getIcon(type);
 
   return (
-    <div className="w-full md:flex mb-16 bg-background-content shadow-50 py-16 px-20 rounded-cards justify-between">
+    <div className="w-full md:flex mb-24 bg-background-content shadow-50 py-16 px-20 rounded-cards justify-between">
       <div className="flex md:items-center md:justify-between">
         <div className="bg-background-color-mixin-2 flex justify-center items-center sm:w-52 sm:h-52 sm:p-0 w-38 h-38 p-6 rounded-button mr-16">
           <Icon icon={IconComponent} size={30} />

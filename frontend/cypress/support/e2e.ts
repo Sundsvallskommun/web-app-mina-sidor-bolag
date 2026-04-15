@@ -19,6 +19,7 @@ import { getCitizen } from '../fixtures/getCitizen';
 import { getOrgMandates } from 'cypress/fixtures/getMandate';
 import { RepresentingMode } from '@interfaces/app';
 import { isReady } from 'cypress/fixtures/ai';
+import { getBfusCustomerIds } from '../fixtures/getBfusCustomerIds';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -61,6 +62,10 @@ export const setIntercepts = (
   cy.intercept('GET', '**/api/citizen/**', getCitizen).as('getCitizen');
   cy.intercept('GET', '**/api/mandates/org', getOrgMandates).as('getOrgMandates');
   cy.intercept('GET', '**/api/ai/isReady', isReady()).as('AIisReady');
+
+  cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', getBfusCustomerIds(RepresentingMode.PRIVATE)).as(
+    'getCustomerIds'
+  );
 
   const fromDate = dayjs().subtract(1, 'year').startOf('month').toISOString();
   const toDate = dayjs().endOf('month').toISOString();
