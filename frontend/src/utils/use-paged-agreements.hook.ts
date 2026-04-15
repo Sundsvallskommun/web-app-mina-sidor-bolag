@@ -57,7 +57,7 @@ export function usePagedAgreements(pageLimit: number) {
     return () => {
       cancelled = true;
     };
-  }, [mergeAgreements]);
+  }, [mergeAgreements, pageLimit]);
 
   return { agreements, isFetching, isDone, currentPage, totalPages, error };
 }
