@@ -19,9 +19,7 @@ export const handleMeasurementDataByMonthResponse = (
   const currentMonth = date.startOf('month');
   const previousMonth = date.subtract(1, 'year').startOf('month');
 
-  const energySeries = data.measurementSeries?.find(
-    (m) => m.measurementType === 'Energy' || m.measurementType === 'energy'
-  );
+  const energySeries = data.measurementSeries?.find((m) => m.measurementType?.toLowerCase() === 'energy');
   const points = energySeries?.measurementPoints ?? [];
 
   const valueForMonth = (month: Dayjs): number => {
