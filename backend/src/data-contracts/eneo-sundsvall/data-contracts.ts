@@ -552,6 +552,8 @@ export interface AppTemplateAdminCreate {
   prompt?: string | null;
   /** Completion Model Kwargs */
   completion_model_kwargs?: Record<string, any>;
+  /** Completion Model Id */
+  completion_model_id?: string | null;
   wizard?: AppTemplateWizard | null;
   /** Input Type */
   input_type: string;
@@ -789,7 +791,6 @@ export interface AskAssistant {
   session_id?: string | null;
   /**
    * Files
-   * @maxItems 20
    * @default []
    */
   files?: ModelId[];
@@ -1123,6 +1124,8 @@ export interface AssistantTemplateAdminCreate {
   prompt?: string | null;
   /** Completion Model Kwargs */
   completion_model_kwargs?: Record<string, any>;
+  /** Completion Model Id */
+  completion_model_id?: string | null;
   wizard?: AssistantTemplateWizard | null;
   /** Icon Name */
   icon_name?: string | null;
@@ -1306,8 +1309,6 @@ export enum AssistantType {
 export interface AttachmentLimits {
   /** Formats */
   formats: FormatLimit[];
-  /** Max In Question */
-  max_in_question: number;
 }
 
 /**
@@ -1629,9 +1630,11 @@ export interface CompletionModel {
   /** Nickname */
   nickname: string;
   /** Family */
-  family: ModelFamily | string;
-  /** Token Limit */
-  token_limit: number;
+  family?: string | null;
+  /** Max Input Tokens */
+  max_input_tokens: number;
+  /** Max Output Tokens */
+  max_output_tokens: number;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Nr Billion Parameters */
@@ -1639,9 +1642,9 @@ export interface CompletionModel {
   /** Hf Link */
   hf_link?: string | null;
   /** Stability */
-  stability: ModelStability | string;
+  stability?: string | null;
   /** Hosting */
-  hosting: ModelHostingLocation | string;
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
@@ -1649,7 +1652,7 @@ export interface CompletionModel {
   /** Deployment Name */
   deployment_name?: string | null;
   /** Org */
-  org?: ModelOrg | string | null;
+  org?: string | null;
   /** Vision */
   vision: boolean;
   /** Reasoning */
@@ -1677,6 +1680,11 @@ export interface CompletionModel {
   tenant_id?: string | null;
   /** Provider Id */
   provider_id?: string | null;
+  /**
+   * Token Limit
+   * Backward-compat: exposed in JSON responses for frontend.
+   */
+  token_limit: number;
 }
 
 /** CompletionModelCreate */
@@ -1686,9 +1694,11 @@ export interface CompletionModelCreate {
   /** Nickname */
   nickname: string;
   /** Family */
-  family: ModelFamily | string;
-  /** Token Limit */
-  token_limit: number;
+  family?: string | null;
+  /** Max Input Tokens */
+  max_input_tokens: number;
+  /** Max Output Tokens */
+  max_output_tokens: number;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Nr Billion Parameters */
@@ -1696,9 +1706,9 @@ export interface CompletionModelCreate {
   /** Hf Link */
   hf_link?: string | null;
   /** Stability */
-  stability: ModelStability | string;
+  stability?: string | null;
   /** Hosting */
-  hosting: ModelHostingLocation | string;
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
@@ -1706,7 +1716,7 @@ export interface CompletionModelCreate {
   /** Deployment Name */
   deployment_name?: string | null;
   /** Org */
-  org?: ModelOrg | string | null;
+  org?: string | null;
   /** Vision */
   vision: boolean;
   /** Reasoning */
@@ -1738,9 +1748,11 @@ export interface CompletionModelPublic {
   /** Nickname */
   nickname: string;
   /** Family */
-  family: ModelFamily | string;
-  /** Token Limit */
-  token_limit: number;
+  family?: string | null;
+  /** Max Input Tokens */
+  max_input_tokens: number;
+  /** Max Output Tokens */
+  max_output_tokens: number;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Nr Billion Parameters */
@@ -1748,9 +1760,9 @@ export interface CompletionModelPublic {
   /** Hf Link */
   hf_link?: string | null;
   /** Stability */
-  stability: ModelStability | string;
+  stability?: string | null;
   /** Hosting */
-  hosting: ModelHostingLocation | string;
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
@@ -1758,7 +1770,7 @@ export interface CompletionModelPublic {
   /** Deployment Name */
   deployment_name?: string | null;
   /** Org */
-  org?: ModelOrg | string | null;
+  org?: string | null;
   /** Vision */
   vision: boolean;
   /** Reasoning */
@@ -1805,6 +1817,11 @@ export interface CompletionModelPublic {
   provider_name?: string | null;
   /** Provider Type */
   provider_type?: string | null;
+  /**
+   * Token Limit
+   * Backward-compat: exposed in JSON responses for frontend.
+   */
+  token_limit: number;
 }
 
 /** CompletionModelPublicAppTemplate */
@@ -1841,9 +1858,11 @@ export interface CompletionModelSecurityStatus {
   /** Nickname */
   nickname: string;
   /** Family */
-  family: ModelFamily | string;
-  /** Token Limit */
-  token_limit: number;
+  family?: string | null;
+  /** Max Input Tokens */
+  max_input_tokens: number;
+  /** Max Output Tokens */
+  max_output_tokens: number;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Nr Billion Parameters */
@@ -1851,9 +1870,9 @@ export interface CompletionModelSecurityStatus {
   /** Hf Link */
   hf_link?: string | null;
   /** Stability */
-  stability: ModelStability | string;
+  stability?: string | null;
   /** Hosting */
-  hosting: ModelHostingLocation | string;
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
@@ -1861,7 +1880,7 @@ export interface CompletionModelSecurityStatus {
   /** Deployment Name */
   deployment_name?: string | null;
   /** Org */
-  org?: ModelOrg | string | null;
+  org?: string | null;
   /** Vision */
   vision: boolean;
   /** Reasoning */
@@ -1910,6 +1929,11 @@ export interface CompletionModelSecurityStatus {
   provider_type?: string | null;
   /** Meets Security Classification */
   meets_security_classification?: boolean | null;
+  /**
+   * Token Limit
+   * Backward-compat: exposed in JSON responses for frontend.
+   */
+  token_limit: number;
 }
 
 /** CompletionModelSparse */
@@ -1928,9 +1952,11 @@ export interface CompletionModelSparse {
   /** Nickname */
   nickname: string;
   /** Family */
-  family: ModelFamily | string;
-  /** Token Limit */
-  token_limit: number;
+  family?: string | null;
+  /** Max Input Tokens */
+  max_input_tokens: number;
+  /** Max Output Tokens */
+  max_output_tokens: number;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Nr Billion Parameters */
@@ -1938,9 +1964,9 @@ export interface CompletionModelSparse {
   /** Hf Link */
   hf_link?: string | null;
   /** Stability */
-  stability: ModelStability | string;
+  stability?: string | null;
   /** Hosting */
-  hosting: ModelHostingLocation | string;
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
@@ -1948,7 +1974,7 @@ export interface CompletionModelSparse {
   /** Deployment Name */
   deployment_name?: string | null;
   /** Org */
-  org?: ModelOrg | string | null;
+  org?: string | null;
   /** Vision */
   vision: boolean;
   /** Reasoning */
@@ -1962,6 +1988,11 @@ export interface CompletionModelSparse {
   base_url?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
+  /**
+   * Token Limit
+   * Backward-compat: exposed in JSON responses for frontend.
+   */
+  token_limit: number;
 }
 
 /** CompletionModelUpdateFlags */
@@ -2011,7 +2042,6 @@ export interface ConversationRequest {
   group_chat_id?: string | null;
   /**
    * Files
-   * @maxItems 20
    * @default []
    */
   files?: ModelId[];
@@ -2696,7 +2726,8 @@ export interface DeleteSettingsResponse {
 export interface EmbeddingModelCreate {
   /** Name */
   name: string;
-  family: EmbeddingModelFamily;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Open Source */
@@ -2709,20 +2740,16 @@ export interface EmbeddingModelCreate {
   max_batch_size?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
-}
-
-/** EmbeddingModelFamily */
-export enum EmbeddingModelFamily {
-  Openai = 'openai',
-  MiniLm = 'mini_lm',
-  E5 = 'e5',
 }
 
 /** EmbeddingModelLegacy */
@@ -2738,7 +2765,8 @@ export interface EmbeddingModelLegacy {
   id: string;
   /** Name */
   name: string;
-  family: EmbeddingModelFamily;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Open Source */
@@ -2751,11 +2779,14 @@ export interface EmbeddingModelLegacy {
   max_batch_size?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
   /**
@@ -2778,7 +2809,10 @@ export interface EmbeddingModelPublic {
   id: string;
   /** Name */
   name: string;
-  family: ModelFamily;
+  /** Nickname */
+  nickname?: string | null;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Open Source */
@@ -2789,11 +2823,14 @@ export interface EmbeddingModelPublic {
   max_input?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
   /**
@@ -2839,7 +2876,8 @@ export interface EmbeddingModelPublicLegacy {
   id: string;
   /** Name */
   name: string;
-  family: EmbeddingModelFamily;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Open Source */
@@ -2852,11 +2890,14 @@ export interface EmbeddingModelPublicLegacy {
   max_batch_size?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
   /**
@@ -2891,7 +2932,10 @@ export interface EmbeddingModelSecurityStatus {
   id: string;
   /** Name */
   name: string;
-  family: ModelFamily;
+  /** Nickname */
+  nickname?: string | null;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Open Source */
@@ -2902,11 +2946,14 @@ export interface EmbeddingModelSecurityStatus {
   max_input?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
   /**
@@ -2954,7 +3001,8 @@ export interface EmbeddingModelSparse {
   id: string;
   /** Name */
   name: string;
-  family: EmbeddingModelFamily;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
   /** Open Source */
@@ -2967,11 +3015,14 @@ export interface EmbeddingModelSparse {
   max_batch_size?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
 }
@@ -3060,6 +3111,9 @@ export enum ErrorCodes {
   Value9030 = 9030,
   Value9031 = 9031,
   Value9032 = 9032,
+  Value9033 = 9033,
+  Value9034 = 9034,
+  Value9035 = 9035,
 }
 
 /**
@@ -3195,6 +3249,18 @@ export interface ExportJobStatusResponse {
 }
 
 /**
+ * FavoriteProvidersUpdate
+ * Request model for updating tenant's favorite provider types.
+ */
+export interface FavoriteProvidersUpdate {
+  /**
+   * Providers
+   * Ordered list of provider type strings to pin as favorites
+   */
+  providers: string[];
+}
+
+/**
  * FederationInfo
  * Information about configured federation.
  */
@@ -3209,6 +3275,8 @@ export interface FederationInfo {
   issuer?: string | null;
   /** Allowed Domains */
   allowed_domains: string[];
+  /** Additional Redirect Uris */
+  additional_redirect_uris: string[];
   /**
    * Configured At
    * @format date-time
@@ -3297,6 +3365,8 @@ export interface GeneralError {
   /** Message */
   message: string;
   intric_error_code: ErrorCodes;
+  /** Details */
+  details?: Record<string, any> | null;
 }
 
 /** GetModelsResponse */
@@ -3409,6 +3479,8 @@ export interface GroupChatPublic {
   permissions: ResourcePermission[];
   /** Metadata Json */
   metadata_json: Record<string, any> | null;
+  /** Icon Id */
+  icon_id?: string | null;
 }
 
 /** GroupChatSparse */
@@ -3446,6 +3518,8 @@ export interface GroupChatSparse {
   type: 'group-chat';
   /** Metadata Json */
   metadata_json: Record<string, any> | null;
+  /** Icon Id */
+  icon_id?: string | null;
 }
 
 /** GroupChatTools */
@@ -3485,6 +3559,11 @@ export interface GroupChatUpdateSchema {
    * Metadata for the group chat.
    */
   metadata_json?: Record<string, any> | null;
+  /**
+   * Icon Id
+   * Icon ID referencing an uploaded icon. Set to null to remove.
+   */
+  icon_id?: string | null;
 }
 
 /** GroupChatUpdateTools */
@@ -3976,6 +4055,7 @@ export interface MCPServerCreate {
   icon_url?: string | null;
   /** Documentation Url */
   documentation_url?: string | null;
+  security_classification?: ModelId | null;
 }
 
 /**
@@ -4017,6 +4097,7 @@ export interface MCPServerPublic {
   icon_url: string | null;
   /** Documentation Url */
   documentation_url: string | null;
+  security_classification?: SecurityClassificationPublic | null;
 }
 
 /**
@@ -4056,6 +4137,7 @@ export interface MCPServerSettingsPublic {
   icon_url: string | null;
   /** Documentation Url */
   documentation_url: string | null;
+  security_classification?: SecurityClassificationPublic | null;
   /**
    * Mcp Server Id
    * @format uuid
@@ -4122,19 +4204,51 @@ export interface MCPServerToolPublic {
   input_schema: Record<string, any> | null;
   /** Is Enabled By Default */
   is_enabled_by_default: boolean;
+  /** Pending Description */
+  pending_description?: string | null;
+  /** Pending Input Schema */
+  pending_input_schema?: Record<string, any> | null;
+  /**
+   * Requires Approval
+   * @default false
+   */
+  requires_approval?: boolean;
+  /**
+   * Removed From Remote
+   * @default false
+   */
+  removed_from_remote?: boolean;
 }
 
 /**
  * MCPServerToolSyncResponse
- * Response for tool sync operation including connection status.
+ * Response for tool sync operation with changeset for review.
  */
 export interface MCPServerToolSyncResponse {
-  /** Tools */
-  tools: MCPServerToolPublic[];
   /** Status of MCP server connection attempt. */
   connection: MCPConnectionStatus;
-  /** Count */
-  count: number;
+  /**
+   * New Tools
+   * @default []
+   */
+  new_tools?: ToolChangePublic[];
+  /**
+   * Changed Tools
+   * @default []
+   */
+  changed_tools?: ToolChangePublic[];
+  /**
+   * Removed Tools
+   * @default []
+   */
+  removed_tools?: ToolChangePublic[];
+  /**
+   * Unchanged Count
+   * @default 0
+   */
+  unchanged_count?: number;
+  /** Has Pending Changes */
+  has_pending_changes: boolean;
 }
 
 /**
@@ -4167,6 +4281,8 @@ export interface MCPServerUpdate {
   icon_url?: string | null;
   /** Documentation Url */
   documentation_url?: string | null;
+  /** Security Classification */
+  security_classification?: ModelId | null;
 }
 
 /**
@@ -4310,32 +4426,6 @@ export interface MigrationResult {
   requires_manual_recalculation?: boolean;
 }
 
-/** ModelFamily */
-export enum ModelFamily {
-  Openai = 'openai',
-  Mistral = 'mistral',
-  Vllm = 'vllm',
-  Claude = 'claude',
-  Azure = 'azure',
-  Ovhcloud = 'ovhcloud',
-  E5 = 'e5',
-}
-
-/** ModelHostingLocation */
-export enum ModelHostingLocation {
-  Usa = 'usa',
-  Eu = 'eu',
-  Swe = 'swe',
-  Chn = 'chn',
-  Can = 'can',
-  Gbr = 'gbr',
-  Isr = 'isr',
-  Kor = 'kor',
-  Deu = 'deu',
-  Fra = 'fra',
-  Jpn = 'jpn',
-}
-
 /** ModelId */
 export interface ModelId {
   /**
@@ -4352,10 +4442,17 @@ export interface ModelId {
 export interface ModelInfo {
   /** Name */
   name: string;
-  /** Token Limit */
-  token_limit: number;
+  /** Max Input Tokens */
+  max_input_tokens: number;
+  /** Max Output Tokens */
+  max_output_tokens: number;
   /** Prompt Tokens */
   prompt_tokens?: number | null;
+  /**
+   * Token Limit
+   * Backward-compat: exposed in JSON responses for frontend.
+   */
+  token_limit: number;
 }
 
 /** ModelKwargs */
@@ -4442,19 +4539,6 @@ export interface ModelMigrationRequest {
   confirm_migration?: boolean;
 }
 
-/** ModelOrg */
-export enum ModelOrg {
-  OpenAI = 'OpenAI',
-  Meta = 'Meta',
-  Microsoft = 'Microsoft',
-  Anthropic = 'Anthropic',
-  Mistral = 'Mistral',
-  KBLab = 'KBLab',
-  Google = 'Google',
-  Berget = 'Berget',
-  GDM = 'GDM',
-}
-
 /**
  * ModelProviderCreate
  * Request model for creating a model provider.
@@ -4536,11 +4620,6 @@ export interface ModelProviderUpdate {
    */
   name?: string | null;
   /**
-   * Provider Type
-   * Provider type: openai, azure, or anthropic
-   */
-  provider_type?: string | null;
-  /**
    * Credentials
    * Provider credentials (will be encrypted)
    */
@@ -4555,12 +4634,6 @@ export interface ModelProviderUpdate {
    * Whether the provider is active
    */
   is_active?: boolean | null;
-}
-
-/** ModelStability */
-export enum ModelStability {
-  Stable = 'stable',
-  Experimental = 'experimental',
 }
 
 /** ModelUsage */
@@ -5628,9 +5701,11 @@ export interface PartialCompletionModelUpdate {
   /** Nickname */
   nickname?: string | null;
   /** Family */
-  family?: ModelFamily | string | null;
-  /** Token Limit */
-  token_limit?: number | null;
+  family?: string | null;
+  /** Max Input Tokens */
+  max_input_tokens?: number | null;
+  /** Max Output Tokens */
+  max_output_tokens?: number | null;
   /** Is Deprecated */
   is_deprecated?: boolean | null;
   /** Nr Billion Parameters */
@@ -5638,9 +5713,9 @@ export interface PartialCompletionModelUpdate {
   /** Hf Link */
   hf_link?: string | null;
   /** Stability */
-  stability?: ModelStability | string | null;
+  stability?: string | null;
   /** Hosting */
-  hosting?: ModelHostingLocation | string | null;
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
@@ -5648,7 +5723,7 @@ export interface PartialCompletionModelUpdate {
   /** Deployment Name */
   deployment_name?: string | null;
   /** Org */
-  org?: ModelOrg | string | null;
+  org?: string | null;
   /** Vision */
   vision?: boolean | null;
   /** Reasoning */
@@ -5667,7 +5742,8 @@ export interface PartialCompletionModelUpdate {
 export interface PartialEmbeddingModelUpdate {
   /** Name */
   name?: string | null;
-  family?: EmbeddingModelFamily | null;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated?: boolean | null;
   /** Open Source */
@@ -5680,11 +5756,14 @@ export interface PartialEmbeddingModelUpdate {
   max_batch_size?: number | null;
   /** Hf Link */
   hf_link?: string | null;
-  stability?: ModelStability | null;
-  hosting?: ModelHostingLocation | null;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Description */
   description?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /** Litellm Model Name */
   litellm_model_name?: string | null;
   /** Id */
@@ -5744,6 +5823,53 @@ export interface PartialUpdateSpaceRequest {
    * Number of days to retain conversation history for this space. Applies to all assistants and apps in the space that don't have their own retention policy. Set to null to disable space-level retention. Omit to keep the current retention policy unchanged. Valid range: 1-2555 days (1 day to 7 years).
    */
   data_retention_days?: number | null;
+}
+
+/**
+ * PatchFederationRequest
+ * Request model for partially updating the current tenant federation config.
+ */
+export interface PatchFederationRequest {
+  /**
+   * Provider
+   * Identity provider label (e.g., 'mobilityguard', 'entra_id', 'okta', 'auth0')
+   */
+  provider?: string | null;
+  /**
+   * Discovery Endpoint
+   * OIDC discovery endpoint URL
+   */
+  discovery_endpoint?: string | null;
+  /**
+   * Client Id
+   * OAuth client ID
+   */
+  client_id?: string | null;
+  /**
+   * Client Secret
+   * OAuth client secret
+   */
+  client_secret?: string | null;
+  /**
+   * Allowed Domains
+   * Email domains allowed for this tenant (e.g., ['stockholm.se'])
+   */
+  allowed_domains?: string[] | null;
+  /**
+   * Canonical Public Origin
+   * Canonical public origin for this tenant (e.g., https://tenant.eneo.se). Required when federation is enabled to construct redirect_uri
+   */
+  canonical_public_origin?: string | null;
+  /**
+   * Redirect Path
+   * Optional custom redirect path starting with /
+   */
+  redirect_path?: string | null;
+  /**
+   * Additional Redirect Uris
+   * Additional fully-qualified redirect URIs for OIDC flows. Use when the tenant is accessed through multiple origins. Each URI must also be registered in the upstream Identity Provider.
+   */
+  additional_redirect_uris?: string[] | null;
 }
 
 /**
@@ -6080,7 +6206,6 @@ export interface RunService {
   input: string;
   /**
    * Files
-   * @maxItems 20
    * @default []
    */
   files?: ModelId[];
@@ -6473,7 +6598,7 @@ export interface SessionPublic {
 
 /**
  * SetFederationRequest
- * Request model for setting tenant federation config.
+ * Request model for providing a full tenant federation config.
  */
 export interface SetFederationRequest {
   /**
@@ -6504,7 +6629,7 @@ export interface SetFederationRequest {
   allowed_domains?: string[];
   /**
    * Canonical Public Origin
-   * Canonical public origin for this tenant (e.g., https://tenant.eneo.se). Required for multi-tenant federation to construct redirect_uri
+   * Canonical public origin for this tenant (e.g., https://tenant.eneo.se). Required when federation is enabled to construct redirect_uri
    */
   canonical_public_origin?: string | null;
   /**
@@ -6512,6 +6637,11 @@ export interface SetFederationRequest {
    * Optional custom redirect path starting with /
    */
   redirect_path?: string | null;
+  /**
+   * Additional Redirect Uris
+   * Additional fully-qualified redirect URIs for OIDC flows. Use when the tenant is accessed through multiple origins. Each URI must also be registered in the upstream Identity Provider.
+   */
+  additional_redirect_uris?: string[] | null;
 }
 
 /**
@@ -7180,11 +7310,15 @@ export interface TenantCompletionModelCreate {
    */
   display_name: string;
   /**
-   * Token Limit
-   * Maximum context tokens
-   * @default 128000
+   * Max Input Tokens
+   * Maximum input context tokens
    */
-  token_limit?: number;
+  max_input_tokens: number;
+  /**
+   * Max Output Tokens
+   * Maximum output tokens
+   */
+  max_output_tokens: number;
   /**
    * Vision
    * Supports vision/image inputs
@@ -7247,10 +7381,15 @@ export interface TenantCompletionModelUpdate {
    */
   description?: string | null;
   /**
-   * Token Limit
-   * Maximum context tokens
+   * Max Input Tokens
+   * Maximum input context tokens
    */
-  token_limit?: number | null;
+  max_input_tokens?: number | null;
+  /**
+   * Max Output Tokens
+   * Maximum output tokens
+   */
+  max_output_tokens?: number | null;
   /**
    * Vision
    * Supports vision/image inputs
@@ -7429,6 +7568,8 @@ export interface TenantInDB {
   federation_config?: Record<string, any>;
   /** Crawler Settings */
   crawler_settings?: Record<string, any>;
+  /** Favorite Providers */
+  favorite_providers?: string[];
 }
 
 /**
@@ -7759,75 +7900,8 @@ export interface TenantWithMaskedCredentials {
   federation_config?: Record<string, any>;
   /** Crawler Settings */
   crawler_settings?: Record<string, any>;
-}
-
-/**
- * TokenEstimateBreakdown
- * Breakdown of token usage by source.
- */
-export interface TokenEstimateBreakdown {
-  /**
-   * Prompt
-   * Tokens used by assistant prompt
-   */
-  prompt: number;
-  /**
-   * Text
-   * Tokens used by user input text
-   */
-  text: number;
-  /**
-   * Files
-   * Total tokens used by all files
-   */
-  files: number;
-  /**
-   * File Details
-   * Per-file token counts
-   */
-  file_details?: Record<string, number>;
-}
-
-/**
- * TokenEstimateRequest
- * Request payload for estimating tokens.
- */
-export interface TokenEstimateRequest {
-  /**
-   * Text
-   * User input text to evaluate
-   * @default ""
-   */
-  text?: string;
-  /**
-   * File Ids
-   * List of file IDs to include in the estimate
-   */
-  file_ids?: string[];
-}
-
-/**
- * TokenEstimateResponse
- * Response model for token usage estimation.
- */
-export interface TokenEstimateResponse {
-  /**
-   * Tokens
-   * Total token count
-   */
-  tokens: number;
-  /**
-   * Percentage
-   * Percentage of context window used
-   */
-  percentage: number;
-  /**
-   * Limit
-   * Model's context window limit
-   */
-  limit: number;
-  /** Token usage breakdown by source */
-  breakdown: TokenEstimateBreakdown;
+  /** Favorite Providers */
+  favorite_providers?: string[];
 }
 
 /** TokenUsageSummary */
@@ -7900,6 +7974,56 @@ export interface ToolCallInfo {
   approved?: boolean | null;
 }
 
+/**
+ * ToolChangePublic
+ * DTO for a tool change detected during sync.
+ */
+export interface ToolChangePublic {
+  /** DTO for MCP server tool. */
+  tool: MCPServerToolPublic;
+  /** Change Type */
+  change_type: string;
+  /** Current Description */
+  current_description?: string | null;
+  /** Current Input Schema */
+  current_input_schema?: Record<string, any> | null;
+  /** Pending Description */
+  pending_description?: string | null;
+  /** Pending Input Schema */
+  pending_input_schema?: Record<string, any> | null;
+}
+
+/**
+ * ToolReviewRequest
+ * DTO for reviewing (approving/rejecting) tool changes.
+ */
+export interface ToolReviewRequest {
+  /** Tool Ids */
+  tool_ids: string[];
+}
+
+/**
+ * ToolReviewResponse
+ * Response after reviewing tool changes.
+ */
+export interface ToolReviewResponse {
+  /**
+   * Approved Tools
+   * @default []
+   */
+  approved_tools?: MCPServerToolPublic[];
+  /**
+   * Rejected Tools
+   * @default []
+   */
+  rejected_tools?: MCPServerToolPublic[];
+  /**
+   * Deleted Count
+   * @default 0
+   */
+  deleted_count?: number;
+}
+
 /** TranscriptionModelPublic */
 export interface TranscriptionModelPublic {
   /**
@@ -7911,18 +8035,22 @@ export interface TranscriptionModelPublic {
   name: string;
   /** Nickname */
   nickname: string;
-  family: ModelFamily;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
   description?: string | null;
   /** Hf Link */
   hf_link?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /**
    * Can Access
    * @default false
@@ -7969,18 +8097,22 @@ export interface TranscriptionModelSecurityStatus {
   name: string;
   /** Nickname */
   nickname: string;
-  family: ModelFamily;
+  /** Family */
+  family?: string | null;
   /** Is Deprecated */
   is_deprecated: boolean;
-  stability: ModelStability;
-  hosting: ModelHostingLocation;
+  /** Stability */
+  stability?: string | null;
+  /** Hosting */
+  hosting?: string | null;
   /** Open Source */
   open_source?: boolean | null;
   /** Description */
   description?: string | null;
   /** Hf Link */
   hf_link?: string | null;
-  org?: ModelOrg | null;
+  /** Org */
+  org?: string | null;
   /**
    * Can Access
    * @default false
@@ -8092,6 +8224,11 @@ export interface UpdateSpaceDryRunResponse {
   embedding_models: EmbeddingModelPublic[];
   /** Transcription Models */
   transcription_models: TranscriptionModelPublic[];
+  /**
+   * Mcp Servers
+   * @default []
+   */
+  mcp_servers?: Record<string, any>[];
 }
 
 /** UpdateSpaceGroupMemberRequest */
@@ -9227,7 +9364,7 @@ export interface IntricTenantsPresentationTenantCredentialsRouterListCredentials
  * Request model for setting tenant API credentials.
  *
  * Provider-specific field requirements:
- * - OpenAI, Anthropic, Mistral, Berget, GDM, OVHCloud: api_key only
+ * - OpenAI, Anthropic, Mistral, OVHCloud: api_key only
  * - vLLM: api_key + endpoint (required)
  * - Azure: api_key + endpoint + api_version (required)
  *
@@ -9445,6 +9582,7 @@ export enum IntricEventType {
   GeneratingImage = 'generating_image',
   ToolCall = 'tool_call',
   ToolApprovalRequired = 'tool_approval_required',
+  TokenUsage = 'token_usage',
 }
 
 /** SSEText */
@@ -9457,7 +9595,7 @@ export interface SSEText {
   /** Answer */
   answer: string;
   /** References */
-  references: any[];
+  references: InfoBlobAskAssistantPublic[];
 }
 
 /** SSEIntricEvent */
@@ -9467,7 +9605,7 @@ export interface SSEIntricEvent {
    * @format uuid
    */
   session_id: string;
-  intric_event_type: any;
+  intric_event_type: IntricEventType;
 }
 
 /**
@@ -9481,9 +9619,9 @@ export interface SSEToolCall {
    */
   session_id: string;
   /** @default "tool_call" */
-  intric_event_type?: any;
+  intric_event_type?: IntricEventType;
   /** Tools */
-  tools: any[];
+  tools: ToolCallInfo[];
 }
 
 /**
@@ -9497,11 +9635,11 @@ export interface SSEToolApprovalRequired {
    */
   session_id: string;
   /** @default "tool_approval_required" */
-  intric_event_type?: any;
+  intric_event_type?: IntricEventType;
   /** Approval Id */
   approval_id: string;
   /** Tools */
-  tools: any[];
+  tools: ToolCallInfo[];
 }
 
 /** SSEFiles */
@@ -9512,7 +9650,7 @@ export interface SSEFiles {
    */
   session_id: string;
   /** Generated Files */
-  generated_files: any[];
+  generated_files: FilePublic[];
 }
 
 /** SSEFirstChunk */
@@ -9527,14 +9665,14 @@ export interface SSEFirstChunk {
   /** Answer */
   answer: string;
   /** Files */
-  files: any[];
+  files: FilePublic[];
   /** Generated Files */
-  generated_files: any[];
+  generated_files: FilePublic[];
   /** References */
-  references: any[];
-  tools: any;
+  references: InfoBlobAskAssistantPublic[];
+  tools: UseTools;
   /** Web Search References */
-  web_search_references: any[];
+  web_search_references: WebSearchResultPublic[];
 }
 
 /** SSEError */
@@ -9644,8 +9782,6 @@ export enum SetCredentialApiV1AdminCredentialsProviderPutParamsProviderEnum {
   Openai = 'openai',
   Anthropic = 'anthropic',
   Azure = 'azure',
-  Berget = 'berget',
-  Gdm = 'gdm',
   Mistral = 'mistral',
   Ovhcloud = 'ovhcloud',
   Gemini = 'gemini',
@@ -9657,8 +9793,6 @@ export enum SetCredentialApiV1AdminCredentialsProviderPutParamsEnum {
   Openai = 'openai',
   Anthropic = 'anthropic',
   Azure = 'azure',
-  Berget = 'berget',
-  Gdm = 'gdm',
   Mistral = 'mistral',
   Ovhcloud = 'ovhcloud',
   Gemini = 'gemini',
@@ -9670,8 +9804,6 @@ export enum SetTenantCredentialApiV1SysadminTenantsTenantIdCredentialsProviderPu
   Openai = 'openai',
   Anthropic = 'anthropic',
   Azure = 'azure',
-  Berget = 'berget',
-  Gdm = 'gdm',
   Mistral = 'mistral',
   Ovhcloud = 'ovhcloud',
   Gemini = 'gemini',
@@ -9683,8 +9815,6 @@ export enum SetTenantCredentialApiV1SysadminTenantsTenantIdCredentialsProviderPu
   Openai = 'openai',
   Anthropic = 'anthropic',
   Azure = 'azure',
-  Berget = 'berget',
-  Gdm = 'gdm',
   Mistral = 'mistral',
   Ovhcloud = 'ovhcloud',
   Gemini = 'gemini',
@@ -9696,8 +9826,6 @@ export enum DeleteTenantCredentialApiV1SysadminTenantsTenantIdCredentialsProvide
   Openai = 'openai',
   Anthropic = 'anthropic',
   Azure = 'azure',
-  Berget = 'berget',
-  Gdm = 'gdm',
   Mistral = 'mistral',
   Ovhcloud = 'ovhcloud',
   Gemini = 'gemini',
@@ -9709,8 +9837,6 @@ export enum DeleteTenantCredentialApiV1SysadminTenantsTenantIdCredentialsProvide
   Openai = 'openai',
   Anthropic = 'anthropic',
   Azure = 'azure',
-  Berget = 'berget',
-  Gdm = 'gdm',
   Mistral = 'mistral',
   Ovhcloud = 'ovhcloud',
   Gemini = 'gemini',
