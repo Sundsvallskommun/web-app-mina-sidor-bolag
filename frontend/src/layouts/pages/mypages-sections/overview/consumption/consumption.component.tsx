@@ -26,7 +26,7 @@ export const Consumption = () => {
     currentPage,
     totalPages,
     error: agreementsError,
-  } = usePagedAgreements(20);
+  } = usePagedAgreements(200);
 
   const [address, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
