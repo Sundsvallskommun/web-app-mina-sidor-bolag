@@ -37,7 +37,6 @@ export class SelfServiceAiController {
     const res = await this.apiService.get<SessionStatusResponse>({ url: readyUrl }, req.user);
 
     if (res.data.status === 'READY') {
-      console.log(`AAAAAAAAAAAAAAAAAAAAAAAAHHH: ` + sessionUrl);
       await this.apiService.get<QuestionResponse>(
         { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
         req.user,
