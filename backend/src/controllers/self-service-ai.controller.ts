@@ -43,11 +43,11 @@ export class SelfServiceAiController {
       );
     } else if (res.data.status === 'PENDING') {
       logger.info(`SSAI is ${res.data.status}, details: ${res.data.detail}`);
-      return { data: res.data, message: 'success' };
     } else {
       logger.error(`SSAI ${res.data.status}, details: ${res.data.detail}`);
-      return { data: res.data, message: 'success' };
     }
+
+    return { data: res.data, message: 'success' };
   }
 
   @Post('/ai/conversations')
