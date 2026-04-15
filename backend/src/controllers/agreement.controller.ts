@@ -5,12 +5,13 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import { ApiResponse } from '@/interfaces/service';
 import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
-import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
+import { Controller, Get, Param, QueryParam, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Agreement, AgreementResponse, Category } from '@/data-contracts/agreement/data-contracts';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
-import { fetchAgreementsForPartyAndDelegations } from '@/services/agreement.service';
+import { fetchAgreementsForPartyAndDelegations, fetchPagedAgreements } from '@/services/agreement.service';
+import { PagedAgreementsResult } from '@/interfaces/agreements.interface';
 
 function activeAgreement(agreement: Agreement): boolean {
   // Agreements are considered active if the `toDate` is in the future or undefined (ongoing agreements).
@@ -27,11 +28,16 @@ export class AgreementController {
   private apiService = new ApiService();
   private apiBase = getApiBase('agreement');
 
-  private async fetchAgreements(req: RequestWithUser, includeInactive: boolean): Promise<ApiResponse<Agreement[]>> {
+  private getSessionData(req: RequestWithUser) {
     const representing = req.session?.representing ?? undefined;
     const delegations = req?.session?.cache?.delegations ?? [];
     const partyId = getRepresentingPartyId(representing);
     const partyIdList: string[] = delegations.map(delegation => delegation.owner);
+    return { representing, delegations, partyId, partyIdList };
+  }
+
+  private async fetchAgreements(req: RequestWithUser, includeInactive: boolean): Promise<ApiResponse<Agreement[]>> {
+    const { partyId, partyIdList, delegations } = this.getSessionData(req);
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
@@ -50,7 +56,22 @@ export class AgreementController {
   @Get('/paged/agreements')
   @OpenAPI({ summary: 'Get agreements by party id' })
   @UseBefore(authMiddleware)
-  async getAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
+  async getAgreements(
+    @Req() req: RequestWithUser,
+    @QueryParam('page') page?: number,
+    @QueryParam('limit') limit?: number,
+  ): Promise<ApiResponse<Agreement[] | PagedAgreementsResult>> {
+    if (page !== undefined) {
+      const { partyId, partyIdList, delegations } = this.getSessionData(req);
+
+      if (!partyId) {
+        throw new HttpException(400, 'No partyId found');
+      }
+
+      const data = await fetchPagedAgreements(partyId, partyIdList, delegations, req.user, page, limit ?? 100);
+      return { data, message: 'success' };
+    }
+
     return this.fetchAgreements(req, false);
   }
 
