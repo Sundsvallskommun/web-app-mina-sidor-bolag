@@ -1,0 +1,11 @@
+{
+  "info": {
+    "name": "Assistent",
+    "shortName": "MS",
+    "title": "Mina sidor Bolag",
+    "description": "Har du frågor om dina avtal, fakturor eller statistik?"
+  },
+  "loading_assistant": "Förbereder din assistent...",
+  "assistant_failed": "Kunde inte starta session",
+  "try_again_later": "Försök igen senare"
+}

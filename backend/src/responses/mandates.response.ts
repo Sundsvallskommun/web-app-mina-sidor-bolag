@@ -11,7 +11,7 @@ import { GrpStatus } from '@/interfaces/grp.interface';
 import { MandatePopulated as MandatePopulatedType, MandateStatus, MandateUser } from '@/interfaces/mandates.interface';
 import { ApiResponse } from '@/services/api.service';
 import { Type } from 'class-transformer';
-import { IsDateString, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsDateString, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Meta } from './common.response';
 
 export class Grantor implements GrantorDetails {
@@ -84,7 +84,8 @@ export class SigningInfo {
 }
 
 class MandateDefaults
-  implements Pick<MandateDetails, 'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status'>
+  implements
+    Pick<MandateDetails, 'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status' | 'whitelisted'>
 {
   @IsString()
   id: string;
@@ -101,6 +102,9 @@ class MandateDefaults
   inactiveAfter?: string;
   @IsEnum(MandateStatus)
   status?: string;
+  @IsBoolean()
+  @IsOptional()
+  whitelisted?: boolean;
 }
 
 export class Mandate extends MandateDefaults implements MandateDetails {

@@ -34,7 +34,7 @@ export const APIS = [
   },
   {
     name: 'measurementdata',
-    version: '2.0',
+    version: '3.1',
   },
   {
     name: 'simulatorserver',
@@ -47,6 +47,18 @@ export const APIS = [
   {
     name: 'eventlog',
     version: '2.1',
+  },
+  {
+    name: 'bfus',
+    version: '1.0.0',
+  },
+  {
+    name: 'selfserviceai',
+    version: '2.0',
+  },
+  {
+    name: 'eneo-sundsvall',
+    version: '1.1',
   },
 ] as const;
 

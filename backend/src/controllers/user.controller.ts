@@ -9,7 +9,7 @@ import { validationMiddleware } from '@/middlewares/validation.middleware';
 import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
-import { Customer, CustomerRelation } from '@/data-contracts/customer/data-contracts';
+import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import {
   Delegation,
   InstalledBaseItem,
@@ -19,6 +19,9 @@ import {
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
+import { startAISession } from '@/services/selfserviceai.service';
+import { sessionCacheService } from '@/services/session-cache.service';
+import { logger } from '@/utils/logger';
 
 interface UserData {
   name: string;
@@ -51,68 +54,7 @@ function relevantType(installation: InstalledBaseItem): boolean {
 @Controller()
 export class UserController {
   private apiService = new ApiService();
-  private customerApiBase = getApiBase('customer');
   private installedBaseApiBase = getApiBase('installedbase');
-
-  cacheRelations = async (req: RequestWithUser) => {
-    const delegations = req?.session?.cache?.delegations ?? [];
-    const allRelations: CustomerRelation[] = [];
-
-    if (!req.session.cache.relations) {
-      try {
-        const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${req.user.partyId}`;
-        const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
-        const relations = relationsRes.data?.customerRelations ?? [];
-
-        relations.forEach(relation =>
-          allRelations.push({
-            ...relation,
-            organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-          }),
-        );
-      } catch (error) {
-        if (error.status === 500) {
-          throw new HttpException(500, 'Could not fetch customer relations');
-        }
-      }
-
-      if (delegations.length) {
-        try {
-          for (const delegation of delegations) {
-            const relationsUrl = `${this.customerApiBase}/${MUNICIPALITY_ID}/relations/${delegation.owner}`;
-            const relationsRes = await this.apiService.get<Customer>({ url: relationsUrl }, req.user);
-
-            const relations = relationsRes.data?.customerRelations ?? [];
-            relations.forEach(relation => {
-              if (!allRelations.some(r => r.organizationNumber === relation.organizationNumber)) {
-                allRelations.push({
-                  customerNumber: relation.customerNumber,
-                  organizationNumber: relation.organizationNumber,
-                  organizationName: relation.organizationName.replace(/\s*(AB)\s*$/g, ''),
-                });
-              }
-            });
-          }
-        } catch (error) {
-          if (error.status === 500) {
-            throw new HttpException(500, 'Could not fetch customer relations');
-          }
-        }
-      }
-
-      const customerNumbers: string[] = [];
-
-      allRelations.forEach(relation => {
-        if (!customerNumbers.includes(relation.customerNumber)) customerNumbers.push(relation.customerNumber);
-      });
-
-      req.session.cache.relations = {
-        customerRelations: allRelations,
-        customerNumber: customerNumbers,
-      };
-      return Promise.resolve(true);
-    }
-  };
 
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
@@ -149,7 +91,13 @@ export class UserController {
     req.session.cache ??= {};
     req.cache ??= {};
 
-    await this.cacheRelations(req);
+    await sessionCacheService.cacheRelations(req);
+
+    if (!req.session?.ai?.sessionId) {
+      await startAISession(req).catch(err => {
+        logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
+      });
+    }
 
     if (
       representing &&
@@ -312,7 +260,7 @@ export class UserController {
     req.session.cache ??= {};
     req.cache ??= {};
 
-    await this.cacheRelations(req);
+    await sessionCacheService.cacheRelations(req);
 
     const relations = req.session.cache.relations.customerRelations;
 

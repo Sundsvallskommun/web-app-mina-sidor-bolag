@@ -34,6 +34,9 @@ export class RepresentingBusinessEntity implements RepresentingBusinessEntityCli
   @ValidateNested()
   @Type(() => Information)
   information: ClientBusinessInformation;
+  @IsBoolean()
+  @IsOptional()
+  whitelisted?: boolean;
 }
 
 class Information {

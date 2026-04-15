@@ -44,12 +44,6 @@ export interface CreateReadNotificationsDto {
   caseId: string;
 }
 
-export interface RepresentsDto {
-  organizationNumber?: string;
-  personNumber?: string;
-  mode?: "PRIVATE" | "BUSINESS" | 0 | 1;
-}
-
 export interface ContactSettingChannel {
   contactMethod: string;
   destination: string;
@@ -150,6 +144,7 @@ export interface RepresentingBusinessEntity {
   organizationNumber: string;
   isAuthorizedSignatory?: boolean;
   information: Information;
+  whitelisted?: boolean;
 }
 
 export interface Information {
@@ -165,6 +160,12 @@ export interface RepresentingEntity {
 export interface ClientRepresentingApiResponse {
   data: RepresentingEntity;
   message: string;
+}
+
+export interface RepresentsDto {
+  organizationNumber?: string;
+  personNumber?: string;
+  mode?: "PRIVATE" | "BUSINESS" | 0 | 1;
 }
 
 export interface PatchUserSettingsDto {
@@ -225,6 +226,7 @@ export interface MandateDefaults {
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
   status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
+  whitelisted?: boolean;
 }
 
 export interface Mandate {
@@ -240,6 +242,7 @@ export interface Mandate {
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
   status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
+  whitelisted?: boolean;
 }
 
 export interface MandatePopulated {
@@ -255,6 +258,7 @@ export interface MandatePopulated {
   /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
   inactiveAfter?: string;
   status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "DELETED";
+  whitelisted?: boolean;
 }
 
 export interface MandatesApiResponse {
@@ -457,4 +461,108 @@ export interface PermissionRequestDto {
 
 export interface UpdatePermissionDto {
   PermissionRequest: any;
+}
+
+export interface ModelId {
+  id: string;
+}
+
+export interface ConversationRequest {
+  question: string;
+  session_id?: string;
+  assistant_id?: string;
+  group_chat_id?: string;
+  files?: ModelId;
+  stream?: boolean;
+}
+
+export interface SessionRequest {
+  partyId: string;
+  /** @minItems 1 */
+  customerEngagementOrgIds: string[];
+}
+
+export interface SessionResponse {
+  assistantId?: string;
+  sessionId?: string;
+}
+
+export interface Assistant {
+  id?: string;
+  handle?: string;
+}
+
+export interface File {
+  id?: string;
+  name?: string;
+  mimeType?: string;
+  size?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  transcription?: string;
+}
+
+export interface Metadata {
+  embeddingModelId?: string;
+  url?: string;
+  title?: string;
+  size?: number;
+}
+
+export interface Model {
+  id?: string;
+  name?: string;
+  nickname?: string;
+  family?: string;
+  tokenLimit?: number;
+  deprecated?: boolean;
+  nrBillionParameters?: number;
+  hfLink?: string;
+  stability?: string;
+  hosting?: string;
+  openSource?: boolean;
+  description?: string;
+  deploymentName?: string;
+  org?: string;
+  vision?: boolean;
+  reasoning?: boolean;
+  baseUrl?: string;
+  orgEnabled?: boolean;
+  orgDefault?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Tools {
+  assistants: Assistant;
+}
+
+export interface QuestionResponse {
+  sessionId?: string;
+  question?: string;
+  answer?: string;
+  files: File;
+  references: Reference;
+  model: Model;
+  tools: Tools;
+}
+
+export interface Reference {
+  id?: string;
+  metadata: Metadata;
+  groupId?: string;
+  websiteId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  score?: string;
+}
+
+export interface SessionStatusResponse {
+  status: "PENDING" | "READY" | "FAILED";
+  detail?: string;
+}
+
+export interface SessionStatusApiResponse {
+  data: SessionStatusResponse;
+  message: string;
 }

@@ -36,5 +36,9 @@ declare module 'express-session' {
       completed: Record<string, GrpCollectResponseWithRef>;
       mandates: Record<string, SignMandateCache>;
     };
+    ai?: {
+      assistantId?: string;
+      sessionId?: string;
+    };
   }
 }

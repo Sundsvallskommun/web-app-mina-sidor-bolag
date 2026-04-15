@@ -124,7 +124,7 @@ export const InvoicesTable = ({
         className: 'max-w-[146px]',
         renderColumn: (_value, item) => (
           <div className="text-left text-small">
-            <span>{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
+            <span data-cy="invoice-address">{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
           </div>
         ),
       },

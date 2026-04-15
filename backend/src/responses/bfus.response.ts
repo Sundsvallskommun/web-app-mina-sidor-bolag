@@ -1,17 +1,23 @@
 import { BFUSEligablePartyPart } from '@/interfaces/bfus.interface';
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsString, ValidateNested } from 'class-validator';
 
 export class BFUSApiResponse {
   @IsString()
   message: string;
-  @IsNumber()
-  @IsArray()
-  customerIds: number[];
+  @ValidateNested()
+  data: { customerIds: number[] };
 }
 
 export class BFUSEligablePartyApiResponse {
   @IsString()
   message: string;
-  @IsArray()
-  eligablePartyParts: BFUSEligablePartyPart[];
+  @ValidateNested()
+  data: { eligablePartyParts: BFUSEligablePartyPart[] };
+}
+
+export class BFUSNewPermissionApiResponse {
+  @IsString()
+  message: string;
+  @ValidateNested()
+  data: boolean;
 }
