@@ -37,17 +37,18 @@ export class SelfServiceAiController {
     const res = await this.apiService.get<SessionStatusResponse>({ url: readyUrl }, req.user);
 
     if (res.data.status === 'READY') {
+      console.log(`AAAAAAAAAAAAAAAAAAAAAAAAHHH: ` + sessionUrl);
       await this.apiService.get<QuestionResponse>(
         { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
         req.user,
       );
     } else if (res.data.status === 'PENDING') {
       logger.info(`SSAI is ${res.data.status}, details: ${res.data.detail}`);
-      return { data: res.data, message: 'success' };
     } else {
       logger.error(`SSAI ${res.data.status}, details: ${res.data.detail}`);
-      return { data: res.data, message: 'success' };
     }
+
+    return { data: res.data, message: 'success' };
   }
 
   @Post('/ai/conversations')
