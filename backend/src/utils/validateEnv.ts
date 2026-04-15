@@ -5,7 +5,8 @@ const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/; // same as used in envalid
 const emails = makeValidator(emailString => {
   const mailAdresses = emailString.split(',');
   mailAdresses.forEach(email => {
-    if (!emailRegex.test(email)) throw new Error('Emails not formatted correctly. Should be "a@example.com" or "a@example.com,b@example.com"');
+    if (!emailRegex.test(email))
+      throw new Error('Emails not formatted correctly. Should be "a@example.com" or "a@example.com,b@example.com"');
   });
   return emailString;
 });
@@ -31,7 +32,7 @@ const validateEnv = () => {
     SAML_LOGOUT_CALLBACK_URL: str(),
     SAML_LOGOUT_REDIRECT: str(),
     SAML_SUCCESS_REDIRECT: str(),
-
+    ENEO_API_KEY: str(),
     FEEDBACK_EMAIL: emails(),
   });
 };

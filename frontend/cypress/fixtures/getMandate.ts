@@ -39,7 +39,7 @@ export const getOrgMandates: PopulatedMandatesApiResponse = {
       },
       grantee: {
         name: 'Grantee Testsson',
-        personNumber: 190021079999,
+        personNumber: '190021079999',
       },
     },
     {
@@ -53,7 +53,7 @@ export const getOrgMandates: PopulatedMandatesApiResponse = {
       },
       grantee: {
         name: 'Grantee Grantsson',
-        personNumber: 200001019999,
+        personNumber: '200001019999',
       },
     },
     {
@@ -67,7 +67,7 @@ export const getOrgMandates: PopulatedMandatesApiResponse = {
       },
       grantee: {
         name: 'Grantee Testsson',
-        personNumber: 190021079999,
+        personNumber: '190021079999',
       },
     },
     {
@@ -81,7 +81,7 @@ export const getOrgMandates: PopulatedMandatesApiResponse = {
       },
       grantee: {
         name: 'Grantee Grantsson',
-        personNumber: 190021079999,
+        personNumber: '190021079999',
       },
     },
   ],

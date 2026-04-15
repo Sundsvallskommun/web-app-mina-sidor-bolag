@@ -8,7 +8,7 @@ export const ListMandates: React.FC = () => {
   const { data } = useApi<MandatePopulated[]>({ url: '/mandates/org', method: 'get' });
 
   return (
-    <div className="flex flex-col gap-56">
+    <div className="flex flex-col gap-56 pt-40">
       <MandateList
         data-cy="list-mandate-active"
         mandates={data?.filter((mandate) => mandate.status === 'ACTIVE')}

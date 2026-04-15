@@ -146,3 +146,7 @@ cert/
 
 # data contracts
 src/data-contracts/*/swagger.json
+
+# Claude AI
+.claude/
+CLAUDE.md

@@ -12,5 +12,7 @@
     "./public/locales",
     "frontend/locales"
   ],
-  "i18n-ally.sourceLanguage": "sv"
+  "i18n-ally.sourceLanguage": "sv",
+  "scss.lint.unknownAtRules": "ignore",
+  "css.lint.unknownAtRules": "ignore"
 }

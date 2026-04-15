@@ -18,6 +18,7 @@ import { MandateController } from './controllers/mandate.controller';
 import { CitizenController } from './controllers/citizen.controller';
 import EventLogController from '@controllers/event-log.controller';
 import { BFUSController } from './controllers/bfus.controller';
+import { SelfServiceAiController } from '@controllers/self-service-ai.controller';
 
 validateEnv();
 
@@ -40,6 +41,7 @@ const app = new App([
   CitizenController,
   EventLogController,
   BFUSController,
+  SelfServiceAiController,
 ]);
 
 app.listen();

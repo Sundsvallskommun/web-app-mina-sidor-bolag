@@ -16,10 +16,22 @@ describe('Profil och inställningar', () => {
     cy.visit('/foretag/profil');
   });
 
-  it("doesn't show mandates for companies without signing rights", () => {
+  it('users with signing rights can access and create mandates', () => {
+    setIntercepts(RepresentingMode.BUSINESS, 0);
+    cy.get('[data-cy="mandate-disclosure"]').click();
+    cy.get('[data-cy="create-mandate-button"]').should('exist');
+  });
+
+  it('users without signing rights or whitelisting cannot access mandates', () => {
     setIntercepts(RepresentingMode.BUSINESS, 1);
     cy.visit('/foretag/profil');
     cy.get('[data-cy="mandate-disclosure"]').should('not.exist');
+  });
+
+  it('whitelisted users can access and create mandates', () => {
+    setIntercepts(RepresentingMode.BUSINESS, 2);
+    cy.get('[data-cy="mandate-disclosure"]').click();
+    cy.get('[data-cy="create-mandate-button"]').should('exist');
   });
 
   it('creates a new mandate', () => {

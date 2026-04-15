@@ -34,6 +34,7 @@ import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import session from 'express-session';
 import { existsSync, mkdirSync } from 'fs';
 import helmet from 'helmet';
@@ -48,15 +49,16 @@ import createFileStore from 'session-file-store';
 import swaggerUi from 'swagger-ui-express';
 import { getApiBase } from './config/api-config';
 import { HttpException } from './exceptions/HttpException';
+import { RequestWithUser } from './interfaces/auth.interface';
 import { Profile } from './interfaces/profile.interface';
 import { RepresentingMode } from './interfaces/representing.interface';
 import { User } from './interfaces/users.interface';
-import { additionalConverters } from './utils/custom-validation-classes';
-import { isValidUrl } from './utils/util';
-import { isValidOrigin } from './utils/isValidOrigin';
-import rateLimit from 'express-rate-limit';
 import { getBusinessEngagements } from './services/business-engagements.service';
 import getDelegatedFacilities from './services/delegation.service';
+import { additionalConverters } from './utils/custom-validation-classes';
+import { isValidOrigin } from './utils/isValidOrigin';
+import { isValidUrl } from './utils/util';
+import { deleteAISession } from './services/selfserviceai.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -150,7 +152,7 @@ const samlStrategy = new Strategy(
       done(err);
     }
   },
-  async function (profile: Profile, done: VerifiedCallback) {
+  async function (_profile: Profile, done: VerifiedCallback) {
     return done(null, {});
   },
 );
@@ -248,7 +250,7 @@ class App {
       res.status(200).send(metadata);
     });
 
-    this.app.get(`${BASE_URL_PREFIX}/saml/logout`, (req, res) => {
+    this.app.get(`${BASE_URL_PREFIX}/saml/logout`, async (req, res) => {
       if (req.session?.returnTo) {
         req.query.RelayState = req.session.returnTo;
       } else if (req.query.successRedirect) {
@@ -260,6 +262,8 @@ class App {
         res.redirect(SAML_LOGOUT_CALLBACK_URL);
         return;
       }
+
+      await deleteAISession(req as RequestWithUser);
 
       samlStrategy.logout(req as any, (err, url) => {
         if (err || !url) {
@@ -368,39 +372,42 @@ class App {
 
             req.logIn(user, async err => {
               if (err) return next(err);
+              try {
+                if (req.body.RelayState) {
+                  try {
+                    const relay = JSON.parse(req.body.RelayState);
+                    if (relay.representingMode != null) {
+                      const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
+                      req.session.representing = {
+                        mode,
+                        PRIVATE: {
+                          partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
+                          personNumber: req.user.personNumber,
+                          name: req.user.name,
+                        },
+                      };
+                    }
+                  } catch {}
+                }
 
-              if (req.body.RelayState) {
-                try {
-                  const relay = JSON.parse(req.body.RelayState);
-                  if (relay.representingMode != null) {
-                    const mode = parseInt(relay.representingMode, 10) as RepresentingMode;
-                    req.session.representing = {
-                      mode,
-                      PRIVATE: {
-                        partyId: req.user.partyId?.replace(/[^a-zA-Z0-9-]/g, ''),
-                        personNumber: req.user.personNumber,
-                        name: req.user.name,
-                      },
-                    };
-                  }
-                } catch {}
-              }
+                await getBusinessEngagements(user)
+                  .then(engagements => {
+                    req.session.representingBusinessChoices = engagements;
+                  })
+                  .catch(err => {
+                    console.error('Error fetching business engagements:', err);
+                    req.session.representingBusinessChoices = [];
+                  });
 
-              await getBusinessEngagements(user)
-                .then(engagements => {
-                  req.session.representingBusinessChoices = engagements;
-                })
-                .catch(err => {
-                  console.error('Error fetching business engagements:', err);
-                  req.session.representingBusinessChoices = [];
+                req.session.cache ??= {};
+                const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+                  console.error('Error fetching delegated facilities:', err);
+                  return [];
                 });
-
-              req.session.cache ??= {};
-              const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
-                console.error('Error fetching delegated facilities:', err);
-                return [];
-              });
-              req.session.cache.delegations = delegations;
+                req.session.cache.delegations = delegations;
+              } catch (error) {
+                logger.error(error);
+              }
               req.session.save(saveErr => {
                 if (saveErr) return next(saveErr);
                 res.redirect(successRedirect);

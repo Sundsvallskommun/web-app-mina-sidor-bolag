@@ -265,7 +265,10 @@ export interface Invoice {
   invoiceDescription?: string;
   /** Invoice-address */
   invoiceAddress?: Address;
-  /** Facility-id */
+  /**
+   * Facility-id
+   * @uniqueItems true
+   */
   facilityId?: string;
   /** Invoice origin (invoices originates from either commercial or public activities) */
   invoiceOrigin?: InvoiceOrigin;
