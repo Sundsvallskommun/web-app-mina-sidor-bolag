@@ -20,6 +20,7 @@
   },
   "goBack": "Tillbaka",
   "impersonate": "Växla till användare",
+  "loading": "Växlar till användare...",
   "bannerInfo": "Du är inloggad på kontot som Administratör",
   "exit": "Avsluta och gå tillbaka"
 }

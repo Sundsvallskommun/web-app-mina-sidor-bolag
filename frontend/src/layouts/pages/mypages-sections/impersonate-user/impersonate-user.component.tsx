@@ -86,7 +86,7 @@ export default function ImpersonateUser() {
     queryKey: ['user-engagements'],
   });
 
-  const { mutateAsync: impersonateUser } = useApi({
+  const { mutateAsync: impersonateUser, isPending: impersonationPending } = useApi({
     url: '/impersonate-user',
     method: 'post',
     queryKey: ['impersonate-user'],
@@ -225,7 +225,12 @@ export default function ImpersonateUser() {
 
           <div className="flex gap-16">
             <BackButton />
-            <Button type="submit" rightIcon={<ArrowRight />}>
+            <Button
+              type="submit"
+              loading={impersonationPending}
+              loadingText={t('impersonation:loading')}
+              rightIcon={<ArrowRight />}
+            >
               {t('impersonation:impersonate')}
             </Button>
           </div>
