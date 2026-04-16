@@ -92,7 +92,7 @@ describe('Dina medgivanden', () => {
     cy.intercept('GET', '**/api/bfus/eligable-party-permissions?customerIds=12345678', { fixture: null });
     cy.visit('/privat/medgivanden');
 
-    cy.get('[data-cy="no-customer-id"]').should('exist').contains('Kunde inte hitta något kund-id. Försök igen.');
+    cy.get('[data-cy="no-customer-id"]').should('exist').contains('Du har just nu inga medgivanden.');
   });
 });
 
