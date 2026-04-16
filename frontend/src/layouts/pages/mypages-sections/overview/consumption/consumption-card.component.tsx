@@ -32,7 +32,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayj
   const { data: measurementData, isFetching: isCurrentFetching } = useApi({
     url: `/measurementdata?${getParams()}`,
     method: 'get',
-    dataHandler: measurementDataByMonthHandler,
+    dataHandler: measurementDataByMonthHandler(date),
     queryKey: ['currentYear', facility.facilityId, getParams()],
   });
 
