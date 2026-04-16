@@ -2,6 +2,7 @@ import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
 import { Agreement, AgreementParameters, PagedAgreementResponse } from '@/data-contracts/agreement/data-contracts';
 import { Delegation } from '@/data-contracts/installedbase/data-contracts';
+import { AxiosRequestConfig } from 'axios';
 import ApiService from './api.service';
 import dayjs from 'dayjs';
 import { PagedAgreementsResult } from '@/interfaces/agreements.interface';
@@ -35,6 +36,7 @@ export const fetchAgreementsForPartyAndDelegations = async (
   delegations: Delegation[],
   user: { username: string },
   includeInactiveAgreements: boolean = false,
+  params: AxiosRequestConfig['params'] = {},
 ): Promise<Agreement[]> => {
   const apiService = new ApiService();
   const apiBase = getApiBase('agreement');

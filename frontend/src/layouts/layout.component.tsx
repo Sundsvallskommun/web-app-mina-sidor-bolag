@@ -71,38 +71,30 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                 <Footer.ListItem className="text-label-medium">{t('layout:contact')}</Footer.ListItem>
                 <Footer.ListItem className="font-bold">{t('organization:5564786647.name')}</Footer.ListItem>
                 <Footer.ListItem>
-                  <Trans
-                    i18nKey="organization:5564786647.phone"
-                    components={{
-                      Link: <NextLink href={t('organization:5564786647.phoneNumber')} variant="tertiary" />,
-                    }}
-                  />
+                  Telefon:
+                  <NextLink variant="tertiary" href={'tel:060192200'}>
+                    060-19 22 00
+                  </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <Trans
-                    i18nKey="organization:5564786647.email"
-                    components={{
-                      Link: <NextLink href={t('organization:5564786647.emailAddress')} variant="tertiary" />,
-                    }}
-                  />
+                  Mail:
+                  <NextLink variant="tertiary" href={'mailto:kundservice@sundsvallenergi.se'}>
+                    kundservice@sundsvallenergi.se
+                  </NextLink>
                 </Footer.ListItem>
 
                 <Footer.ListItem className="font-bold">{t('organization:5565027223.name')}</Footer.ListItem>
                 <Footer.ListItem>
-                  <Trans
-                    i18nKey="organization:5565027223.phone"
-                    components={{
-                      Link: <NextLink href={t('organization:5565027223.phoneNumber')} variant="tertiary" />,
-                    }}
-                  />
+                  Telefon:
+                  <NextLink variant="tertiary" href={'tel:+46606005020'}>
+                    060-600 50 20
+                  </NextLink>
                 </Footer.ListItem>
                 <Footer.ListItem>
-                  <Trans
-                    i18nKey="organization:5565027223.email"
-                    components={{
-                      Link: <NextLink href={t('organization:5565027223.emailAddress')} variant="tertiary" />,
-                    }}
-                  />
+                  Mail:
+                  <NextLink variant="tertiary" href={'mailto:info@sundsvallelnat.se'}>
+                    info@sundsvallelnat.se
+                  </NextLink>
                 </Footer.ListItem>
               </Footer.List>
 
