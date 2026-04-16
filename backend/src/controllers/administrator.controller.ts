@@ -122,6 +122,14 @@ export class AdministratorController {
     };
 
     req.cache = undefined;
+    req.session.cache = {
+      partyId: undefined,
+      cases: {},
+      relations: { customerNumber: [], customerRelations: [] },
+      addresses: [],
+      facilities: [],
+      delegations: [],
+    };
 
     return true;
   }
