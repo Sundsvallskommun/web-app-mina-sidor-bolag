@@ -6,9 +6,11 @@ import { Agreement } from '@interfaces/agreement';
 
 export const useRelations = () => {
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
+  const url = '/paged/agreements';
   const { data: allAgreements } = useApi<Agreement[]>({
-    url: '/paged/agreements',
+    url,
     method: 'get',
+    queryKey: [url, 'raw'],
   });
 
   const activeCustomerEngagements = useMemo(() => {
