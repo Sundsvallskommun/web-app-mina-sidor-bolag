@@ -1,12 +1,6 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import {
-  Invoice,
-  InvoicesResponse,
-  InvoiceStatus,
-  MetaData,
-  PdfInvoice,
-} from '@/data-contracts/invoices/data-contracts';
+import { Invoice, InvoiceStatus, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
@@ -16,6 +10,7 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
+import InvoicesService from '@/services/invoices.service';
 
 const emptyInvoice = {
   invoices: [],
@@ -32,151 +27,96 @@ const pendingStatuses = [
 
 @Controller()
 export class InvoicesController {
-  private apiService = new ApiService();
-  private apiBase = getApiBase('invoices');
+  private readonly apiService = new ApiService();
+  private readonly apiBase = getApiBase('invoices');
   private readonly invoiceDateFrom = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
+  private readonly invoicesService = new InvoicesService();
 
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @UseBefore(authMiddleware)
-  async getInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
-    const representing = req.session?.representing ?? undefined;
-
-    const delegations = req?.session?.cache?.delegations ?? [];
-    const partyIdList: string[] = [getRepresentingPartyId(representing)];
-    const allInvoices: Invoice[] = [];
+  async getInvoices(@Req() req: RequestWithUser) {
+    const representing = req.session?.representing;
     const { facilityId, page, limit } = req.query;
 
-    const metaData: MetaData = {
-      page: Number.parseInt(page.toString()),
-      limit: Number.parseInt(limit.toString()),
-      totalRecords: 0,
-      totalPages: 0,
-      count: 12,
-    };
-
     if (!facilityId) {
-      // Facility ids must be provided. Together with the filter on facilities in User Controller,
-      // this ensures that only invoices for active (plus three years back) facilities are fetched.
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    if (!partyIdList.length) {
-      throw new HttpException(400, 'Bad Request');
-    }
+    const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
 
-    delegations.forEach(delegation => {
-      partyIdList.push(delegation.owner);
+    // TO DO: add orgNr's when Invoices is updated to 9.x
+    // const customerRelations = req.session.cache.relations.customerRelations;
+    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    const organizationNumbers = [];
+
+    const result = await this.invoicesService.fetchInvoices(req, {
+      partyIds,
+      organizationNumbers,
+      facilityId: facilityId as string[],
+      invoiceDateFrom: this.invoiceDateFrom,
+      page: Number(page),
+      limit: Number(limit),
     });
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
-
-    for (const partyId of partyIdList) {
-      const params = {
-        partyId,
-        facilityId,
-        invoiceDateFrom: this.invoiceDateFrom,
-        page,
-        limit,
-      };
-
-      try {
-        const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
-        if (res.data) {
-          const { invoices, _meta } = res.data;
-          allInvoices.push(...invoices);
-          metaData.totalRecords += _meta.totalRecords;
-          metaData.totalPages += _meta.totalPages;
-        }
-      } catch (error) {
-        if (error.status === 500) {
-          throw new HttpException(500, 'Could not fetch invoices');
-        }
-      }
-    }
-
-    return { data: { invoices: allInvoices, _meta: metaData }, message: 'success' };
+    return {
+      data: {
+        invoices: result.invoices,
+        _meta: result.meta,
+      },
+      message: 'success',
+    };
   }
 
-  // TODO: Remove iterative logic once API supports passing multiple status filters
   @Get('/invoices/pending')
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @UseBefore(authMiddleware)
-  async getPendingInvoices(@Req() req: RequestWithUser): Promise<ApiResponse<InvoicesResponse>> {
-    const representing = req.session?.representing ?? undefined;
+  async getPendingInvoices(@Req() req: RequestWithUser) {
+    const representing = req.session?.representing;
     const { facilityId, page, limit } = req.query;
 
-    const delegations = req?.session?.cache?.delegations ?? [];
-    const partyIdList: string[] = [getRepresentingPartyId(representing)];
-
-    delegations.forEach(delegation => {
-      partyIdList.push(delegation.owner);
-    });
-
     if (!facilityId) {
-      // See comment in getInvoices method.
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    if (!partyIdList) {
-      throw new HttpException(400, 'Bad Request. Party id is required');
-    }
+    const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
 
-    const data = Object.assign({}, emptyInvoice);
+    // TO DO: add orgNr's when Invoices is updated to 9.x
+    // const customerRelations = req.session.cache.relations.customerRelations;
+    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    const organizationNumbers = [];
 
-    // TODO: Can't be used during testing since the test data resides in 2024
-    /*
-    const date1 = new Date();
-    const dueDays = 7;
-    const aDay = 60 * 60 * 24 * 1000;
-    const date2 = new Date(date1.getTime() + aDay * dueDays);
-    const dueDateFrom = `${date1.getUTCFullYear()}-${date1.getUTCDate()}-${date1.getUTCDay()}`;
-    const dueDateTo = `${date2.getUTCFullYear()}-${date2.getUTCDate()}-${date2.getUTCDay()}`;
-    */
-
-    let meta: MetaData;
-    const totalInvoices = [];
+    let allInvoices: Invoice[] = [];
     let totalRecords = 0;
-    for (const invoiceStatus of pendingStatuses) {
-      for (const partyId of partyIdList) {
-        const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL`;
 
-        const params = {
-          partyId,
-          facilityId,
-          invoiceDateFrom: this.invoiceDateFrom,
-          invoiceStatus,
-          page,
-          limit,
-          // dueDateFrom,
-          // dueDateTo,
-        };
+    for (const status of pendingStatuses) {
+      const result = await this.invoicesService.fetchInvoices(req, {
+        partyIds,
+        organizationNumbers,
+        facilityId: facilityId as string[],
+        invoiceDateFrom: this.invoiceDateFrom,
+        page: Number(page),
+        limit: Number(limit),
+        invoiceStatus: status,
+      });
 
-        try {
-          const res = await this.apiService.get<InvoicesResponse>({ url, params }, req.user);
-          if (res.data) {
-            const { invoices, _meta } = res.data;
-            totalInvoices.push(...invoices);
-            totalRecords += _meta.totalRecords;
-            meta = _meta;
-          }
-        } catch (error) {
-          if (error.status === 500) {
-            throw new HttpException(500, 'Could not fetch invoices');
-          }
-        }
-      }
+      allInvoices.push(...result.invoices);
+      totalRecords += result.meta?.totalRecords ?? 0;
     }
 
-    const byInvoiceDate = (a, b) => Math.sign(new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime());
-    totalInvoices.sort(byInvoiceDate);
-    data.invoices = totalInvoices.splice(0, Number.parseInt(`${limit}`)) ?? [];
-    data._meta = meta ?? {};
-    data._meta.count = data.invoices.length;
-    data._meta.totalRecords = totalRecords;
-    data._meta.totalPages = Math.ceil(totalRecords / data.invoices.length);
-
-    return { data, message: 'success' };
+    return {
+      data: {
+        invoices: allInvoices,
+        _meta: {
+          page: Number(page),
+          limit: Number(limit),
+          totalRecords,
+          totalPages: Math.ceil(totalRecords / Number(limit)),
+          count: allInvoices.length,
+        },
+      },
+      message: 'success',
+    };
   }
 
   @Get('/invoicepdf/:organizationNumber/:id')

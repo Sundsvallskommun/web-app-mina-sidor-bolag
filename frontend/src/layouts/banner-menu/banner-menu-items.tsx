@@ -61,18 +61,13 @@ export const useBannerMenuItems = () => {
     >
       {capitalize(t('common:profile'))}
     </NextLink>,
-    <>
-      {/* NOTE: Don't show in production */}
-      {process.env.NODE_ENV !== 'production' && (
-        <NextLink
-          key={`banner-menu-item-5`}
-          className="w-full flex items-center justify-center"
-          href={`${myPagesRoute}/medgivanden`}
-        >
-          {capitalize(t('common:eligibility'))}
-        </NextLink>
-      )}
-    </>,
+    <NextLink
+      key={`banner-menu-item-5`}
+      className="w-full flex items-center justify-center"
+      href={`${myPagesRoute}/medgivanden`}
+    >
+      {capitalize(t('common:eligibility'))}
+    </NextLink>,
     <>
       {user?.extendedView && (
         <NextLink

@@ -22,6 +22,12 @@
   .form-error-message {
     @apply mb-4;
   }
+
+  // Hide the native calendar indicator for type="month" so the custom
+  // Input.RightAddin icon is the only visible calendar icon.
+  .sk-form-input[type='month']::-webkit-calendar-picker-indicator {
+    display: none;
+  }
 }
 
 @layer utilities {

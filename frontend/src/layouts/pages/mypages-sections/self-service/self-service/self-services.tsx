@@ -89,7 +89,7 @@ export const selfServices: (representingMode: RepresentingMode) => SelfServices 
         },
         {
           id: 0,
-          title: 'Säg upp ditt elnätsavtal med Sundsvall elnät',
+          title: 'Säg upp ditt elnätsavtal med Sundsvall Elnät',
           description: '',
           url: 'https://e-tjanster.stadsbacken.se/elnat_uppsagning' + suffix,
           icon: <LightbulbIcon />,

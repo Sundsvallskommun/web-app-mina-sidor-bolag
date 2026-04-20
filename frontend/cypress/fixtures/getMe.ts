@@ -32,6 +32,10 @@ export const getMe: ApiResponse<User> = {
         address: 'Storgatan 1',
         facilityIds: ['111', '222', '333'],
       },
+      {
+        address: 'Gamla Vägen 42',
+        facilityIds: ['444'],
+      },
     ],
     facilities: [
       {
@@ -279,6 +283,40 @@ export const getMe: ApiResponse<User> = {
             value: 'SUNDSVALL 1',
             type: 'string',
             displayName: 'Fastighetsbeteckning',
+          },
+          {
+            key: 'siteStatus',
+            value: 'Normal',
+            type: 'string',
+            displayName: 'Sitestatus',
+          },
+        ],
+      },
+      // Previous (inactive) facility
+      {
+        type: 'El',
+        facilityId: '444',
+        placementId: -444,
+        facilityCommitmentStartDate: '2020-01-01',
+        facilityCommitmentEndDate: '2024-03-15',
+        address: {
+          careOf: 'Förnamn Efternamn',
+          street: 'Gamla Vägen 42',
+          postalCode: '111 33',
+          city: 'SUNDSVALL',
+        },
+        metaData: [
+          {
+            key: 'netarea',
+            value: 'Sundsvall tätort',
+            type: 'location',
+            displayName: 'Nätområde',
+          },
+          {
+            key: 'netareaid',
+            value: 'SUV',
+            type: 'location',
+            displayName: 'NätområdesID',
           },
           {
             key: 'siteStatus',

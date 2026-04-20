@@ -18,7 +18,7 @@ export const APIS = [
   },
   {
     name: 'invoices',
-    version: '9.0',
+    version: '8.0',
   },
   {
     name: 'customer',
@@ -49,8 +49,12 @@ export const APIS = [
     version: '2.1',
   },
   {
+    name: 'bfus',
+    version: '1.0.0',
+  },
+  {
     name: 'selfserviceai',
-    version: '1.0',
+    version: '2.0',
   },
   {
     name: 'eneo-sundsvall',

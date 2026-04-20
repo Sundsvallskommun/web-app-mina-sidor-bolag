@@ -86,7 +86,7 @@ export const MobileMenu = () => {
         </Modal.Content>
         <Modal.Footer>
           <Button
-            className="w-full"
+            className="w-full mb-40"
             onClick={() => router.push('/logout')}
             showBackground={false}
             variant="secondary"

@@ -19,7 +19,7 @@ jobs:
           working-directory: frontend
           install-command: yarn --frozen-lockfile --silent --network-timeout 1000000
           browser: chrome
-          build: yarn build
+          build: yarn build:test
           start: yarn start
           wait-on: "http://localhost:3000"
           spec: cypress/e2e/**/*.cy.ts
@@ -33,3 +33,4 @@ jobs:
           HEALTH_AUTH: false
           HEALTH_USERNAME: ""
           HEALTH_PASSWORD: ""
+          NEXT_PUBLIC_FEATURE_AI_ASSISTANT: "true"

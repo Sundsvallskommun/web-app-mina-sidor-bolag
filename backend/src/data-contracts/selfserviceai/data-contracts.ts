@@ -225,3 +225,18 @@ export interface Reference {
 export interface Tools {
   assistants?: Assistant[];
 }
+
+/** Model for session status response */
+export interface SessionStatusResponse {
+  /** The status of the session */
+  status?: SessionStatusResponseStatusEnum;
+  /** Additional detail about the session status */
+  detail?: string;
+}
+
+/** The status of the session */
+export enum SessionStatusResponseStatusEnum {
+  PENDING = 'PENDING',
+  READY = 'READY',
+  FAILED = 'FAILED',
+}

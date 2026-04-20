@@ -8,9 +8,11 @@ import {
   QuestionResponse as IQuestionResponse,
   Reference as IReference,
   Tools as ITools,
+  SessionStatusResponse as ISessionStatusResponse,
 } from '@/data-contracts/selfserviceai/data-contracts';
-import { ArrayMinSize, IsArray, IsInt, IsOptional, IsString, IsBoolean, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsInt, IsOptional, IsString, IsBoolean, ValidateNested, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiResponse } from '@services/api.service';
 
 export class SessionRequest implements ISessionRequest {
   @IsString()
@@ -196,4 +198,26 @@ export class Reference implements IReference {
   @IsString()
   @IsOptional()
   score?: number;
+}
+
+export enum SessionStatusResponseStatusEnum {
+  PENDING = 'PENDING',
+  READY = 'READY',
+  FAILED = 'FAILED',
+}
+
+export class SessionStatusResponse implements ISessionStatusResponse {
+  @IsEnum(SessionStatusResponseStatusEnum)
+  status?: SessionStatusResponseStatusEnum;
+  @IsOptional()
+  @IsString()
+  detail?: string;
+}
+
+export class SessionStatusApiResponse implements ApiResponse<SessionStatusResponse> {
+  @ValidateNested()
+  @Type(() => SessionStatusResponse)
+  data: SessionStatusResponse;
+  @IsString()
+  message: string;
 }

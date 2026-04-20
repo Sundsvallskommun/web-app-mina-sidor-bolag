@@ -1,6 +1,6 @@
 import { ENEO_API_KEY, MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { QuestionResponse } from '@/data-contracts/selfserviceai/data-contracts';
+import { QuestionResponse, SessionStatusResponse } from '@/data-contracts/selfserviceai/data-contracts';
 import { ConversationRequest } from '@/dtos/conversation.dto';
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
@@ -10,7 +10,8 @@ import authMiddleware from '@middlewares/auth.middleware';
 import { Request, Response } from 'express';
 import Stream from 'node:stream';
 import { Body, Controller, Get, HttpError, Post, Req, Res, UseBefore } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
+import { SessionStatusApiResponse } from '@/responses/self-service-ai.response';
 
 @Controller()
 @UseBefore(authMiddleware)
@@ -24,27 +25,29 @@ export class SelfServiceAiController {
     summary: 'Check if assistant is ready for interaction',
   })
   @UseBefore(authMiddleware)
-  async isReady(@Req() req: Request): Promise<ResponseData<boolean>> {
+  @ResponseSchema(SessionStatusApiResponse)
+  async isReady(@Req() req: Request): Promise<ResponseData<SessionStatusResponse>> {
     const id = req.session?.ai?.sessionId;
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    try {
-      const sessionUrl = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
-      const readyUrl = `${sessionUrl}/ready`;
-      const res = await this.apiService.get<boolean>({ url: readyUrl }, req.user);
-      if (res.data) {
-        await this.apiService.get<QuestionResponse>(
-          { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
-          req.user,
-        );
-      }
-      return { data: res.data, message: 'success' };
-    } catch (e) {
-      logger.error('Error checking if assistant is ready', e);
-      throw new HttpError(e?.httpCode ?? 500, e?.message ?? 'Could not check if assistant is ready');
+    const sessionUrl = `${this.selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
+    const readyUrl = `${sessionUrl}/ready`;
+    const res = await this.apiService.get<SessionStatusResponse>({ url: readyUrl }, req.user);
+
+    if (res.data.status === 'READY') {
+      await this.apiService.get<QuestionResponse>(
+        { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
+        req.user,
+      );
+    } else if (res.data.status === 'PENDING') {
+      logger.info(`SSAI is ${res.data.status}, details: ${res.data.detail}`);
+    } else {
+      logger.error(`SSAI ${res.data.status}, details: ${res.data.detail}`);
     }
+
+    return { data: res.data, message: 'success' };
   }
 
   @Post('/ai/conversations')

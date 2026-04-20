@@ -14,6 +14,6 @@ export default async function Index(props: IndexProps) {
   } else if (mode === 'foretag') {
     redirect(`${getRepresentingModeRoute(RepresentingMode.BUSINESS)}/oversikt`);
   } else {
-    redirect('/privat');
+    redirect(`${getRepresentingModeRoute(RepresentingMode.PRIVATE)}/oversikt`);
   }
 }

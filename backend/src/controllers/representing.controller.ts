@@ -160,6 +160,8 @@ export class RepresentingController {
 
     req.session.representing = newRepresenting;
 
+    const clearRelations = () => (req.session.cache.relations = null);
+
     if (getRepresentingPartyId(newRepresenting)) {
       req.session.cache.delegations = await getDelegatedFacilities(getRepresentingPartyId(newRepresenting)).catch(
         err => {
@@ -167,6 +169,8 @@ export class RepresentingController {
           return [];
         },
       );
+
+      clearRelations();
     }
 
     try {

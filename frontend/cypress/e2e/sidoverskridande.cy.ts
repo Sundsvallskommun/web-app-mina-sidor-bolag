@@ -38,7 +38,7 @@ describe('Sidöverskridande', () => {
     cy.get('button[aria-label="Meny"]').should('be.visible').click();
     cy.get('button[aria-label="Stäng meny"]').should('be.visible');
 
-    cy.get('select').select('Styrbjörns båtar');
+    cy.get('button[aria-label="Stäng meny"]').parents('[role="dialog"]').find('select').select('Styrbjörns båtar');
     cy.wait('@postRepresenting').its('response.statusCode').should('eq', 200);
   });
 
