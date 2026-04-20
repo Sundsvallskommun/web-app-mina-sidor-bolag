@@ -12,7 +12,7 @@ describe('Avtal', () => {
   it('should render list of agreements', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('exist').should('contain.text', 'Dina avtal');
-    cy.get('[data-cy="agreement-search-field"]').should('not.exist');
+    cy.get('[data-cy="agreement-search-field"]').should('exist');
 
     getMyPagedAgreements().data.forEach((agreement: Agreement) => {
       if (agreement.mainAgreement) {
