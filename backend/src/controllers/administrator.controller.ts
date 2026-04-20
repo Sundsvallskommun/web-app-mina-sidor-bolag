@@ -34,6 +34,7 @@ export class AdministratorController {
 
     const userEngagements: UserEngagement = {
       userPersonNumber: '',
+      userName: '',
       userPartyId: '',
       canRepresent: [],
     };
@@ -52,12 +53,9 @@ export class AdministratorController {
         const citizenResponse = await this.apiService.get<CitizenExtended>({ url: citizenUrl }, req.user);
 
         if (citizenResponse.data) {
+          userEngagements.userName = `${citizenResponse.data.givenname} ${citizenResponse.data.lastname}`;
           userEngagements.userPersonNumber = personNumber;
           userEngagements.userPartyId = userPartyId;
-          userEngagements.canRepresent.push({
-            name: `${citizenResponse.data.givenname} ${citizenResponse.data.lastname}`,
-            representingNumber: personNumber,
-          });
         }
       }
     } catch (error) {
@@ -81,9 +79,58 @@ export class AdministratorController {
         });
       }
     } catch (error) {
-      logger.error('Error getting LE engagements', error);
+      logger.info('Error getting LE engagements', error);
+      return { data: userEngagements, message: 'success' };
     }
 
     return { data: userEngagements, message: 'success' };
+  }
+
+  @Post('/impersonate-user')
+  @OpenAPI({ summary: 'Impersonate user' })
+  async impersonateUser(
+    @Req() req: RequestWithUser,
+    @Body()
+    body: {
+      toImpersonatePersonNumber: string;
+      toImpersonateName: string;
+      toImpersonateRepresentingNumber: string;
+      toImpersonatePartyId: string;
+      accessReason: string;
+    },
+  ): Promise<boolean> {
+    const { toImpersonatePersonNumber, toImpersonatePartyId, toImpersonateName, accessReason } = body;
+    const session = req.session ?? undefined;
+    const partyId = getRepresentingPartyId(session.representing);
+
+    if (!partyId || !toImpersonatePersonNumber || !toImpersonatePartyId || !accessReason) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    session.representing.PRIVATE = {
+      personNumber: toImpersonatePersonNumber,
+      partyId: toImpersonatePartyId,
+      name: toImpersonateName,
+    };
+
+    req.user.partyId = toImpersonatePartyId;
+    req.user.personNumber = toImpersonatePersonNumber;
+    req.user.name = toImpersonateName;
+    req.user.permissions = {
+      canImpersonateUser: false,
+      isImpersonatingUser: true,
+    };
+
+    req.cache = undefined;
+    req.session.cache = {
+      partyId: undefined,
+      cases: {},
+      relations: { customerNumber: [], customerRelations: [] },
+      addresses: [],
+      facilities: [],
+      delegations: [],
+    };
+
+    return true;
   }
 }

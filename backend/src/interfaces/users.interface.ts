@@ -13,10 +13,12 @@ export interface User extends Record<string, unknown> {
 
 export interface Permissions {
   canImpersonateUser: boolean;
+  isImpersonatingUser: boolean;
 }
 
 export interface UserEngagement {
   userPersonNumber: string;
+  userName: string;
   userPartyId: string;
   canRepresent: { name: string; representingNumber: string }[];
 }

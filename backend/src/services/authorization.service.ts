@@ -8,6 +8,7 @@ import { HttpException } from '@exceptions/HttpException';
 
 export const defaultPermissions: () => Permissions = () => ({
   canImpersonateUser: false,
+  isImpersonatingUser: false,
 });
 
 export const getPermissions = (groups: string[]): Permissions => {
