@@ -238,35 +238,97 @@ export interface Problem {
   instance?: string;
   /** @format uri */
   type?: string;
+  parameters?: Record<string, any>;
+  status?: StatusType;
   title?: string;
   detail?: string;
+}
+
+export interface StatusType {
   /** @format int32 */
-  status?: number;
+  statusCode?: number;
+  reasonPhrase?: string;
 }
 
 export interface ConstraintViolationProblem {
+  cause?: ThrowableProblem;
+  stackTrace?: {
+    classLoaderName?: string;
+    moduleName?: string;
+    moduleVersion?: string;
+    methodName?: string;
+    fileName?: string;
+    /** @format int32 */
+    lineNumber?: number;
+    className?: string;
+    nativeMethod?: boolean;
+  }[];
   /** @format uri */
   type?: string;
-  /** @format int32 */
-  status?: number;
+  status?: StatusType;
   violations?: Violation[];
   title?: string;
+  message?: string;
   /** @format uri */
   instance?: string;
+  parameters?: Record<string, any>;
   detail?: string;
-  causeAsProblem?: ThrowableProblem;
+  suppressed?: {
+    stackTrace?: {
+      classLoaderName?: string;
+      moduleName?: string;
+      moduleVersion?: string;
+      methodName?: string;
+      fileName?: string;
+      /** @format int32 */
+      lineNumber?: number;
+      className?: string;
+      nativeMethod?: boolean;
+    }[];
+    message?: string;
+    localizedMessage?: string;
+  }[];
+  localizedMessage?: string;
 }
 
 export interface ThrowableProblem {
-  /** @format uri */
-  type?: string;
-  title?: string;
-  /** @format int32 */
-  status?: number;
-  detail?: string;
+  cause?: any;
+  stackTrace?: {
+    classLoaderName?: string;
+    moduleName?: string;
+    moduleVersion?: string;
+    methodName?: string;
+    fileName?: string;
+    /** @format int32 */
+    lineNumber?: number;
+    className?: string;
+    nativeMethod?: boolean;
+  }[];
+  message?: string;
   /** @format uri */
   instance?: string;
-  causeAsProblem?: any;
+  /** @format uri */
+  type?: string;
+  parameters?: Record<string, any>;
+  status?: StatusType;
+  title?: string;
+  detail?: string;
+  suppressed?: {
+    stackTrace?: {
+      classLoaderName?: string;
+      moduleName?: string;
+      moduleVersion?: string;
+      methodName?: string;
+      fileName?: string;
+      /** @format int32 */
+      lineNumber?: number;
+      className?: string;
+      nativeMethod?: boolean;
+    }[];
+    message?: string;
+    localizedMessage?: string;
+  }[];
+  localizedMessage?: string;
 }
 
 export interface Violation {

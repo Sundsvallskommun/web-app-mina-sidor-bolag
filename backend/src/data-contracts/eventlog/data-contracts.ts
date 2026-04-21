@@ -143,10 +143,11 @@ export interface PageEvent {
   content?: Event[];
   /** @format int32 */
   number?: number;
-  /** @format int32 */
-  numberOfElements?: number;
   first?: boolean;
   last?: boolean;
+  pageable?: PageableObject;
+  /** @format int32 */
+  numberOfElements?: number;
   sort?: SortObject;
   empty?: boolean;
 }
@@ -159,8 +160,8 @@ export interface PageableObject {
   pageNumber?: number;
   /** @format int32 */
   pageSize?: number;
-  unpaged?: boolean;
   sort?: SortObject;
+  unpaged?: boolean;
 }
 
 export interface SortObject {
