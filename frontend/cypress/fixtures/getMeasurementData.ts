@@ -8,7 +8,7 @@ export const getOverviewDistrictHeatingData: (fromDate: string, toDate: string) 
 ) => ({
   data: {
     category: Category.DISTRICT_HEATING,
-    facilityId: '333',
+    facilityId: ['333'],
     aggregateOn: Aggregation.MONTH,
     toDate: toDate,
     fromDate: fromDate,
@@ -38,7 +38,7 @@ export const getOverviewElectricityData: (fromDate: string, toDate: string) => A
 ) => ({
   data: {
     category: Category.ELECTRICITY,
-    facilityId: '111',
+    facilityId: ['111'],
     aggregateOn: Aggregation.MONTH,
     toDate: toDate,
     fromDate: fromDate,
@@ -68,7 +68,7 @@ export const getOverviewElectricityProductionData: (fromDate: string, toDate: st
 ) => ({
   data: {
     category: Category.ELECTRICITY,
-    facilityId: '222',
+    facilityId: ['222'],
     aggregateOn: Aggregation.MONTH,
     toDate: toDate,
     fromDate: fromDate,
@@ -162,7 +162,7 @@ export const getStatisticsData: (
 ) => ApiResponse<Data> = (fromDate, toDate, category, aggregateOn, facilityId = '111') => ({
   data: {
     category: category,
-    facilityId: facilityId,
+    facilityId: [facilityId],
     aggregateOn: aggregateOn,
     toDate: toDate,
     fromDate: fromDate,

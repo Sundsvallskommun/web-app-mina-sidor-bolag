@@ -3,7 +3,7 @@
 import { StatisticsForm } from '@layouts/pages/mypages-sections/statistics.component';
 import { cx, FormLabel, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { ChangeEvent, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { generateSelectableMonths } from '../generateDateLists';
 
@@ -12,29 +12,24 @@ export const StatisticsFilterMonth: React.FC = () => {
     return generateSelectableMonths(dayjs().format('YYYY-MM-DD'));
   }, []);
 
-  const { setValue: setFormValue, watch } = useFormContext<StatisticsForm>();
-
+  const { setValue, watch } = useFormContext<StatisticsForm>();
   const { selectedYear, selectedMonth } = watch();
 
-  const [value, setValue] = useState<string>(
-    `${selectedYear ?? dayjs().format('YYYY')}-${selectedMonth ?? dayjs().format('MM')}-01`
-  );
+  const date =
+    selectedYear && selectedMonth
+      ? `${selectedYear}-${selectedMonth}-01`
+      : dayjs().subtract(1, 'day').startOf('month').format('YYYY-MM-DD');
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const newDate = dayjs(event.target.value);
-
-    const year = newDate.format('YYYY');
-    const month = newDate.format('MM');
-
-    setFormValue('selectedYear', year);
-    setFormValue('selectedMonth', month);
-    setValue(event.target.value);
+    setValue('selectedYear', newDate.format('YYYY'));
+    setValue('selectedMonth', newDate.format('MM'));
   };
 
   return (
     <div className={cx(`w-full lg:pt-0 pt-16`)}>
       <FormLabel>Månad</FormLabel>
-      <Select className="w-full mt-8" value={value} name="month" onChange={handleChange} data-cy="month-select">
+      <Select className="w-full mt-8" value={date} name="month" onChange={handleChange} data-cy="month-select">
         {selectableMonths.map((dateObj) => (
           <Select.Option key={dateObj.value} value={dateObj.value}>
             {dateObj.label}
