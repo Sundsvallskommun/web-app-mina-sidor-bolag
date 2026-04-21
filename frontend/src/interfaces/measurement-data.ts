@@ -34,6 +34,7 @@ export interface Data {
 export interface MeasurementSerie {
   unit?: string;
   measurementType?: string;
+  facilityId?: string;
   metaData?: MetaData[];
   measurementPoints?: MeasurementPoints[];
 }

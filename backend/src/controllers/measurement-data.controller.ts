@@ -21,12 +21,17 @@ export class MeasurementDataController {
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
     const representing = req.session?.representing ?? undefined;
     const delegations = req.session?.cache?.delegations ?? [];
-    const { category, facilityId, fromDate, toDate, aggregateOn } = req.query;
+    const { category, facilityIds, fromDate, toDate, aggregateOn } = req.query;
+    const facilityIdList = Array.isArray(facilityIds)
+      ? (facilityIds as string[])
+      : facilityIds
+        ? [facilityIds as string]
+        : [];
     let partyId = getRepresentingPartyId(representing);
 
     delegations.forEach(delegation => {
       delegation.facilities.forEach(facility => {
-        if (facility.id === facilityId) {
+        if (facilityIdList.includes(facility.id)) {
           partyId = delegation.owner;
         }
       });
@@ -41,7 +46,7 @@ export class MeasurementDataController {
       const params = {
         partyId,
         category,
-        facilityIds: facilityId ? [facilityId] : [],
+        facilityIds: facilityIdList,
         fromDate,
         toDate,
         aggregateOn,

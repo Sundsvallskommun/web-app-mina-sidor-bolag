@@ -21,7 +21,7 @@ export const ConsumptionCard = (props: { facility: InstalledBaseItem; date: Dayj
     const lastDay = date.endOf('month').toISOString();
 
     params.append('category', getCategoryFromInstalledBaseType(facility.type));
-    params.append('facilityId', facility.facilityId ?? '');
+    params.append('facilityIds', facility.facilityId ?? '');
     params.append('fromDate', firstDay);
     params.append('toDate', lastDay);
     params.append('aggregateOn', 'MONTH');
