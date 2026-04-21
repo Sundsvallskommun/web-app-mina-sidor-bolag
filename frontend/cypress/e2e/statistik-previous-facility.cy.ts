@@ -18,13 +18,13 @@ describe('Statistik - Handle previous (inactive) facility', () => {
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityId=444&fromDate=*&toDate=*&aggregateOn=*',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=444&fromDate=*&toDate=*&aggregateOn=*',
       getStatisticsData(monthStart, today, Category.ELECTRICITY, Aggregation.DAY, '444')
     ).as('getPreviousFacilityData');
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=DAY',
+      '**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=DAY',
       getStatisticsData(monthStart, today, Category.DISTRICT_HEATING, Aggregation.DAY)
     );
 

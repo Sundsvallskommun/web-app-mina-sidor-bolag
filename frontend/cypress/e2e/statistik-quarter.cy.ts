@@ -19,7 +19,7 @@ describe('Statistik - QUARTER Aggregation', () => {
     const today = dayjs().format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=DISTRICT_HEATING&facilityId=*&fromDate=*&toDate=*&aggregateOn=DAY',
+      '**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=*&fromDate=*&toDate=*&aggregateOn=DAY',
       getStatisticsData(monthStart, today, Category.DISTRICT_HEATING, Aggregation.DAY)
     );
 
@@ -27,19 +27,19 @@ describe('Statistik - QUARTER Aggregation', () => {
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityId=*&fromDate=*&toDate=*&aggregateOn=DAY',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=DAY',
       getStatisticsData(monthStart, today, Category.ELECTRICITY, Aggregation.DAY)
     );
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityId=*&fromDate=*&toDate=*&aggregateOn=HOUR',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=HOUR',
       getStatisticsData(today, today, Category.ELECTRICITY, Aggregation.HOUR)
     ).as('hourData');
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityId=*&fromDate=*&toDate=*&aggregateOn=QUARTER',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=QUARTER',
       getStatisticsData(today, today, Category.ELECTRICITY, Aggregation.QUARTER)
     ).as('quarterData');
 
