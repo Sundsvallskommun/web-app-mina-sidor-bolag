@@ -1,28 +1,31 @@
 import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { useApi } from '@services/api-service';
 import { useMemo } from 'react';
-import { pagedAgreementsHandler } from '@services/agreement-service';
-import { Agreement, AgreementData } from '@interfaces/agreement';
+import { agreementCategories } from '@services/agreement-service';
+import { Agreement } from '@interfaces/agreement';
 
 export const useRelations = () => {
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
-  const { data: agreements } = useApi<Agreement[], Error, AgreementData>({
-    url: '/paged/agreements',
+  const url = '/paged/agreements';
+  const { data: allAgreements } = useApi<Agreement[]>({
+    url,
     method: 'get',
-    dataHandler: pagedAgreementsHandler,
+    queryKey: [url, 'raw'],
   });
 
   const activeCustomerEngagements = useMemo(() => {
     const allCustomerEngagements = relations?.map((relation) => relation.organizationNumber ?? '') ?? [];
-    if (!agreements || !relations) return allCustomerEngagements;
+    if (!allAgreements || !relations) return allCustomerEngagements;
 
     const normalize = (s?: string) => s?.trim().toLowerCase() ?? '';
 
-    // Get contractors from active agreements, we use names because we do not have organization numbers in agreements, better to be improved later
+    // Get contractors from all agreements (not just visible categories) so logos render for all companies
     const contractors = new Set(
-      Object.values(agreements)
-        .flat()
-        .map((agreement) => normalize(agreement.category.contractor))
+      allAgreements
+        .map((agreement) => {
+          const cat = agreementCategories[agreement.category as keyof typeof agreementCategories];
+          return cat ? normalize(cat.contractor) : '';
+        })
         .filter(Boolean)
     );
 
@@ -30,7 +33,7 @@ export const useRelations = () => {
     return relations
       .filter((relation) => contractors.has(normalize(relation.organizationName)))
       .map((relation) => relation.organizationNumber ?? '');
-  }, [agreements, relations]);
+  }, [allAgreements, relations]);
 
   return { relations, activeCustomerEngagements };
 };

@@ -86,6 +86,12 @@ export const setIntercepts = (
     `**/api/measurementdata?category=ELECTRICITY&facilityId=222&fromDate=*&toDate=*&aggregateOn=MONTH`,
     getOverviewElectricityProductionData(fromDate, toDate)
   ).as('getOverviewElectricityProductionData');
+
+  cy.intercept(
+    'GET',
+    `**/api/measurementdata?category=ELECTRICITY&facilityId=444&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    getOverviewElectricityData(fromDate, toDate)
+  ).as('getOverviewPreviousFacilityData');
 };
 
 beforeEach(() => {
