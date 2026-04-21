@@ -157,11 +157,12 @@ export const getStatisticsData: (
   fromDate: string,
   toDate: string,
   category: Category,
-  aggregateOn: Aggregation
-) => ApiResponse<Data> = (fromDate, toDate, category, aggregateOn) => ({
+  aggregateOn: Aggregation,
+  facilityId?: string
+) => ApiResponse<Data> = (fromDate, toDate, category, aggregateOn, facilityId = '111') => ({
   data: {
     category: category,
-    facilityId: '111',
+    facilityId: facilityId,
     aggregateOn: aggregateOn,
     toDate: toDate,
     fromDate: fromDate,

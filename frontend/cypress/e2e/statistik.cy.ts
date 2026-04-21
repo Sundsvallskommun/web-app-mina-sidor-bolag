@@ -59,7 +59,10 @@ describe('Statistik', () => {
   it('should render filters correctly', () => {
     statisticsDataIntercept();
 
-    cy.get('[data-cy="address-select"]').should('exist').should('have.text', getMe.data.addresses[0].address);
+    cy.get('[data-cy="address-select"]')
+      .should('exist')
+      .find('option:selected')
+      .should('have.text', getMe.data.addresses[0].address);
     cy.get('[data-cy="contract-select"]').should('exist').should('include.text', getMe.data.facilities[0].facilityId);
     cy.get('[data-cy="date-toggle"]').should('exist');
     cy.get('[data-cy="date-toggle-year-button"]').should('exist');
