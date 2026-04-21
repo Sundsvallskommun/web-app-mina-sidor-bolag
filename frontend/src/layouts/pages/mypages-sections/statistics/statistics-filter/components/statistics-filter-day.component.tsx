@@ -3,29 +3,23 @@
 import { StatisticsForm } from '@layouts/pages/mypages-sections/statistics.component';
 import { cx, DatePicker, FormLabel } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 export const StatisticsFilterDay: React.FC = () => {
-  const { setValue: setFormValue, watch } = useFormContext<StatisticsForm>();
-
+  const { setValue, watch } = useFormContext<StatisticsForm>();
   const { selectedYear, selectedMonth, selectedDay } = watch();
 
-  const [value, setValue] = useState<string>(
-    `${selectedYear ?? dayjs().format('YYYY')}-${selectedMonth ?? dayjs().format('MM')}-${selectedDay ?? dayjs().format('MM')}`
-  );
+  const date =
+    selectedYear && selectedMonth && selectedDay
+      ? `${selectedYear}-${selectedMonth}-${selectedDay}`
+      : dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newDate = dayjs(event.target.value);
-
-    const year = newDate.format('YYYY');
-    const month = newDate.format('MM');
-    const day = newDate.format('DD');
-
-    setFormValue('selectedYear', year);
-    setFormValue('selectedMonth', month);
-    setFormValue('selectedDay', day);
-    setValue(event.target.value);
+    setValue('selectedYear', newDate.format('YYYY'));
+    setValue('selectedMonth', newDate.format('MM'));
+    setValue('selectedDay', newDate.format('DD'));
   };
 
   return (
@@ -34,7 +28,7 @@ export const StatisticsFilterDay: React.FC = () => {
       <DatePicker
         className="w-full mt-8"
         type="date"
-        value={value}
+        value={date}
         min={dayjs().startOf('year').subtract(3, 'year').format('YYYY-MM-DD')}
         max={dayjs().format('YYYY-MM-DD')}
         name="day"
