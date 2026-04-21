@@ -1,4 +1,4 @@
-import { MUNICIPALITY_ID } from '@/config';
+import { MUNICIPALITY_ID, NAMESPACE } from '@/config';
 import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -11,16 +11,20 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import impersonationMiddleware from '@middlewares/impersonation.middleware';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
-import { UserEngagement } from '@interfaces/users.interface';
+import { User, UserEngagement } from '@interfaces/users.interface';
 import { logger } from '@utils/logger';
+import { EventType } from '@/responses/eventlog.response';
+import dayjs from 'dayjs';
+import { Event, PageEvent } from '@/data-contracts/eventlog/data-contracts';
 
 @Controller()
 @UseBefore(authMiddleware)
 @UseBefore(impersonationMiddleware)
-export class AdministratorController {
+export class ImpersonationController {
   private readonly apiService = new ApiService();
-  private readonly CitizenApiBase = getApiBase('citizen');
+  private readonly citizenApiBase = getApiBase('citizen');
   private readonly LEApiBase = getApiBase('legalentity');
+  private readonly eventLogApiBase = getApiBase('eventlog');
 
   @Post('/user-engagements')
   @OpenAPI({ summary: 'Get engagements by person number' })
@@ -44,12 +48,12 @@ export class AdministratorController {
     }
 
     try {
-      const url = `${this.CitizenApiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
+      const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
       const partyId = await this.apiService.get<string>({ url }, req.user);
       const userPartyId = partyId.data;
 
       if (userPartyId) {
-        const citizenUrl = `${this.CitizenApiBase}/${MUNICIPALITY_ID}/${userPartyId}`;
+        const citizenUrl = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${userPartyId}`;
         const citizenResponse = await this.apiService.get<CitizenExtended>({ url: citizenUrl }, req.user);
 
         if (citizenResponse.data) {
@@ -94,7 +98,6 @@ export class AdministratorController {
     body: {
       toImpersonatePersonNumber: string;
       toImpersonateName: string;
-      toImpersonateRepresentingNumber: string;
       toImpersonatePartyId: string;
       accessReason: string;
     },
@@ -106,6 +109,8 @@ export class AdministratorController {
     if (!partyId || !toImpersonatePersonNumber || !toImpersonatePartyId || !accessReason) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await this.createEvent(req.user, toImpersonatePartyId, accessReason);
 
     session.representing.PRIVATE = {
       personNumber: toImpersonatePersonNumber,
@@ -132,5 +137,35 @@ export class AdministratorController {
     };
 
     return true;
+  }
+
+  async createEvent(requestedBy: User, toImpersonatePartyId: string, accessReason: string): Promise<void> {
+    if (!requestedBy || !toImpersonatePartyId || !accessReason) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    const metadata = [
+      { key: 'requestedByPartyId', value: requestedBy.partyId },
+      { key: 'requestedByName', value: `${requestedBy.name} (Kundservice)` },
+      { key: 'toImpersonatePartyId', value: toImpersonatePartyId },
+      { key: 'accessReason', value: accessReason },
+    ];
+
+    const createLogData: Event = {
+      type: EventType.ACCESS,
+      message: 'Växling till kund',
+      owner: NAMESPACE,
+      sourceType: 'Impersonation',
+      expires: dayjs().add(1, 'year').utc(true).toISOString(),
+      metadata,
+    };
+
+    try {
+      const url = `${this.eventLogApiBase}/${MUNICIPALITY_ID}/${toImpersonatePartyId}`;
+      await this.apiService.post<PageEvent, Event>({ url, data: createLogData }, requestedBy);
+    } catch (error) {
+      logger.error('Could not create impersonation event log', error);
+      throw error;
+    }
   }
 }

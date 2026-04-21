@@ -11,6 +11,7 @@ export interface ApiResponseMeta {
 
 export interface ApiResponse<T> {
   data: T;
+  status?: number;
   message: string;
 }
 

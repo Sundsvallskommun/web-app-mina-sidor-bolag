@@ -12,6 +12,7 @@ import {
   Select,
   Spinner,
   Table,
+  useSnackbar,
 } from '@sk-web-gui/react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { queryClient, useApi } from '@services/api-service';
@@ -60,6 +61,7 @@ function BackButton({ fallbackHref = '/oversikt' }: Readonly<{ fallbackHref?: st
 export default function ImpersonateUser() {
   const { t } = useTranslation('impersonation');
   const accessReasons = ['I samtal med kunden', 'Inkommit ärende', 'Annan överenskommelse med kunden'];
+  const toastMessage = useSnackbar();
 
   const {
     register,
@@ -122,9 +124,16 @@ export default function ImpersonateUser() {
   };
 
   const _onSubmit = async (data: ImpersonateFormData) => {
-    await impersonateUser(data).then(() => {
-      globalThis.location.assign('/oversikt');
-    });
+    await impersonateUser(data)
+      .then(() => {
+        globalThis.location.assign('/oversikt');
+      })
+      .catch(() => {
+        toastMessage({
+          message: t('impersonation:error.impersonation'),
+          status: 'error',
+        });
+      });
   };
 
   return (

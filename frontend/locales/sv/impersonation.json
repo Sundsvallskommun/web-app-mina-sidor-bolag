@@ -16,7 +16,8 @@
   "error": {
     "personNumber": "Fyll i ett korrekt personnummer",
     "accessReason": "Åtkomstskäl måste anges",
-    "representingNumber": "Välj en person eller företag att växla till"
+    "representingNumber": "Välj en person eller företag att växla till",
+    "impersonation": "Kunde inte växla till vald användare."
   },
   "goBack": "Tillbaka",
   "impersonate": "Växla till användare",
