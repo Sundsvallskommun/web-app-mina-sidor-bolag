@@ -17,10 +17,11 @@ describe('Statistik - QUARTER Aggregation', () => {
   it('should render chart with QUARTER aggregation', () => {
     const monthStart = dayjs().startOf('month').format('YYYY-MM-DD');
     const today = dayjs().format('YYYY-MM-DD');
+    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=DISTRICT_HEATING&facilityId=*&fromDate=*&toDate=*&aggregateOn=DAY',
-      getStatisticsData(monthStart, today, Category.DISTRICT_HEATING, Aggregation.DAY)
+      '**/api/measurementdata?category=DISTRICT_HEATING&facilityId=*&fromDate=*&toDate=*&aggregateOn=*',
+      getStatisticsData(yesterday, yesterday, Category.DISTRICT_HEATING, Aggregation.HOUR)
     );
 
     cy.intercept('POST', '**/api/netowner', getNetOwner());
@@ -34,13 +35,13 @@ describe('Statistik - QUARTER Aggregation', () => {
     cy.intercept(
       'GET',
       '**/api/measurementdata?category=ELECTRICITY&facilityId=*&fromDate=*&toDate=*&aggregateOn=HOUR',
-      getStatisticsData(today, today, Category.ELECTRICITY, Aggregation.HOUR)
+      getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR)
     ).as('hourData');
 
     cy.intercept(
       'GET',
       '**/api/measurementdata?category=ELECTRICITY&facilityId=*&fromDate=*&toDate=*&aggregateOn=QUARTER',
-      getStatisticsData(today, today, Category.ELECTRICITY, Aggregation.QUARTER)
+      getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.QUARTER)
     ).as('quarterData');
 
     cy.visit('/privat/statistik');
@@ -67,8 +68,8 @@ describe('Statistik - QUARTER Aggregation', () => {
 
     cy.get('[data-cy="average-consumption-value"]').should('exist').and('contain.text', '485');
 
-    // Verify day-select date picker is visible and set to today
-    cy.get('[data-cy="day-select"]').should('exist').and('have.value', monthStart);
+    // Verify day-select date picker is visible and defaults to yesterday
+    cy.get('[data-cy="day-select"]').should('exist').and('have.value', yesterday);
 
     // Verify TimeIntervalSelector: "15 min" is active (data-inverted="true"), "60 min" is not
     cy.contains('button', '15 min').should('have.attr', 'data-inverted', 'true');
