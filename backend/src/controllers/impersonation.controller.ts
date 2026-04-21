@@ -110,40 +110,36 @@ export class ImpersonationController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const eventCreated = this.createEvent(req.user, toImpersonatePartyId, accessReason);
+    await this.createEvent(req.user, toImpersonatePartyId, accessReason);
 
-    if (eventCreated) {
-      session.representing.PRIVATE = {
-        personNumber: toImpersonatePersonNumber,
-        partyId: toImpersonatePartyId,
-        name: toImpersonateName,
-      };
+    session.representing.PRIVATE = {
+      personNumber: toImpersonatePersonNumber,
+      partyId: toImpersonatePartyId,
+      name: toImpersonateName,
+    };
 
-      req.user.partyId = toImpersonatePartyId;
-      req.user.personNumber = toImpersonatePersonNumber;
-      req.user.name = toImpersonateName;
-      req.user.permissions = {
-        canImpersonateUser: false,
-        isImpersonatingUser: true,
-      };
+    req.user.partyId = toImpersonatePartyId;
+    req.user.personNumber = toImpersonatePersonNumber;
+    req.user.name = toImpersonateName;
+    req.user.permissions = {
+      canImpersonateUser: false,
+      isImpersonatingUser: true,
+    };
 
-      req.cache = undefined;
-      req.session.cache = {
-        partyId: undefined,
-        cases: {},
-        relations: { customerNumber: [], customerRelations: [] },
-        addresses: [],
-        facilities: [],
-        delegations: [],
-      };
+    req.cache = undefined;
+    req.session.cache = {
+      partyId: undefined,
+      cases: {},
+      relations: { customerNumber: [], customerRelations: [] },
+      addresses: [],
+      facilities: [],
+      delegations: [],
+    };
 
-      return true;
-    } else {
-      throw new HttpException(400, 'Bad Request');
-    }
+    return true;
   }
 
-  async createEvent(requestedBy: User, toImpersonatePartyId: string, accessReason: string): Promise<boolean> {
+  async createEvent(requestedBy: User, toImpersonatePartyId: string, accessReason: string): Promise<void> {
     if (!requestedBy || !toImpersonatePartyId || !accessReason) {
       throw new HttpException(400, 'Bad Request');
     }
@@ -166,8 +162,7 @@ export class ImpersonationController {
 
     try {
       const url = `${this.eventLogApiBase}/${MUNICIPALITY_ID}/${toImpersonatePartyId}`;
-      const res = await this.apiService.post<PageEvent, Event>({ url, data: createLogData }, requestedBy);
-      return res.status === 202;
+      await this.apiService.post<PageEvent, Event>({ url, data: createLogData }, requestedBy);
     } catch (error) {
       logger.error('Could not create impersonation event log', error);
       throw error;

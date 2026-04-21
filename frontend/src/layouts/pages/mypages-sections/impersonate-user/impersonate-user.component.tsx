@@ -130,7 +130,7 @@ export default function ImpersonateUser() {
       })
       .catch(() => {
         toastMessage({
-          message: t('impersonation:error.impersonate'),
+          message: t('impersonation:error.impersonation'),
           status: 'error',
         });
       });
