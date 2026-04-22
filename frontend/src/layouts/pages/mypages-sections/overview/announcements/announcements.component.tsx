@@ -36,7 +36,7 @@ export const announcementsSource: Announcement[] = [
     title: 'Välkommen till nya versionen av Mina sidor!',
     text: 'Mina sidor har fått ett nytt utseende och en tydligare struktur, och nu är det fritt fram för dig att testa den nya versionen. Det mesta är sig likt, men vi har putsat på designen och gjort det enklare att hitta rätt. Under en övergångsperiod kan du själv välja om du vill använda den gamla versionen eller prova den nya. Testa den gärna, klicka runt och lämna dina synpunkter. Din feedback är guld värd och hjälper oss att göra Mina Sidor ännu bättre i vårt fortsatta utvecklingsarbete.',
     urlTitle: 'Lämna din feedback',
-    url: 'https://e-tjanster.stadsbacken.se/oversikt/flow/225',
+    url: 'https://e-tjanster.stadsbacken.se/oversikt/flow/225?privat',
     groups: [
       AnnouncementGroup.CUSTOMER_SV_EL,
       AnnouncementGroup.CUSTOMER_SV_ENERGI,
@@ -71,7 +71,7 @@ export const announcementsSource: Announcement[] = [
     title: 'Kontakta oss',
     text: 'Behöver du komma i kontakt med oss? Fyll i formuläret och ange vad du önskar ha hjälp med, så återkommer vi till dig inom tre arbetsdagar. Är ditt ärende mer brådskande ber vi dig istället att ringa in till oss.',
     urlTitle: 'Skicka in ditt ärende här',
-    url: 'https://e-tjanster.stadsbacken.se/oversikt/flow/225',
+    url: 'https://e-tjanster.stadsbacken.se/oversikt/flow/225?privat',
     groups: [
       AnnouncementGroup.CUSTOMER_SV_EL,
       AnnouncementGroup.CUSTOMER_SV_ENERGI,
@@ -163,7 +163,7 @@ const TemporaryDisturbanceArticle = () => {
           <Link
             external
             className="font-bold text-dark underline"
-            href="https://e-tjanster.stadsbacken.se/oversikt/flow/270"
+            href="https://e-tjanster.stadsbacken.se/oversikt/flow/270?privat"
           >
             utdrag via denna e-tjänst
           </Link>
