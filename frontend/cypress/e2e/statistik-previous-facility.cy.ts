@@ -13,19 +13,18 @@ describe('Statistik - Handle previous (inactive) facility', () => {
   });
 
   const visitAndSelectPreviousFacility = () => {
-    const monthStart = dayjs().startOf('month').format('YYYY-MM-DD');
-    const today = dayjs().format('YYYY-MM-DD');
+    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 
     cy.intercept(
       'GET',
       '**/api/measurementdata?category=ELECTRICITY&facilityIds=444&fromDate=*&toDate=*&aggregateOn=*',
-      getStatisticsData(monthStart, today, Category.ELECTRICITY, Aggregation.DAY, '444')
+      getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR, '444')
     ).as('getPreviousFacilityData');
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=DAY',
-      getStatisticsData(monthStart, today, Category.DISTRICT_HEATING, Aggregation.DAY)
+      '**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=HOUR',
+      getStatisticsData(yesterday, yesterday, Category.DISTRICT_HEATING, Aggregation.HOUR)
     );
 
     cy.intercept('POST', '**/api/netowner', getNetOwner());

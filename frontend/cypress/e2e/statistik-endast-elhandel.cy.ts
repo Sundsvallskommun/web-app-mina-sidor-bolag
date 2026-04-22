@@ -15,15 +15,11 @@ describe('Handle user with only trade agreement', () => {
     interceptRepresentingMode(RepresentingMode.PRIVATE);
     cy.intercept('GET', '**/api/paged/all-agreements', getAgreementOnlyTrade());
     cy.intercept('GET', '**/api/ai/isReady', isReady(false));
+    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityIds=111&fromDate=**&toDate=**&aggregateOn=DAY`,
-      getStatisticsData(
-        dayjs().startOf('month').format('YYYY-MM-DD'),
-        dayjs().format('YYYY-MM-DD'),
-        Category.ELECTRICITY,
-        Aggregation.DAY
-      )
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=111&fromDate=**&toDate=**&aggregateOn=HOUR`,
+      getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR)
     );
     cy.intercept('POST', '**/api/netowner', getNetOwner());
     cy.intercept('GET', '**/api/myrelations', getMyRelationsOnlyTrade);
