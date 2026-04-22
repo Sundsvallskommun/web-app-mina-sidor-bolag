@@ -18,7 +18,7 @@ describe('Handle user with only trade agreement', () => {
     const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=**&toDate=**&aggregateOn=HOUR`,
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=111&fromDate=**&toDate=**&aggregateOn=HOUR`,
       getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR)
     );
     cy.intercept('POST', '**/api/netowner', getNetOwner());

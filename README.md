@@ -5,7 +5,7 @@
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
 | API               | Version |
-| ----------------- |--------:|
+| ----------------- | ------: |
 | ContactSettings   |     2.0 |
 | Citizen           |     3.0 |
 | Disturbances      |     5.0 |
@@ -14,7 +14,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Customer          |     4.0 |
 | Installedbase     |     3.1 |
 | Agreement         |     4.1 |
-| MeasurementData   |     3.1 |
+| MeasurementData   |     3.3 |
 | MyRepresentatives |     4.2 |
 | LegalEntity       |     2.0 |
 | Eventlog          |     2.1 |
