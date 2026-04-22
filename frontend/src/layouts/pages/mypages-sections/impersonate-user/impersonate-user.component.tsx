@@ -162,9 +162,7 @@ export default function ImpersonateUser() {
           />
 
           {(errors.searchPersonNumber || noUserEngagements) && (
-            <FormErrorMessage className="text-error flex flex-row items-center justify-start">
-              {t('impersonation:error.personNumber')}
-            </FormErrorMessage>
+            <FormErrorMessage className="mt-8">{t('impersonation:error.personNumber')}</FormErrorMessage>
           )}
 
           {isPending ? <Spinner className="mx-auto my-16" /> : null}
@@ -228,10 +226,7 @@ export default function ImpersonateUser() {
               ))}
             </Select>
             {errors.accessReason && (
-              <FormErrorMessage
-                className="text-error flex flex-row items-center justify-start mt-8"
-                data-cy="access-reason-error"
-              >
+              <FormErrorMessage className="mt-8" data-cy="access-reason-error">
                 {t('impersonation:error.accessReason')}
               </FormErrorMessage>
             )}
