@@ -53,7 +53,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
 
   let data: Data | undefined;
   try {
-    const response = await apiService.get<ApiResponse<Data>>(`/measurementdata?${params.toString()}`);
+    const response = await apiService.get<ApiResponse<Data>>(`/measurementdata?${params}`);
     data = response.data.data;
   } catch {
     return false;
