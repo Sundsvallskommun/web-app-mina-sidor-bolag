@@ -3,7 +3,7 @@ import { ApiResponse } from '@services/api-service';
 
 export const getUserEngagements: ApiResponse<UserEngagement> = {
   data: {
-    userPersonNumber: '199001012385',
+    userPersonNumber: Cypress.env('mockPersonNumber'),
     userName: 'Test Testsson',
     userPartyId: '12345678-1234-1234-1234-1234567890ab',
     canRepresent: [
