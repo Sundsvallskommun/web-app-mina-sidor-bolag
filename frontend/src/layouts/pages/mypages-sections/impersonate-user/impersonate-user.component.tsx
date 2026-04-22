@@ -156,6 +156,7 @@ export default function ImpersonateUser() {
                 onReset={onResetHandler}
                 onSearch={onSearchHandler}
                 placeholder={t('impersonation:search')}
+                data-cy="search-user-to-impersonate"
               />
             )}
           />
@@ -184,6 +185,7 @@ export default function ImpersonateUser() {
                         {...register('toImpersonatePersonNumber')}
                         onClick={() => handleSelectRepresenting()}
                         value={userEngagements.userPersonNumber}
+                        data-cy="user-to-impersonate-radio-button"
                       />
                     </Table.Column>
                     <Table.Column className="font-bold">{userEngagements.userName}</Table.Column>
@@ -217,7 +219,7 @@ export default function ImpersonateUser() {
 
           <div className="my-32">
             <FormLabel>{t('impersonation:accessReason.title')}</FormLabel>
-            <Select {...register('accessReason')} className="w-full">
+            <Select {...register('accessReason')} className="w-full" data-cy="access-reason">
               <Select.Option value="">{t('impersonation:accessReason.chooseAlternative')}</Select.Option>
               {accessReasons.map((reason) => (
                 <Select.Option key={reason} value={reason}>
@@ -226,7 +228,10 @@ export default function ImpersonateUser() {
               ))}
             </Select>
             {errors.accessReason && (
-              <FormErrorMessage className="text-error flex flex-row items-center justify-start mt-8">
+              <FormErrorMessage
+                className="text-error flex flex-row items-center justify-start mt-8"
+                data-cy="access-reason-error"
+              >
                 {t('impersonation:error.accessReason')}
               </FormErrorMessage>
             )}
@@ -239,6 +244,7 @@ export default function ImpersonateUser() {
               loading={impersonationPending}
               loadingText={t('impersonation:loading')}
               rightIcon={<ArrowRight />}
+              data-cy="submit-button"
             >
               {t('impersonation:impersonate')}
             </Button>

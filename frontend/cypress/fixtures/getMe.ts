@@ -328,6 +328,7 @@ export const getMe: ApiResponse<User> = {
       },
     ],
     extendedView: true,
+    isExtendingView: false,
   },
   message: 'success',
 };
@@ -398,6 +399,45 @@ export const getMeOnlyTrade: ApiResponse<User> = {
       },
     ],
     extendedView: false,
+    isExtendingView: false,
+  },
+  message: 'success',
+};
+
+export const getMeEmptyUserExtendedView: ApiResponse<User> = {
+  data: {
+    name: 'Förnamn Efternamn',
+    userSettings: {
+      feedbackLifespan: FeedbackLifespan.oneMonth,
+      readNotificationsClearedDate: '2025-01-01',
+    },
+    relations: {
+      customerNumber: '',
+      customerRelations: [],
+    },
+    addresses: [],
+    facilities: [],
+    extendedView: false,
+    isExtendingView: true,
+  },
+  message: 'success',
+};
+
+export const getMeEmptyUser: ApiResponse<User> = {
+  data: {
+    name: 'Förnamn Efternamn',
+    userSettings: {
+      feedbackLifespan: FeedbackLifespan.oneMonth,
+      readNotificationsClearedDate: '2025-01-01',
+    },
+    relations: {
+      customerNumber: '',
+      customerRelations: [],
+    },
+    addresses: [],
+    facilities: [],
+    extendedView: false,
+    isExtendingView: false,
   },
   message: 'success',
 };

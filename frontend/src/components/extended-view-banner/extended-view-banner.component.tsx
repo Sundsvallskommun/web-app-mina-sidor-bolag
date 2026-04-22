@@ -17,7 +17,7 @@ export const ExtendedViewBanner: React.FC = () => {
   });
 
   return user?.isExtendingView ? (
-    <div className="w-full bg-vattjom-background-200">
+    <div className="w-full bg-vattjom-background-200" data-cy="extended-view-banner">
       <div className="flex py-20 container w-full m-auto justify-between">
         <div className="flex items-center">
           <Icon icon={<AlertCircle />} color="vattjom" />
