@@ -7,22 +7,20 @@ import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
 import path from 'path';
 import { createEvent, getEvents } from '../fixtures/getExportEvents';
+import { getMyPagedAgreements } from 'cypress/fixtures/getMyPagedAgreements';
 
 describe('Statistik', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
+    cy.intercept('GET', '**/api/paged/all-agreements', getMyPagedAgreements());
   });
 
   const statisticsDataIntercept = () => {
+    const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=**&toDate=**&aggregateOn=DAY`,
-      getStatisticsData(
-        dayjs().startOf('month').format('YYYY-MM-DD'),
-        dayjs().format('YYYY-MM-DD'),
-        Category.DISTRICT_HEATING,
-        Aggregation.DAY
-      )
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=**&toDate=**&aggregateOn=*`,
+      getStatisticsData(yesterday, yesterday, Category.DISTRICT_HEATING, Aggregation.HOUR)
     );
     cy.intercept('POST', '**/api/netowner', getNetOwner());
 
@@ -34,7 +32,7 @@ describe('Statistik', () => {
   const emptyStatisticsDataIntercept = () => {
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=DAY`,
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=*`,
       { fixture: null }
     );
 
@@ -131,15 +129,11 @@ describe('Statistik', () => {
     const fromDate = dayjs().startOf('month').subtract(1, 'year').format('YYYY');
     const toDate = dayjs().subtract(1, 'year').format('YYYY');
 
+    const yesterdayLastYear = dayjs().subtract(1, 'day').subtract(1, 'year').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=DAY`,
-      getStatisticsData(
-        dayjs().startOf('month').subtract(1, 'year').format('YYYY-MM-DD'),
-        dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
-        Category.DISTRICT_HEATING,
-        Aggregation.DAY
-      )
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=*`,
+      getStatisticsData(yesterdayLastYear, yesterdayLastYear, Category.DISTRICT_HEATING, Aggregation.HOUR)
     ).as('getStatisticsDataToCompare');
 
     cy.get('[data-cy="compare-year-select"]').should('exist').select(1);
