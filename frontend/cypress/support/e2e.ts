@@ -72,24 +72,24 @@ export const setIntercepts = (
 
   cy.intercept(
     'GET',
-    `**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=MONTH`,
     getOverviewDistrictHeatingData(fromDate, toDate)
   ).as('getOverviewDistrictHeatingData');
 
   cy.intercept(
     'GET',
-    `**/api/measurementdata?category=ELECTRICITY&facilityId=111&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    `**/api/measurementdata?category=ELECTRICITY&facilityIds=111&fromDate=*&toDate=*&aggregateOn=MONTH`,
     getOverviewElectricityData(fromDate, toDate)
   ).as('getOverviewElectricityData');
   cy.intercept(
     'GET',
-    `**/api/measurementdata?category=ELECTRICITY&facilityId=222&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    `**/api/measurementdata?category=ELECTRICITY&facilityIds=222&fromDate=*&toDate=*&aggregateOn=MONTH`,
     getOverviewElectricityProductionData(fromDate, toDate)
   ).as('getOverviewElectricityProductionData');
 
   cy.intercept(
     'GET',
-    `**/api/measurementdata?category=ELECTRICITY&facilityId=444&fromDate=*&toDate=*&aggregateOn=MONTH`,
+    `**/api/measurementdata?category=ELECTRICITY&facilityIds=444&fromDate=*&toDate=*&aggregateOn=MONTH`,
     getOverviewElectricityData(fromDate, toDate)
   ).as('getOverviewPreviousFacilityData');
 };

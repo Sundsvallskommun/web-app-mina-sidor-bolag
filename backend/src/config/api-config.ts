@@ -34,7 +34,7 @@ export const APIS = [
   },
   {
     name: 'measurementdata',
-    version: '3.1',
+    version: '3.3',
   },
   {
     name: 'simulatorserver',

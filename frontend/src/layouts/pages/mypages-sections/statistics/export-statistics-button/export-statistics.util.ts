@@ -44,23 +44,30 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   const excelMaxSheetName = 31;
   const workbook = utils.book_new();
 
-  for (const facility of modalData.selectedFacilities) {
-    const params = new URLSearchParams({
-      category: modalData.category,
-      facilityId: facility.facilityId,
-      fromDate: fromDateParam,
-      toDate: toDateParam,
-      aggregateOn: aggregation,
-    });
+  const params = new URLSearchParams();
+  params.append('category', modalData.category);
+  modalData.selectedFacilities.forEach((f) => params.append('facilityIds', f.facilityId));
+  params.append('fromDate', fromDateParam);
+  params.append('toDate', toDateParam);
+  params.append('aggregateOn', aggregation);
 
-    let facilityData: StatisticsMeasurementData | undefined;
-    try {
-      const response = await apiService.get<ApiResponse<Data>>(`/measurementdata?${params.toString()}`);
-      facilityData = statisticsMeasurementDataHandler(response.data.data);
-    } catch {
-      // If fetching data for a facility fails, we skip it and continue with the others. The export will still work for the facilities that were fetched successfully.
-      continue;
-    }
+  let data: Data | undefined;
+  try {
+    const response = await apiService.get<ApiResponse<Data>>(`/measurementdata?${params}`);
+    data = response.data.data;
+  } catch {
+    return false;
+  }
+
+  const dataForFacility = (facilityId: string): Data => ({
+    ...data,
+    measurementSeries: (data?.measurementSeries ?? []).filter((s) => s.facilityId === facilityId),
+  });
+
+  for (const facility of modalData.selectedFacilities) {
+    const facilityData: StatisticsMeasurementData = statisticsMeasurementDataHandler(
+      dataForFacility(facility.facilityId)
+    );
 
     const exportInformationHeadings = [
       [

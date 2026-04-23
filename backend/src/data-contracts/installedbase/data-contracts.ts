@@ -14,8 +14,8 @@ export interface Problem {
   instance?: string;
   /** @format uri */
   type?: string;
-  title?: string;
   detail?: string;
+  title?: string;
   /** @format int32 */
   status?: number;
 }
@@ -80,6 +80,116 @@ export interface UpdateDelegation {
   facilities?: Facility[];
   /** Party ID of the delegate */
   delegatedTo?: string;
+}
+
+export interface InstalledBaseParameters {
+  /**
+   * Page number
+   * @format int32
+   * @min 1
+   * @default 1
+   */
+  page?: number;
+  /**
+   * Result size per page. Maximum allowed value is dynamically configured
+   * @format int32
+   * @min 1
+   */
+  limit?: number;
+  /** UUID that represents a party */
+  partyId?: string;
+  /** List of organization ids */
+  organizationIds?: string[];
+  /**
+   * Filter date
+   * @format date
+   */
+  date?: string;
+  /** Column to sort by */
+  sortBy?: string;
+}
+
+export enum Direction {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
+/** Installed base model */
+export interface InstalledBase {
+  /** Company */
+  company?: string;
+  /** Customer number */
+  customerId?: string;
+  /** type */
+  type?: string;
+  /** Facility id */
+  facilityId?: string;
+  /** Placement id */
+  placementId?: string;
+  /** Care of */
+  careOf?: string;
+  /** Street */
+  street?: string;
+  /** Postal code */
+  postCode?: string;
+  /** City */
+  city?: string;
+  /** Property designation */
+  propertyDesignation?: string;
+  /**
+   * Date from
+   * @format date
+   */
+  dateFrom?: string;
+  /**
+   * Date to
+   * @format date
+   */
+  dateTo?: string;
+  /**
+   * Last modified date
+   * @format date
+   */
+  dateLatestModified?: string;
+}
+
+/** Installed bases response model */
+export interface InstalledBases {
+  installedBaseList?: InstalledBase[];
+  /** PagingAndSortingMetaData model */
+  _meta?: PagingAndSortingMetaData;
+}
+
+/** PagingAndSortingMetaData model */
+export interface PagingAndSortingMetaData {
+  /**
+   * Current page
+   * @format int32
+   */
+  page?: number;
+  /**
+   * Displayed objects per page
+   * @format int32
+   */
+  limit?: number;
+  /**
+   * Displayed objects on current page
+   * @format int32
+   */
+  count?: number;
+  /**
+   * Total amount of hits based on provided search parameters
+   * @format int64
+   */
+  totalRecords?: number;
+  /**
+   * Total amount of pages based on provided search parameters
+   * @format int32
+   */
+  totalPages?: number;
+  sortBy?: string[];
+  /** The sort order direction */
+  sortDirection?: Direction;
 }
 
 /** Installed base owner model */

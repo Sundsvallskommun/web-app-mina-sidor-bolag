@@ -31,6 +31,8 @@ export interface MeasurementPoint {
 
 /** Measurement from a single source */
 export interface MeasurementSerie {
+  /** Facility ID for non-aggregated series, null for aggregated */
+  facilityId?: string;
   /** Unit of all measurement points */
   unit?: string;
   /** Type of measurement */
@@ -49,6 +51,7 @@ export enum Aggregation {
 
 /** Category */
 export enum Category {
+  DISTRICT_COOLING = 'DISTRICT_COOLING',
   DISTRICT_HEATING = 'DISTRICT_HEATING',
   ELECTRICITY = 'ELECTRICITY',
   COMMUNICATION = 'COMMUNICATION',
@@ -118,6 +121,7 @@ export interface Violation {
 
 /** Category */
 export enum GetMeasurementDataParamsCategoryEnum {
+  DISTRICT_COOLING = 'DISTRICT_COOLING',
   DISTRICT_HEATING = 'DISTRICT_HEATING',
   ELECTRICITY = 'ELECTRICITY',
   COMMUNICATION = 'COMMUNICATION',

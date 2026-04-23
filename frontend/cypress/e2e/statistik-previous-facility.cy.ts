@@ -17,13 +17,13 @@ describe('Statistik - Handle previous (inactive) facility', () => {
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityId=444&fromDate=*&toDate=*&aggregateOn=*',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=444&fromDate=*&toDate=*&aggregateOn=*',
       getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR, '444')
     ).as('getPreviousFacilityData');
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=DISTRICT_HEATING&facilityId=333&fromDate=*&toDate=*&aggregateOn=HOUR',
+      '**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=HOUR',
       getStatisticsData(yesterday, yesterday, Category.DISTRICT_HEATING, Aggregation.HOUR)
     );
 

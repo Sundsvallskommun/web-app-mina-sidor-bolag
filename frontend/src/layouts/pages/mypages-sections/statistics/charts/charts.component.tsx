@@ -92,7 +92,7 @@ export default function Charts() {
   ) => {
     const params = new URLSearchParams({
       category: categoryParam ?? '',
-      facilityId,
+      facilityIds: facilityId,
       fromDate,
       toDate,
       aggregateOn,

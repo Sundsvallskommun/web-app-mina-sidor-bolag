@@ -448,6 +448,21 @@ export interface PagedEventsResponse {
   empty?: boolean;
 }
 
+export interface BFUSApiResponse {
+  message: string;
+  data: any;
+}
+
+export interface BFUSEligablePartyApiResponse {
+  message: string;
+  data: any;
+}
+
+export interface BFUSNewPermissionApiResponse {
+  message: string;
+  data: boolean;
+}
+
 export interface PermissionHeaderDto {
   ExternalId: string;
   Operation: string;
