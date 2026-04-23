@@ -123,6 +123,20 @@ describe('Statistik', () => {
     cy.get('[data-cy="date-toggle-day-button"]').should('exist').click();
   });
 
+  it('clamps day when switching from a 31-day month to a shorter month', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="date-toggle-day-button"]').should('exist').click();
+    cy.get('[data-cy="day-select"]').clear().type('2024-03-31').blur();
+    cy.get('[data-cy="day-select"]').should('have.value', '2024-03-31');
+
+    cy.get('[data-cy="date-toggle-month-button"]').should('exist').click();
+    cy.get('[data-cy="month-select"]').select('2024-04-01');
+
+    cy.get('[data-cy="date-toggle-day-button"]').should('exist').click();
+    cy.get('[data-cy="day-select"]').should('have.value', '2024-04-30');
+  });
+
   it('requests and receives correct dates when comparing statistics', () => {
     statisticsDataIntercept();
 
