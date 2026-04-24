@@ -96,11 +96,21 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   }, [mode, setValue]);
 
   useEffect(() => {
-    const yesterday = dayjs().subtract(1, 'day');
+    const today = dayjs();
+    const yesterday = today.subtract(1, 'day');
     const y = selectedYear ?? yesterday.format('YYYY');
     const m = selectedMonth ?? yesterday.format('MM');
     const d = selectedDay ?? yesterday.format('DD');
-    const date = dayjs(`${y}-${m}-${mode === 'day' ? d : '01'}`);
+
+    // Clamp the day to the last valid day of the target month so dayjs does not overflow
+    // into the next month (e.g. switching from March 31 to April would otherwise become May 1).
+    const lastDayOfTargetMonth = dayjs(`${y}-${m}-01`).daysInMonth();
+    const clampedDay = String(Math.min(Number(d), lastDayOfTargetMonth)).padStart(2, '0');
+
+    let date = dayjs(`${y}-${m}-${mode === 'day' ? clampedDay : '01'}`);
+    if (date.isAfter(today, 'day')) {
+      date = today;
+    }
 
     setValue('fromDate', date.startOf(mode).format('YYYY-MM-DD'));
     setValue('toDate', date.endOf(mode).format('YYYY-MM-DD'));
