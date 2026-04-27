@@ -1,8 +1,10 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
+import { Delegation } from '@/data-contracts/installedbase/data-contracts';
 import { Data } from '@/data-contracts/measurementdata/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
+import { RepresentingEntity } from '@/interfaces/representing.interface';
 import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Req, UseBefore } from 'routing-controllers';
@@ -21,16 +23,18 @@ export class MeasurementDataController {
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
     const representing = req.session?.representing ?? undefined;
     const delegations = req.session?.cache?.delegations ?? [];
-    const { category, facilityId, fromDate, toDate, aggregateOn } = req.query;
-    let partyId = getRepresentingPartyId(representing);
+    const { category, facilityIds, fromDate, toDate, aggregateOn } = req.query;
+    const facilityIdList = [facilityIds ?? []].flat() as string[];
 
-    delegations.forEach(delegation => {
-      delegation.facilities.forEach(facility => {
-        if (facility.id === facilityId) {
-          partyId = delegation.owner;
-        }
-      });
-    });
+    const resolvePartyId = (
+      representing: RepresentingEntity,
+      delegations: Delegation[],
+      facilityIdList: string[],
+    ): string | undefined => {
+      const matchingDelegation = delegations.find(d => d.facilities.some(f => facilityIdList.includes(f.id)));
+      return matchingDelegation?.owner ?? getRepresentingPartyId(representing);
+    };
+    const partyId = resolvePartyId(representing, delegations, facilityIdList);
 
     if (!partyId) {
       throw new HttpException(400, 'Bad Request');
@@ -41,7 +45,7 @@ export class MeasurementDataController {
       const params = {
         partyId,
         category,
-        facilityIds: facilityId ? [facilityId] : [],
+        facilityIds: facilityIdList,
         fromDate,
         toDate,
         aggregateOn,

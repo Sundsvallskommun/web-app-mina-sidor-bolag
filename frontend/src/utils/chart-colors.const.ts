@@ -33,8 +33,8 @@ export const chartColors = {
       stroke: '#FAE9E7',
     },
     dark: {
-      fill: '#FAE9E7',
-      stroke: '#DFCDD3',
+      fill: '#2F2E2E',
+      stroke: '#FAE9E7',
     },
   },
 } as const;

@@ -5,7 +5,7 @@ import { User } from '@interfaces/user';
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import { useApi } from '@services/api-service';
 import { Button, FormLabel, NavigationBar, Select } from '@sk-web-gui/react';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -27,7 +27,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { closeHandler } = props;
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
-  const [mode, setMode] = useState<'day' | 'month' | 'year'>('month');
+  const [mode, setMode] = useState<'day' | 'month' | 'year'>('day');
   const { address, fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter } = watch();
 
   const { data: user } = useApi<User>({
@@ -96,24 +96,32 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   }, [mode, setValue]);
 
   useEffect(() => {
-    const setDate = (by: 'year' | 'month' | 'day', _date?: Dayjs) => {
-      const y = selectedYear ?? dayjs().format('YYYY');
-      const m = selectedMonth ?? dayjs().format('MM');
-      const d = selectedDay ?? dayjs().format('DD');
-      const date = _date ?? dayjs(`${y}-${m}-${by === 'day' ? d : '01'}`);
-      const fromDate = date.startOf(by).format('YYYY-MM-DD');
-      const toDate = date.endOf(by).format('YYYY-MM-DD');
-      const year = date.format('YYYY');
-      const month = date.format('MM');
-      const day = date.format('DD');
-      setValue('fromDate', fromDate);
-      setValue('toDate', toDate);
-      setValue('selectedYear', year);
-      setValue('selectedMonth', month);
-      setValue('selectedDay', day);
-    };
+    const today = dayjs();
+    const yesterday = today.subtract(1, 'day');
+    const y = selectedYear ?? yesterday.format('YYYY');
+    const m = selectedMonth ?? yesterday.format('MM');
+    const d = selectedDay ?? yesterday.format('DD');
 
-    setDate(mode);
+    // Clamp the day to the last valid day of the target month so dayjs does not overflow
+    // into the next month (e.g. switching from March 31 to April would otherwise become May 1).
+    const lastDayOfTargetMonth = dayjs(`${y}-${m}-01`).daysInMonth();
+    const clampedDay = String(Math.min(Number(d), lastDayOfTargetMonth)).padStart(2, '0');
+
+    let date = dayjs(`${y}-${m}-${mode === 'day' ? clampedDay : '01'}`);
+    if (date.isAfter(today, 'day')) {
+      date = today;
+    }
+
+    setValue('fromDate', date.startOf(mode).format('YYYY-MM-DD'));
+    setValue('toDate', date.endOf(mode).format('YYYY-MM-DD'));
+
+    setValue('selectedYear', date.format('YYYY'));
+    if (mode === 'month' || mode === 'day') {
+      setValue('selectedMonth', date.format('MM'));
+    }
+    if (mode === 'day') {
+      setValue('selectedDay', date.format('DD'));
+    }
   }, [mode, selectedDay, selectedMonth, selectedYear, setValue]);
 
   return (

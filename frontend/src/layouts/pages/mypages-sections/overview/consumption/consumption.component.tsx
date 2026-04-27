@@ -8,7 +8,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import dayjs from 'dayjs';
 import { RefinedAgreement } from '@interfaces/agreement';
-import { FacilityAddress } from '@interfaces/facility-address';
 import { useTranslation } from 'react-i18next';
 import { usePagedAgreements } from '@utils/use-paged-agreements.hook';
 
@@ -32,36 +31,35 @@ export const Consumption = () => {
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [hasInitialAddress, setHasInitialAddress] = useState(false);
   const { t } = useTranslation(['common', 'overview']);
-  const addressesWithAgreements = useMemo(
-    () => user?.addresses?.filter((a: FacilityAddress) => a.address && agreements?.[a.address]?.length) ?? [],
-    [user?.addresses, agreements]
-  );
+  const addressesWithAgreements = useMemo(() => {
+    const result: string[] = [];
+    for (const key in agreements) {
+      if (agreements[key].length > 0) {
+        result.push(key);
+      }
+    }
+    return result;
+  }, [agreements]);
 
   useEffect(() => {
     if (!hasInitialAddress && addressesWithAgreements.length > 0) {
-      setAddress(addressesWithAgreements[0]?.address ?? '');
+      setAddress(addressesWithAgreements[0]);
       setHasInitialAddress(true);
     }
   }, [addressesWithAgreements, hasInitialAddress]);
 
   useEffect(() => {
-    if (user && address && agreements) {
-      let filteredFacilities: InstalledBaseItem[] = [];
-      for (const agreementAddress in agreements) {
-        if (agreementAddress === address) {
-          const agreementsFacilities: string[] = agreements[address]?.map(
-            (agreement: RefinedAgreement) => agreement.facilityId
-          );
-
-          filteredFacilities =
-            user?.facilities?.filter(
-              (facility: InstalledBaseItem) =>
-                (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
-                facility?.address?.street === address &&
-                agreementsFacilities?.some((agreement) => agreement === facility?.facilityId)
-            ) ?? [];
-        }
-      }
+    if (user && address && agreements?.[address]) {
+      const agreementsFacilityIds = agreements[address].map(
+        (agreement: RefinedAgreement) => agreement.facilityId
+      );
+      const filteredFacilities =
+        user?.facilities?.filter(
+          (facility: InstalledBaseItem) =>
+            (facility.type === 'El' || facility.type === 'Fjärrvärme' || facility.type === 'Elproduktion') &&
+            !!facility.facilityId &&
+            agreementsFacilityIds.includes(facility.facilityId)
+        ) ?? [];
       setFacilities(filteredFacilities);
     }
   }, [agreements, address, user]);
@@ -88,9 +86,7 @@ export const Consumption = () => {
           <strong>{t('common:address')}</strong>
           <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
             {addressesWithAgreements.map((addr) => (
-              <Select.Option key={addr?.address ?? 'unknown'}>
-                {addr?.address ? addr.address : t('common:unknownAddress')}
-              </Select.Option>
+              <Select.Option key={addr}>{addr || t('common:unknownAddress')}</Select.Option>
             ))}
           </Select>
         </div>
