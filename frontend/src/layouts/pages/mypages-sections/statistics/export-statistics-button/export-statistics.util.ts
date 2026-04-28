@@ -25,8 +25,8 @@ export const buildLogInformation = (modalData: ExportModalData): CreateLogEventD
   return modalData.selectedFacilities.map((f) => ({
     facilityId: f.facilityId,
     facilityAddress: f.address,
-    fromDate: dayjs(modalData.fromDate).utc(true).toISOString(),
-    toDate: dayjs(modalData.toDate).utc(true).toISOString(),
+    fromDate: dayjs(modalData.fromDate).format(),
+    toDate: dayjs(modalData.toDate).format(),
     category: getEventCategory(modalData.category),
     aggregation,
   }));
@@ -34,13 +34,13 @@ export const buildLogInformation = (modalData: ExportModalData): CreateLogEventD
 
 export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatisticsOptions): Promise<boolean> => {
   const aggregation = modalData.timeResolution.toUpperCase() as Aggregation;
-  const fromDateParam = dayjs(modalData.fromDate).startOf('date').utc(true).format();
+  const fromDateParam = dayjs(modalData.fromDate).startOf('date').format();
   const toDateEndOfByAggregation: Partial<Record<Aggregation, OpUnitType>> = {
     [Aggregation.MONTH]: 'year',
     [Aggregation.DAY]: 'month',
   };
   const toDateEndOf: OpUnitType = toDateEndOfByAggregation[aggregation] ?? 'date';
-  const toDateParam = dayjs(modalData.toDate).endOf(toDateEndOf).utc(true).format();
+  const toDateParam = dayjs(modalData.toDate).endOf(toDateEndOf).format();
   const excelMaxSheetName = 31;
   const workbook = utils.book_new();
 

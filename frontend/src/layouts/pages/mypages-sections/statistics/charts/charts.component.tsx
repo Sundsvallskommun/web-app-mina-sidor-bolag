@@ -63,22 +63,20 @@ export default function Charts() {
   }, [fromDate, toDate, isHourQuarter, categoryParam]);
 
   const fromDateParam = useMemo(() => {
-    return dayjs(fromDate).startOf('date').utc(true).format();
+    return dayjs(fromDate).startOf('date').format();
   }, [fromDate]);
   const toDateParam = useMemo(() => {
-    return dayjs(toDate).endOf('date').utc(true).format();
+    return dayjs(toDate).endOf('date').format();
   }, [toDate]);
   const fromDatePreviousParam = useMemo(() => {
     return dayjs(fromDate)
       .subtract(parseInt(dayjs(fromDate).format('YYYY')) - year, 'year')
-      .utc(true)
       .startOf('date')
       .format();
   }, [fromDate, year]);
   const toDatePreviousParam = useMemo(() => {
     return dayjs(toDate)
       .subtract(parseInt(dayjs(toDate).format('YYYY')) - year, 'year')
-      .utc(true)
       .endOf('date')
       .format();
   }, [toDate, year]);
