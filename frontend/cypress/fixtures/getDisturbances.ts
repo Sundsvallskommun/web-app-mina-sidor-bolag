@@ -1,0 +1,173 @@
+import { DisturbanceApiResponse } from '@data-contracts/backend/data-contracts';
+
+export const getAllDisturbances: () => DisturbanceApiResponse = () => ({
+  data: [
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '111',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'ELECTRICITY',
+      created: '2026-04-29T13:37:39.197+02:00',
+      description: 'Stort avbrott',
+      id: '1',
+      municipalityId: '2281',
+      plannedStartDate: '2026-04-29T10:14:31.697+02:00',
+      plannedStopDate: '2026-04-29T22:14:31.697+02:00',
+      status: 'OPEN',
+      title: 'Avbrott',
+      updated: '',
+    },
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '222',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'DISTRICT_HEATING',
+      created: '2026-04-29T13:37:51.73+02:00',
+      description: 'Stort avbrott i centrala Sundsvall',
+      id: '2',
+      municipalityId: '2281',
+      plannedStartDate: '2026-04-28T08:14:31.697+02:00',
+      plannedStopDate: '2026-05-03T00:00:00+02:00',
+      status: 'OPEN',
+      title: 'Avbrott Fjärrvärme',
+      updated: '',
+    },
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '333',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'ELECTRICITY',
+      created: '2026-04-29T13:38:27.474+02:00',
+      description: 'Under grävarbeten på Storgatan kommer elen att brytas under 3h',
+      id: '3',
+      municipalityId: '2281',
+      plannedStartDate: '2026-05-10T13:00:00+02:00',
+      plannedStopDate: '2026-04-29T16:00:00+02:00',
+      status: 'PLANNED',
+      title: 'Planerat avbrott',
+      updated: '',
+    },
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '333',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'ELECTRICITY',
+      created: '2026-04-29T13:38:46.318+02:00',
+      description: 'Felet avhjälpt',
+      id: '4',
+      municipalityId: '2281',
+      plannedStartDate: '2026-04-03T21:00:00+02:00',
+      plannedStopDate: '2026-04-04T00:15:00+02:00',
+      status: 'CLOSED',
+      title: 'Oplanerat avbrott',
+      updated: '2026-04-29T13:39:27.316+02:00',
+    },
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '111',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'ELECTRICITY',
+      created: '2026-04-29T13:39:00.41+02:00',
+      description: 'Fel i transformatorstation',
+      id: '5',
+      municipalityId: '2281',
+      plannedStartDate: '2026-01-14T09:14:31.697+01:00',
+      plannedStopDate: '2026-01-15T12:00:00+01:00',
+      status: 'CLOSED',
+      title: 'Oplanerat avbrott',
+      updated: '',
+    },
+  ],
+  message: 'success',
+});
+
+export const getOverviewDisturbances: () => DisturbanceApiResponse = () => ({
+  data: [
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '111',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'ELECTRICITY',
+      created: '2026-04-29T13:37:39.197+02:00',
+      description: 'Stort avbrott',
+      id: '1',
+      municipalityId: '2281',
+      plannedStartDate: '2026-04-29T10:14:31.697+02:00',
+      plannedStopDate: '2026-04-29T22:14:31.697+02:00',
+      status: 'OPEN',
+      title: 'Avbrott',
+      updated: '',
+    },
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '222',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'DISTRICT_HEATING',
+      created: '2026-04-29T13:37:51.73+02:00',
+      description: 'Stort avbrott i centrala Sundsvall',
+      id: '2',
+      municipalityId: '2281',
+      plannedStartDate: '2026-04-28T08:14:31.697+02:00',
+      plannedStopDate: '2026-05-03T00:00:00+02:00',
+      status: 'OPEN',
+      title: 'Avbrott Fjärrvärme',
+      updated: '',
+    },
+    {
+      affecteds: [
+        {
+          coordinates: '',
+          facilityId: '333',
+          partyId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa',
+          reference: 'Storgatan 1',
+        },
+      ],
+      category: 'ELECTRICITY',
+      created: '2026-04-29T13:38:27.474+02:00',
+      description: 'Under grävarbeten på Storgatan kommer elen att brytas under 3h',
+      id: '3',
+      municipalityId: '2281',
+      plannedStartDate: '2026-05-10T13:00:00+02:00',
+      plannedStopDate: '2026-04-29T16:00:00+02:00',
+      status: 'PLANNED',
+      title: 'Planerat avbrott',
+      updated: '',
+    },
+  ],
+  message: 'success',
+});

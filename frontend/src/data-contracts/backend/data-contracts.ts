@@ -581,3 +581,36 @@ export interface SessionStatusApiResponse {
   data: SessionStatusResponse;
   message: string;
 }
+
+export interface Affected {
+  partyId: string;
+  reference: string;
+  facilityId?: string;
+  coordinates?: string;
+}
+
+export interface Disturbance {
+  id: string;
+  municipalityId?: string;
+  category:
+    | "COMMUNICATION"
+    | "DISTRICT_COOLING"
+    | "DISTRICT_HEATING"
+    | "ELECTRICITY"
+    | "ELECTRICITY_TRADE"
+    | "WASTE_MANAGEMENT"
+    | "WATER";
+  status: "OPEN" | "CLOSED" | "PLANNED";
+  title: string;
+  description?: string;
+  plannedStartDate?: string;
+  plannedStopDate?: string;
+  created: string;
+  updated?: string;
+  affecteds?: Affected[];
+}
+
+export interface DisturbanceApiResponse {
+  data: Disturbance[];
+  message: string;
+}
