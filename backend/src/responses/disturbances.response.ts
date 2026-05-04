@@ -37,24 +37,29 @@ export enum Status {
 
 export class Disturbance implements IDisturbance {
   @IsString()
-  id?: string;
+  id: string;
   @IsString()
+  @IsOptional()
   municipalityId?: string;
   @IsEnum(Category)
   category: Category;
   @IsEnum(Status)
   status: Status;
   @IsString()
-  title?: string;
+  title: string;
   @IsString()
+  @IsOptional()
   description?: string;
   @IsString()
+  @IsOptional()
   plannedStartDate?: string;
   @IsString()
+  @IsOptional()
   plannedStopDate?: string;
   @IsString()
-  created?: string;
+  created: string;
   @IsString()
+  @IsOptional()
   updated?: string;
   @IsOptional()
   @ValidateNested({ each: true })
@@ -62,10 +67,10 @@ export class Disturbance implements IDisturbance {
   affecteds?: Affected[];
 }
 
-export class DisturbanceApiResponse implements ApiResponse<Disturbance> {
-  @ValidateNested()
+export class DisturbanceApiResponse implements ApiResponse<Disturbance[]> {
+  @ValidateNested({ each: true })
   @Type(() => Disturbance)
-  data: Disturbance;
+  data: Disturbance[];
   @IsString()
   message: string;
 }

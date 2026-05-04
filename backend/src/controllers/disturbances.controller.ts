@@ -52,7 +52,7 @@ export class DisturbancesController {
       }
     });
 
-    allDisturbances.sort((a, b) => a.created.localeCompare(b.created));
+    allDisturbances.sort((a, b) => (b.plannedStartDate ?? '').localeCompare(a.plannedStartDate ?? ''));
 
     return { data: allDisturbances, message: 'success' };
   }
