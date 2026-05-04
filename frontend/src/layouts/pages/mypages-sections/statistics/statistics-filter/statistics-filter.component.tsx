@@ -130,8 +130,8 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                     { value: 'year', label: t('statistics:year') },
                     { value: 'month', label: t('statistics:month') },
                     { value: 'day', label: t('statistics:day') },
-                  ].map((item, index) => (
-                    <NavigationBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
+                  ].map((item) => (
+                    <NavigationBar.Item key={item.value} className="lg:w-auto w-full !p-0 !m-0">
                       <Button
                         className="lg:w-auto w-full !h-[12px] !py-0"
                         size="sm"

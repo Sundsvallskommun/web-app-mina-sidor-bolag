@@ -163,8 +163,8 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
                   { value: 'year', label: t('statistics:year') },
                   { value: 'month', label: t('statistics:month') },
                   { value: 'day', label: t('statistics:day') },
-                ].map((item, index) => (
-                  <NavigationBar.Item key={index} className="w-full !p-0 !m-0">
+                ].map((item) => (
+                  <NavigationBar.Item key={item.value} className="w-full !p-0 !m-0">
                     <Button
                       className="w-full !h-[12px] !py-0"
                       size="sm"
