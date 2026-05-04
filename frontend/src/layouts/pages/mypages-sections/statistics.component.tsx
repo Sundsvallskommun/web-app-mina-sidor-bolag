@@ -2,18 +2,21 @@
 
 import { FormProvider, useForm } from 'react-hook-form';
 import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
+import { StatisticsFilterMobile } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter-mobile.component';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
 import React, { useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { Button, Modal, Spinner } from '@sk-web-gui/react';
+import { Button, Icon, Modal, Spinner } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
+import { ListFilter } from 'lucide-react';
 
 export interface StatisticsForm {
   category: string;
-  facilityId?: string;
-  address: string;
+  facilityType?: string;
+  facilityIds?: string[];
+  addresses?: string[];
   fromDate: string;
   toDate: string;
   /** four digit string */
@@ -56,8 +59,8 @@ export default function Statistics() {
     <div>
       <FormProvider {...context}>
         <div className="md:flex md:justify-between">
-          <h1 className="mb-40">{t('statistics:title')}</h1>
-          <Button className="sm:hidden block" onClick={openHandler}>
+          <h1 className="mb-64">{t('statistics:title')}</h1>
+          <Button size="md" className="sm:hidden" onClick={openHandler} leftIcon={<Icon icon={<ListFilter />} />}>
             {t('statistics:filter')}
           </Button>
         </div>
@@ -84,7 +87,7 @@ export default function Statistics() {
           label="Filtrera"
         >
           <Modal.Content>
-            <StatisticsFilter closeHandler={closeHandler} />
+            <StatisticsFilterMobile closeHandler={closeHandler} />
           </Modal.Content>
         </Modal>
       </FormProvider>
