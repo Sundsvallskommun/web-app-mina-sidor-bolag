@@ -19,9 +19,12 @@ export const getPermissions = (groups: string[]): Permissions => {
   }
 
   const groupsList = groups.map((g: string) => g.toLowerCase());
+  logger.info(`>> Impersonate user groupsList ${groupsList}`);
   const adminGroup = ADMIN_GROUP.toLowerCase();
+  logger.info(`>> Impersonate user adminGroup ${adminGroup}`);
 
   permissions.canImpersonateUser = groupsList.includes(adminGroup);
+  logger.info(`>> Impersonate user canImpersonateUser ${permissions.canImpersonateUser}`);
 
   return permissions;
 };

@@ -101,6 +101,9 @@ const samlStrategy = new Strategy(
     }
     const { firstname: givenName, Surname: surname, citizenIdentifier, username } = profile;
 
+    logger.info(`>> Impersonate user Profile app ts ${JSON.stringify(profile)}`);
+    logger.info(`>> Impersonate user Profile USERNAME ${username}`);
+
     if (!givenName || !surname || !citizenIdentifier) {
       return done(null, null, {
         name: 'SAML_MISSING_ATTRIBUTES',
