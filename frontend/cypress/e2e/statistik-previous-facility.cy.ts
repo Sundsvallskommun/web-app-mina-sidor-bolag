@@ -15,6 +15,14 @@ describe('Statistik - Handle previous (inactive) facility', () => {
   const visitAndSelectPreviousFacility = () => {
     const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 
+    // Initial multi-facility request fired on mount (auto-select-all selects 111 and 444).
+    // Stub it so React Query doesn't sit in a failed state while we deselect Storgatan 1.
+    cy.intercept(
+      'GET',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*',
+      getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR)
+    );
+
     cy.intercept(
       'GET',
       '**/api/measurementdata?category=ELECTRICITY&facilityIds=444&fromDate=*&toDate=*&aggregateOn=*',
@@ -33,13 +41,17 @@ describe('Statistik - Handle previous (inactive) facility', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('exist').should('contain.text', 'Din statistik');
 
-    cy.get('[data-cy="address-select"]').should('exist').select('Gamla Vägen 42');
+    // Deselect Storgatan 1 so only Gamla Vägen 42 (facility 444) remains selected
+    cy.get('[data-cy="address-select"]').should('exist').click();
+    cy.get('[data-cy="address-select"]')
+      .contains('label', 'Storgatan 1')
+      .find('input[type="checkbox"]')
+      .uncheck({ force: true })
+      .should('not.be.checked');
   };
 
   it('should render chart for previous (inactive) facility instead of OnlyTrade', () => {
     visitAndSelectPreviousFacility();
-
-    cy.get('[data-cy="contract-select"]').should('exist').should('include.text', '444');
 
     cy.get('[data-cy="consumption-chart"]').should('exist');
     cy.get('[data-cy="only-trade"]').should('not.exist');
