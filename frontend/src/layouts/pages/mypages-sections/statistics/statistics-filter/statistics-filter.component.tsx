@@ -63,7 +63,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   data-cy="address-select"
                 >
                   <Checkbox
-                    className="py-8 px-2"
+                    className="py-8 pr-2"
                     checked={!addresses.noneChecked}
                     indeterminate={!addresses.allChecked && !addresses.noneChecked}
                     onChange={addresses.toggleAll}
@@ -74,7 +74,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   <div className="pl-16 flex flex-col gap-4">
                     {addresses.groups.map((group) => (
                       <Checkbox
-                        className="py-8 px-2"
+                        className="py-8 pr-2"
                         key={group.address}
                         checked={addresses.isChecked('addresses', group.address)}
                         onChange={() => addresses.toggle('addresses', group.address)}
@@ -96,7 +96,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   data-cy="facility-select"
                 >
                   <Checkbox
-                    className="py-8 px-2"
+                    className="py-8 pr-2"
                     checked={!facilities.noneChecked}
                     indeterminate={!facilities.allChecked && !facilities.noneChecked}
                     onChange={facilities.toggleAll}
@@ -107,7 +107,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   <div className="pl-16 flex flex-col gap-4">
                     {facilities.list.map((facilityId) => (
                       <Checkbox
-                        className="py-8 px-2"
+                        className="py-8 pr-2"
                         key={facilityId}
                         checked={facilities.isChecked('facilities', facilityId)}
                         onChange={() => facilities.toggle('facilities', facilityId)}
