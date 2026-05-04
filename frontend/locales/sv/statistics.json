@@ -1,7 +1,7 @@
 {
   "title": "Din statistik",
   "filter": "Filter",
-  "agreementType": "Avtalstyp",
+  "agreementType": "Typ av anläggning",
   "showBy": "Visa statistik per",
   "exportBy": "Exportera statistik per",
   "year": "År",
