@@ -33,10 +33,10 @@ export class DisturbancesController {
     const { status } = req.query;
 
     const buildUrl = (partyId: string) => {
-      const params = new URLSearchParams();
-      if (status) params.append('status', String(status));
-      const qs = params.toString();
-      return `${this.baseUrl}/disturbances/affecteds/${partyId}${qs ? `?${qs}` : ''}`;
+      const base = `${this.baseUrl}/disturbances/affecteds/${partyId}`;
+      if (!status) return base;
+      const params = new URLSearchParams({ status: String(status) });
+      return `${base}?${params.toString()}`;
     };
 
     const results = await Promise.allSettled(
