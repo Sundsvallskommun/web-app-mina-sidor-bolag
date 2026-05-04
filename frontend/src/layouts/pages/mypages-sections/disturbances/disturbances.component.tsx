@@ -22,9 +22,10 @@ export default function Disturbances() {
   const statusParams = new URLSearchParams();
   if (status) statusParams.append('status', status);
   const queryString = statusParams.toString();
+  const url = queryString ? `/disturbances?${queryString}` : '/disturbances';
 
   const { data, isFetching } = useApi<Disturbance[]>({
-    url: `/disturbances${queryString ? `?${queryString}` : ''}`,
+    url,
     method: 'get',
     queryKey: ['disturbances', status],
   });
