@@ -57,7 +57,7 @@ export const getAllDisturbances: () => DisturbanceApiResponse = () => ({
       id: '3',
       municipalityId: '2281',
       plannedStartDate: '2026-05-10T13:00:00+02:00',
-      plannedStopDate: '2026-04-29T16:00:00+02:00',
+      plannedStopDate: '2026-05-10T16:00:00+02:00',
       status: 'PLANNED',
       title: 'Planerat avbrott',
       updated: '',

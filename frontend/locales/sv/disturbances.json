@@ -1,6 +1,6 @@
 {
   "title": "Driftinformation",
-  "seeAll": "Visa alla",
+  "viewAll": "Visa alla",
   "all": "Alla",
   "open": "Pågående",
   "planned": "Planerad",
@@ -8,9 +8,10 @@
   "description": "Avbrott som påverkar någon eller några av dina anläggningar.",
   "affectedAddresses": "Berörda adresser",
   "facilityId": "(Anläggnings-ID: {{facilityId}})",
-  "registered": "Registrerat: {{registered}}",
+  "registered": "Publicerad: {{registered}}",
   "start": "Start:",
   "plannedEnd": "Planerat slut:",
+  "endedAt": "Avslutat:",
   "status": "Status",
-  "noOpenOrPlanned": "Just nu finns inga avbrott som påverkar dina anläggningar."
+  "noDisturbances": "Just nu finns inga avbrott som påverkar dina anläggningar."
 }
