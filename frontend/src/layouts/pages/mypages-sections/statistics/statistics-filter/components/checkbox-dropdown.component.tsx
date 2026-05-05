@@ -34,7 +34,7 @@ export const CheckboxDropdown = ({ label, children, 'data-cy': dataCy }: Checkbo
         {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </button>
       {open && (
-        <div className="absolute z-50 mt-4 w-full rounded-8 border border-divider bg-background-100 shadow-100 py-16 px-8 flex flex-col gap-4">
+        <div className="absolute z-50 mt-4 min-w-full w-max rounded-8 border border-divider bg-background-100 shadow-100 py-16 px-8 flex flex-col gap-4">
           {children}
         </div>
       )}
