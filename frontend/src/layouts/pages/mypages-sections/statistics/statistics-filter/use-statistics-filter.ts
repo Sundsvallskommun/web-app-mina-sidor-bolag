@@ -17,7 +17,7 @@ export const useStatisticsFilter = () => {
   const linkedFacilityId = searchParams?.get('installation');
 
   const { setValue, watch } = useFormContext<StatisticsForm>();
-  const [facilityType, setFacilityType] = useState<FacilityType>(facilityTypes[0]);
+  const [facilityType, setFacilityType] = useState<FacilityType | null>(null);
   const [mode, setMode] = useState<StatisticsFilterMode>('day');
   const { fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter } = watch();
 
@@ -27,7 +27,22 @@ export const useStatisticsFilter = () => {
     queryKey: ['user'],
   });
 
+  const availableFacilityTypes = useMemo(() => {
+    if (!user?.facilities) return [];
+    const userTypes = new Set(
+      user.facilities.map((f) => (f.type === 'El' ? FacilityTypeName.ELECTRICITY_CONSUMPTION : f.type))
+    );
+    return facilityTypes.filter((type) => userTypes.has(type));
+  }, [user?.facilities]);
+
+  useEffect(() => {
+    if (availableFacilityTypes.length > 0 && !facilityType) {
+      setFacilityType(availableFacilityTypes[0]);
+    }
+  }, [availableFacilityTypes, facilityType]);
+
   const facilitiesByType = useMemo(() => {
+    if (!facilityType) return [];
     return (
       user?.facilities?.filter((f) => {
         return (
@@ -99,8 +114,8 @@ export const useStatisticsFilter = () => {
   }, [checkedFacilities, setValue]);
 
   useEffect(() => {
-    setValue('category', getCategoryFromInstalledBaseType(facilityType));
-    setValue('facilityType', facilityType);
+    setValue('category', getCategoryFromInstalledBaseType(facilityType ?? undefined));
+    setValue('facilityType', facilityType ?? undefined);
   }, [facilityType, setValue]);
 
   useEffect(() => {
@@ -178,6 +193,7 @@ export const useStatisticsFilter = () => {
   }, [mode, selectedDay, selectedMonth, selectedYear, setValue]);
 
   return {
+    availableFacilityTypes,
     facilityType,
     setFacilityType,
     mode,

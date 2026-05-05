@@ -2,7 +2,6 @@
 
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import { Accordion, Button, Checkbox, NavigationBar, RadioButton, Select } from '@sk-web-gui/react';
-import { facilityTypes } from '@utils/facility';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -28,8 +27,17 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   const { register, watch } = useFormContext<StatisticsForm>();
   const compareYearValue = watch('year');
 
-  const { facilityType, setFacilityType, mode, setMode, isHourQuarter, fromDate, addresses, facilities } =
-    useStatisticsFilter();
+  const {
+    availableFacilityTypes,
+    facilityType,
+    setFacilityType,
+    mode,
+    setMode,
+    isHourQuarter,
+    fromDate,
+    addresses,
+    facilities,
+  } = useStatisticsFilter();
 
   const periodSubtitle = (() => {
     if (!fromDate) return '';
@@ -47,30 +55,32 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
     <div className="flex flex-col gap-24" data-cy="statistics-filter-mobile">
       <Accordion>
         {/* Avtalstyp */}
-        <Accordion.Item>
-          <Accordion.Item.Header>
-            <Accordion.Item.Title>
-              <SectionTitle label={t('statistics:agreementType')} subtitle={facilityType} />
-            </Accordion.Item.Title>
-            <Accordion.Item.Button />
-          </Accordion.Item.Header>
-          <Accordion.Item.Content>
-            <div className="flex flex-col gap-12">
-              {facilityTypes.map((type) => (
-                <RadioButton
-                  key={type}
-                  value={type}
-                  name="facilityTypeMobile"
-                  checked={facilityType === type}
-                  onChange={() => setFacilityType(type)}
-                  data-cy={`facility-type-mobile-${type}`}
-                >
-                  {type}
-                </RadioButton>
-              ))}
-            </div>
-          </Accordion.Item.Content>
-        </Accordion.Item>
+        {availableFacilityTypes.length > 1 && (
+          <Accordion.Item>
+            <Accordion.Item.Header>
+              <Accordion.Item.Title>
+                <SectionTitle label={t('statistics:agreementType')} subtitle={facilityType ?? ''} />
+              </Accordion.Item.Title>
+              <Accordion.Item.Button />
+            </Accordion.Item.Header>
+            <Accordion.Item.Content>
+              <div className="flex flex-col gap-12">
+                {availableFacilityTypes.map((type) => (
+                  <RadioButton
+                    key={type}
+                    value={type}
+                    name="facilityTypeMobile"
+                    checked={facilityType === type}
+                    onChange={() => setFacilityType(type)}
+                    data-cy={`facility-type-mobile-${type}`}
+                  >
+                    {type}
+                  </RadioButton>
+                ))}
+              </div>
+            </Accordion.Item.Content>
+          </Accordion.Item>
+        )}
 
         {/* Adress */}
         <Accordion.Item>

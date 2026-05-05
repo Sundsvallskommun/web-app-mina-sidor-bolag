@@ -2,7 +2,6 @@
 
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import { Button, Checkbox, FormLabel, NavigationBar, RadioButton, Select } from '@sk-web-gui/react';
-import { facilityTypes } from '@utils/facility';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
@@ -22,33 +21,44 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { closeHandler } = props;
   const { register } = useFormContext<StatisticsForm>();
 
-  const { facilityType, setFacilityType, mode, setMode, isHourQuarter, fromDate, addresses, facilities } =
-    useStatisticsFilter();
+  const {
+    availableFacilityTypes,
+    facilityType,
+    setFacilityType,
+    mode,
+    setMode,
+    isHourQuarter,
+    fromDate,
+    addresses,
+    facilities,
+  } = useStatisticsFilter();
 
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
       {/* Row 1: Avtalstyp + show by toggle */}
-      <section className="lg:flex gap-48 lg:pt-0 justify-stretch">
-        <div className="flex flex-col lg:flex-row justify-between items-start w-full lg:pt-0">
-          <div className="flex flex-col gap-12 w-full lg:w-auto">
-            <FormLabel className="text-label-large">{t('statistics:agreementType')}</FormLabel>
-            <div className="flex flex-row items-center gap-16">
-              {facilityTypes.map((type) => (
-                <RadioButton
-                  key={type}
-                  value={type}
-                  name="facilityType"
-                  checked={facilityType === type}
-                  onChange={() => setFacilityType(type)}
-                  data-cy={`facility-type-${type}`}
-                >
-                  {type}
-                </RadioButton>
-              ))}
+      {availableFacilityTypes.length > 1 && (
+        <section className="lg:flex gap-48 lg:pt-0 justify-stretch">
+          <div className="flex flex-col lg:flex-row justify-between items-start w-full lg:pt-0">
+            <div className="flex flex-col gap-12 w-full lg:w-auto">
+              <FormLabel className="text-label-large">{t('statistics:agreementType')}</FormLabel>
+              <div className="flex flex-row items-center gap-16">
+                {availableFacilityTypes.map((type) => (
+                  <RadioButton
+                    key={type}
+                    value={type}
+                    name="facilityType"
+                    checked={facilityType === type}
+                    onChange={() => setFacilityType(type)}
+                    data-cy={`facility-type-${type}`}
+                  >
+                    {type}
+                  </RadioButton>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Row 2: Address, Facilities, Date picker, Compare year */}
       <section className="lg:flex lg:justify-between block gap-auto">
