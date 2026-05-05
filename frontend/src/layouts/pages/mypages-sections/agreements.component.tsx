@@ -1,27 +1,38 @@
 'use client';
 
-import { SearchField } from '@sk-web-gui/react';
+import { Pagination, SearchField } from '@sk-web-gui/react';
 import { AgreementListItem } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/agreement-list-item.component';
 import React, { useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
-import { getCategoryAsNumber, pagedAgreementsHandler } from '@services/agreement-service';
+import { getCategoryAsNumber, pagedAgreementsWithMetaHandler } from '@services/agreement-service';
 import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
 import { useTranslation } from 'react-i18next';
 
+const PAGE_LIMIT = 20;
+
 export default function PagedAgreements() {
-  const { data: agreements, isLoading: agreementsIsLoading } = useApi({
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pages, setPages] = useState<number>(1);
+
+  const { data: response, isLoading: agreementsIsLoading } = useApi({
     url: `/paged/agreements`,
     method: 'get',
-    dataHandler: pagedAgreementsHandler,
+    dataHandler: pagedAgreementsWithMetaHandler,
+    queryKey: [currentPage],
+    axiosParameters: { params: { page: currentPage, limit: PAGE_LIMIT } },
   });
 
-  const [data, setData] = useState(agreements);
+  const agreements = response?.agreements;
+  const meta = response?._meta;
+
+  const [data, setData] = useState<AgreementData | undefined>(agreements);
   const [term, setTerm] = useState<string>('');
   const { t } = useTranslation(['common', 'agreement']);
 
   useEffect(() => {
     setData(agreements);
-  }, [agreements]);
+    setPages(meta?.totalPages ?? 1);
+  }, [agreements, meta]);
 
   const onChangeHandler = (event: React.BaseSyntheticEvent) => {
     setTerm(event.target.value);
@@ -93,6 +104,9 @@ export default function PagedAgreements() {
         })}
 
         {Object.values(data).flat().length === 0 && <p>{t('agreement:noMatch')}</p>}
+        <div className="flex flex-col items-center gap-8 w-full">
+          <Pagination pages={pages} activePage={currentPage} changePage={(page) => setCurrentPage(page)} />
+        </div>
       </div>
     );
   }
