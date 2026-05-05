@@ -65,10 +65,10 @@ export default function Consumption(props: ElectricityConsumptionProps) {
       {isFetching || isPreviousFetching ? (
         <Spinner className="mx-auto my-80" />
       ) : data?.measurementData?.[0]?.measurementPoints ? (
-        <div>
+        <div className="flex flex-col gap-56">
           <ConsumptionInformation data={data} />
 
-          <div className="md:flex md:mt-56 mt-0 mb-32 md:justify-between">
+          <div className="md:flex mb-32 md:justify-between">
             {getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter && (
               <div className="content-center">
                 <YearsLegend data={data} />
