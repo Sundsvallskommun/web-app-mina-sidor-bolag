@@ -25,6 +25,7 @@ const namespaces = [
   'bankid',
   'event',
   'eligibility',
+  'disturbances',
 ];
 
 export interface LocalizationLayoutProps {

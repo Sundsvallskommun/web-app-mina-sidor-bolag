@@ -62,6 +62,18 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
+              <PopupMenu.Item>
+                <Button
+                  className="!justify-between"
+                  onClick={() => {
+                    router.push('driftinformation');
+                  }}
+                  data-cy="user-menu-disturbances-button"
+                >
+                  {capitalize(t('common:disturbances'))}
+                  <Icon icon={<ArrowRight />} />
+                </Button>
+              </PopupMenu.Item>
               <Divider />
               <PopupMenu.Item>
                 <Button
