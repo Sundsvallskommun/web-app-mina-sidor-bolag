@@ -16,8 +16,10 @@ export const useStatisticsFilter = () => {
   const searchParams = useSearchParams();
   const linkedFacilityId = searchParams?.get('installation');
 
-  const { setValue, watch } = useFormContext<StatisticsForm>();
-  const [facilityType, setFacilityType] = useState<FacilityType | null>(null);
+  const { setValue, watch, getValues } = useFormContext<StatisticsForm>();
+  const [facilityType, setFacilityType] = useState<FacilityType | null>(
+    (getValues('facilityType') as FacilityType | undefined) ?? null
+  );
   const [mode, setMode] = useState<StatisticsFilterMode>('day');
   const { fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter } = watch();
 

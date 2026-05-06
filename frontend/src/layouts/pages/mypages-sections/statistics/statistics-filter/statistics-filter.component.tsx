@@ -62,10 +62,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
       {/* Row 2: Address, Facilities, Date picker, Compare year */}
       <section className="lg:flex lg:justify-between block gap-auto">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 gap-24">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-48">
           <div className="flex flex-col md:flex-row md:items-center flex-1 gap-16">
             {/* Address dropdown with checkboxes */}
-            <div className="flex flex-col justify-start flex-1 gap-8 max-w-[240px]">
+            <div className="flex flex-col justify-start flex-1 gap-8">
               <FormLabel className="text-label-large">{t('common:address')}</FormLabel>
               <div>
                 <CheckboxDropdown
@@ -98,7 +98,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             </div>
 
             {/* Facility dropdown with checkboxes */}
-            <div className="flex flex-col gap-8 flex-1 max-w-[240px]">
+            <div className="flex flex-col gap-8 flex-1">
               <FormLabel className="text-label-large">{t('statistics:facilities')}</FormLabel>
               <div>
                 <CheckboxDropdown
@@ -132,7 +132,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           </div>
 
           <div className="flex flex-col md:flex-row md:items-end gap-16">
-            <div className="lg:pt-0 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto max-w-[240px]">
+            <div className="lg:pt-0 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
               <div className="flex flex-col gap-8 w-full lg:pt-0">
                 <FormLabel className="text-label-large">{t('statistics:showBy')}</FormLabel>
                 <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
@@ -158,14 +158,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                 </NavigationBar>
               </div>
             </div>
-            <div className="lg:flex-[0_0_auto] w-full lg:w-auto max-w-[240px]">
+            <div className="lg:flex-[0_0_auto] w-full lg:w-auto">
               {mode === 'year' && <StatisticsFilterYear />}
               {mode === 'month' && <StatisticsFilterMonth />}
               {mode === 'day' && <StatisticsFilterDay />}
             </div>
 
             {!isHourQuarter && (
-              <div className="w-full max-w-[240px] lg:w-[115px] lg:pt-0 pt-16 lg:flex-shrink-0">
+              <div className="w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
                 <FormLabel className="text-label-large">{t('statistics:compareYear')}</FormLabel>
                 <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
                   <Select.Option key={0} value="">

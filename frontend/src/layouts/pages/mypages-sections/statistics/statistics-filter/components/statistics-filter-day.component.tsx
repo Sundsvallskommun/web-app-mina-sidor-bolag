@@ -23,7 +23,7 @@ export const StatisticsFilterDay: React.FC = () => {
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0 pt-16`)}>
+    <div className={cx(`w-full lg:pt-0`)}>
       <FormLabel className="text-label-large">Dag</FormLabel>
       <DatePicker
         className="w-full mt-8"

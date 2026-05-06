@@ -27,7 +27,7 @@ export const StatisticsFilterMonth: React.FC = () => {
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0 pt-16`)}>
+    <div className={cx(`w-full lg:pt-0`)}>
       <FormLabel className="text-label-large">Månad</FormLabel>
       <Select className="w-full mt-8" value={date} name="month" onChange={handleChange} data-cy="month-select">
         {selectableMonths.map((dateObj) => (

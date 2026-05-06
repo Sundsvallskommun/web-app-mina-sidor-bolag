@@ -183,7 +183,7 @@ export default function Charts() {
 
           {measurementData?.temperatureData?.length ? (
             <>
-              <Divider className="my-40" />
+              <Divider className="my-64" />
               <OutdoorTemperature
                 data={mergedTemperatureData ?? measurementData}
                 isFetching={isFetchingMeasurementData}

@@ -23,7 +23,7 @@ export const StatisticsFilterYear: React.FC = () => {
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0 pt-16`)}>
+    <div className={cx(`w-full lg:pt-0`)}>
       <FormLabel className="text-label-large">År</FormLabel>
       <Select value={date} name="year" className="w-full mt-8" onChange={handleChange} data-cy="year-select">
         {selectableYears.map((dateString) => (

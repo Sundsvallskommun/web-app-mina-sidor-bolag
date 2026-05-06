@@ -80,7 +80,7 @@ export default function Statistics() {
         </form>
 
         <Modal
-          className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards"
+          className="sm:hidden block w-full left-0 bottom-20 fixed rounded-0 rounded-t-cards"
           disableCloseOutside={true}
           show={isOpen}
           onClose={closeHandler}
