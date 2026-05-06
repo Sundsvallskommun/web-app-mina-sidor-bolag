@@ -117,7 +117,7 @@ export default function PagedAgreements() {
         })}
 
         {Object.values(data).flat().length === 0 && <p>{t('agreement:noMatch')}</p>}
-        <div className="flex sm:flex-col lg:flex-row items-center justify-center sm:gap-8 lg:gap-24 w-full">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-24 w-full">
           <div className="flex items-center gap-8">
             <p>{t('agreement:pagination.rowsPerPage')}:</p>
             <select
