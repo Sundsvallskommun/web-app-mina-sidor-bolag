@@ -31,5 +31,8 @@
     "companyService": "Serviceavtal Företag",
     "measurement": "Mätvärdesavtal",
     "recycled": "100% återvunnet"
+  },
+  "pagination": {
+    "rowsPerPage": "Rader per sida"
   }
 }

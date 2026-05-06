@@ -1,6 +1,6 @@
 'use client';
 
-import { Pagination, SearchField } from '@sk-web-gui/react';
+import { Pagination, SearchField, Spinner } from '@sk-web-gui/react';
 import { AgreementListItem } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/agreement-list-item.component';
 import React, { useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
@@ -8,18 +8,21 @@ import { getCategoryAsNumber, pagedAgreementsWithMetaHandler } from '@services/a
 import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
 import { useTranslation } from 'react-i18next';
 
-const PAGE_LIMIT = 20;
-
 export default function PagedAgreements() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pages, setPages] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(20);
 
-  const { data: response, isLoading: agreementsIsLoading } = useApi({
+  const {
+    data: response,
+    isLoading: agreementsIsLoading,
+    isFetching,
+  } = useApi({
     url: `/paged/agreements`,
     method: 'get',
     dataHandler: pagedAgreementsWithMetaHandler,
-    queryKey: [currentPage],
-    axiosParameters: { params: { page: currentPage, limit: PAGE_LIMIT } },
+    queryKey: [currentPage, limit],
+    axiosParameters: { params: { page: currentPage, limit } },
   });
 
   const agreements = response?.agreements;
@@ -54,11 +57,21 @@ export default function PagedAgreements() {
     setData(agreements);
   };
 
+  const handleChangeLimit = (option: string) => {
+    setLimit(Number(option));
+  };
+
   if (!agreementsIsLoading && agreements && Object.keys(agreements).length < 1) {
     return (
       <div>
         <h1>{t('agreement:title')}</h1>
         <p>{t('agreement:noAgreements')}</p>
+      </div>
+    );
+  } else if (isFetching) {
+    return (
+      <div className="flex items-center justify-center w-full">
+        <Spinner />
       </div>
     );
   } else if (data && agreements) {
@@ -104,7 +117,20 @@ export default function PagedAgreements() {
         })}
 
         {Object.values(data).flat().length === 0 && <p>{t('agreement:noMatch')}</p>}
-        <div className="flex flex-col items-center gap-8 w-full">
+        <div className="flex sm:flex-col lg:flex-row items-center justify-center sm:gap-8 lg:gap-24 w-full">
+          <div className="flex items-center gap-8">
+            <p>{t('agreement:pagination.rowsPerPage')}:</p>
+            <select
+              className="sk-form-select sk-form-select-sm sk-form-select-tertiary"
+              onChange={(e) => handleChangeLimit(e.target.value)}
+              value={limit}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
           <Pagination pages={pages} activePage={currentPage} changePage={(page) => setCurrentPage(page)} />
         </div>
       </div>
