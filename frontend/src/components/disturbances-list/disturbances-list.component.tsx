@@ -11,7 +11,7 @@ export interface DisturbancesProps {
   statuses?: string;
 }
 
-export default function DisturbancesList({ statuses }: DisturbancesProps) {
+export default function DisturbancesList({ statuses }: Readonly<DisturbancesProps>) {
   const { t } = useTranslation();
   const statusParams = new URLSearchParams();
   if (statuses) statusParams.append('status', statuses);
