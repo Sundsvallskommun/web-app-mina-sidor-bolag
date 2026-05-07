@@ -3,6 +3,8 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
 import { StatisticsFilterMobile } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter-mobile.component';
+import { StatisticsFilterMode } from '@layouts/pages/mypages-sections/statistics/statistics-filter/use-statistics-filter';
+import { FacilityType } from '@utils/facility';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
 import React, { useState } from 'react';
@@ -14,7 +16,7 @@ import { ListFilter } from 'lucide-react';
 
 export interface StatisticsForm {
   category: string;
-  facilityType?: string;
+  facilityType?: FacilityType;
   facilityIds?: string[];
   addresses?: string[];
   fromDate: string;
@@ -27,6 +29,7 @@ export interface StatisticsForm {
   selectedDay?: string;
   year?: string;
   isHourQuarter?: boolean;
+  mode: StatisticsFilterMode;
 }
 
 export default function Statistics() {
@@ -38,6 +41,7 @@ export default function Statistics() {
     defaultValues: {
       category: '',
       isHourQuarter: false,
+      mode: 'day',
     },
   });
 

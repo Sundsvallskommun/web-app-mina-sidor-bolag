@@ -6,7 +6,7 @@ import { facilityTypes, FacilityType, FacilityTypeName, getCategoryFromInstalled
 import { useCheckboxTree } from '@utils/use-checkbox-tree';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 
@@ -16,12 +16,8 @@ export const useStatisticsFilter = () => {
   const searchParams = useSearchParams();
   const linkedFacilityId = searchParams?.get('installation');
 
-  const { setValue, watch, getValues } = useFormContext<StatisticsForm>();
-  const [facilityType, setFacilityType] = useState<FacilityType | null>(
-    (getValues('facilityType') as FacilityType | undefined) ?? null
-  );
-  const [mode, setMode] = useState<StatisticsFilterMode>('day');
-  const { fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter } = watch();
+  const { setValue, watch } = useFormContext<StatisticsForm>();
+  const { fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter, mode, facilityType } = watch();
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -39,9 +35,9 @@ export const useStatisticsFilter = () => {
 
   useEffect(() => {
     if (availableFacilityTypes.length > 0 && !facilityType) {
-      setFacilityType(availableFacilityTypes[0]);
+      setValue('facilityType', availableFacilityTypes[0]);
     }
-  }, [availableFacilityTypes, facilityType]);
+  }, [availableFacilityTypes, facilityType, setValue]);
 
   const facilitiesByType = useMemo(() => {
     if (!facilityType) return [];
@@ -117,7 +113,6 @@ export const useStatisticsFilter = () => {
 
   useEffect(() => {
     setValue('category', getCategoryFromInstalledBaseType(facilityType ?? undefined));
-    setValue('facilityType', facilityType ?? undefined);
   }, [facilityType, setValue]);
 
   useEffect(() => {
@@ -148,7 +143,7 @@ export const useStatisticsFilter = () => {
       if (facility?.address?.street && facility?.facilityId) {
         const type = facility.type === 'El' ? FacilityTypeName.ELECTRICITY_CONSUMPTION : facility.type;
         if (type && facilityTypes.includes(type as FacilityType)) {
-          setFacilityType(type as FacilityType);
+          setValue('facilityType', type as FacilityType);
         }
         setTimeout(() => {
           resetAddresses([`addresses::${facility.address?.street}`]);
@@ -196,10 +191,6 @@ export const useStatisticsFilter = () => {
 
   return {
     availableFacilityTypes,
-    facilityType,
-    setFacilityType,
-    mode,
-    setMode,
     isHourQuarter,
     fromDate,
     addresses: {

@@ -19,19 +19,11 @@ export interface StatisticsFilterProps {
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
   const { closeHandler } = props;
-  const { register } = useFormContext<StatisticsForm>();
+  const { register, watch, setValue } = useFormContext<StatisticsForm>();
+  const mode = watch('mode');
+  const facilityType = watch('facilityType');
 
-  const {
-    availableFacilityTypes,
-    facilityType,
-    setFacilityType,
-    mode,
-    setMode,
-    isHourQuarter,
-    fromDate,
-    addresses,
-    facilities,
-  } = useStatisticsFilter();
+  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
 
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
@@ -48,7 +40,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                     value={type}
                     name="facilityType"
                     checked={facilityType === type}
-                    onChange={() => setFacilityType(type)}
+                    onChange={() => setValue('facilityType', type)}
                     data-cy={`facility-type-${type}`}
                   >
                     {type}
@@ -147,7 +139,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                         size="sm"
                         inverted={mode === item.value}
                         onClick={() => {
-                          setMode(item.value as 'year' | 'month' | 'day');
+                          setValue('mode', item.value as 'year' | 'month' | 'day');
                         }}
                         data-cy={`date-toggle-${item.value}-button`}
                       >

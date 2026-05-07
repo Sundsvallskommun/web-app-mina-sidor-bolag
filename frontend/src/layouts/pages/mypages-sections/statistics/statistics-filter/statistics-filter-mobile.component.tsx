@@ -25,20 +25,12 @@ const SectionTitle = ({ label, subtitle }: { label: string; subtitle: string }) 
 
 export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { register, watch } = useFormContext<StatisticsForm>();
+  const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const compareYearValue = watch('year');
+  const mode = watch('mode');
+  const facilityType = watch('facilityType');
 
-  const {
-    availableFacilityTypes,
-    facilityType,
-    setFacilityType,
-    mode,
-    setMode,
-    isHourQuarter,
-    fromDate,
-    addresses,
-    facilities,
-  } = useStatisticsFilter();
+  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
 
   const periodSubtitle = (() => {
     if (!fromDate) return '';
@@ -74,7 +66,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
                     value={type}
                     name="facilityTypeMobile"
                     checked={facilityType === type}
-                    onChange={() => setFacilityType(type)}
+                    onChange={() => setValue('facilityType', type)}
                     data-cy={`facility-type-mobile-${type}`}
                   >
                     {type}
@@ -188,7 +180,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
                       className="w-full !h-[12px] !py-0"
                       size="sm"
                       inverted={mode === item.value}
-                      onClick={() => setMode(item.value as 'year' | 'month' | 'day')}
+                      onClick={() => setValue('mode', item.value as 'year' | 'month' | 'day')}
                       data-cy={`date-toggle-mobile-${item.value}-button`}
                     >
                       {item.label}
