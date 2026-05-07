@@ -1,7 +1,7 @@
 'use client';
 
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
-import { Accordion, Button, Checkbox, NavigationBar, RadioButton, Select } from '@sk-web-gui/react';
+import { Accordion, Button, Checkbox, Icon, NavigationBar, RadioButton, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -10,15 +10,16 @@ import { StatisticsFilterDay } from './components/statistics-filter-day.componen
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { useStatisticsFilter } from './use-statistics-filter';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export interface StatisticsFilterMobileProps {
   closeHandler: () => void;
 }
 
 const SectionTitle = ({ label, subtitle }: { label: string; subtitle: string }) => (
-  <div className="flex flex-col text-left">
-    <label className="font-bold">{label}</label>
-    {subtitle && <span className="text-small text-dark-secondary">{subtitle}</span>}
+  <div className="flex flex-col gap-6 text-left">
+    <label className="text-h4-sm">{label}</label>
+    {subtitle && <span className="text-small text-dark-secondary font-normal">{subtitle}</span>}
   </div>
 );
 
@@ -61,7 +62,9 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
               <Accordion.Item.Title>
                 <SectionTitle label={t('statistics:agreementType')} subtitle={facilityType ?? ''} />
               </Accordion.Item.Title>
-              <Accordion.Item.Button />
+              <Accordion.Item.Button>
+                {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
+              </Accordion.Item.Button>
             </Accordion.Item.Header>
             <Accordion.Item.Content>
               <div className="flex flex-col gap-12">
@@ -91,7 +94,9 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
                 subtitle={`${addresses.selected.length} av ${addresses.groups.length} valda`}
               />
             </Accordion.Item.Title>
-            <Accordion.Item.Button />
+            <Accordion.Item.Button>
+              {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
+            </Accordion.Item.Button>
           </Accordion.Item.Header>
           <Accordion.Item.Content>
             <div className="flex flex-col gap-4">
@@ -129,7 +134,9 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
                 subtitle={`${facilities.checked.size} av ${facilities.list.length} valda`}
               />
             </Accordion.Item.Title>
-            <Accordion.Item.Button />
+            <Accordion.Item.Button>
+              {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
+            </Accordion.Item.Button>
           </Accordion.Item.Header>
           <Accordion.Item.Content>
             <div className="flex flex-col gap-4">
@@ -164,7 +171,9 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
             <Accordion.Item.Title>
               <SectionTitle label={t('statistics:showBy')} subtitle={periodSubtitle} />
             </Accordion.Item.Title>
-            <Accordion.Item.Button />
+            <Accordion.Item.Button>
+              {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
+            </Accordion.Item.Button>
           </Accordion.Item.Header>
           <Accordion.Item.Content>
             <div className="flex flex-col gap-16">
@@ -201,7 +210,9 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
               <Accordion.Item.Title>
                 <SectionTitle label={t('statistics:compareYear')} subtitle={compareYearSubtitle} />
               </Accordion.Item.Title>
-              <Accordion.Item.Button />
+              <Accordion.Item.Button>
+                {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
+              </Accordion.Item.Button>
             </Accordion.Item.Header>
             <Accordion.Item.Content>
               <Select {...register('year')} className="w-full" data-cy="compare-year-select-mobile">
@@ -217,7 +228,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
         )}
       </Accordion>
 
-      <Button onClick={closeHandler} className="w-full" data-cy="statistics-filter-mobile-apply">
+      <Button onClick={closeHandler} size="lg" className="w-full" data-cy="statistics-filter-mobile-apply">
         {t('statistics:use')}
       </Button>
     </div>
