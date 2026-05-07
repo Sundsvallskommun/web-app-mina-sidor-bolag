@@ -94,7 +94,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <FormLabel className="text-label-large">{t('statistics:facilities')}</FormLabel>
               <div>
                 <CheckboxDropdown
-                  label={`${facilities.checked.size} av ${facilities.list.length} valda`}
+                  label={`${facilities.checked.length} av ${facilities.list.length} valda`}
                   data-cy="facility-select"
                 >
                   <Checkbox

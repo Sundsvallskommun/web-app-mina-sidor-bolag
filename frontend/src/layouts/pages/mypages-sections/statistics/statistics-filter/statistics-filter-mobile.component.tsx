@@ -123,7 +123,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
             <Accordion.Item.Title>
               <SectionTitle
                 label={t('statistics:facilities')}
-                subtitle={`${facilities.checked.size} av ${facilities.list.length} valda`}
+                subtitle={`${facilities.checked.length} av ${facilities.list.length} valda`}
               />
             </Accordion.Item.Title>
             <Accordion.Item.Button>

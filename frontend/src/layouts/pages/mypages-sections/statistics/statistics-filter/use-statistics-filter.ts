@@ -6,7 +6,7 @@ import { facilityTypes, FacilityType, FacilityTypeName, getCategoryFromInstalled
 import { useCheckboxTree } from '@utils/use-checkbox-tree';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 
@@ -17,7 +17,17 @@ export const useStatisticsFilter = () => {
   const linkedFacilityId = searchParams?.get('installation');
 
   const { setValue, watch } = useFormContext<StatisticsForm>();
-  const { fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter, mode, facilityType } = watch();
+  const {
+    fromDate,
+    selectedDay,
+    selectedMonth,
+    selectedYear,
+    isHourQuarter,
+    mode,
+    facilityType,
+    addresses: checkedAddresses = [],
+    facilityIds: checkedFacilityIds = [],
+  } = watch();
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -65,76 +75,81 @@ export const useStatisticsFilter = () => {
     [facilitiesGroupedByAddress]
   );
 
-  const {
-    checkedItems: checkedAddresses,
-    allChecked: allAddressesChecked,
-    noneChecked: noAddressesChecked,
-    toggleItem: toggleAddress,
-    toggleAll: toggleAllAddresses,
-    isItemChecked: isAddressChecked,
-    reset: resetAddresses,
-  } = useCheckboxTree(addressGroups);
+  const addressTreeValue = useMemo(() => new Set(checkedAddresses.map((a) => `addresses::${a}`)), [checkedAddresses]);
 
-  const selectedAddresses = useMemo(() => {
-    return facilitiesGroupedByAddress.map((g) => g.address).filter((address) => isAddressChecked('addresses', address));
+  const addressTree = useCheckboxTree(addressGroups, {
+    value: addressTreeValue,
+    onChange: (next) => {
+      setValue(
+        'addresses',
+        Array.from(next).map((k) => k.replace('addresses::', ''))
+      );
+    },
+  });
+
+  const facilityList = useMemo(() => {
+    return facilitiesGroupedByAddress.filter((g) => checkedAddresses.includes(g.address)).flatMap((g) => g.facilities);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facilitiesGroupedByAddress, checkedAddresses]);
 
-  const facilityList = useMemo(() => {
-    return facilitiesGroupedByAddress.filter((g) => selectedAddresses.includes(g.address)).flatMap((g) => g.facilities);
-  }, [facilitiesGroupedByAddress, selectedAddresses]);
-
   const facilityGroups = useMemo(() => [{ key: 'facilities', items: facilityList }], [facilityList]);
 
-  const {
-    checkedItems: checkedFacilities,
-    allChecked: allFacilitiesChecked,
-    noneChecked: noFacilitiesChecked,
-    toggleItem: toggleFacility,
-    toggleAll: toggleAllFacilities,
-    isItemChecked: isFacilityChecked,
-    reset: resetFacilities,
-  } = useCheckboxTree(facilityGroups);
+  const facilityTreeValue = useMemo(
+    () => new Set(checkedFacilityIds.map((id) => `facilities::${id}`)),
+    [checkedFacilityIds]
+  );
+
+  const facilityTree = useCheckboxTree(facilityGroups, {
+    value: facilityTreeValue,
+    onChange: (next) => {
+      setValue(
+        'facilityIds',
+        Array.from(next).map((k) => k.replace('facilities::', ''))
+      );
+    },
+  });
 
   // Deselect facilities that no longer belong to any selected address
   useEffect(() => {
-    const validKeys = new Set(facilityList.map((f) => `facilities::${f}`));
-    const pruned = Array.from(checkedFacilities).filter((key) => validKeys.has(key));
-    if (pruned.length !== checkedFacilities.size) {
-      resetFacilities(pruned);
+    const validSet = new Set(facilityList);
+    const pruned = checkedFacilityIds.filter((id) => validSet.has(id));
+    if (pruned.length !== checkedFacilityIds.length) {
+      setValue('facilityIds', pruned);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facilityList]);
 
   useEffect(() => {
-    const facilityIds = Array.from(checkedFacilities).map((key) => key.replace('facilities::', ''));
-    setValue('facilityIds', facilityIds);
-  }, [checkedFacilities, setValue]);
-
-  useEffect(() => {
     setValue('category', getCategoryFromInstalledBaseType(facilityType ?? undefined));
   }, [facilityType, setValue]);
 
+  // Reset selections when facilityType actually changes (not on mount of a new hook instance)
+  const prevFacilityTypeRef = useRef(facilityType);
   useEffect(() => {
-    setValue('addresses', selectedAddresses);
-  }, [selectedAddresses, setValue]);
-
-  useEffect(() => {
-    resetAddresses([]);
-    resetFacilities([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [facilityType]);
-
-  // Select all addresses and facilities by default when user loads
-  useEffect(() => {
-    if (facilitiesGroupedByAddress.length > 0) {
-      const allAddressKeys = facilitiesGroupedByAddress.map((g) => `addresses::${g.address}`);
-      resetAddresses(allAddressKeys);
-      const allFacilityKeys = facilitiesGroupedByAddress.flatMap((g) => g.facilities.map((f) => `facilities::${f}`));
-      resetFacilities(allFacilityKeys);
+    if (prevFacilityTypeRef.current !== facilityType) {
+      prevFacilityTypeRef.current = facilityType;
+      setValue('addresses', []);
+      setValue('facilityIds', []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [facilitiesGroupedByAddress]);
+  }, [facilityType, setValue]);
+
+  // Select all addresses and facilities when the available groups actually change, not on mount of a new hook instance
+  const prevGroupedRef = useRef(facilitiesGroupedByAddress);
+  useEffect(() => {
+    if (prevGroupedRef.current !== facilitiesGroupedByAddress) {
+      prevGroupedRef.current = facilitiesGroupedByAddress;
+      if (facilitiesGroupedByAddress.length > 0) {
+        setValue(
+          'addresses',
+          facilitiesGroupedByAddress.map((g) => g.address)
+        );
+        setValue(
+          'facilityIds',
+          facilitiesGroupedByAddress.flatMap((g) => g.facilities)
+        );
+      }
+    }
+  }, [facilitiesGroupedByAddress, setValue]);
 
   // Handle linked facility from URL
   useEffect(() => {
@@ -146,8 +161,8 @@ export const useStatisticsFilter = () => {
           setValue('facilityType', type as FacilityType);
         }
         setTimeout(() => {
-          resetAddresses([`addresses::${facility.address?.street}`]);
-          resetFacilities([`facilities::${facility.facilityId}`]);
+          setValue('addresses', [facility.address!.street!]);
+          setValue('facilityIds', [facility.facilityId!]);
         }, 100);
       }
     }
@@ -195,21 +210,21 @@ export const useStatisticsFilter = () => {
     fromDate,
     addresses: {
       groups: facilitiesGroupedByAddress,
-      selected: selectedAddresses,
-      allChecked: allAddressesChecked,
-      noneChecked: noAddressesChecked,
-      toggle: toggleAddress,
-      toggleAll: toggleAllAddresses,
-      isChecked: isAddressChecked,
+      selected: checkedAddresses,
+      allChecked: addressTree.allChecked,
+      noneChecked: addressTree.noneChecked,
+      toggle: addressTree.toggleItem,
+      toggleAll: addressTree.toggleAll,
+      isChecked: addressTree.isItemChecked,
     },
     facilities: {
       list: facilityList,
-      checked: checkedFacilities,
-      allChecked: allFacilitiesChecked,
-      noneChecked: noFacilitiesChecked,
-      toggle: toggleFacility,
-      toggleAll: toggleAllFacilities,
-      isChecked: isFacilityChecked,
+      checked: checkedFacilityIds,
+      allChecked: facilityTree.allChecked,
+      noneChecked: facilityTree.noneChecked,
+      toggle: facilityTree.toggleItem,
+      toggleAll: facilityTree.toggleAll,
+      isChecked: facilityTree.isItemChecked,
     },
   };
 };
