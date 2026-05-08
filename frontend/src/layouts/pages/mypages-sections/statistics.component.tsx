@@ -88,7 +88,7 @@ export default function Statistics() {
           disableCloseOutside={true}
           show={isOpen}
           onClose={closeHandler}
-          label="Filtrera"
+          label={t('statistics:filter')}
         >
           <Modal.Content>
             <StatisticsFilterMobile closeHandler={closeHandler} />
