@@ -3,7 +3,7 @@
 import { User } from '@interfaces/user';
 import { useApi } from '@services/api-service';
 import { facilityTypes, FacilityType, FacilityTypeName, getCategoryFromInstalledBaseType } from '@utils/facility';
-import { useCheckboxTree } from '@utils/use-checkbox-tree';
+import { parseKey, toKey, useCheckboxTree } from '@utils/use-checkbox-tree';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef } from 'react';
@@ -75,14 +75,17 @@ export const useStatisticsFilter = () => {
     [facilitiesGroupedByAddress]
   );
 
-  const addressTreeValue = useMemo(() => new Set(checkedAddresses.map((a) => `addresses::${a}`)), [checkedAddresses]);
+  const addressTreeValue = useMemo(
+    () => new Set(checkedAddresses.map((a) => toKey('addresses', a))),
+    [checkedAddresses]
+  );
 
   const addressTree = useCheckboxTree(addressGroups, {
     value: addressTreeValue,
     onChange: (next) => {
       setValue(
         'addresses',
-        Array.from(next).map((k) => k.replace('addresses::', ''))
+        Array.from(next).map((k) => parseKey(k).item)
       );
     },
   });
@@ -95,7 +98,7 @@ export const useStatisticsFilter = () => {
   const facilityGroups = useMemo(() => [{ key: 'facilities', items: facilityList }], [facilityList]);
 
   const facilityTreeValue = useMemo(
-    () => new Set(checkedFacilityIds.map((id) => `facilities::${id}`)),
+    () => new Set(checkedFacilityIds.map((id) => toKey('facilities', id))),
     [checkedFacilityIds]
   );
 
@@ -104,7 +107,7 @@ export const useStatisticsFilter = () => {
     onChange: (next) => {
       setValue(
         'facilityIds',
-        Array.from(next).map((k) => k.replace('facilities::', ''))
+        Array.from(next).map((k) => parseKey(k).item)
       );
     },
   });

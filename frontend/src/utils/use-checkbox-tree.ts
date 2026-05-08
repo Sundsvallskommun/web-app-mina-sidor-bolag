@@ -16,7 +16,14 @@ export interface UseCheckboxTreeOptions {
   onChange?: (next: Set<string>) => void;
 }
 
-const toKey = (groupKey: string, item: string) => `${groupKey}::${item}`;
+const SEPARATOR = '::';
+
+export const toKey = (groupKey: string, item: string) => `${groupKey}${SEPARATOR}${item}`;
+
+export const parseKey = (key: string): { groupKey: string; item: string } => {
+  const idx = key.indexOf(SEPARATOR);
+  return { groupKey: key.slice(0, idx), item: key.slice(idx + SEPARATOR.length) };
+};
 
 export const useCheckboxTree = (groups: CheckboxTreeGroup[], options?: UseCheckboxTreeOptions) => {
   const isControlled = options?.value !== undefined;
