@@ -58,12 +58,18 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
     };
   } else {
     try {
+      // TEMP LOGGING
+      logger.info(`calling legalentity url=${url}`);
       res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
     } catch (error) {
       logger.error('Could not get engagements', error);
       res = { data: [] };
     }
   }
+  // TEMP LOGGING
+  logger.info(
+    `engagements: pnrLen=${user.personNumber?.length} pnrTail=${user.personNumber?.slice(-4)} count=${res.data?.length ?? 'null'}`,
+  );
 
   // Add engagements from mandates and just pass if error occurs
   try {
@@ -73,6 +79,9 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
   }
 
   if (!res.data) return [];
+
+  // TEMP LOGGING
+  logger.info(`engagements pre-prioritize: ${res.data.length}, post: ${prioritizeEngagements(res.data).length}`);
 
   return prioritizeEngagements(res.data);
 };
