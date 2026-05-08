@@ -24,11 +24,11 @@ export const useCheckboxTree = (groups: CheckboxTreeGroup[], options?: UseCheckb
     () => new Set(options?.initialCheckedKeys ?? [])
   );
 
-  const checkedItems = isControlled ? options!.value! : internalChecked;
+  const checkedItems = options?.value ?? internalChecked;
 
   const update = (compute: (prev: Set<string>) => Set<string>) => {
     if (isControlled) {
-      options!.onChange?.(compute(checkedItems));
+      options?.onChange?.(compute(checkedItems));
     } else {
       setInternalChecked(compute);
     }
