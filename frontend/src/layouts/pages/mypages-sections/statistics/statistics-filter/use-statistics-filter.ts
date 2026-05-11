@@ -136,20 +136,15 @@ export const useStatisticsFilter = () => {
     }
   }, [facilityType, setValue]);
 
-  // Select all addresses and facilities when the available groups actually change, not on mount of a new hook instance
+  // Select only the first address and its first facility when the available groups actually change, not on mount of a new hook instance
   const prevGroupedRef = useRef(facilitiesGroupedByAddress);
   useEffect(() => {
     if (prevGroupedRef.current !== facilitiesGroupedByAddress) {
       prevGroupedRef.current = facilitiesGroupedByAddress;
       if (facilitiesGroupedByAddress.length > 0) {
-        setValue(
-          'addresses',
-          facilitiesGroupedByAddress.map((g) => g.address)
-        );
-        setValue(
-          'facilityIds',
-          facilitiesGroupedByAddress.flatMap((g) => g.facilities)
-        );
+        const firstGroup = facilitiesGroupedByAddress[0];
+        setValue('addresses', [firstGroup.address]);
+        setValue('facilityIds', firstGroup.facilities.slice(0, 1));
       }
     }
   }, [facilitiesGroupedByAddress, setValue]);
