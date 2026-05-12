@@ -1,19 +1,51 @@
 'use client';
 
 import { NextLink } from '@sk-web-gui/next';
-import { Button, FormErrorMessage, Icon } from '@sk-web-gui/react';
+import { Button, FormErrorMessage, Icon, Label, Link } from '@sk-web-gui/react';
 import { ArrowRight } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { CardElevated } from '../../components/cards/card-elevated.component';
-import { CenterDiv } from '../../layouts/center-div.component';
-import { EntryLayout } from '../../layouts/entry-layout.component';
+import { CardElevated } from '@components/cards/card-elevated.component';
+import { CenterDiv } from '@layouts/center-div.component';
+import { EntryLayout } from '@layouts/entry-layout.component';
 import Main from '../../layouts/main.component';
-import { appURL } from '../../utils/app-url';
-import { getAdjustedPathname, getRepresentingModeRoute } from '../../utils/representingModeRoute';
+import { appURL } from '@utils/app-url';
+import { getAdjustedPathname, getRepresentingModeRoute } from '@utils/representingModeRoute';
 import { RepresentingMode } from '@interfaces/app';
 import { AlertBanner } from '@components/alert-banner/alert-banner.component';
+
+const DeprecationNotice = () => {
+  return (
+    <div className="flex flex-col pt-8">
+      <Label className="w-fit mb-16" rounded>
+        FÖR ORGANISATIONER
+      </Label>
+      <p className="font-bold">Den gamla Mina sidor stänger 1 juni 2026</p>
+      <p className="pb-16">
+        Vi byter till säkrare inloggning med BankID – det ger bättre kontroll över vem som kommer åt ert konto och vad
+        de gör. För att era medarbetare ska kunna logga in på nya Mina sidor behöver firmatecknaren eller VD:n logga in
+        en gång och lägga till dem som ombud.
+      </p>
+      <p className="font-bold">
+        Observera att regioner, myndigheter, kommuner och ideella föreningar kräver en särskild hantering.
+      </p>
+      <Link href="https://sundsvallelnat.se/ombud" target="_blank" className="text-small mt-8 mb-24">
+        Mer information om hur ni kommer igång →
+      </Link>
+      <a
+        className="sk-btn sk-btn-lg sk-btn-secondary flex-grow w-full"
+        href="https://e-tjanster.stadsbacken.se/foretag"
+        target="_blank"
+      >
+        <Button.Content>
+          Till gamla Mina Sidor (Organisationer)
+          <Icon icon={<ArrowRight />} />
+        </Button.Content>
+      </a>
+    </div>
+  );
+};
 
 function Login() {
   const router = useRouter();
@@ -105,7 +137,7 @@ function Login() {
                   <div className="flex flex-col w-full gap-12">
                     <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">{t('common:login.title')}</h1>
 
-                    <p className="text-center text-secondary m-0">{t('common:login.description')}</p>
+                    <p className="text-center text-secondary m-0 px-32">{t('common:login.description')}</p>
                   </div>
 
                   <div className="flex flex-col w-full gap-16">
@@ -121,7 +153,6 @@ function Login() {
                       >
                         {t('common:person')}
                       </Button>
-                      {/* NOTE: Link to old service temporary 
                       <Button
                         className="flex-grow"
                         variant="secondary"
@@ -130,19 +161,11 @@ function Login() {
                         onClick={() => onLogin(RepresentingMode.BUSINESS)}
                       >
                         {t('common:organization')}
-                      </Button> */}
-                      <a
-                        className="sk-btn sk-btn-lg sk-btn-secondary flex-grow"
-                        href="https://e-tjanster.stadsbacken.se/foretag"
-                        target="_blank"
-                      >
-                        <Button.Content>
-                          {t('common:organization')}
-                          <Icon icon={<ArrowRight />} />
-                        </Button.Content>
-                      </a>
+                      </Button>
                     </div>
                     {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
+
+                    <DeprecationNotice />
                   </div>
                 </>
               )}
