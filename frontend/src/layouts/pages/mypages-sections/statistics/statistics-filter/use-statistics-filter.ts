@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
+import { Category } from '@interfaces/measurement-data';
 
 export type StatisticsFilterMode = 'day' | 'month' | 'year';
 
@@ -25,6 +26,7 @@ export const useStatisticsFilter = () => {
     isHourQuarter,
     mode,
     facilityType,
+    category,
     addresses: checkedAddresses = [],
     facilityIds: checkedFacilityIds = [],
   } = watch();
@@ -168,10 +170,10 @@ export const useStatisticsFilter = () => {
   }, []);
 
   useEffect(() => {
-    if (mode !== 'day') {
+    if (mode !== 'day' || category !== Category.ELECTRICITY) {
       setValue('isHourQuarter', false);
     }
-  }, [mode, setValue]);
+  }, [mode, category, setValue]);
 
   useEffect(() => {
     const today = dayjs();
