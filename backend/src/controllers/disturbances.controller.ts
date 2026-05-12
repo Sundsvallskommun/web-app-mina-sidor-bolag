@@ -9,6 +9,7 @@ import { Controller, Get, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Disturbance } from '@/data-contracts/disturbances/data-contracts';
 import { DisturbanceApiResponse } from '@/responses/disturbances.response';
+import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 
 @Controller()
 export class DisturbancesController {
@@ -21,14 +22,15 @@ export class DisturbancesController {
   @UseBefore(authMiddleware)
   @ResponseSchema(DisturbanceApiResponse)
   async getDisturbances(@Req() req: RequestWithUser): Promise<ApiResponse<Disturbance[]>> {
-    const userPartyId = req.user.partyId;
-    if (!userPartyId) {
+    const representing = req.session?.representing ?? undefined;
+    const partyId = getRepresentingPartyId(representing);
+    if (!partyId) {
       throw new HttpException(400, 'Bad request, missing partyId');
     }
 
     const delegations = req?.session?.cache?.delegations ?? [];
     const delegationPartyIds: string[] = delegations.map(d => d.owner);
-    const partyIdList = [userPartyId, ...delegationPartyIds];
+    const partyIdList = [partyId, ...delegationPartyIds];
 
     const { status } = req.query;
 
