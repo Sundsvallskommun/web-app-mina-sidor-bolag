@@ -9,7 +9,7 @@ import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
-import { useStatisticsFilter } from './use-statistics-filter';
+import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export interface StatisticsFilterMobileProps {
@@ -31,6 +31,12 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   const facilityType = watch('facilityType');
 
   const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
+
+  const modeOptions: { value: StatisticsFilterMode; label: string }[] = [
+    { value: 'year', label: t('statistics:year') },
+    { value: 'month', label: t('statistics:month') },
+    { value: 'day', label: t('statistics:day') },
+  ];
 
   const periodSubtitle = (() => {
     if (!fromDate) return '';
@@ -170,17 +176,13 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
           <Accordion.Item.Content>
             <div className="flex flex-col gap-16">
               <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle-mobile">
-                {[
-                  { value: 'year', label: t('statistics:year') },
-                  { value: 'month', label: t('statistics:month') },
-                  { value: 'day', label: t('statistics:day') },
-                ].map((item) => (
+                {modeOptions.map((item) => (
                   <NavigationBar.Item key={item.value} className="w-full !p-0 !m-0">
                     <Button
                       className="w-full !h-[12px] !py-0"
                       size="sm"
                       inverted={mode === item.value}
-                      onClick={() => setValue('mode', item.value as 'year' | 'month' | 'day')}
+                      onClick={() => setValue('mode', item.value)}
                       data-cy={`date-toggle-mobile-${item.value}-button`}
                     >
                       {item.label}

@@ -10,7 +10,7 @@ import { StatisticsFilterYear } from './components/statistics-filter-year.compon
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { useTranslation } from 'react-i18next';
 import { CheckboxDropdown } from './components/checkbox-dropdown.component';
-import { useStatisticsFilter } from './use-statistics-filter';
+import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
@@ -24,6 +24,12 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const facilityType = watch('facilityType');
 
   const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
+
+  const modeOptions: { value: StatisticsFilterMode; label: string }[] = [
+    { value: 'year', label: t('statistics:year') },
+    { value: 'month', label: t('statistics:month') },
+    { value: 'day', label: t('statistics:day') },
+  ];
 
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
@@ -128,18 +134,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <div className="flex flex-col gap-8 w-full lg:pt-0">
                 <FormLabel className="text-label-large">{t('statistics:showBy')}</FormLabel>
                 <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
-                  {[
-                    { value: 'year', label: t('statistics:year') },
-                    { value: 'month', label: t('statistics:month') },
-                    { value: 'day', label: t('statistics:day') },
-                  ].map((item) => (
+                  {modeOptions.map((item) => (
                     <NavigationBar.Item key={item.value} className="lg:w-auto w-full !p-0 !m-0">
                       <Button
                         className="lg:w-auto w-full !h-[12px] !py-0"
                         size="sm"
                         inverted={mode === item.value}
                         onClick={() => {
-                          setValue('mode', item.value as 'year' | 'month' | 'day');
+                          setValue('mode', item.value);
                         }}
                         data-cy={`date-toggle-${item.value}-button`}
                       >
