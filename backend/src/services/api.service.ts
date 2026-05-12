@@ -81,6 +81,7 @@ class ApiService {
       httpAgent: agent,
       httpsAgent: agent,
     };
+    logger.info(`Full URL: ${axios.getUri(preparedConfig)}`);
     let tries = 0;
 
     const call = async () => {
