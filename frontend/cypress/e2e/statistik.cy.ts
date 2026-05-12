@@ -69,9 +69,7 @@ describe('Statistik', () => {
   it('should render consumption information correctly', () => {
     statisticsDataIntercept();
 
-    cy.get('[data-cy="address"]')
-      .should('exist')
-      .should('have.text', getMe.data.addresses.map((a) => a.address).join(', '));
+    cy.get('[data-cy="address"]').should('exist').should('have.text', getMe.data.addresses[0].address);
     cy.get('[data-cy="total-consumption-value"]').should('exist');
     cy.get('[data-cy="highest-consumption-value"]').should('exist');
     cy.get('[data-cy="average-consumption-value"]').should('exist');

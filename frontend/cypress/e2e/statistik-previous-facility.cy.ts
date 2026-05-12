@@ -15,8 +15,8 @@ describe('Statistik - Handle previous (inactive) facility', () => {
   const visitAndSelectPreviousFacility = () => {
     const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 
-    // Initial multi-facility request fired on mount (auto-select-all selects 111 and 444).
-    // Stub it so React Query doesn't sit in a failed state while we deselect Storgatan 1.
+    // Initial single-facility request fired on mount (default selects only Storgatan 1 / facility 111).
+    // Stub it so React Query doesn't sit in a failed state while we switch to facility 444.
     cy.intercept(
       'GET',
       '**/api/measurementdata?category=ELECTRICITY&facilityIds=*',
@@ -41,13 +41,26 @@ describe('Statistik - Handle previous (inactive) facility', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('exist').should('contain.text', 'Din statistik');
 
-    // Deselect Storgatan 1 so only Gamla Vägen 42 (facility 444) remains selected
+    // Default selection is Storgatan 1 + facility 111. Swap to Gamla Vägen 42 + facility 444.
     cy.get('[data-cy="address-select"]').should('exist').click();
+    cy.get('[data-cy="address-select"]')
+      .contains('label', 'Gamla Vägen 42')
+      .find('input[type="checkbox"]')
+      .check({ force: true })
+      .should('be.checked');
     cy.get('[data-cy="address-select"]')
       .contains('label', 'Storgatan 1')
       .find('input[type="checkbox"]')
       .uncheck({ force: true })
       .should('not.be.checked');
+
+    // Adding an address does not auto-select its facilities — pick 444 manually.
+    cy.get('[data-cy="facility-select"]').should('exist').click();
+    cy.get('[data-cy="facility-select"]')
+      .contains('label', '444')
+      .find('input[type="checkbox"]')
+      .check({ force: true })
+      .should('be.checked');
   };
 
   it('should render chart for previous (inactive) facility instead of OnlyTrade', () => {
