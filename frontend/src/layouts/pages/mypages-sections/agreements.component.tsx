@@ -106,10 +106,10 @@ export default function PagedAgreements() {
           <div className="flex items-center gap-8">
             <p>{t('agreement:pagination.rowsPerPage')}:</p>
             <Select size="sm" variant="tertiary" onChange={(e) => handleChangeLimit(e.target.value)} value={limit}>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
+              <Select.Option value={10}>10</Select.Option>
+              <Select.Option value={20}>20</Select.Option>
+              <Select.Option value={50}>50</Select.Option>
+              <Select.Option value={100}>100</Select.Option>
             </Select>
           </div>
           <Pagination pages={pages} activePage={currentPage} changePage={(page) => setCurrentPage(page)} />
