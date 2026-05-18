@@ -16,7 +16,7 @@ function activeAgreement(agreement: Agreement): boolean {
   return dayjs(agreement.toDate).isAfter(dayjs()) || agreement.toDate === undefined;
 }
 
-const repeatedArrayParamsSerializer = { indexes: null as null };
+const repeatedArrayParamsSerializer = { indexes: null };
 
 async function fetchAllAgreementPages(
   apiService: ApiService,

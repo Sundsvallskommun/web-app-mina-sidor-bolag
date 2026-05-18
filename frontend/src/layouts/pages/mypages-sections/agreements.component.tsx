@@ -62,68 +62,73 @@ export default function PagedAgreements() {
     setCurrentPage(1);
   };
 
+  const agreementsList =
+    data && agreements && !isFetching ? (
+      <div>
+        {Object.keys(agreements).length > 1 && (
+          <SearchField
+            className="mb-40 max-w-[520px]"
+            size="md"
+            value={term}
+            onChange={onChangeHandler}
+            onReset={onResetHandler}
+            showSearchButton={false}
+            placeholder={t('agreement:searchFacility')}
+            data-cy="agreement-search-field"
+          />
+        )}
+
+        {Object.entries(data).map(([address, agreements]: [string, RefinedAgreement[]], index) => {
+          return (
+            agreements?.length !== 0 && (
+              <div className="pb-64" key={`site-${index}`}>
+                <h3 className="text-h3-lg pb-24">{address ?? t('common:unknownAddress')}</h3>
+                {agreements?.map((val, index) => {
+                  return (
+                    <AgreementListItem
+                      key={`agreement-${index}`}
+                      agreementSlug={`${getCategoryAsNumber(val.category.code)}/${val.facilityId}`}
+                      category={val.category}
+                      facilityId={val.facilityId}
+                      area={val.netAreaId}
+                      description={val.description}
+                      production={val.production}
+                      active={val.active}
+                    />
+                  );
+                })}
+              </div>
+            )
+          );
+        })}
+
+        {Object.values(data).flat().length === 0 && <p>{t('agreement:noMatch')}</p>}
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-24 w-full">
+          <div className="flex items-center gap-8">
+            <p>{t('agreement:pagination.rowsPerPage')}:</p>
+            <Select size="sm" variant="tertiary" onChange={(e) => handleChangeLimit(e.target.value)} value={limit}>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </Select>
+          </div>
+          <Pagination pages={pages} activePage={currentPage} changePage={(page) => setCurrentPage(page)} />
+        </div>
+      </div>
+    ) : (
+      <div className="flex items-center justify-center w-full">
+        <Spinner />
+      </div>
+    );
+
   return (
     <div>
       <h1 className="mb-40">{t('agreement:title')}</h1>
       {!agreementsIsLoading && agreements && Object.keys(agreements).length < 1 ? (
         <p>{t('agreement:noAgreements')}</p>
-      ) : data && agreements && !isFetching ? (
-        <div>
-          {Object.keys(agreements).length > 1 && (
-            <SearchField
-              className="mb-40 max-w-[520px]"
-              size="md"
-              value={term}
-              onChange={onChangeHandler}
-              onReset={onResetHandler}
-              showSearchButton={false}
-              placeholder={t('agreement:searchFacility')}
-              data-cy="agreement-search-field"
-            />
-          )}
-
-          {Object.entries(data).map(([address, agreements]: [string, RefinedAgreement[]], index) => {
-            return (
-              agreements?.length !== 0 && (
-                <div className="pb-64" key={`site-${index}`}>
-                  <h3 className="text-h3-lg pb-24">{address ?? t('common:unknownAddress')}</h3>
-                  {agreements?.map((val, index) => {
-                    return (
-                      <AgreementListItem
-                        key={`agreement-${index}`}
-                        agreementSlug={`${getCategoryAsNumber(val.category.code)}/${val.facilityId}`}
-                        category={val.category}
-                        facilityId={val.facilityId}
-                        area={val.netAreaId}
-                        description={val.description}
-                        production={val.production}
-                        active={val.active}
-                      />
-                    );
-                  })}
-                </div>
-              )
-            );
-          })}
-
-          {Object.values(data).flat().length === 0 && <p>{t('agreement:noMatch')}</p>}
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-24 w-full">
-            <div className="flex items-center gap-8">
-              <p>{t('agreement:pagination.rowsPerPage')}:</p>
-              <Select size="sm" variant="tertiary" onChange={(e) => handleChangeLimit(e.target.value)} value={limit}>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </Select>
-            </div>
-            <Pagination pages={pages} activePage={currentPage} changePage={(page) => setCurrentPage(page)} />
-          </div>
-        </div>
       ) : (
-        <div className="flex items-center justify-center w-full">
-          <Spinner />
-        </div>
+        agreementsList
       )}
     </div>
   );
