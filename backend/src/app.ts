@@ -99,7 +99,9 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
+    console.log('Extracting profile attributes')
     const { firstname: givenName, Surname: surname, citizenIdentifier } = profile;
+    console.log('Extracted attributes', { givenName, surname, citizenIdentifier });
 
     if (!givenName || !surname || !citizenIdentifier) {
       return done(null, null, {
@@ -107,6 +109,8 @@ const samlStrategy = new Strategy(
         message: 'Missing profile attributes',
       });
     }
+
+    console.log('Fetching user from Citizen API with person number:', citizenIdentifier);
 
     try {
       const apiBase = getApiBase('citizen');
