@@ -92,6 +92,7 @@ const samlStrategy = new Strategy(
     acceptedClockSkewMs: -1,
   },
   async function (profile: Profile, done: VerifiedCallback) {
+    console.log('SAML profile received:', JSON.stringify(profile));
     if (!profile) {
       return done({
         name: 'SAML_MISSING_PROFILE',
@@ -114,6 +115,8 @@ const samlStrategy = new Strategy(
       const citizenResult = await apiService.get<any>({ url }, { username: 'unknown' });
       const { data: personId } = citizenResult;
 
+      console.log('Citizen API response:', JSON.stringify(citizenResult));
+
       if (!personId) {
         return done({
           name: 'SAML_CITIZEN_FAILED',
@@ -132,6 +135,8 @@ const samlStrategy = new Strategy(
         nameIDFormat: profile.nameIDFormat,
         sessionIndex: profile.sessionIndex,
       };
+
+      console.log('User found or created:', JSON.stringify(findUser));
 
       const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
       // Create user settings for new users
