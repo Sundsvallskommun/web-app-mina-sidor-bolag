@@ -2,7 +2,7 @@
 
 import { Pagination, SearchField, Select, Spinner } from '@sk-web-gui/react';
 import { AgreementListItem } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/agreement-list-item.component';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { getCategoryAsNumber, pagedAgreementsWithMetaHandler } from '@services/agreement-service';
 import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 
 export default function PagedAgreements() {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pages, setPages] = useState<number>(1);
   const [limit, setLimit] = useState<number>(20);
 
   const {
@@ -26,14 +25,10 @@ export default function PagedAgreements() {
   });
 
   const agreements = response?.agreements;
-  const meta = response?._meta;
+  const pages = response?._meta?.totalPages ?? 1;
 
   const [term, setTerm] = useState<string>('');
   const { t } = useTranslation(['common', 'agreement']);
-
-  useEffect(() => {
-    setPages(meta?.totalPages ?? 1);
-  }, [meta]);
 
   const data = useMemo<AgreementData | undefined>(() => {
     if (!agreements) return undefined;
