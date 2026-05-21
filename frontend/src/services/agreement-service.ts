@@ -1,4 +1,11 @@
-import { Agreement, Category, AgreementData, RefinedAgreement } from '@interfaces/agreement';
+import {
+  Agreement,
+  Category,
+  AgreementData,
+  PagedAgreementsHandlerResult,
+  PagedAgreementsResponse,
+  RefinedAgreement,
+} from '@interfaces/agreement';
 
 const visibleCategories = ['ELECTRICITY', 'ELECTRICITY_TRADE', 'DISTRICT_HEATING'];
 
@@ -54,6 +61,11 @@ export const handlePagedAgreementsResponse: (data: Agreement[]) => AgreementData
 };
 
 export const pagedAgreementsHandler = (data: Agreement[]): AgreementData => handlePagedAgreementsResponse(data);
+
+export const pagedAgreementsWithMetaHandler = (data: PagedAgreementsResponse): PagedAgreementsHandlerResult => ({
+  agreements: handlePagedAgreementsResponse(data?.agreements ?? []),
+  _meta: data?._meta ?? {},
+});
 
 export const handleAgreementResponse: (data: Agreement[]) => RefinedAgreement[] = (data) => {
   return data

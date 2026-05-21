@@ -1,8 +1,9 @@
 import { getMe } from '../fixtures/getMe';
 import { getPendingInvoices } from '../fixtures/getInvoices';
 import { setIntercepts } from '../support/e2e';
-import { RepresentingMode } from '../../src/interfaces/app';
+import { RepresentingMode } from '@interfaces/app';
 import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
+import { getOverviewDisturbances } from '../fixtures/getDisturbances';
 
 describe('Översikt', () => {
   beforeEach(() => {
@@ -12,7 +13,14 @@ describe('Översikt', () => {
       '**/api/bfus/eligable-party-permissions?customerIds=12345678',
       getBfusPartyPermissions(RepresentingMode.PRIVATE)
     ).as('getPartyPermissions');
+    cy.intercept(
+      'GET',
+      '**/api/bfus/new-permissions?customerIds=12345678',
+      getBfusPartyPermissions(RepresentingMode.PRIVATE)
+    ).as('getNewPermissions');
+
     cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
+    cy.intercept('GET', '**/api/disturbances?status=*', getOverviewDisturbances()).as('getOverviewDisturbances');
     cy.visit('/privat/oversikt');
   });
 
@@ -30,6 +38,12 @@ describe('Översikt', () => {
     cy.get('[data-cy="todo-list-item-subtitle"]')
       .should('exist')
       .should('include.text', `Du har ${getPendingInvoices().data._meta.totalRecords} fakturor att betala.`);
+
+    // Disturbances
+    cy.get('[data-cy="overview-disturbances"]').should('exist').contains('Driftinformation');
+    cy.get('[data-cy="overview-disturbances"]').within(() => {
+      cy.contains('button', 'Visa alla').should('be.visible');
+    });
   });
 
   it('should display current and previous year measurement data on consumption cards', () => {

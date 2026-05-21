@@ -26,6 +26,7 @@ const namespaces = [
   'event',
   'eligibility',
   'impersonation',
+  'disturbances',
 ];
 
 export interface LocalizationLayoutProps {

@@ -62,7 +62,7 @@ export const useBannerMenuItems = () => {
       {capitalize(t('common:profile'))}
     </NextLink>,
     <NextLink
-      key={`banner-menu-item-5`}
+      key={`banner-menu-item-6`}
       className="w-full flex items-center justify-center"
       href={`${myPagesRoute}/medgivanden`}
     >
@@ -79,6 +79,13 @@ export const useBannerMenuItems = () => {
         </NextLink>
       )}
     </>,
+    <NextLink
+      key={`banner-menu-item-7`}
+      className="w-full flex items-center justify-center"
+      href={`${myPagesRoute}/driftinformation`}
+    >
+      {capitalize(t('common:disturbances'))}
+    </NextLink>,
   ];
 
   return isMinDesktop ? bannerItems : mobileMenuItems;
