@@ -23,8 +23,8 @@ import { useTranslation } from 'react-i18next';
 import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
 export interface ChartsProps {
-  allAgreements: AgreementData;
-  isAllAgreementsDone: boolean;
+  readonly allAgreements: AgreementData;
+  readonly isAllAgreementsDone: boolean;
 }
 
 export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
