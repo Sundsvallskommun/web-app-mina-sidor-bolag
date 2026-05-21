@@ -59,7 +59,7 @@ import { additionalConverters } from './utils/custom-validation-classes';
 import { isValidOrigin } from './utils/isValidOrigin';
 import { isValidUrl } from './utils/util';
 import { deleteAISession } from './services/selfserviceai.service';
-import { getPermissions, getUserGroups } from '@services/authorization.service';
+import { getPermissions } from '@services/authorization.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -99,10 +99,7 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
-    const { firstname: givenName, Surname: surname, citizenIdentifier, username } = profile;
-
-    logger.info(`>> Impersonate user Profile app ts ${JSON.stringify(profile)}`);
-    logger.info(`>> Impersonate user Profile USERNAME ${username}`);
+    const { firstname: givenName, Surname: surname, citizenIdentifier } = profile;
 
     if (!givenName || !surname || !citizenIdentifier) {
       return done(null, null, {
@@ -125,8 +122,6 @@ const samlStrategy = new Strategy(
         });
       }
 
-      const userGroups = await getUserGroups(username ?? undefined);
-
       const findUser: User = {
         partyId: personId,
         personNumber: personNumber,
@@ -137,7 +132,7 @@ const samlStrategy = new Strategy(
         nameID: profile.nameID,
         nameIDFormat: profile.nameIDFormat,
         sessionIndex: profile.sessionIndex,
-        permissions: getPermissions(userGroups),
+        permissions: await getPermissions(personId),
       };
 
       const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });

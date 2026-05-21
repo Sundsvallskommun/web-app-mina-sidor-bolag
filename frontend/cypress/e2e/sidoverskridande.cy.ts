@@ -36,7 +36,7 @@ describe('Sidöverskridande', () => {
 
     cy.get('button[aria-label="Meny"]').should('be.visible').click();
     cy.get('button[aria-label="Stäng meny"]').should('be.visible');
-    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 8);
+    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 9);
 
     // foretag
     setIntercepts(RepresentingMode.BUSINESS);
