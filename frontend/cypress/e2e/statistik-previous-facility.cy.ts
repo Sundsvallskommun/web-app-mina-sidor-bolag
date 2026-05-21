@@ -4,12 +4,10 @@ import { getStatisticsData } from '../fixtures/getMeasurementData';
 import dayjs from 'dayjs';
 import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
-import { getMyPagedAgreements } from '../fixtures/getMyPagedAgreements';
 
 describe('Statistik - Handle previous (inactive) facility', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.intercept('GET', '**/api/paged/all-agreements', getMyPagedAgreements()).as('getAllAgreements');
   });
 
   const visitAndSelectPreviousFacility = () => {

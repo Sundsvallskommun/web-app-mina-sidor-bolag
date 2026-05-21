@@ -4,14 +4,12 @@ import { getStatisticsData } from '../fixtures/getMeasurementData';
 import dayjs from 'dayjs';
 import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
-import { getMyPagedAgreements } from '../fixtures/getMyPagedAgreements';
 import { isReady } from '../fixtures/ai';
 
 describe('Statistik - QUARTER Aggregation', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
     cy.intercept('GET', '**/api/ai/isReady', isReady(false)).as('AIisReady');
-    cy.intercept('GET', '**/api/paged/all-agreements', getMyPagedAgreements());
   });
 
   it('should render chart with QUARTER aggregation', () => {
