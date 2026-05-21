@@ -4,7 +4,7 @@ import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts'
 import { User } from '@interfaces/user';
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
 import { useApi } from '@services/api-service';
-import { Button, FormLabel, NavigationBar, Select } from '@sk-web-gui/react';
+import { Button, FormLabel, NavigationBar, ProgressBar, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -17,6 +17,9 @@ import { useTranslation } from 'react-i18next';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
+  isAllAgreementsDone: boolean;
+  allAgreementsCurrentPage: number;
+  allAgreementsTotalPages: number;
 }
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
@@ -24,7 +27,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const linkedFacilityId = searchParams?.get('installation');
   const { t } = useTranslation(['common', 'statistics']);
 
-  const { closeHandler } = props;
+  const { closeHandler, isAllAgreementsDone, allAgreementsCurrentPage, allAgreementsTotalPages } = props;
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [mode, setMode] = useState<'day' | 'month' | 'year'>('day');
@@ -130,7 +133,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
         <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-2/5 lg:pt-0 pt-24">
           <div className="block w-full">
             <FormLabel>{t('common:address')}</FormLabel>
-
             <Select {...register('address')} className="w-full mt-8" data-cy="address-select">
               {user?.addresses
                 ?.filter((a) => a.address)
@@ -141,6 +143,17 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   </Select.Option>
                 ))}
             </Select>
+            {!isAllAgreementsDone && (
+              <div className="flex gap-8 mt-8">
+                <ProgressBar
+                  current={allAgreementsCurrentPage}
+                  steps={allAgreementsTotalPages}
+                  size="md"
+                  color="vattjom"
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
 
           <div className="block w-full">

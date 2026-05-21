@@ -9,6 +9,7 @@ import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { Button, Modal, Spinner } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
+import { usePagedAgreements } from '@utils/use-paged-agreements.hook';
 
 export interface StatisticsForm {
   category: string;
@@ -44,6 +45,13 @@ export default function Statistics() {
     queryKey: ['user'],
   });
 
+  const {
+    agreements: allAgreements,
+    isDone: isAllAgreementsDone,
+    currentPage: allAgreementsCurrentPage,
+    totalPages: allAgreementsTotalPages,
+  } = usePagedAgreements(200, true);
+
   const openHandler = () => {
     setIsOpen(true);
   };
@@ -68,10 +76,15 @@ export default function Statistics() {
           ) : (
             <>
               <div className="sm:block hidden">
-                <StatisticsFilter closeHandler={closeHandler} />
+                <StatisticsFilter
+                  closeHandler={closeHandler}
+                  isAllAgreementsDone={isAllAgreementsDone}
+                  allAgreementsCurrentPage={allAgreementsCurrentPage}
+                  allAgreementsTotalPages={allAgreementsTotalPages}
+                />
               </div>
 
-              <Charts />
+              <Charts allAgreements={allAgreements} isAllAgreementsDone={isAllAgreementsDone} />
             </>
           )}
         </form>
@@ -84,7 +97,12 @@ export default function Statistics() {
           label="Filtrera"
         >
           <Modal.Content>
-            <StatisticsFilter closeHandler={closeHandler} />
+            <StatisticsFilter
+              closeHandler={closeHandler}
+              isAllAgreementsDone={isAllAgreementsDone}
+              allAgreementsCurrentPage={allAgreementsCurrentPage}
+              allAgreementsTotalPages={allAgreementsTotalPages}
+            />
           </Modal.Content>
         </Modal>
       </FormProvider>
