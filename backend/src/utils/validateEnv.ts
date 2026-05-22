@@ -35,6 +35,7 @@ const validateEnv = () => {
     ENEO_API_KEY: str(),
     FEEDBACK_EMAIL: emails(),
     ADMIN_GROUP: str(),
+    NAMESPACE: str(),
   });
 };
 

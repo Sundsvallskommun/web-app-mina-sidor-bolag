@@ -146,7 +146,7 @@ export class ImpersonationController {
 
     const metadata = [
       { key: 'requestedByPartyId', value: requestedBy.partyId },
-      { key: 'requestedByName', value: `${requestedBy.name} (Kundservice)` },
+      { key: 'requestedByName', value: requestedBy.name },
       { key: 'toImpersonatePartyId', value: toImpersonatePartyId },
       { key: 'accessReason', value: accessReason },
     ];
