@@ -67,7 +67,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <FormLabel className="text-label-large">{t('common:address')}</FormLabel>
               <div>
                 <CheckboxDropdown
-                  label={`${addresses.selected.length} av ${addresses.groups.length} valda`}
+                  label={t('statistics:selection', { count: addresses.selected.length, total: addresses.groups.length })}
                   data-cy="address-select"
                 >
                   <Checkbox
@@ -100,7 +100,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <FormLabel className="text-label-large">{t('statistics:facilities')}</FormLabel>
               <div>
                 <CheckboxDropdown
-                  label={`${facilities.checked.length} av ${facilities.list.length} valda`}
+                  label={t('statistics:selection', { count: facilities.checked.length, total: facilities.list.length })}
                   data-cy="facility-select"
                 >
                   <Checkbox
