@@ -68,7 +68,7 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
   }
   // TEMP LOGGING
   logger.info(
-    `engagements: pnrLen=${user.personNumber?.length} pnrTail=${user.personNumber?.slice(-4)} count=${res.data?.length ?? 'null'}`,
+    `engagements: pnrLen=${user.personNumber?.length} pnrTail=${user.personNumber?.slice(-5)} count=${res.data?.length ?? 'null'}`,
   );
 
   // Add engagements from mandates and just pass if error occurs
