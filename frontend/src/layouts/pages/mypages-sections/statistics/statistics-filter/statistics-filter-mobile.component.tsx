@@ -79,7 +79,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
             >
               {t('statistics:selectAll')}
             </Checkbox>
-            <div className="pl-16 flex flex-col gap-4">
+            <div className="pl-16 flex flex-col gap-4 max-h-[22vh] overflow-y-auto">
               {addresses.groups.map((group) => (
                 <Checkbox
                   className="py-8 px-2"
@@ -108,7 +108,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
             >
               {t('statistics:selectAll')}
             </Checkbox>
-            <div className="pl-16 flex flex-col gap-4">
+            <div className="pl-16 flex flex-col gap-4 max-h-[22vh] overflow-y-auto">
               {facilities.list.map((facilityId) => (
                 <Checkbox
                   className="py-8 px-2"

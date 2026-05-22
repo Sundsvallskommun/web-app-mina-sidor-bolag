@@ -84,13 +84,13 @@ export default function Statistics() {
         </form>
 
         <Modal
-          className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards"
+          className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95vh]"
           disableCloseOutside={true}
           show={isOpen}
           onClose={closeHandler}
           label={t('statistics:filter')}
         >
-          <Modal.Content>
+          <Modal.Content className="overflow-y-auto">
             <StatisticsFilterMobile closeHandler={closeHandler} />
           </Modal.Content>
         </Modal>
