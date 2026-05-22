@@ -26,13 +26,19 @@ export const OngoingDisturbances = () => {
     queryKey: ['disturbances', 'OPEN,PLANNED'],
   });
 
-  return isFetching ? (
-    <Spinner className="mx-auto" />
-  ) : isFetched && data?.length ? (
+  if (isFetching) {
+    return <Spinner className="mx-auto" />;
+  }
+
+  if (!isFetched || !data?.length) {
+    return null;
+  }
+
+  return (
     <section className="mt-80" data-cy="overview-disturbances">
       <div className="flex sm:flex-row flex-col justify-between sm:items-center sm:mb-32 gap-32">
         <div>
-          <h2 className="sm:m-0">{t('disturbances:title')}</h2>
+          <h2 className="text-display-3-md sm:m-0">{t('disturbances:title')}</h2>
           <p>{t('disturbances:description')}</p>
         </div>
 
@@ -50,5 +56,5 @@ export const OngoingDisturbances = () => {
         <DisturbanceListItem key={disturbance.id} disturbance={disturbance} />
       ))}
     </section>
-  ) : null;
+  );
 };
