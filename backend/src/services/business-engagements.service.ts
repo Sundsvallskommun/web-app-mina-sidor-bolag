@@ -58,8 +58,6 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
     };
   } else {
     try {
-      // TEMP LOGGING
-      logger.info(`calling legalentity url=${url}`);
       res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
     } catch (error) {
       logger.error('Could not get engagements', error);
@@ -80,10 +78,12 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
 
   if (!res.data) return [];
 
-  // TEMP LOGGING
-  logger.info(`engagements pre-prioritize: ${res.data.length}, post: ${prioritizeEngagements(res.data).length}`);
+  const prioritized = prioritizeEngagements(res.data);
 
-  return prioritizeEngagements(res.data);
+  // TEMP LOGGING
+  logger.info(`engagements pre-prioritize: ${res.data.length}, post: ${prioritized.length}`);
+
+  return prioritized;
 };
 
 export const getBusinessInformation = async (
