@@ -8,8 +8,15 @@ import { CitizenApiResponse } from '@/responses/citizen.response';
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
 import { Response } from 'express';
-import { Controller, Get, Param, Req, Res, UseBefore } from 'routing-controllers';
+import { Body, Controller, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
+import { IsString, Length } from 'class-validator';
+
+class CitizenLookupDto {
+  @IsString()
+  @Length(12, 12)
+  personnumber: string;
+}
 
 @Controller()
 export class CitizenController {
@@ -17,17 +24,17 @@ export class CitizenController {
   private readonly apiBase = getApiBase('citizen');
   private readonly baseUrl = `${this.apiBase}/${MUNICIPALITY_ID}`;
 
-  @Get('/citizen/:personnumber')
+  @Post('/citizen')
   @OpenAPI({ summary: 'Return a citizen' })
   @UseBefore(authMiddleware)
   @ResponseSchema(CitizenApiResponse)
   async getCitizen(
     @Req() req: RequestWithUser,
-    @Param('personnumber') personnumber: string,
+    @Body() body: CitizenLookupDto,
     @Res() res: Response<CitizenApiResponse>,
   ): Promise<Response<CitizenApiResponse>> {
     const { user } = req;
-    const guidUrl = `${this.baseUrl}/${personnumber}/guid`;
+    const guidUrl = `${this.baseUrl}/${body.personnumber}/guid`;
     try {
       const guid = await this.apiService.get<string>({ url: guidUrl }, user);
       if (!guid) {
