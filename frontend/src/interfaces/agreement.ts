@@ -64,3 +64,8 @@ export interface PagedAgreementsResponse {
   agreements: Agreement[];
   _meta: PagingMetaData;
 }
+
+export interface PagedAgreementsHandlerResult {
+  agreements: AgreementData;
+  _meta: PagingMetaData;
+}

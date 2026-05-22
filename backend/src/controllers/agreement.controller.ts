@@ -66,7 +66,15 @@ export class AgreementController {
         throw new HttpException(400, 'No partyId found');
       }
 
-      const data = await fetchPagedAgreements(partyId, partyIdList, delegations, req.user, page, limit ?? 100);
+      const data = await fetchPagedAgreements(
+        partyId,
+        partyIdList,
+        delegations,
+        req.user,
+        page,
+        limit ?? 100,
+        relevantCategories,
+      );
       return { data, message: 'success' };
     }
 
