@@ -23,7 +23,7 @@ export class SessionCacheService {
     const allRelations: CustomerRelation[] = [];
     const { representing } = req.session ?? {};
 
-    if (req.session.cache.relations) return;
+    if (req.session.cache.relations?.customerRelations.length > 0) return;
 
     const partyId = getRepresentingPartyId(representing);
     if (!partyId) throw new HttpException(400, 'Representing partyId not available');
