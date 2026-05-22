@@ -1,7 +1,8 @@
 'use client';
 
+import { useClickOutside } from '@utils/use-click-outside.hook';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
 
 export interface CheckboxDropdownProps {
   label: string;
@@ -13,15 +14,7 @@ export const CheckboxDropdown = ({ label, children, 'data-cy': dataCy }: Checkbo
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && e.target instanceof Node && !ref.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  useClickOutside({ ref, enabled: open, onOutsideClick: useCallback(() => setOpen(false), []) });
 
   return (
     <div ref={ref} className="relative w-full" data-cy={dataCy}>
