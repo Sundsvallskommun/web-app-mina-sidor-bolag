@@ -17,9 +17,11 @@ import { useTranslation } from 'react-i18next';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
-  isAllAgreementsDone: boolean;
-  allAgreementsCurrentPage: number;
-  allAgreementsTotalPages: number;
+  allAgreements: {
+    isDone: boolean;
+    currentPage: number;
+    totalPages: number;
+  };
 }
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
@@ -27,7 +29,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const linkedFacilityId = searchParams?.get('installation');
   const { t } = useTranslation(['common', 'statistics']);
 
-  const { closeHandler, isAllAgreementsDone, allAgreementsCurrentPage, allAgreementsTotalPages } = props;
+  const { closeHandler, allAgreements } = props;
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const [mode, setMode] = useState<'day' | 'month' | 'year'>('day');
@@ -143,11 +145,11 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   </Select.Option>
                 ))}
             </Select>
-            {!isAllAgreementsDone && (
+            {!allAgreements.isDone && (
               <div className="flex gap-8 mt-8">
                 <ProgressBar
-                  current={allAgreementsCurrentPage}
-                  steps={allAgreementsTotalPages}
+                  current={allAgreements.currentPage}
+                  steps={allAgreements.totalPages}
                   size="md"
                   color="vattjom"
                   className="w-full"

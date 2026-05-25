@@ -45,12 +45,7 @@ export default function Statistics() {
     queryKey: ['user'],
   });
 
-  const {
-    agreements: allAgreements,
-    isDone: isAllAgreementsDone,
-    currentPage: allAgreementsCurrentPage,
-    totalPages: allAgreementsTotalPages,
-  } = usePagedAgreements(200, true);
+  const { agreements: allAgreements, isDone, currentPage, totalPages } = usePagedAgreements(200, true);
 
   const openHandler = () => {
     setIsOpen(true);
@@ -59,6 +54,10 @@ export default function Statistics() {
   const closeHandler = () => {
     setIsOpen(false);
   };
+
+  const statisticsFilter = (
+    <StatisticsFilter closeHandler={closeHandler} allAgreements={{ isDone, currentPage, totalPages }} />
+  );
 
   return (
     <div>
@@ -75,16 +74,8 @@ export default function Statistics() {
             <Spinner className="mx-auto" />
           ) : (
             <>
-              <div className="sm:block hidden">
-                <StatisticsFilter
-                  closeHandler={closeHandler}
-                  isAllAgreementsDone={isAllAgreementsDone}
-                  allAgreementsCurrentPage={allAgreementsCurrentPage}
-                  allAgreementsTotalPages={allAgreementsTotalPages}
-                />
-              </div>
-
-              <Charts allAgreements={allAgreements} isAllAgreementsDone={isAllAgreementsDone} />
+              <div className="sm:block hidden">{statisticsFilter}</div>
+              <Charts allAgreements={allAgreements} isAllAgreementsDone={isDone} />
             </>
           )}
         </form>
@@ -94,16 +85,9 @@ export default function Statistics() {
           disableCloseOutside={true}
           show={isOpen}
           onClose={closeHandler}
-          label="Filtrera"
+          label={t('statistics:label')}
         >
-          <Modal.Content>
-            <StatisticsFilter
-              closeHandler={closeHandler}
-              isAllAgreementsDone={isAllAgreementsDone}
-              allAgreementsCurrentPage={allAgreementsCurrentPage}
-              allAgreementsTotalPages={allAgreementsTotalPages}
-            />
-          </Modal.Content>
+          <Modal.Content>{statisticsFilter}</Modal.Content>
         </Modal>
       </FormProvider>
 
