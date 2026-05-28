@@ -13,5 +13,6 @@
   "plannedEnd": "Planerat slut:",
   "endedAt": "Avslutat:",
   "status": "Status",
-  "noDisturbances": "Just nu finns inga avbrott som påverkar dina anläggningar."
+  "noDisturbances": "Just nu finns inga avbrott som påverkar dina anläggningar.",
+  "unknown": "Okänt"
 }

@@ -42,11 +42,11 @@ export const APIS = [
   },
   {
     name: 'myrepresentatives',
-    version: '4.2',
+    version: '4.4',
   },
   {
     name: 'eventlog',
-    version: '2.1',
+    version: '2.3',
   },
   {
     name: 'bfus',
