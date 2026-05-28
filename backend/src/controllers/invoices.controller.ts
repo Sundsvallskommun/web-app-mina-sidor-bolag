@@ -80,13 +80,10 @@ export class InvoicesController {
     }
 
     const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
+    const customerRelations = req.session.cache.relations.customerRelations;
+    const organizationNumbers = customerRelations.map(c => c.organizationNumber);
 
-    // TO DO: add orgNr's when Invoices is updated to 9.x
-    // const customerRelations = req.session.cache.relations.customerRelations;
-    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
-    const organizationNumbers = [];
-
-    let allInvoices: Invoice[] = [];
+    const allInvoices: Invoice[] = [];
     let totalRecords = 0;
 
     for (const status of pendingStatuses) {
@@ -131,7 +128,7 @@ export class InvoicesController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf`;
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
     const res = await this.apiService.get<PdfInvoice>({ url }, req.user);
 
     return { data: res.data, message: 'success' };
