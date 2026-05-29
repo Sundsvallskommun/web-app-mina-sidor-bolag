@@ -23,7 +23,7 @@ export class MeasurementDataController {
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
     const representing = req.session?.representing ?? undefined;
     const delegations = req.session?.cache?.delegations ?? [];
-    const { category, facilityIds, fromDate, toDate, aggregateOn } = req.query;
+    const { category, facilityIds, fromDate, toDate, aggregateOn, display } = req.query;
     const facilityIdList = [facilityIds ?? []].flat() as string[];
 
     const resolvePartyId = (
@@ -49,10 +49,10 @@ export class MeasurementDataController {
         fromDate,
         toDate,
         aggregateOn,
-        display: 'AGGREGATE',
+        display: display ?? 'AGGREGATE',
       };
 
-      const res = await this.apiService.get<Data>({ url, params }, req.user);
+      const res = await this.apiService.get<Data>({ url, params, paramsSerializer: { indexes: null } }, req.user);
       return { data: res.data, message: 'success' };
     } catch (error) {
       // Handle 404 as empty

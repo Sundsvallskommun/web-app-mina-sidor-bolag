@@ -5,7 +5,6 @@ import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/chart
 import { useFormContext } from 'react-hook-form';
 import {
   getAreaFromFacility,
-  getCategoryFromFacilityType,
   mergeMeasurementDataSets,
   mergeTemperatureDataSets,
   statisticsMeasurementDataHandler,
@@ -13,18 +12,22 @@ import {
 import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
 import { User } from '@interfaces/user';
+import { AgreementData } from '@interfaces/agreement';
 import { Aggregation, Category, MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { OnlyTrade } from '../../overview/consumption/only-trade.component';
-import { pagedAgreementsHandler } from '@services/agreement-service';
 import { EventLog } from '@layouts/pages/mypages-sections/statistics/event-log/event-log.component';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
-export default function Charts() {
+export interface ChartsProps {
+  readonly allAgreements: AgreementData;
+  readonly isAllAgreementsDone: boolean;
+}
+
+export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
   const { watch, setValue } = useFormContext();
-  const { facilityId, toDate, fromDate, year } = watch();
+  const { facilityIds, toDate, fromDate, year, category } = watch();
   const [onlyTrade, setOnlyTrade] = useState(false);
   const [isHourQuarter, setIsHourQuarter] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
@@ -38,17 +41,7 @@ export default function Charts() {
     queryKey: ['user'],
   });
 
-  const { data: allAgreements } = useApi({
-    url: `/paged/all-agreements`,
-    method: 'get',
-    dataHandler: pagedAgreementsHandler,
-    queryKey: ['all-agreements'],
-  });
-
-  const categoryParam = useMemo(() => {
-    const facility = user?.facilities?.find((f) => f.facilityId === facilityId && f.type !== 'Elhandel');
-    return facility ? getCategoryFromInstalledBaseType(facility.type) : '';
-  }, [user, facilityId]);
+  const categoryParam = category ?? '';
 
   const aggregateOnParam = useMemo(() => {
     const difference = dayjs(toDate).diff(fromDate, 'days');
@@ -83,39 +76,42 @@ export default function Charts() {
 
   const buildParamsString = (
     categoryParam: string,
-    facilityId: string,
+    facilityIds: string[],
     fromDate: string,
     toDate: string,
     aggregateOn: string
   ) => {
-    const params = new URLSearchParams({
-      category: categoryParam ?? '',
-      facilityIds: facilityId,
-      fromDate,
-      toDate,
-      aggregateOn,
-    });
+    const params = new URLSearchParams();
+    params.set('category', categoryParam ?? '');
+    facilityIds.forEach((id) => params.append('facilityIds', id));
+    params.set('fromDate', fromDate);
+    params.set('toDate', toDate);
+    params.set('aggregateOn', aggregateOn);
+    if (facilityIds.length > 1) {
+      params.set('display', 'ONLYAGGREGATED');
+    }
     return params.toString();
   };
 
   const paramsString = useMemo(
-    () => buildParamsString(categoryParam, facilityId, fromDateParam, toDateParam, aggregateOnParam),
-    [categoryParam, facilityId, fromDateParam, toDateParam, aggregateOnParam]
+    () => buildParamsString(categoryParam, facilityIds ?? [], fromDateParam, toDateParam, aggregateOnParam),
+    [categoryParam, facilityIds, fromDateParam, toDateParam, aggregateOnParam]
   );
 
   const paramsPreviousString = useMemo(
-    () => buildParamsString(categoryParam, facilityId, fromDatePreviousParam, toDatePreviousParam, aggregateOnParam),
-    [categoryParam, facilityId, fromDatePreviousParam, toDatePreviousParam, aggregateOnParam]
+    () =>
+      buildParamsString(categoryParam, facilityIds ?? [], fromDatePreviousParam, toDatePreviousParam, aggregateOnParam),
+    [categoryParam, facilityIds, fromDatePreviousParam, toDatePreviousParam, aggregateOnParam]
   );
 
   const { data: measurementData, isFetching: isFetchingMeasurementData } = useApi({
     url: `/measurementdata?${paramsString}`,
     method: 'get',
     dataHandler: statisticsMeasurementDataHandler,
-    queryKey: ['statistics', facilityId, paramsString],
+    queryKey: ['statistics', facilityIds, paramsString],
     queryOptions: {
       enabled:
-        !!facilityId &&
+        !!facilityIds?.length &&
         !!toDate &&
         !!fromDate &&
         paramsString.includes('category=') &&
@@ -134,21 +130,27 @@ export default function Charts() {
   });
 
   useEffect(() => {
-    const categoryForDisplay = getCategoryFromFacilityType(user?.facilities, facilityId);
-    setValue('category', categoryForDisplay);
-    setValue('area', getAreaFromFacility(user?.facilities, facilityId));
-    if (categoryForDisplay === 'Fjärrvärme') {
-      setOnlyTrade(false);
-    } else {
-      const netAgreementExistsForFacility = allAgreements
-        ? Object.values(allAgreements ?? {})
-            .flat()
-            .some((agreement) => agreement.facilityId === facilityId && agreement.category.code === 'ELECTRICITY')
-        : false;
+    const firstFacilityId = facilityIds?.[0];
+    if (!firstFacilityId) return;
 
-      setOnlyTrade(!netAgreementExistsForFacility);
+    setValue('area', getAreaFromFacility(user?.facilities, firstFacilityId));
+
+    if (categoryParam === Category.DISTRICT_HEATING || categoryParam === Category.DISTRICT_COOLING) {
+      setOnlyTrade(false);
+      return;
     }
-  }, [facilityId, user?.facilities, allAgreements, setValue]);
+    const netAgreementExistsForFacility = Object.values(allAgreements ?? {})
+      .flat()
+      .some(
+        (agreement) => facilityIds?.includes(agreement.facilityId) && agreement.category.code === 'ELECTRICITY'
+      );
+
+    if (netAgreementExistsForFacility) {
+      setOnlyTrade(false);
+    } else if (isAllAgreementsDone) {
+      setOnlyTrade(true);
+    }
+  }, [facilityIds, categoryParam, user?.facilities, allAgreements, isAllAgreementsDone, setValue]);
 
   useEffect(() => {
     if (measurementData && previousMeasurementData) {
@@ -163,11 +165,11 @@ export default function Charts() {
 
   return (
     <div>
-      {onlyTrade && user?.facilities?.some((f) => f.facilityId === facilityId) ? (
+      {onlyTrade && facilityIds?.length === 1 && user?.facilities?.some((f) => f.facilityId === facilityIds[0]) ? (
         <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20 flex justify-center items-center">
           <OnlyTrade
-            key={`handel-facility-${facilityId}`}
-            facility={user?.facilities?.find((f) => f.facilityId === facilityId)}
+            key={`handel-facility-${facilityIds[0]}`}
+            facility={user?.facilities?.find((f) => f.facilityId === facilityIds[0])}
           />
         </div>
       ) : (
@@ -181,7 +183,7 @@ export default function Charts() {
 
           {measurementData?.temperatureData?.length ? (
             <>
-              <Divider className="my-40" />
+              <Divider className="my-64" />
               <OutdoorTemperature
                 data={mergedTemperatureData ?? measurementData}
                 isFetching={isFetchingMeasurementData}

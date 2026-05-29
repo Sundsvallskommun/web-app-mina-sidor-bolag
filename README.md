@@ -15,9 +15,9 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Installedbase     |     3.1 |
 | Agreement         |     4.1 |
 | MeasurementData   |     3.3 |
-| MyRepresentatives |     4.2 |
+| MyRepresentatives |     4.4 |
 | LegalEntity       |     2.0 |
-| Eventlog          |     2.1 |
+| Eventlog          |     2.3 |
 | BFUS              |   1.0.0 |
 | SelfServiceAI     |     2.0 |
 | Eneo-Sundsvall    |     1.1 |

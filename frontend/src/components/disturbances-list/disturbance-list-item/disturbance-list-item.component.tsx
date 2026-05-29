@@ -35,7 +35,7 @@ export const DisturbanceListItem = ({ disturbance }: DisturbanceListItemProps) =
     return (
       <div className="text-base font-normal m-0 text-secondary sm:flex block">
         <p className="pr-4">{endLabel}</p>
-        <p>{dayjs(endDate).format('DD MMMM YYYY, kl HH.mm').toLowerCase()}</p>
+        <p>{endDate ? dayjs(endDate).format('DD MMMM YYYY, kl HH.mm').toLowerCase() : t('disturbances:unknown')}</p>
       </div>
     );
   };
