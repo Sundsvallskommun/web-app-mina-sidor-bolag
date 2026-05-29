@@ -93,6 +93,7 @@ export const fetchPagedAgreements = async (
   page: number,
   limit: number,
   categories: Category[] = [],
+  includeInactive: boolean = false,
 ): Promise<PagedAgreementsResult> => {
   const apiService = new ApiService();
   const apiBase = getApiBase('agreement');
@@ -107,7 +108,10 @@ export const fetchPagedAgreements = async (
     user,
   );
 
-  let agreements = (res.data.agreements ?? []).filter(activeAgreement).filter(a => a.mainAgreement === true);
+  let agreements = res.data.agreements ?? [];
+  if (!includeInactive) {
+    agreements = agreements.filter(activeAgreement).filter(a => a.mainAgreement === true);
+  }
 
   if (page === 1) {
     const delegationAgreements: Agreement[] = [];
@@ -115,14 +119,15 @@ export const fetchPagedAgreements = async (
     for (const delegationPartyId of partyIdList) {
       const delegationUrl = `${apiBase}/${MUNICIPALITY_ID}/paged/agreements/${delegationPartyId}`;
       const allDelegationAgreements = await fetchAllAgreementPages(apiService, delegationUrl, user, categories);
-      delegationAgreements.push(...allDelegationAgreements.filter(activeAgreement));
+      const filteredDelegations = includeInactive
+        ? allDelegationAgreements
+        : allDelegationAgreements.filter(activeAgreement).filter(a => a.mainAgreement === true);
+      delegationAgreements.push(...filteredDelegations);
     }
 
-    const matchedDelegationAgreements = delegationAgreements
-      .filter(agreement =>
-        delegations.some(delegation => delegation.facilities.some(facility => facility.id === agreement.facilityId)),
-      )
-      .filter(a => a.mainAgreement === true);
+    const matchedDelegationAgreements = delegationAgreements.filter(agreement =>
+      delegations.some(delegation => delegation.facilities.some(facility => facility.id === agreement.facilityId)),
+    );
 
     agreements = [...agreements, ...matchedDelegationAgreements];
   }

@@ -140,36 +140,43 @@ export const useStatisticsFilter = () => {
     }
   }, [facilityType, setValue]);
 
-  // Select only the first address and its first facility when the available groups actually change, not on mount of a new hook instance
-  const prevGroupedRef = useRef(facilitiesGroupedByAddress);
+  // Handle linked facility from URL: stash it in a ref and let the auto-select effect consume it,
+  // so we don't race against the reset/auto-select writes triggered by setValue('facilityType', ...).
+  const linkedFacilityRef = useRef(linkedFacilityId);
   useEffect(() => {
-    if (prevGroupedRef.current !== facilitiesGroupedByAddress) {
-      prevGroupedRef.current = facilitiesGroupedByAddress;
-      if (facilitiesGroupedByAddress.length > 0) {
-        const firstGroup = facilitiesGroupedByAddress[0];
-        setValue('addresses', [firstGroup.address]);
-        setValue('facilityIds', firstGroup.facilities.slice(0, 1));
-      }
-    }
-  }, [facilitiesGroupedByAddress, setValue]);
-
-  // Handle linked facility from URL
-  useEffect(() => {
-    if (linkedFacilityId && user) {
-      const facility = user.facilities?.find((f) => f.facilityId === linkedFacilityId);
-      if (facility?.address?.street && facility?.facilityId) {
-        const type = facility.type === 'El' ? FacilityTypeName.ELECTRICITY_CONSUMPTION : facility.type;
-        if (type && facilityTypes.includes(type as FacilityType)) {
-          setValue('facilityType', type as FacilityType);
-        }
-        setTimeout(() => {
-          setValue('addresses', [facility.address!.street!]);
-          setValue('facilityIds', [facility.facilityId!]);
-        }, 100);
-      }
+    if (!linkedFacilityRef.current || !user) return;
+    const facility = user.facilities?.find((f) => f.facilityId === linkedFacilityRef.current);
+    if (!facility?.address?.street || !facility?.facilityId) return;
+    const type = facility.type === 'El' ? FacilityTypeName.ELECTRICITY_CONSUMPTION : facility.type;
+    if (type && facilityTypes.includes(type as FacilityType)) {
+      setValue('facilityType', type as FacilityType);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
+
+  // Select the linked facility if present, otherwise the first address/facility, when the available
+  // groups actually change (not on mount of a new hook instance).
+  const prevGroupedRef = useRef(facilitiesGroupedByAddress);
+  useEffect(() => {
+    if (prevGroupedRef.current === facilitiesGroupedByAddress) return;
+    prevGroupedRef.current = facilitiesGroupedByAddress;
+    if (facilitiesGroupedByAddress.length === 0) return;
+
+    if (linkedFacilityRef.current) {
+      const facility = user?.facilities?.find((f) => f.facilityId === linkedFacilityRef.current);
+      if (facility?.address?.street && facility?.facilityId) {
+        setValue('addresses', [facility.address.street]);
+        setValue('facilityIds', [facility.facilityId]);
+        linkedFacilityRef.current = null;
+        return;
+      }
+    }
+
+    const firstGroup = facilitiesGroupedByAddress[0];
+    setValue('addresses', [firstGroup.address]);
+    setValue('facilityIds', firstGroup.facilities.slice(0, 1));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [facilitiesGroupedByAddress, user, setValue]);
 
   useEffect(() => {
     if (mode !== 'day' || category !== Category.ELECTRICITY) {

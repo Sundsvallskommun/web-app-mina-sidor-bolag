@@ -13,6 +13,7 @@ import { User } from '@interfaces/user';
 import { Button, Icon, Modal, Spinner } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import { ListFilter } from 'lucide-react';
+import { usePagedAgreements } from '@utils/use-paged-agreements.hook';
 
 export interface StatisticsForm {
   category: string;
@@ -51,6 +52,8 @@ export default function Statistics() {
     queryKey: ['user'],
   });
 
+  const { agreements: allAgreements, isDone, currentPage, totalPages } = usePagedAgreements(200, true);
+
   const openHandler = () => {
     setIsOpen(true);
   };
@@ -58,6 +61,10 @@ export default function Statistics() {
   const closeHandler = () => {
     setIsOpen(false);
   };
+
+  const statisticsFilter = (
+    <StatisticsFilter closeHandler={closeHandler} allAgreements={{ isDone, currentPage, totalPages }} />
+  );
 
   return (
     <div>
@@ -74,11 +81,8 @@ export default function Statistics() {
             <Spinner className="mx-auto" />
           ) : (
             <>
-              <div className="sm:block hidden">
-                <StatisticsFilter closeHandler={closeHandler} />
-              </div>
-
-              <Charts />
+              <div className="sm:block hidden">{statisticsFilter}</div>
+              <Charts allAgreements={allAgreements} isAllAgreementsDone={isDone} />
             </>
           )}
         </form>
@@ -88,7 +92,7 @@ export default function Statistics() {
           disableCloseOutside={true}
           show={isOpen}
           onClose={closeHandler}
-          label={t('statistics:filter')}
+          label={t('statistics:toFilter')}
         >
           <Modal.Content className="overflow-y-auto">
             <StatisticsFilterMobile closeHandler={closeHandler} />

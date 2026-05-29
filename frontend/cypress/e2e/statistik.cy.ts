@@ -7,12 +7,9 @@ import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
 import path from 'path';
 import { createEvent, getEvents } from '../fixtures/getExportEvents';
-import { getMyPagedAgreements } from 'cypress/fixtures/getMyPagedAgreements';
-
 describe('Statistik', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.intercept('GET', '**/api/paged/all-agreements', getMyPagedAgreements());
   });
 
   const statisticsDataIntercept = () => {
