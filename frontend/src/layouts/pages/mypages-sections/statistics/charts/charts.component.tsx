@@ -137,7 +137,7 @@ export default function Charts() {
 
     setValue('area', getAreaFromFacility(user?.facilities, firstFacilityId));
 
-    if (categoryParam === Category.DISTRICT_HEATING) {
+    if (categoryParam === Category.DISTRICT_HEATING || categoryParam === Category.DISTRICT_COOLING) {
       setOnlyTrade(false);
     } else {
       const netAgreementExistsForFacility = allAgreements
