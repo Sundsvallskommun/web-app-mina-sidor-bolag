@@ -13,7 +13,13 @@ describe('Handle user with only trade agreement', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/api/me', getMeOnlyTrade);
     interceptRepresentingMode(RepresentingMode.PRIVATE);
-    cy.intercept('GET', '**/api/paged/all-agreements', getAgreementOnlyTrade());
+    cy.intercept('GET', '**/api/paged/all-agreements?page=*', {
+      data: {
+        agreements: getAgreementOnlyTrade().data,
+        _meta: { page: 1, limit: 100, totalPages: 1 },
+      },
+      message: 'success',
+    });
     cy.intercept('GET', '**/api/ai/isReady', isReady(false));
     const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     cy.intercept(

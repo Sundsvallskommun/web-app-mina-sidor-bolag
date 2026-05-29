@@ -1,7 +1,7 @@
 'use client';
 
 import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
-import { Button, Checkbox, FormLabel, NavigationBar, RadioButton, Select } from '@sk-web-gui/react';
+import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, RadioButton, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
@@ -14,11 +14,16 @@ import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filt
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
+  allAgreements: {
+    isDone: boolean;
+    currentPage: number;
+    totalPages: number;
+  };
 }
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { closeHandler } = props;
+  const { closeHandler, allAgreements } = props;
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const mode = watch('mode');
   const facilityType = watch('facilityType');
@@ -93,6 +98,17 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   </div>
                 </CheckboxDropdown>
               </div>
+              {!allAgreements.isDone && (
+                <div className="flex gap-8 mt-8">
+                  <ProgressBar
+                    current={allAgreements.currentPage}
+                    steps={allAgreements.totalPages}
+                    size="md"
+                    color="vattjom"
+                    className="w-full"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Facility dropdown with checkboxes */}

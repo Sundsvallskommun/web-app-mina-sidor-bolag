@@ -2,6 +2,7 @@
   "title": "Din statistik",
   "filter": "Filter",
   "agreementType": "Typ av anläggning",
+  "toFilter": "Filtrera",
   "showBy": "Visa statistik per",
   "exportBy": "Exportera statistik per",
   "year": "År",
