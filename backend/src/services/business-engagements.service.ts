@@ -64,6 +64,10 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
       res = { data: [] };
     }
   }
+  // TEMP LOGGING
+  logger.info(
+    `engagements: pnrLen=${user.personNumber?.length} pnrTail=${user.personNumber?.slice(-5)} count=${res.data?.length ?? 'null'}`,
+  );
 
   // Add engagements from mandates and just pass if error occurs
   try {
@@ -74,7 +78,12 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
 
   if (!res.data) return [];
 
-  return prioritizeEngagements(res.data);
+  const prioritized = prioritizeEngagements(res.data);
+
+  // TEMP LOGGING
+  logger.info(`engagements pre-prioritize: ${res.data.length}, post: ${prioritized.length}`);
+
+  return prioritized;
 };
 
 export const getBusinessInformation = async (
