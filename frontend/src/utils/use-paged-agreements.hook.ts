@@ -3,7 +3,7 @@ import { AgreementData, PagedAgreementsResponse } from '@interfaces/agreement';
 import { handlePagedAgreementsResponse } from '@services/agreement-service';
 import { apiService, ApiResponse } from '@services/api-service';
 
-export function usePagedAgreements(pageLimit: number) {
+export function usePagedAgreements(pageLimit: number, includeInactive: boolean = false) {
   const [agreements, setAgreements] = useState<AgreementData>({});
   const [isFetching, setIsFetching] = useState(true);
   const [isDone, setIsDone] = useState(false);
@@ -21,6 +21,7 @@ export function usePagedAgreements(pageLimit: number) {
 
   useEffect(() => {
     let cancelled = false;
+    const path = includeInactive ? '/paged/all-agreements' : '/paged/agreements';
 
     const fetchPages = async () => {
       let totalPages = 1;
@@ -28,7 +29,7 @@ export function usePagedAgreements(pageLimit: number) {
       try {
         for (let page = 1; page <= totalPages && !cancelled; page++) {
           const res = await apiService.get<ApiResponse<PagedAgreementsResponse>>(
-            `/paged/agreements?page=${page}&limit=${pageLimit}`
+            `${path}?page=${page}&limit=${pageLimit}`
           );
 
           const pageData = res.data.data;
@@ -57,7 +58,7 @@ export function usePagedAgreements(pageLimit: number) {
     return () => {
       cancelled = true;
     };
-  }, [mergeAgreements, pageLimit]);
+  }, [mergeAgreements, pageLimit, includeInactive]);
 
   return { agreements, isFetching, isDone, currentPage, totalPages, error };
 }

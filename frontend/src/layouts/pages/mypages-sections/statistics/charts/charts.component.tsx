@@ -13,16 +13,21 @@ import {
 import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
 import { User } from '@interfaces/user';
+import { AgreementData } from '@interfaces/agreement';
 import { Aggregation, Category, MergedStatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ExportStatisticsButton } from '@layouts/pages/mypages-sections/statistics/export-statistics-button/export-statistics-button.component';
 import { OnlyTrade } from '../../overview/consumption/only-trade.component';
-import { pagedAgreementsHandler } from '@services/agreement-service';
 import { EventLog } from '@layouts/pages/mypages-sections/statistics/event-log/event-log.component';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getCategoryFromInstalledBaseType } from '@utils/facility';
 
-export default function Charts() {
+export interface ChartsProps {
+  readonly allAgreements: AgreementData;
+  readonly isAllAgreementsDone: boolean;
+}
+
+export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
   const { watch, setValue } = useFormContext();
   const { facilityId, toDate, fromDate, year } = watch();
   const [onlyTrade, setOnlyTrade] = useState(false);
@@ -36,13 +41,6 @@ export default function Charts() {
     method: 'get',
     url: '/me',
     queryKey: ['user'],
-  });
-
-  const { data: allAgreements } = useApi({
-    url: `/paged/all-agreements`,
-    method: 'get',
-    dataHandler: pagedAgreementsHandler,
-    queryKey: ['all-agreements'],
   });
 
   const categoryParam = useMemo(() => {
@@ -139,16 +137,18 @@ export default function Charts() {
     setValue('area', getAreaFromFacility(user?.facilities, facilityId));
     if (categoryForDisplay === 'Fjärrvärme') {
       setOnlyTrade(false);
-    } else {
-      const netAgreementExistsForFacility = allAgreements
-        ? Object.values(allAgreements ?? {})
-            .flat()
-            .some((agreement) => agreement.facilityId === facilityId && agreement.category.code === 'ELECTRICITY')
-        : false;
-
-      setOnlyTrade(!netAgreementExistsForFacility);
+      return;
     }
-  }, [facilityId, user?.facilities, allAgreements, setValue]);
+    const netAgreementExistsForFacility = Object.values(allAgreements ?? {})
+      .flat()
+      .some((agreement) => agreement.facilityId === facilityId && agreement.category.code === 'ELECTRICITY');
+
+    if (netAgreementExistsForFacility) {
+      setOnlyTrade(false);
+    } else if (isAllAgreementsDone) {
+      setOnlyTrade(true);
+    }
+  }, [facilityId, user?.facilities, allAgreements, isAllAgreementsDone, setValue]);
 
   useEffect(() => {
     if (measurementData && previousMeasurementData) {
