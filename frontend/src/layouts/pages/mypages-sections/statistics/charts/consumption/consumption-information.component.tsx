@@ -12,7 +12,7 @@ export interface ConsumptionInformationProps {
   data: StatisticsMeasurementData | undefined;
 }
 
-export default function ConsumptionInformation(props: ConsumptionInformationProps) {
+export default function ConsumptionInformation(props: Readonly<ConsumptionInformationProps>) {
   const { data } = props;
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
