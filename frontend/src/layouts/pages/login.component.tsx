@@ -21,7 +21,7 @@ const DeprecationNotice = () => {
       <Label className="w-fit mb-16" rounded>
         FÖR ORGANISATIONER
       </Label>
-      <p className="font-bold">Den gamla Mina sidor stänger 1 juni 2026</p>
+      <p className="font-bold">Den gamla Mina sidor stänger 1 juli 2026</p>
       <p className="pb-16">
         Vi byter till säkrare inloggning med BankID – det ger bättre kontroll över vem som kommer åt ert konto och vad
         de gör. För att era medarbetare ska kunna logga in på nya Mina sidor behöver firmatecknaren eller VD:n logga in
