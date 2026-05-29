@@ -75,6 +75,7 @@ export enum MeasurementDataSearchParametersAggregateOnEnum {
 
 export interface StatisticsMeasurementData {
   measurementData: MeasurementSerie[] | undefined;
+  correctedUsageData: MeasurementSerie[] | undefined;
   peakHourUsage: MeasurementSerie[] | undefined;
   temperatureData: MeasurementSerie[] | undefined;
   category: string | undefined;

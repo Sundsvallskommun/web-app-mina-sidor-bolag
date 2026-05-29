@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 import { Category } from '@interfaces/measurement-data';
+import { isNormalYear } from '@utils/normal-year';
 
 export type StatisticsFilterMode = 'day' | 'month' | 'year';
 
@@ -27,6 +28,7 @@ export const useStatisticsFilter = () => {
     mode,
     facilityType,
     category,
+    year,
     addresses: checkedAddresses = [],
     facilityIds: checkedFacilityIds = [],
   } = watch();
@@ -174,6 +176,12 @@ export const useStatisticsFilter = () => {
       setValue('isHourQuarter', false);
     }
   }, [mode, category, setValue]);
+
+  useEffect(() => {
+    if (isNormalYear(year) && (category !== Category.DISTRICT_HEATING || mode !== 'year')) {
+      setValue('year', '');
+    }
+  }, [category, mode, year, setValue]);
 
   useEffect(() => {
     const today = dayjs();

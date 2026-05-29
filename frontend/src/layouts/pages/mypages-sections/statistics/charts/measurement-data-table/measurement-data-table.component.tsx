@@ -12,6 +12,7 @@ import { useFormContext } from 'react-hook-form';
 import dayjs from 'dayjs';
 import { toFixedNumber } from '@react-stately/utils';
 import { useTranslation } from 'react-i18next';
+import { isNormalYear } from '@utils/normal-year';
 
 enum MeasurementType {
   CONSUMPTION = 'consumption',
@@ -89,7 +90,11 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
         <Table.HeaderColumn className="bg-background-200">
           {dayjs(measurementPoints?.[0]?.timestamp ?? '').format('YYYY')}
         </Table.HeaderColumn>
-        {getValues().year && <Table.HeaderColumn className="bg-background-200">{getValues().year}</Table.HeaderColumn>}
+        {getValues().year && (
+          <Table.HeaderColumn className="bg-background-200">
+            {isNormalYear(getValues().year) ? t('statistics:consumption.correctedConsumption') : getValues().year}
+          </Table.HeaderColumn>
+        )}
       </Table.Header>
     );
   };

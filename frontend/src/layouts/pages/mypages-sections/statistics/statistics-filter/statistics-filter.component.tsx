@@ -11,6 +11,8 @@ import { StatisticsFilterDay } from './components/statistics-filter-day.componen
 import { useTranslation } from 'react-i18next';
 import { CheckboxDropdown } from './components/checkbox-dropdown.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
+import { Category } from '@interfaces/measurement-data';
+import { NORMAL_YEAR } from '@utils/normal-year';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
@@ -22,6 +24,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { register, watch, setValue } = useFormContext<StatisticsForm>();
   const mode = watch('mode');
   const facilityType = watch('facilityType');
+  const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
 
   const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
 
@@ -67,7 +70,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <FormLabel className="text-label-large">{t('common:address')}</FormLabel>
               <div>
                 <CheckboxDropdown
-                  label={t('statistics:selection', { count: addresses.selected.length, total: addresses.groups.length })}
+                  label={t('statistics:selection', {
+                    count: addresses.selected.length,
+                    total: addresses.groups.length,
+                  })}
                   data-cy="address-select"
                 >
                   <Checkbox
@@ -168,6 +174,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   {generateComparableYears(fromDate).map((y) => (
                     <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
                   ))}
+                  {isDistrictHeating && mode === 'year' && (
+                    <>
+                      <hr />
+                      <Select.Option key="compareTo-normalYear" value={NORMAL_YEAR}>
+                        {t('statistics:normalYear')}
+                      </Select.Option>
+                    </>
+                  )}
                 </Select>
               </div>
             )}

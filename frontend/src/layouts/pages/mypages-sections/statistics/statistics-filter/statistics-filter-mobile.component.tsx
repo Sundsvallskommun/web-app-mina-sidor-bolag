@@ -11,6 +11,8 @@ import { StatisticsFilterDay } from './components/statistics-filter-day.componen
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
+import { Category } from '@interfaces/measurement-data';
+import { isNormalYear, NORMAL_YEAR } from '@utils/normal-year';
 
 export interface StatisticsFilterMobileProps {
   closeHandler: () => void;
@@ -22,6 +24,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   const compareYearValue = watch('year');
   const mode = watch('mode');
   const facilityType = watch('facilityType');
+  const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
 
   const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
 
@@ -39,9 +42,11 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
     return d.format('D MMMM YYYY');
   })();
 
-  const compareYearSubtitle = compareYearValue
-    ? dayjs(compareYearValue).format('YYYY')
-    : t('statistics:compareYearNone');
+  const compareYearSubtitle = (() => {
+    if (!compareYearValue) return t('statistics:compareYearNone');
+    if (isNormalYear(compareYearValue)) return t('statistics:normalYear');
+    return dayjs(compareYearValue).format('YYYY');
+  })();
 
   return (
     <div className="flex flex-col gap-24 pb-24" data-cy="statistics-filter-mobile">
@@ -155,6 +160,14 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
               {generateComparableYears(fromDate).map((y) => (
                 <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
               ))}
+              {isDistrictHeating && mode === 'year' && (
+                <>
+                  <hr />
+                  <Select.Option key="compareTo-normalYear" value={NORMAL_YEAR}>
+                    {t('statistics:normalYear')}
+                  </Select.Option>
+                </>
+              )}
             </Select>
           </StatisticsFilterAccordionItem>
         )}
