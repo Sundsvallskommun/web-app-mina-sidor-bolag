@@ -30,6 +30,8 @@ describe('Handle user with only trade agreement', () => {
     cy.intercept('POST', '**/api/netowner', getNetOwner());
     cy.intercept('GET', '**/api/myrelations', getMyRelationsOnlyTrade);
     cy.intercept('GET', '**/api/paged/agreements', getAgreementOnlyTrade());
+    cy.intercept('GET', '**/api/paged/all-agreements', getAgreementOnlyTrade());
+    cy.intercept('GET', '**/api/ai/isReady', isReady(false));
 
     cy.visit('/privat/statistik');
     cy.get('#content').should('exist');

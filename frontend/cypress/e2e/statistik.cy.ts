@@ -16,8 +16,8 @@ describe('Statistik', () => {
     const yesterday = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=**&toDate=**&aggregateOn=*`,
-      getStatisticsData(yesterday, yesterday, Category.DISTRICT_HEATING, Aggregation.HOUR)
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
+      getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR)
     );
     cy.intercept('POST', '**/api/netowner', getNetOwner());
 
@@ -29,7 +29,7 @@ describe('Statistik', () => {
   const emptyStatisticsDataIntercept = () => {
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=*`,
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
       { fixture: null }
     );
 
@@ -44,7 +44,7 @@ describe('Statistik', () => {
     statisticsDataIntercept();
     cy.get('[data-cy="statistics-filter"]').should('exist');
     cy.get('[data-cy="consumption-chart"]').should('exist');
-    cy.get('[data-cy="contract-select"]').should('exist').contains('Fjärrvärme (333)');
+    cy.get('[data-cy="facility-select"]').should('exist');
     cy.get('[data-cy="outdoor-temperature-chart"]').should('exist');
     cy.get('[data-cy="export-statistics-button"]').should('exist');
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled');
@@ -54,11 +54,8 @@ describe('Statistik', () => {
   it('should render filters correctly', () => {
     statisticsDataIntercept();
 
-    cy.get('[data-cy="address-select"]')
-      .should('exist')
-      .find('option:selected')
-      .should('have.text', getMe.data.addresses[0].address);
-    cy.get('[data-cy="contract-select"]').should('exist').should('include.text', getMe.data.facilities[0].facilityId);
+    cy.get('[data-cy="address-select"]').should('exist');
+    cy.get('[data-cy="facility-select"]').should('exist');
     cy.get('[data-cy="date-toggle"]').should('exist');
     cy.get('[data-cy="date-toggle-year-button"]').should('exist');
     cy.get('[data-cy="date-toggle-month-button"]').should('exist');
@@ -83,17 +80,13 @@ describe('Statistik', () => {
 
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=DAY`,
-      getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.DAY)
-    );
-    cy.intercept(
-      'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityIds=111&fromDate=*&toDate=*&aggregateOn=DAY`,
-      getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.DAY)
-    );
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
+      getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.HOUR)
+    ).as('getDistrictHeatingData');
 
-    cy.get('[data-cy="contract-select"]').should('exist').select(2);
-    cy.get('[data-cy="contract-select"]').should('exist').should('include.text', getMe.data.facilities[2].facilityId);
+    cy.get('[data-cy="facility-type-Fjärrvärme"]').should('exist').click({ force: true });
+
+    cy.get('[data-cy="facility-select"]').should('exist');
   });
 
   it('can display statistics by year, month and day', () => {
@@ -104,14 +97,14 @@ describe('Statistik', () => {
 
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=HOUR`,
-      getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.HOUR)
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=HOUR`,
+      getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.HOUR)
     ).as('getStatisticsData');
 
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=*&toDate=*&aggregateOn=MONTH`,
-      getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.MONTH)
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=MONTH`,
+      getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.MONTH)
     ).as('getStatisticsData');
 
     cy.get('[data-cy="date-toggle"]').should('exist');
@@ -143,8 +136,8 @@ describe('Statistik', () => {
     const yesterdayLastYear = dayjs().subtract(1, 'day').subtract(1, 'year').format('YYYY-MM-DD');
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=333&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=*`,
-      getStatisticsData(yesterdayLastYear, yesterdayLastYear, Category.DISTRICT_HEATING, Aggregation.HOUR)
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=${fromDate}*&toDate=${toDate}*&aggregateOn=*`,
+      getStatisticsData(yesterdayLastYear, yesterdayLastYear, Category.ELECTRICITY, Aggregation.HOUR)
     ).as('getStatisticsDataToCompare');
 
     cy.get('[data-cy="compare-year-select"]').should('exist').select(1);
@@ -205,6 +198,18 @@ describe('Statistik', () => {
   it('export modal disables export when all facilities are deselected', () => {
     statisticsDataIntercept();
 
+    cy.intercept(
+      'GET',
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
+      getStatisticsData(
+        dayjs().startOf('month').format('YYYY-MM-DD'),
+        dayjs().format('YYYY-MM-DD'),
+        Category.DISTRICT_HEATING,
+        Aggregation.HOUR
+      )
+    );
+    cy.get('[data-cy="facility-type-Fjärrvärme"]').click({ force: true });
+
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.get('[data-cy="export-facilities-accordion-header"]').click();
     cy.get('[data-cy="export-facilities-select-all"]').click({ force: true });
@@ -225,7 +230,7 @@ describe('Statistik', () => {
     cy.intercept('POST', '**/api/event/create**', createEvent());
 
     const downloadsFolder = Cypress.config('downloadsFolder');
-    const exportFileName = path.join(downloadsFolder, `Export-Fjärrvärme-${dayjs().format('YYYY-MM-DD')}.xlsx`);
+    const exportFileName = path.join(downloadsFolder, `Export-Elförbrukning-${dayjs().format('YYYY-MM-DD')}.xlsx`);
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.get('[data-cy="export-modal-confirm-button"]').should('not.be.disabled').click();

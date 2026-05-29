@@ -3,6 +3,7 @@ import { Icon } from '@sk-web-gui/react';
 import { BarChart, ChartNoAxesCombined, TrendingUp, Zap } from 'lucide-react';
 import { StatisticsMeasurementData } from '@interfaces/measurement-data';
 import { translateAggregateOn } from '@services/measurement-data-service';
+import { FacilityTypeName } from '@utils/facility';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -24,7 +25,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
             <p className="text-secondary pl-8">
               {t('statistics:consumption.total', {
                 label:
-                  getValues().category === t('statistics:consumption.electricityProduction')
+                  getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
                     ? t('statistics:consumption.production')
                     : t('statistics:consumption.consumption'),
               })}
@@ -43,7 +44,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
               <p className="text-secondary pl-8">
                 {t('statistics:consumption.highest', {
                   label:
-                    getValues().category === t('statistics:consumption.electricityProduction')
+                    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
                       ? t('statistics:consumption.production')
                       : t('statistics:consumption.consumption'),
                 })}
@@ -63,7 +64,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
               <p className="text-secondary pl-8">
                 {t('statistics:consumption.average', {
                   label:
-                    getValues().category === t('statistics:consumption.electricityProduction')
+                    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
                       ? t('statistics:consumption.production')
                       : t('statistics:consumption.consumption'),
                 })}

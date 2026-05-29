@@ -54,13 +54,15 @@ class ApiService {
         if (response.headers.location && !response.config.url.includes('messaging')) {
           logger.info(`Response contained location header: ${response.headers.location}`);
           logger.info(`Base URL was: ${response.config.baseURL}`);
-          return axios.get(response.headers.location, { baseURL: response.config.baseURL, headers: defaultHeaders }).catch(e => {
-            logger.error(`Error in location header request: ${e.details}`);
-            logger.error(`Base URL was: ${e.config?.baseURL}`);
-            logger.error(`URL was: ${e.config?.url}`);
-            logger.error(`Method was: ${e.config?.method}`);
-            return Promise.resolve(response);
-          });
+          return axios
+            .get(response.headers.location, { baseURL: response.config.baseURL, headers: defaultHeaders })
+            .catch(e => {
+              logger.error(`Error in location header request: ${e.details}`);
+              logger.error(`Base URL was: ${e.config?.baseURL}`);
+              logger.error(`URL was: ${e.config?.url}`);
+              logger.error(`Method was: ${e.config?.method}`);
+              return Promise.resolve(response);
+            });
         }
         return Promise.resolve(response);
       },
