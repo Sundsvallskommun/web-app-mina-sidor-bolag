@@ -1,7 +1,6 @@
 'use client';
 
-import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
-import { Accordion, Button, Checkbox, NavigationBar, RadioButton, Select } from '@sk-web-gui/react';
+import { Accordion, Button, Checkbox, NavigationBar, RadioButton } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -10,9 +9,10 @@ import { StatisticsFilterAccordionItem } from './components/statistics-filter-ac
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
+import { CompareYearSelect } from './components/compare-year-select.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
-import { isNormalYear, NORMAL_YEAR } from '@utils/normal-year';
+import { isNormalYear } from '@utils/normal-year';
 
 export interface StatisticsFilterMobileProps {
   closeHandler: () => void;
@@ -20,7 +20,7 @@ export interface StatisticsFilterMobileProps {
 
 export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { register, watch, setValue } = useFormContext<StatisticsForm>();
+  const { watch, setValue } = useFormContext<StatisticsForm>();
   const compareYearValue = watch('year');
   const mode = watch('mode');
   const facilityType = watch('facilityType');
@@ -153,22 +153,13 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         {!isHourQuarter && (
           <StatisticsFilterAccordionItem label={t('statistics:compareYear')} subtitle={compareYearSubtitle}>
-            <Select {...register('year')} className="w-full" data-cy="compare-year-select-mobile">
-              <Select.Option key={0} value="">
-                {t('statistics:chooseYear')}
-              </Select.Option>
-              {generateComparableYears(fromDate).map((y) => (
-                <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
-              ))}
-              {isDistrictHeating && mode === 'year' && (
-                <>
-                  <hr />
-                  <Select.Option key="compareTo-normalYear" value={NORMAL_YEAR}>
-                    {t('statistics:normalYear')}
-                  </Select.Option>
-                </>
-              )}
-            </Select>
+            <CompareYearSelect
+              fromDate={fromDate}
+              mode={mode}
+              isDistrictHeating={isDistrictHeating}
+              className="w-full"
+              dataCy="compare-year-select-mobile"
+            />
           </StatisticsFilterAccordionItem>
         )}
       </Accordion>

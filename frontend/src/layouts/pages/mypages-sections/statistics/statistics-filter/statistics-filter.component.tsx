@@ -1,8 +1,6 @@
 'use client';
 
-import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
-import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, RadioButton, Select } from '@sk-web-gui/react';
-import dayjs from 'dayjs';
+import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, RadioButton } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
@@ -10,9 +8,9 @@ import { StatisticsFilterYear } from './components/statistics-filter-year.compon
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { useTranslation } from 'react-i18next';
 import { CheckboxDropdown } from './components/checkbox-dropdown.component';
+import { CompareYearSelect } from './components/compare-year-select.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
-import { NORMAL_YEAR } from '@utils/normal-year';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
@@ -26,7 +24,7 @@ export interface StatisticsFilterProps {
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
   const { closeHandler, allAgreements } = props;
-  const { register, watch, setValue } = useFormContext<StatisticsForm>();
+  const { watch, setValue } = useFormContext<StatisticsForm>();
   const mode = watch('mode');
   const facilityType = watch('facilityType');
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
@@ -183,22 +181,13 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             {!isHourQuarter && (
               <div className="w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
                 <FormLabel className="text-label-large">{t('statistics:compareYear')}</FormLabel>
-                <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
-                  <Select.Option key={0} value="">
-                    {t('statistics:chooseYear')}
-                  </Select.Option>
-                  {generateComparableYears(fromDate).map((y) => (
-                    <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
-                  ))}
-                  {isDistrictHeating && mode === 'year' && (
-                    <>
-                      <hr />
-                      <Select.Option key="compareTo-normalYear" value={NORMAL_YEAR}>
-                        {t('statistics:normalYear')}
-                      </Select.Option>
-                    </>
-                  )}
-                </Select>
+                <CompareYearSelect
+                  fromDate={fromDate}
+                  mode={mode}
+                  isDistrictHeating={isDistrictHeating}
+                  className="w-full mt-8"
+                  dataCy="compare-year-select"
+                />
               </div>
             )}
           </div>
