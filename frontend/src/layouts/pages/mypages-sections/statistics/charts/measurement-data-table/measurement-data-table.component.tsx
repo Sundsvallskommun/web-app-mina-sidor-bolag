@@ -29,6 +29,9 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
 
+  const year = getValues().year;
+  const showComparisonColumn = !!year && (isConsumption || !isNormalYear(year));
+
   const formatDate = (timestamp: string) => {
     switch (data?.aggregatedOn) {
       case Aggregation.QUARTER:
@@ -90,9 +93,9 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
         <Table.HeaderColumn className="bg-background-200">
           {dayjs(measurementPoints?.[0]?.timestamp ?? '').format('YYYY')}
         </Table.HeaderColumn>
-        {getValues().year && (
+        {showComparisonColumn && (
           <Table.HeaderColumn className="bg-background-200">
-            {isNormalYear(getValues().year) ? t('statistics:consumption.correctedConsumption') : getValues().year}
+            {isNormalYear(year) ? t('statistics:consumption.correctedConsumption') : year}
           </Table.HeaderColumn>
         )}
       </Table.Header>
@@ -114,7 +117,7 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
             ? translateConsumptionAmount(measurement.value)
             : translateTemperatureAmount(measurement.value)}
         </Table.Column>
-        {getValues().year && (
+        {showComparisonColumn && (
           <Table.Column>
             {measurementType === MeasurementType.CONSUMPTION
               ? translateConsumptionAmount((measurement as MergedMeasurementPoints).previousValue)
