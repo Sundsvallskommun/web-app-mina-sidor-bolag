@@ -12,6 +12,7 @@ import { useFormContext } from 'react-hook-form';
 import dayjs from 'dayjs';
 import { toFixedNumber } from '@react-stately/utils';
 import { useTranslation } from 'react-i18next';
+import { isNormalYear } from '@utils/normal-year';
 
 enum MeasurementType {
   CONSUMPTION = 'consumption',
@@ -27,6 +28,9 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   const { data, isConsumption } = props;
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
+
+  const year = getValues().year;
+  const showComparisonColumn = !!year && (isConsumption || !isNormalYear(year));
 
   const formatDate = (timestamp: string) => {
     switch (data?.aggregatedOn) {
@@ -89,7 +93,11 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
         <Table.HeaderColumn className="bg-background-200">
           {dayjs(measurementPoints?.[0]?.timestamp ?? '').format('YYYY')}
         </Table.HeaderColumn>
-        {getValues().year && <Table.HeaderColumn className="bg-background-200">{getValues().year}</Table.HeaderColumn>}
+        {showComparisonColumn && (
+          <Table.HeaderColumn className="bg-background-200">
+            {isNormalYear(year) ? t('statistics:consumption.correctedConsumption') : year}
+          </Table.HeaderColumn>
+        )}
       </Table.Header>
     );
   };
@@ -109,7 +117,7 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
             ? translateConsumptionAmount(measurement.value)
             : translateTemperatureAmount(measurement.value)}
         </Table.Column>
-        {getValues().year && (
+        {showComparisonColumn && (
           <Table.Column>
             {measurementType === MeasurementType.CONSUMPTION
               ? translateConsumptionAmount((measurement as MergedMeasurementPoints).previousValue)

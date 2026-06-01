@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ChartStyleSelector } from '../chart-style-selector.component';
 import { TimeIntervalSelector } from '../time-interval-selector.component';
 import dayjs from 'dayjs';
+import { isNormalYear } from '@utils/normal-year';
 
 enum EnumViewMode {
   graph = 'graph',
@@ -59,7 +60,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
     <div>
       <h4>
         {getValues().facilityType} {data?.formattedDate}
-        {getValues().year && !isFetching ? <> och {getValues().year}</> : ''}
+        {getValues().year && !isNormalYear(getValues().year) && !isFetching ? <> och {getValues().year}</> : ''}
       </h4>
       <p data-cy="address">{getValues().addresses?.join(', ')}</p>
       {isFetching || isPreviousFetching ? (
@@ -68,7 +69,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         <div className="flex flex-col gap-56">
           <ConsumptionInformation data={data} />
 
-          <div className="md:flex mb-32 md:justify-between">
+          <div className="flex flex-col-reverse gap-40 md:flex-row md:gap-0 mb-32 md:justify-between">
             {getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter && (
               <div className="content-center">
                 <YearsLegend data={data} />
@@ -82,7 +83,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                 }
               />
             )}
-            <div className="ml-auto">
+            <div className="md:ml-auto">
               <ChartStyleSelector
                 current={viewMode === EnumViewMode.graph ? 0 : 1}
                 onChangeCurrent={(current) =>

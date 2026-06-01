@@ -5,10 +5,12 @@ import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/chart
 import { useFormContext } from 'react-hook-form';
 import {
   getAreaFromFacility,
+  mergeCorrectedUsageDataSets,
   mergeMeasurementDataSets,
   mergeTemperatureDataSets,
   statisticsMeasurementDataHandler,
 } from '@services/measurement-data-service';
+import { isNormalYear } from '@utils/normal-year';
 import { useApi } from '@services/api-service';
 import dayjs from 'dayjs';
 import { User } from '@interfaces/user';
@@ -28,6 +30,7 @@ export interface ChartsProps {
 export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
   const { watch, setValue } = useFormContext();
   const { facilityIds, toDate, fromDate, year, category } = watch();
+  const normalYearComparison = isNormalYear(year);
   const [onlyTrade, setOnlyTrade] = useState(false);
   const [isHourQuarter, setIsHourQuarter] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
@@ -125,7 +128,7 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
     dataHandler: statisticsMeasurementDataHandler,
     queryKey: ['previousStatistics', year, paramsPreviousString],
     queryOptions: {
-      enabled: !!year,
+      enabled: !!year && !normalYearComparison,
     },
   });
 
@@ -153,7 +156,10 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
   }, [facilityIds, categoryParam, user?.facilities, allAgreements, isAllAgreementsDone, setValue]);
 
   useEffect(() => {
-    if (measurementData && previousMeasurementData) {
+    if (measurementData && normalYearComparison) {
+      setMergedMeasurementData(mergeCorrectedUsageDataSets(measurementData, fromDate));
+      setMergedTemperatureData(undefined);
+    } else if (measurementData && previousMeasurementData) {
       setMergedMeasurementData(mergeMeasurementDataSets(measurementData, previousMeasurementData, fromDate));
       setMergedTemperatureData(mergeTemperatureDataSets(measurementData, previousMeasurementData, fromDate));
     } else {
@@ -161,7 +167,7 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
       setMergedTemperatureData(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [measurementData, previousMeasurementData]);
+  }, [measurementData, previousMeasurementData, normalYearComparison]);
 
   return (
     <div>
