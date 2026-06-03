@@ -13,11 +13,19 @@ export interface CompareYearSelectProps {
   fromDate: string;
   mode: StatisticsFilterMode;
   isDistrictHeating: boolean;
+  isAggregating: boolean;
   className?: string;
   dataCy?: string;
 }
 
-export const CompareYearSelect = ({ fromDate, mode, isDistrictHeating, className, dataCy }: CompareYearSelectProps) => {
+export const CompareYearSelect = ({
+  fromDate,
+  mode,
+  isDistrictHeating,
+  isAggregating,
+  className,
+  dataCy,
+}: CompareYearSelectProps) => {
   const { t } = useTranslation(['statistics']);
   const { register } = useFormContext<StatisticsForm>();
 
@@ -29,7 +37,7 @@ export const CompareYearSelect = ({ fromDate, mode, isDistrictHeating, className
       {generateComparableYears(fromDate).map((y) => (
         <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
       ))}
-      {isDistrictHeating && mode === 'year' && (
+      {isDistrictHeating && mode === 'year' && !isAggregating && (
         <>
           <hr />
           <Select.Option key="compareTo-normalYear" value={NORMAL_YEAR}>
