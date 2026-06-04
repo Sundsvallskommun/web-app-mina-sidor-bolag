@@ -34,3 +34,4 @@ jobs:
           HEALTH_USERNAME: ""
           HEALTH_PASSWORD: ""
           NEXT_PUBLIC_FEATURE_AI_ASSISTANT: "true"
+          NEXT_PUBLIC_FEATURE_DISTURBANCES: "true"
