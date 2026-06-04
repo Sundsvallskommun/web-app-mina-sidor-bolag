@@ -8,7 +8,6 @@ import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
-import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 import InvoicesService from '@/services/invoices.service';
 
@@ -32,29 +31,31 @@ export class InvoicesController {
   private readonly invoiceDateFrom = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
   private readonly invoicesService = new InvoicesService();
 
+  private getCustomerIdentifiers(req: RequestWithUser) {
+    const { relations } = req.session.cache;
+    return {
+      organizationNumbers: relations.customerRelations.map(c => c.organizationNumber),
+      customerNumbers: relations.customerNumber,
+    };
+  }
+
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser) {
-    const representing = req.session?.representing;
     const { facilityId, page, limit } = req.query;
 
     if (!facilityId) {
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
-
-    // TO DO: add orgNr's when Invoices is updated to 9.x
-    // const customerRelations = req.session.cache.relations.customerRelations;
-    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
-    const organizationNumbers = [];
+    const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
 
     const result = await this.invoicesService.fetchInvoices(req, {
-      partyIds,
-      organizationNumbers,
-      facilityId: facilityId as string[],
-      invoiceDateFrom: this.invoiceDateFrom,
+      customerNumbers: customerNumbers,
+      organizationNumbers: organizationNumbers,
+      facilityIds: facilityId as string[],
+      periodFrom: this.invoiceDateFrom,
       page: Number(page),
       limit: Number(limit),
     });
@@ -72,26 +73,23 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser) {
-    const representing = req.session?.representing;
     const { facilityId, page, limit } = req.query;
 
     if (!facilityId) {
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
-    const customerRelations = req.session.cache.relations.customerRelations;
-    const organizationNumbers = customerRelations.map(c => c.organizationNumber);
+    const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
 
     const allInvoices: Invoice[] = [];
     let totalRecords = 0;
 
     for (const status of pendingStatuses) {
       const result = await this.invoicesService.fetchInvoices(req, {
-        partyIds,
+        customerNumbers,
         organizationNumbers,
-        facilityId: facilityId as string[],
-        invoiceDateFrom: this.invoiceDateFrom,
+        facilityIds: facilityId as string[],
+        periodFrom: this.invoiceDateFrom,
         page: Number(page),
         limit: Number(limit),
         invoiceStatus: status,

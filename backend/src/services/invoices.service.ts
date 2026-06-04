@@ -5,10 +5,10 @@ import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
 
 type FetchParams = {
-  partyIds: string[];
+  customerNumbers: string[];
   organizationNumbers: string[];
-  facilityId: string[];
-  invoiceDateFrom: string;
+  facilityIds: string[];
+  periodFrom: string;
   page: number;
   limit: number;
   invoiceStatus?: InvoiceStatus;
@@ -19,19 +19,19 @@ export default class InvoicesService {
   private readonly baseUrl = getApiBase('invoices');
 
   async fetchInvoices(req: RequestWithUser, params: FetchParams) {
-    const { partyIds, organizationNumbers, facilityId, invoiceDateFrom, page, limit, invoiceStatus } = params;
+    const { customerNumbers, organizationNumbers, facilityIds, periodFrom, page, limit, invoiceStatus } = params;
 
-    const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL`;
+    const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
 
     const res = await this.api.get<InvoicesResponse>(
       {
         url,
         params: {
-          partyId: partyIds,
-          facilityId,
+          customerNumbers: customerNumbers,
+          facilityIds: facilityIds,
           organizationNumber: organizationNumbers,
-          invoiceDateFrom,
-          invoiceStatus,
+          periodFrom: periodFrom,
+          status: invoiceStatus,
           page,
           limit,
         },
