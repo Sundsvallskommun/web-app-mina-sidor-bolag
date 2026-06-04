@@ -144,53 +144,6 @@ const getRepresentingGroup = (representingEntity?: RepresentingEntity): Announce
   }
 };
 
-const TemporaryDisturbanceArticle = () => {
-  return (
-    <div className="bg-background-content shadow-50 rounded-cards max-w-[106rem] min-h-[30rem] flex flex-col sm:flex-row sm:min-w-[36rem]">
-      <Image
-        src="/tillfalligt-uppehall-matvarden-fakturor.png"
-        alt="Tillfälligt uppehåll i visning av mätvärden och fakturor"
-        className="rounded-t-cards sm:rounded-r-0 sm:rounded-l-cards object-cover grow w-full md:max-h-[60vw] sm:w-[32rem] sm:max-w-[35vw]"
-      />
-      <div className="p-24 flex flex-col gap-16">
-        <h2 className="text-h3-md">Tillfälligt uppehåll i visning av mätvärden och fakturor</h2>
-        <p>
-          I samband med att vi nu byter till ett nytt faktureringssystem är vissa funktioner på Mina sidor tillfälligt
-          begränsade. Det innebär att du inte kommer att kunna se dina mätvärden och fakturor som vanligt under en
-          period. Du går inte miste om någon mätdata, när systembytet är genomfört finns all data tillgänglig för dig på
-          Mina sidor. Om du trots allt har behov av dina mätvärden eller din senaste faktura under denna tillfälliga
-          period kan du be om ett{' '}
-          <Link
-            external
-            className="font-bold text-dark underline"
-            href="https://e-tjanster.stadsbacken.se/oversikt/flow/270?privat"
-          >
-            utdrag via denna e-tjänst
-          </Link>
-          .
-        </p>
-
-        <p>
-          Vi förstår att det kan kännas lite rörigt en stund, men snart blir allt både enklare och bättre. Tack för att
-          du har tålamod medan vi gör förbättringarna!
-        </p>
-
-        <p>
-          Har du frågor eller funderingar? Välkommen att höra av dig till oss via mejl{' '}
-          <Link className="font-bold text-dark underline" href="mailto:info@sundsvallelnat.se">
-            info@sundsvallelnat.se
-          </Link>{' '}
-          eller telefon{' '}
-          <Link className="font-bold text-dark underline" href="tel:0606005020">
-            060 - 600 50 20
-          </Link>
-          .
-        </p>
-      </div>
-    </div>
-  );
-};
-
 export const Announcements = () => {
   const { data: representingEntity } = useApi<RepresentingEntity>({ url: '/representing', method: 'get' });
   const { relations, activeCustomerEngagements } = useRelations();
@@ -215,7 +168,6 @@ export const Announcements = () => {
       <div className="flex flex-col gap-24 my-24">
         {doneFetching ? (
           <>
-            <TemporaryDisturbanceArticle />
             {announcements.map((announcement, index) => {
               return (
                 <div
