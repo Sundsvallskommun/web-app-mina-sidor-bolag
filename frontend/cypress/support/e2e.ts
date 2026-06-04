@@ -54,12 +54,19 @@ export const setIntercepts = (
     },
     message: 'success',
   }).as('getMyPagedAgreementsPages');
+  cy.intercept('GET', '**/api/paged/all-agreements?page=*', {
+    data: {
+      agreements: getMyPagedAgreements().data,
+      _meta: { page: 1, limit: 100, totalPages: 1 },
+    },
+    message: 'success',
+  }).as('getMyPagedAllAgreementsPages');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
 
   cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');
   cy.intercept('GET', '**/api/facility/delegations', getFacilityDelegates()).as('getFacilityDelegates');
 
-  cy.intercept('GET', '**/api/citizen/**', getCitizen).as('getCitizen');
+  cy.intercept('POST', '**/api/citizen', getCitizen).as('getCitizen');
   cy.intercept('GET', '**/api/mandates/org', getOrgMandates).as('getOrgMandates');
   cy.intercept('GET', '**/api/ai/isReady', isReady()).as('AIisReady');
 

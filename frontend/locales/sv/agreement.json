@@ -2,7 +2,7 @@
   "title": "Dina avtal",
   "noAgreements": "Du har inga avtal än, men så fort det finns avtal kan du se dem här.",
   "noMatch": "Inga avtal matchar din sökning",
-  "searchFacility": "Sök efter anläggning",
+  "searchFacility": "Sök anläggning för detta resultat",
   "item": {
     "title": "{{label}} {{production}} avtal",
     "breadcrumbUrl": "../avtal",
@@ -31,5 +31,8 @@
     "companyService": "Serviceavtal Företag",
     "measurement": "Mätvärdesavtal",
     "recycled": "100% återvunnet"
+  },
+  "pagination": {
+    "rowsPerPage": "Rader per sida"
   }
 }

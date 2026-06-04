@@ -1,9 +1,19 @@
 import { RepresentingMode } from '@interfaces/app';
 import { setIntercepts } from 'cypress/support/e2e';
+import { getBfusPartyPermissions } from '../fixtures/getBfusPartyPermissions';
+import { getOverviewDisturbances } from '../fixtures/getDisturbances';
+import { getPendingInvoices } from '../fixtures/getInvoices';
 
 describe('Sidöverskridande', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
+    cy.intercept(
+      'GET',
+      '**/api/bfus/new-permissions?customerIds=12345678',
+      getBfusPartyPermissions(RepresentingMode.PRIVATE)
+    ).as('getNewPermissions');
+    cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
+    cy.intercept('GET', '**/api/disturbances?status=*', getOverviewDisturbances()).as('getOverviewDisturbances');
   });
 
   it('Set focus to main', () => {
@@ -26,7 +36,7 @@ describe('Sidöverskridande', () => {
 
     cy.get('button[aria-label="Meny"]').should('be.visible').click();
     cy.get('button[aria-label="Stäng meny"]').should('be.visible');
-    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 7);
+    cy.get('ul[aria-label="Undersidor"] li').should('have.length', 8);
 
     // foretag
     setIntercepts(RepresentingMode.BUSINESS);
@@ -46,8 +56,8 @@ describe('Sidöverskridande', () => {
 
     cy.get('[data-cy="user-menu"]').should('exist').contains('Förnamn Efternamn').click();
     cy.get('[data-cy="user-menu-profile-button"]').should('exist').should('have.text', 'Profil och inställningar');
-    // NOTE: Hide until release
-    // cy.get('[data-cy="user-menu-eligibility-button"]').should('exist').should('have.text', 'Medgivanden');
+    cy.get('[data-cy="user-menu-eligibility-button"]').should('exist').should('have.text', 'Medgivanden');
+    cy.get('[data-cy="user-menu-disturbances-button"]').should('exist').should('have.text', 'Driftinformation');
     cy.get('[data-cy="user-menu-logout-button"]').should('exist').should('have.text', 'Logga ut');
     cy.get('[data-cy="desktop-navigation"] li').should('have.length', 5);
   });

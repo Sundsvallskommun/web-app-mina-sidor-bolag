@@ -5,7 +5,7 @@ import { useSnackbar } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 
 const getCitizen = (personnumber: string) => {
-  return apiService.get<CitizenApiResponse>(`/citizen/${personnumber}`);
+  return apiService.post<CitizenApiResponse>('/citizen', { personnumber });
 };
 
 export const useCitizen = (personnumber?: string) => {
