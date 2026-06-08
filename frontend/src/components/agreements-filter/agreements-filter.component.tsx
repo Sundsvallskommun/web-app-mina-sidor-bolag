@@ -1,4 +1,4 @@
-import { Button, Icon, Input } from '@sk-web-gui/react';
+import { Icon, Input } from '@sk-web-gui/react';
 import { FunnelIcon, XIcon } from 'lucide-react';
 
 interface AgreementsFilterProps {
