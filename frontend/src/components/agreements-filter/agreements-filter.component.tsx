@@ -10,8 +10,8 @@ interface AgreementsFilterProps {
 
 const AgreementsFilter = ({ term, placeholder, changeHandler, resethandler }: AgreementsFilterProps) => {
   return (
-    <Input.InnerGroup size="lg" className="mb-40 max-w-[520px]">
-      <Input.LeftAddin icon>
+    <Input.InnerGroup size="lg" className="mb-40 max-w-[520px]" data-cy="agreement-search-field">
+      <Input.LeftAddin icon className="!mr-auto">
         <Icon icon={<FunnelIcon />} />
       </Input.LeftAddin>
       <Input placeholder={placeholder} value={term} onChange={changeHandler} />
