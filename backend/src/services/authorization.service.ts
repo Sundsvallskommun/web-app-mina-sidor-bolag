@@ -25,6 +25,17 @@ export const getPermissions = async (personId: string): Promise<Permissions> => 
   return permissions;
 };
 
+export const getPermissionsByGroups = async (groups: string[] = []): Promise<Permissions> => {
+  const permissions: Permissions = defaultPermissions();
+  if (!groups.length || !ADMIN_GROUP) return permissions;
+
+  const groupsList = groups.map((g: string) => g.toLowerCase());
+  const adminGroup = ADMIN_GROUP.toLowerCase();
+  permissions.canImpersonateUser = groupsList.includes(adminGroup);
+
+  return permissions;
+};
+
 export const getLoginName = async (personId: string) => {
   if (!personId) return undefined;
 
