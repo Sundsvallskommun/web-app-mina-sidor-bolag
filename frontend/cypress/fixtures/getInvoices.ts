@@ -1,9 +1,9 @@
 import { RepresentingMode } from '@interfaces/app';
-import { InvoicesResponse } from '@interfaces/invoice';
+import { CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 import { ApiResponse } from '@services/api-service';
 import { getGeneratedInvoices } from 'cypress/fixtures/utils';
 
-export const getInvoices: (representingMode: RepresentingMode) => ApiResponse<InvoicesResponse> = () => ({
+export const getInvoices: (representingMode: RepresentingMode) => ApiResponse<CustomerInvoicesResponse> = () => ({
   data: {
     invoices: getGeneratedInvoices(),
     _meta: {
@@ -17,7 +17,7 @@ export const getInvoices: (representingMode: RepresentingMode) => ApiResponse<In
   message: 'success',
 });
 
-export const getPendingInvoices: () => ApiResponse<InvoicesResponse> = () => ({
+export const getPendingInvoices: () => ApiResponse<CustomerInvoicesResponse> = () => ({
   data: {
     invoices: [
       {
@@ -27,10 +27,7 @@ export const getPendingInvoices: () => ApiResponse<InvoicesResponse> = () => ({
         amountVatExcluded: 1298.52,
         vatEligibleAmount: 1298.52,
         rounding: -0.15,
-        vat: 1298.52,
-        reversedVat: false,
         pdfAvailable: false,
-        currency: 'sek',
         invoiceDate: '2025-01-01',
         invoiceNumber: '240736694',
         invoiceStatus: 'SENT',
@@ -39,25 +36,17 @@ export const getPendingInvoices: () => ApiResponse<InvoicesResponse> = () => ({
         invoiceName: '240736694.pdf',
         invoiceType: 'INVOICE',
         invoiceDescription: 'El',
-        invoiceAddress: {
-          street: 'Storgatan 1',
-          postcode: '11122',
-          city: 'Sundsvall',
-          careOf: 'Förnamn Efternamn',
-        },
-        fromDate: '',
-        toDate: '',
-        facilityId: '111',
-        invoiceOrigin: 'COMMERCIAL',
+        street: 'Storgatan 1',
+        postCode: '11122',
+        city: 'Sundsvall',
+        careOf: 'Förnamn Efternamn',
+        facilityIds: ['111'],
+        periodFrom: '',
+        periodTo: '',
+        details: [],
       },
     ],
-    _meta: {
-      page: 1,
-      limit: 1,
-      count: 1,
-      totalRecords: 3,
-      totalPages: 3,
-    },
+    _meta: { page: 1, limit: 1, count: 1, totalRecords: 3, totalPages: 3 },
   },
   message: 'success',
 });

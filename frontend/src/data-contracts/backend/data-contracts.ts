@@ -178,8 +178,6 @@ export interface MetaData {
   count?: number;
   totalRecords?: number;
   totalPages?: number;
-  key: string;
-  value: string;
 }
 
 export interface PdfInvoice {
@@ -494,6 +492,11 @@ export interface CitizenLookupDto {
   personnumber: string;
 }
 
+export interface EventMetaData {
+  key: string;
+  value: string;
+}
+
 export interface EventResponse {
   logKey?: string;
   type:
@@ -514,7 +517,7 @@ export interface EventResponse {
   created?: string;
   historyReference?: string | null;
   sourceType?: string | null;
-  metadata: MetaData;
+  metadata: EventMetaData;
 }
 
 export interface SortObject {
