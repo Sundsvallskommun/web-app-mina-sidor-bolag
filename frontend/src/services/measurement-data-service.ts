@@ -116,6 +116,18 @@ export const getAreaFromFacility = (facilities: InstalledBaseItem[] | undefined,
   return facilities?.find((facility) => facility?.facilityId === facilityId)?.address?.city?.toLowerCase() ?? '';
 };
 
+export const getAddressesFromFacilities = (
+  facilities: InstalledBaseItem[] | undefined,
+  facilityIds: string[] | undefined
+): string[] => {
+  const ids = new Set(facilityIds ?? []);
+  const streets = (facilities ?? [])
+    .filter((facility) => facility?.facilityId && ids.has(facility.facilityId))
+    .map((facility) => facility?.address?.street)
+    .filter((street): street is string => !!street);
+  return Array.from(new Set(streets));
+};
+
 export const calculateYearDifference = (current: number | undefined, previous: number | undefined) => {
   return current && previous ? Math.round(((previous - current) / previous) * 100) : false;
 };

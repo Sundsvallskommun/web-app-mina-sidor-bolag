@@ -23,6 +23,7 @@ enum EnumTimeInterval {
 
 export interface ElectricityConsumptionProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
+  addresses: string[];
   isFetching: boolean;
   isPreviousFetching: boolean;
   updateIsHourQuarter?: (isHourQuarter: boolean) => void;
@@ -30,7 +31,7 @@ export interface ElectricityConsumptionProps {
 
 export default function Consumption(props: ElectricityConsumptionProps) {
   const { setValue, getValues, watch } = useFormContext();
-  const { data, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
+  const { data, addresses, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
   const [viewMode, setViewMode] = useState<EnumViewMode>(EnumViewMode.graph);
   const [timeInterval, setTimeInterval] = useState<EnumTimeInterval>(EnumTimeInterval.hour);
   const { t } = useTranslation('statistics');
@@ -62,7 +63,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         {getValues().facilityType} {data?.formattedDate}
         {getValues().year && !isNormalYear(getValues().year) && !isFetching ? <> och {getValues().year}</> : ''}
       </h4>
-      <p data-cy="address">{getValues().addresses?.join(', ')}</p>
+      <p data-cy="address">{addresses.join(', ')}</p>
       {isFetching || isPreviousFetching ? (
         <Spinner className="mx-auto my-80" />
       ) : data?.measurementData?.[0]?.measurementPoints ? (

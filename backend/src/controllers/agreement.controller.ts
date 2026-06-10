@@ -18,7 +18,12 @@ function activeAgreement(agreement: Agreement): boolean {
   return dayjs(agreement.toDate).isAfter(dayjs()) || typeof agreement.toDate === 'undefined';
 }
 
-const relevantCategories: Category[] = [Category.ELECTRICITY, Category.ELECTRICITY_TRADE, Category.DISTRICT_HEATING];
+const relevantCategories: Category[] = [
+  Category.ELECTRICITY,
+  Category.ELECTRICITY_TRADE,
+  Category.DISTRICT_HEATING,
+  Category.DISTRICT_COOLING,
+];
 
 @Controller()
 export class AgreementController {
