@@ -1,7 +1,7 @@
 import { ManualTable, ManualTableColumn } from '@components/manual-table/manual-table.component';
 import { IInvoice, InvoiceTableProps } from '@interfaces/invoice';
 import { Label, Spinner } from '@sk-web-gui/react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DownloadPdfButton } from './get-pdf-button.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
@@ -58,14 +58,9 @@ export const InvoicesTable = ({
     [userData]
   );
 
-  const getInvoiceAddress = useMemo(
-    () =>
-      (facilityIds: string[]): string => {
-        return (
-          userData?.addresses.find((address) => facilityIds.some((id) => address.facilityIds.includes(id)))?.address ??
-          ''
-        );
-      },
+  const getInvoiceAddress = useCallback(
+    (facilityIds: string[]): string =>
+      userData?.addresses.find((address) => facilityIds.some((id) => address.facilityIds.includes(id)))?.address ?? '',
     [userData]
   );
 
