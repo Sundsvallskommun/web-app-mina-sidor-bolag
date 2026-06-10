@@ -1,12 +1,17 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { Invoice, InvoiceStatus, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
+import {
+  CustomerInvoice,
+  CustomerInvoiceInvoiceStatusEnum,
+  CustomerInvoicesResponse,
+  PdfInvoice,
+} from '@/responses/invoices.response';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
 import dayjs from 'dayjs';
 import InvoicesService from '@/services/invoices.service';
@@ -17,9 +22,9 @@ const emptyInvoice = {
 };
 
 const pendingStatuses = [
-  'SENT' as InvoiceStatus,
-  'DEBT_COLLECTION' as InvoiceStatus,
-  'REMINDER' as InvoiceStatus,
+  'SENT' as CustomerInvoiceInvoiceStatusEnum,
+  'DEBT_COLLECTION' as CustomerInvoiceInvoiceStatusEnum,
+  'REMINDER' as CustomerInvoiceInvoiceStatusEnum,
   // NOTE: Doesn't return the correct entries yet
   // 'PARTIALLY_PAID' as InvoiceStatus,
 ];
@@ -41,6 +46,7 @@ export class InvoicesController {
 
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
+  @ResponseSchema(CustomerInvoicesResponse)
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser) {
     const { facilityId, page, limit } = req.query;
@@ -71,6 +77,7 @@ export class InvoicesController {
 
   @Get('/invoices/pending')
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
+  @ResponseSchema(CustomerInvoicesResponse)
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser) {
     const { facilityId, page, limit } = req.query;
@@ -81,7 +88,7 @@ export class InvoicesController {
 
     const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
 
-    const allInvoices: Invoice[] = [];
+    const allInvoices: CustomerInvoice[] = [];
     let totalRecords = 0;
 
     for (const status of pendingStatuses) {
@@ -116,6 +123,7 @@ export class InvoicesController {
 
   @Get('/invoicepdf/:organizationNumber/:id')
   @OpenAPI({ summary: 'Return the base64 encoded pdf by invoice id' })
+  @ResponseSchema(PdfInvoice)
   @UseBefore(authMiddleware)
   async getInvoicePdf(
     @Req() req: RequestWithUser,

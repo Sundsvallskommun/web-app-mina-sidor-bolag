@@ -60,8 +60,11 @@ export const InvoicesTable = ({
 
   const getInvoiceAddress = useMemo(
     () =>
-      (facilityId: string): string => {
-        return userData?.addresses.find((address) => address.facilityIds.includes(facilityId))?.address ?? '';
+      (facilityIds: string[]): string => {
+        return (
+          userData?.addresses.find((address) => facilityIds.some((id) => address.facilityIds.includes(id)))?.address ??
+          ''
+        );
       },
     [userData]
   );
@@ -72,7 +75,7 @@ export const InvoicesTable = ({
         label: t('invoice:contractor'),
         sticky: true,
         property: 'invoiceDescription',
-        className: 'max-w-[160px]',
+        className: 'max-w-[180px]',
         renderColumn: (value, item) => (
           <div className="text-left text-small">
             <span className="font-bold">
@@ -124,7 +127,7 @@ export const InvoicesTable = ({
         className: 'max-w-[146px]',
         renderColumn: (_value, item) => (
           <div className="text-left text-small">
-            <span data-cy="invoice-address">{!!item.facilityId && getInvoiceAddress(item.facilityId)}</span>
+            <span data-cy="invoice-address">{!!item.facilityIds?.length && getInvoiceAddress(item.facilityIds)}</span>
           </div>
         ),
       },

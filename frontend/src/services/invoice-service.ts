@@ -1,12 +1,6 @@
-import {
-  IInvoice,
-  InvoicePdf,
-  InvoicePdfData,
-  InvoiceStatus,
-  InvoicesData,
-} from '@interfaces/invoice';
+import { IInvoice, InvoicePdf, InvoicePdfData, InvoiceStatus, InvoicesData } from '@interfaces/invoice';
 import { apiService, ApiResponse } from './api-service';
-import { Invoice, InvoicesResponse } from '@data-contracts/invoices/data-contracts';
+import { CustomerInvoice, CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 
 export const emptyInvoicesList: InvoicesData = {
   invoices: [],
@@ -56,13 +50,8 @@ export const mapStatus = (s?: InvoiceStatus) => {
       };
 };
 
-export const handleInvoiceResponse: (data: InvoicesResponse) => IInvoice[] = (data) =>
-  data.invoices ?
-  data.invoices.map((n: Invoice) => ({
-    ...n,
-    invoiceStatus: mapStatus(n.invoiceStatus),
-  })) :
-  [];
+export const handleInvoiceResponse: (data: CustomerInvoicesResponse) => IInvoice[] = (data) =>
+  data.invoices ? data.invoices.map((n: CustomerInvoice) => ({ ...n, invoiceStatus: mapStatus(n.invoiceStatus) })) : [];
 
 // export const getInvoices: () => Promise<InvoicesData> = () =>
 //   apiService
@@ -70,7 +59,7 @@ export const handleInvoiceResponse: (data: InvoicesResponse) => IInvoice[] = (da
 //     .then((res) => ({ invoices: handleInvoiceResponse(res.data), labels: invoicesLabels } as InvoicesData))
 //     .catch((e) => ({ ...emptyInvoicesList, error: e.response?.status ?? 'UNKNOWN ERROR' } as InvoicesData));
 
-export const invoicesHandler = (data: InvoicesResponse): InvoicesData => ({
+export const invoicesHandler = (data: CustomerInvoicesResponse): InvoicesData => ({
   invoices: handleInvoiceResponse(data),
   labels: invoicesLabels,
   totalCount: data._meta?.totalRecords ?? 0,
@@ -97,7 +86,10 @@ export const getOtherInvoices: (invoicesData: InvoicesData) => InvoicesData = (i
   invoices: invoicesData?.invoices.filter((x) => otherInvoices.includes(x.invoiceStatus.code)),
 });
 
-export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) => Promise<InvoicePdfData> = (organizationNumber, invoiceNumber) =>
+export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) => Promise<InvoicePdfData> = (
+  organizationNumber,
+  invoiceNumber
+) =>
   apiService
     .get<ApiResponse<InvoicePdf>>(`invoicepdf/${organizationNumber}/${invoiceNumber}`)
     .then((res) => ({ pdf: res.data.data }))

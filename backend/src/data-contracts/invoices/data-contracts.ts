@@ -9,44 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-/**
- * Invoice origin (invoices originates from either commercial or public activities)
- * @example "COMMERCIAL"
- */
-export enum InvoiceOrigin {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
-}
-
-/** Type of invoice */
-export enum InvoiceType {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
-}
-
-/** Status of invoice */
-export enum InvoiceStatus {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
-}
-
 export interface Problem {
   /** @format uri */
   instance?: string;
@@ -142,7 +104,7 @@ export interface Invoice {
   /** Invoice-number */
   invoiceNumber?: string;
   /** Status of invoice */
-  invoiceStatus?: InvoiceStatus;
+  invoiceStatus?: InvoiceInvoiceStatusEnum;
   /** OCR-number */
   ocrNumber?: string;
   /** Organization number of the creditor */
@@ -150,7 +112,7 @@ export interface Invoice {
   /** Invoice-name */
   invoiceName?: string;
   /** Type of invoice */
-  invoiceType?: InvoiceType;
+  invoiceType?: InvoiceInvoiceTypeEnum;
   /**
    * Invoice-description
    * @uniqueItems true
@@ -164,7 +126,7 @@ export interface Invoice {
    */
   facilityIds?: string[];
   /** Invoice origin (invoices originates from either commercial or public activities) */
-  invoiceOrigin?: InvoiceOrigin;
+  invoiceOrigin?: InvoiceInvoiceOriginEnum;
 }
 
 /** InvoicesResponse model */
@@ -255,14 +217,20 @@ export interface InvoiceDetailsResponse {
   details?: InvoiceDetail[];
 }
 
+/** The sort order direction */
+export enum Direction {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 /** Customer invoice model */
 export interface CustomerInvoice {
   /** Customer number */
   customerNumber?: string;
   /** Customer type */
-  customerType?: CustomerType;
-  /** Facility id */
-  facilityId?: string;
+  customerType?: CustomerInvoiceCustomerTypeEnum;
+  /** List of facility ids */
+  facilityIds?: string[];
   /** Invoice number */
   invoiceNumber?: string;
   /**
@@ -283,11 +251,11 @@ export interface CustomerInvoice {
   /** Invoice name */
   invoiceName?: string;
   /** Type of invoice */
-  invoiceType?: InvoiceType;
+  invoiceType?: CustomerInvoiceInvoiceTypeEnum;
   /** Invoice description */
   invoiceDescription?: string;
   /** Status of invoice */
-  invoiceStatus?: InvoiceStatus;
+  invoiceStatus?: CustomerInvoiceInvoiceStatusEnum;
   /** OCR number */
   ocrNumber?: string;
   /**
@@ -343,8 +311,190 @@ export interface CustomerInvoicesResponse {
   _meta?: MetaData;
 }
 
+/** Status of invoice */
+export enum InvoiceInvoiceStatusEnum {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Type of invoice */
+export enum InvoiceInvoiceTypeEnum {
+  INVOICE = 'INVOICE',
+  CREDIT_INVOICE = 'CREDIT_INVOICE',
+  START_INVOICE = 'START_INVOICE',
+  FINAL_INVOICE = 'FINAL_INVOICE',
+  DIRECT_DEBIT = 'DIRECT_DEBIT',
+  SELF_INVOICE = 'SELF_INVOICE',
+  REMINDER = 'REMINDER',
+  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
+  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
+  OFFSET_INVOICE = 'OFFSET_INVOICE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Invoice origin (invoices originates from either commercial or public activities) */
+export enum InvoiceInvoiceOriginEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
 /** Customer type */
-export enum CustomerType {
+export enum CustomerInvoiceCustomerTypeEnum {
   ENTERPRISE = 'ENTERPRISE',
   PRIVATE = 'PRIVATE',
+}
+
+/** Type of invoice */
+export enum CustomerInvoiceInvoiceTypeEnum {
+  INVOICE = 'INVOICE',
+  CREDIT_INVOICE = 'CREDIT_INVOICE',
+  START_INVOICE = 'START_INVOICE',
+  FINAL_INVOICE = 'FINAL_INVOICE',
+  DIRECT_DEBIT = 'DIRECT_DEBIT',
+  SELF_INVOICE = 'SELF_INVOICE',
+  REMINDER = 'REMINDER',
+  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
+  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
+  OFFSET_INVOICE = 'OFFSET_INVOICE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Status of invoice */
+export enum CustomerInvoiceInvoiceStatusEnum {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Invoice type */
+export enum GetInvoicesParamsInvoiceTypeEnum {
+  INVOICE = 'INVOICE',
+  CREDIT_INVOICE = 'CREDIT_INVOICE',
+  START_INVOICE = 'START_INVOICE',
+  FINAL_INVOICE = 'FINAL_INVOICE',
+  DIRECT_DEBIT = 'DIRECT_DEBIT',
+  SELF_INVOICE = 'SELF_INVOICE',
+  REMINDER = 'REMINDER',
+  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
+  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
+  OFFSET_INVOICE = 'OFFSET_INVOICE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Invoice status */
+export enum GetInvoicesParamsInvoiceStatusEnum {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/**
+ * Invoice origin (invoices originates from either commercial or public activities)
+ * @example "COMMERCIAL"
+ */
+export enum GetInvoicesParamsInvoiceOriginEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
+/** @example "COMMERCIAL" */
+export enum GetInvoicesParamsEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
+/** InvoiceType filter parameter */
+export enum GetPdfInvoiceParamsInvoiceTypeEnum {
+  INVOICE = 'INVOICE',
+  CREDIT_INVOICE = 'CREDIT_INVOICE',
+  START_INVOICE = 'START_INVOICE',
+  FINAL_INVOICE = 'FINAL_INVOICE',
+  DIRECT_DEBIT = 'DIRECT_DEBIT',
+  SELF_INVOICE = 'SELF_INVOICE',
+  REMINDER = 'REMINDER',
+  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
+  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
+  OFFSET_INVOICE = 'OFFSET_INVOICE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/**
+ * Invoice origin (invoices originates from either commercial or public activities)
+ * @example "COMMERCIAL"
+ */
+export enum GetPdfInvoiceParamsInvoiceOriginEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
+/** @example "COMMERCIAL" */
+export enum GetPdfInvoiceParamsEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
+/** InvoiceType filter parameter */
+export enum DownloadInvoicePdfParamsInvoiceTypeEnum {
+  INVOICE = 'INVOICE',
+  CREDIT_INVOICE = 'CREDIT_INVOICE',
+  START_INVOICE = 'START_INVOICE',
+  FINAL_INVOICE = 'FINAL_INVOICE',
+  DIRECT_DEBIT = 'DIRECT_DEBIT',
+  SELF_INVOICE = 'SELF_INVOICE',
+  REMINDER = 'REMINDER',
+  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
+  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
+  OFFSET_INVOICE = 'OFFSET_INVOICE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/**
+ * Invoice origin (invoices originates from either commercial or public activities)
+ * @example "COMMERCIAL"
+ */
+export enum DownloadInvoicePdfParamsInvoiceOriginEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
+/** @example "COMMERCIAL" */
+export enum DownloadInvoicePdfParamsEnum {
+  COMMERCIAL = 'COMMERCIAL',
+  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+}
+
+/** Invoice status filter */
+export enum GetInvoicesForCustomerParamsStatusEnum {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
 }

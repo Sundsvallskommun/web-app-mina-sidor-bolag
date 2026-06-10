@@ -1,4 +1,4 @@
-import { InvoicesResponse, InvoiceStatus } from '@/data-contracts/invoices/data-contracts';
+import { CustomerInvoicesResponse, CustomerInvoiceInvoiceStatusEnum } from '@/responses/invoices.response';
 import ApiService from '@/services/api.service';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { MUNICIPALITY_ID } from '@/config';
@@ -11,7 +11,7 @@ type FetchParams = {
   periodFrom: string;
   page: number;
   limit: number;
-  invoiceStatus?: InvoiceStatus;
+  invoiceStatus?: CustomerInvoiceInvoiceStatusEnum;
 };
 
 export default class InvoicesService {
@@ -23,7 +23,7 @@ export default class InvoicesService {
 
     const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
 
-    const res = await this.api.get<InvoicesResponse>(
+    const res = await this.api.get<CustomerInvoicesResponse>(
       {
         url,
         params: {
@@ -34,6 +34,7 @@ export default class InvoicesService {
           status: invoiceStatus,
           page,
           limit,
+          sortDirection: 'DESC',
         },
       },
       req.user,
