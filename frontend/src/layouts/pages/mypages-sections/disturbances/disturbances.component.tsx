@@ -13,7 +13,7 @@ export default function Disturbances() {
     setStatus(e.currentTarget.value);
   };
 
-  return (
+  return process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES ? (
     <div data-cy="overview-disturbances">
       <h1>{t('disturbances:title')}</h1>
       <p>{t('disturbances:description')}</p>
@@ -30,5 +30,5 @@ export default function Disturbances() {
 
       <DisturbancesList statuses={status} />
     </div>
-  );
+  ) : null;
 }

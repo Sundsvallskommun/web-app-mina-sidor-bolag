@@ -7,7 +7,6 @@ import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { EventResponse } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
-import { getCategoryFromInstalledBaseType } from '@utils/facility';
 import { useState } from 'react';
 import { ExportModalData, ExportStatisticsModal } from './export-statistics-modal.component';
 import { buildLogInformation, exportStatisticsToExcel } from './export-statistics.util';
@@ -72,11 +71,11 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
         show={showModal}
         onClose={() => setShowModal(false)}
         onExport={exportStatistics}
-        initialCategory={(getCategoryFromInstalledBaseType(getValues().category) as Category) || undefined}
+        initialCategory={(getValues().category as Category) || undefined}
         initialFromDate={getValues().fromDate}
         initialToDate={getValues().toDate}
         initialTimeResolution={data?.aggregatedOn?.toLowerCase()}
-        initialFacilityId={getValues().facilityId}
+        initialFacilityId={getValues().facilityIds?.[0]}
       />
     </div>
   );

@@ -28,6 +28,7 @@ import errorMiddleware from '@middlewares/error.middleware';
 import { Strategy, VerifiedCallback } from '@node-saml/passport-saml';
 import { logger, stream } from '@utils/logger';
 import prisma from '@utils/prisma';
+import { sanitizePersonNumber } from '@utils/sanitizePersonNumber';
 import bodyParser from 'body-parser';
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
@@ -109,7 +110,7 @@ const samlStrategy = new Strategy(
 
     try {
       const apiBase = getApiBase('citizen');
-      const personNumber = profile.citizenIdentifier;
+      const personNumber = sanitizePersonNumber(profile.citizenIdentifier);
       const url = `${apiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
       const citizenResult = await apiService.get<any>({ url }, { username: 'unknown' });
       const { data: personId } = citizenResult;

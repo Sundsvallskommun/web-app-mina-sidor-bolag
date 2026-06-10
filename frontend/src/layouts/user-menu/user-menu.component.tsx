@@ -62,18 +62,20 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
-              <PopupMenu.Item>
-                <Button
-                  className="!justify-between"
-                  onClick={() => {
-                    router.push('driftinformation');
-                  }}
-                  data-cy="user-menu-disturbances-button"
-                >
-                  {capitalize(t('common:disturbances'))}
-                  <Icon icon={<ArrowRight />} />
-                </Button>
-              </PopupMenu.Item>
+              {process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES === 'true' && (
+                <PopupMenu.Item>
+                  <Button
+                    className="!justify-between"
+                    onClick={() => {
+                      router.push('driftinformation');
+                    }}
+                    data-cy="user-menu-disturbances-button"
+                  >
+                    {capitalize(t('common:disturbances'))}
+                    <Icon icon={<ArrowRight />} />
+                  </Button>
+                </PopupMenu.Item>
+              )}
               <Divider />
               <PopupMenu.Item>
                 <Button
