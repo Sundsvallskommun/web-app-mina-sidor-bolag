@@ -29,7 +29,7 @@ import {
 } from './date-picker.util';
 import { aggregationByPeriod } from './export-statistics.util';
 
-const categories = [Category.DISTRICT_HEATING, Category.ELECTRICITY];
+const categories = [Category.DISTRICT_HEATING, Category.DISTRICT_COOLING, Category.ELECTRICITY];
 const timeIntervals = ['hour', 'quarter'];
 
 export interface ExportModalData {

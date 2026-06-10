@@ -27,11 +27,9 @@ describe('Statistik', () => {
   };
 
   const emptyStatisticsDataIntercept = () => {
-    cy.intercept(
-      'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
-      { fixture: null }
-    );
+    cy.intercept('GET', `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`, {
+      fixture: null,
+    });
 
     cy.intercept('POST', '**/api/netowner', getNetOwner());
 
@@ -70,6 +68,28 @@ describe('Statistik', () => {
     cy.get('[data-cy="total-consumption-value"]').should('exist');
     cy.get('[data-cy="highest-consumption-value"]').should('exist');
     cy.get('[data-cy="average-consumption-value"]').should('exist');
+  });
+
+  it('shows the streets of the selected facilities, deduplicated', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1');
+
+    cy.get('[data-cy="address-select"]').should('exist').click();
+    cy.get('[data-cy="address-select"]')
+      .contains('label', 'Gamla Vägen 42')
+      .find('input[type="checkbox"]')
+      .check({ force: true })
+      .should('be.checked');
+
+    cy.get('[data-cy="facility-select"]').should('exist').click();
+    cy.get('[data-cy="facility-select"]')
+      .contains('label', '444')
+      .find('input[type="checkbox"]')
+      .check({ force: true })
+      .should('be.checked');
+
+    cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1, Gamla Vägen 42');
   });
 
   it('can change category', () => {
@@ -170,7 +190,7 @@ describe('Statistik', () => {
     // District heating in year view aggregates on MONTH and includes the corrected_usage series
     cy.intercept(
       'GET',
-      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=*&fromDate=*&toDate=*&aggregateOn=MONTH`,
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
       getStatisticsData(fromYear, toYear, Category.DISTRICT_HEATING, Aggregation.MONTH, '333', true)
     ).as('getDistrictHeatingYearData');
 

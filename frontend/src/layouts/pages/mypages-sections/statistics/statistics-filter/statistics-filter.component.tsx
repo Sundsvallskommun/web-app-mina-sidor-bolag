@@ -185,6 +185,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   fromDate={fromDate}
                   mode={mode}
                   isDistrictHeating={isDistrictHeating}
+                  isAggregating={facilities.checked.length > 1}
                   className="w-full mt-8"
                   dataCy="compare-year-select"
                 />
