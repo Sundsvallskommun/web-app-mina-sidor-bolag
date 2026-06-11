@@ -1,7 +1,7 @@
 import '@cypress/code-coverage/support';
 
 import { CookieConsentUtils } from '@sk-web-gui/react';
-import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements';
+import { getEngagements } from '../fixtures/getEngagements';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { getMe } from '../fixtures/getMe';
@@ -44,7 +44,7 @@ export const setIntercepts = (
 ) => {
   cy.intercept('GET', '**/api/me', getMe).as('getUser');
   interceptRepresentingMode(representingMode, businessIndex);
-  cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
+  cy.intercept('GET', '**/api/engagements', getEngagements).as('getEngagements');
   cy.intercept('GET', '**/api/myrelations', getMyRelations).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
   cy.intercept('GET', '**/api/paged/agreements?page=*', {

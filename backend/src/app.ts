@@ -54,7 +54,7 @@ import { RequestWithUser } from './interfaces/auth.interface';
 import { Profile } from './interfaces/profile.interface';
 import { RepresentingMode } from './interfaces/representing.interface';
 import { User } from './interfaces/users.interface';
-import { getBusinessEngagements } from './services/business-engagements.service';
+import { getPersonEngagements } from '@services/legal-entity.service';
 import getDelegatedFacilities from './services/delegation.service';
 import { additionalConverters } from './utils/custom-validation-classes';
 import { isValidOrigin } from './utils/isValidOrigin';
@@ -391,7 +391,7 @@ class App {
                   } catch {}
                 }
 
-                await getBusinessEngagements(user)
+                await getPersonEngagements(user)
                   .then(engagements => {
                     req.session.representingBusinessChoices = engagements;
                   })
