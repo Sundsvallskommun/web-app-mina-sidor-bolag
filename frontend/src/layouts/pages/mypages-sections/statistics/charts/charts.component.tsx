@@ -4,6 +4,7 @@ import { Button, Divider, Icon } from '@sk-web-gui/react';
 import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
 import { useFormContext } from 'react-hook-form';
 import {
+  getAddressesFromFacilities,
   getAreaFromFacility,
   mergeCorrectedUsageDataSets,
   mergeMeasurementDataSets,
@@ -45,6 +46,11 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
   });
 
   const categoryParam = category ?? '';
+
+  const selectedAddresses = useMemo(
+    () => getAddressesFromFacilities(user?.facilities, facilityIds),
+    [user?.facilities, facilityIds]
+  );
 
   const aggregateOnParam = useMemo(() => {
     const difference = dayjs(toDate).diff(fromDate, 'days');
@@ -182,6 +188,7 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
         <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
           <Consumption
             data={mergedMeasurementData ?? measurementData}
+            addresses={selectedAddresses}
             isFetching={isFetchingMeasurementData}
             isPreviousFetching={isPreviousFetching}
             updateIsHourQuarter={setIsHourQuarter}

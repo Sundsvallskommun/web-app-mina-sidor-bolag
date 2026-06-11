@@ -37,6 +37,8 @@ export const getEventCategory = (type: string | undefined): string => {
       return 'ELECTRICITY';
     case 'Fjärrvärme':
       return 'DISTRICT_HEATING';
+    case 'Fjärrkyla':
+      return 'DISTRICT_COOLING';
     case 'Elproduktion':
       return 'ELECTRICITY_PRODUCTION';
     case 'Bredband':
