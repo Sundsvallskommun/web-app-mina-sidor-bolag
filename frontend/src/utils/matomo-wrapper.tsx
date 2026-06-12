@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorageValue } from '@react-hookz/web';
-import { init, push } from '@socialgouv/matomo-next';
+import { push, trackAppRouter } from '@socialgouv/matomo-next';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Fragment, useEffect, useState } from 'react';
 import { appURL } from './app-url';
@@ -19,7 +19,12 @@ export function MatomoWrapper({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (matomo && !haveInit) {
-      init({ url: `${MATOMO_URL}`, siteId: `${MATOMO_SITE_ID}` });
+      // Documentation says:
+      // trackAppRouter({ url: 'https://matomo.example.com', siteId: '1', pathname: '/page', searchParams });
+      // are pathname and searchParams optional?
+      //
+      // Trial and error?
+      trackAppRouter({ url: `${MATOMO_URL}`, siteId: `${MATOMO_SITE_ID}` });
       setHaveInit(true);
     }
 
@@ -39,6 +44,7 @@ export function MatomoWrapper({ children }: { children: React.ReactNode }) {
     const url = appURL() + pathname + (searchParamsString ? '?' + searchParamsString : '');
     push(['setCustomUrl', url]);
     push(['trackPageView']);
+    push(['enableLinkTracking']);
   }, [pathname, searchParamsString]);
 
   return <Fragment>{children}</Fragment>;
