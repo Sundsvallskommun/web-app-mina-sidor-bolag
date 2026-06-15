@@ -157,6 +157,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
               fromDate={fromDate}
               mode={mode}
               isDistrictHeating={isDistrictHeating}
+              isAggregating={facilities.checked.length > 1}
               className="w-full"
               dataCy="compare-year-select-mobile"
             />

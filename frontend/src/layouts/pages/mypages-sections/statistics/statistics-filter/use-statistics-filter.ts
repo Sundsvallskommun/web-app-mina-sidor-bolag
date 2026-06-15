@@ -185,10 +185,13 @@ export const useStatisticsFilter = () => {
   }, [mode, category, setValue]);
 
   useEffect(() => {
-    if (isNormalYear(year) && (category !== Category.DISTRICT_HEATING || mode !== 'year')) {
+    if (
+      isNormalYear(year) &&
+      (category !== Category.DISTRICT_HEATING || mode !== 'year' || checkedFacilityIds.length > 1)
+    ) {
       setValue('year', '');
     }
-  }, [category, mode, year, setValue]);
+  }, [category, mode, year, checkedFacilityIds.length, setValue]);
 
   useEffect(() => {
     const today = dayjs();
