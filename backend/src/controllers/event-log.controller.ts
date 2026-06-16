@@ -17,6 +17,8 @@ import utc from 'dayjs/plugin/utc';
 import { CreateLogEventData } from '@interfaces/event';
 dayjs.extend(utc);
 
+const EXPORT_SOURCE_TYPE = 'Export';
+
 @Controller()
 class EventLogController {
   readonly apiService = new ApiService();
@@ -41,7 +43,7 @@ class EventLogController {
         partyId,
         size,
         sort,
-        filter: encodeURI(`owner:'${NAMESPACE}'`),
+        filter: encodeURI(`owner:'${NAMESPACE}' and sourceType:'${EXPORT_SOURCE_TYPE}'`),
       };
 
       const res = await this.apiService.get<PageEvent>({ url, params }, req.user);
@@ -135,7 +137,7 @@ class EventLogController {
       type: EventType.READ,
       message: 'Export av mätdata',
       owner: NAMESPACE,
-      sourceType: 'Export',
+      sourceType: EXPORT_SOURCE_TYPE,
       expires: dayjs().add(1, 'year').utc(true).toISOString(),
       metadata,
     };
