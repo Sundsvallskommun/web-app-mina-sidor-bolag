@@ -27,10 +27,10 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   console.log('Admin SAML profile:', JSON.stringify(profile));
 
   // TODO: confirm admin IdP attribute names
-  const username = profile.attributes?.['username'];
-  const email = profile.attributes?.['email'];
+  const username = profile.attributes?.['userid'];
+  // const email = profile.attributes?.['email'];
   const groups = profile.attributes?.['groups'];
-  const displayName = profile.attributes?.['displayName'];
+  const displayName = `${profile.attributes?.['firstname'] ?? ''} ${profile.attributes?.['Surname'] ?? ''}`;
 
   if (!username) {
     return done(null, null, {
@@ -39,7 +39,9 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
     });
   }
 
-  console.log('Admin SAML attributes:', { username, email, groups, displayName });
+  console.log('Admin SAML attributes:', { username, groups, displayName });
+
+  console.log('Parsed admin groups:', groups.split(',').map((g: string) => g.trim()));
 
   // TODO: optionally gate on a required AD group and emit 'SAML_MISSING_GROUP' otherwise.
 
@@ -49,7 +51,6 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
     givenName: profile.firstname ?? '',
     surname: profile.Surname ?? '',
     username,
-    email,
     groups,
     userType: 'admin',
     nameID: profile.nameID,
