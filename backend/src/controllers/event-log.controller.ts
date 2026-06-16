@@ -43,7 +43,7 @@ class EventLogController {
         partyId,
         size,
         sort,
-        filter: encodeURI(`owner:'${NAMESPACE}' and sourceType:'${EXPORT_SOURCE_TYPE}'`),
+        filter: `owner:'${NAMESPACE}' and sourceType:'${EXPORT_SOURCE_TYPE}'`,
       };
 
       const res = await this.apiService.get<PageEvent>({ url, params }, req.user);
