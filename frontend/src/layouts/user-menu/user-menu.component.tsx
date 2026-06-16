@@ -70,7 +70,7 @@ export const UserMenu = () => {
                   <Button
                     className="!justify-between"
                     onClick={() => {
-                      router.push('vaxla-anvandare');
+                      router.push('/admin/vaxla-anvandare');
                     }}
                     data-cy="user-menu-impersonate-user-button"
                   >

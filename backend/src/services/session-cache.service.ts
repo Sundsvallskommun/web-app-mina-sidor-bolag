@@ -5,6 +5,32 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { MUNICIPALITY_ID } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
 import { logger } from '@/utils/logger';
+import { User } from '@/interfaces/users.interface';
+import { getBusinessEngagements } from '@/services/business-engagements.service';
+import getDelegatedFacilities from '@/services/delegation.service';
+
+/**
+ * Hydrates the session with the citizen data the app needs: the user's business
+ * engagements and delegated facilities. Used at citizen login and when an admin
+ * impersonates a user — never for a plain admin login. No-op without a partyId.
+ */
+export async function populateRepresentingCache(req: RequestWithUser, user: User): Promise<void> {
+  if (!user?.partyId) return;
+
+  req.session.cache ??= {};
+
+  if (user.personNumber) {
+    req.session.representingBusinessChoices = await getBusinessEngagements(user).catch(err => {
+      logger.error('Error fetching business engagements:', err);
+      return [];
+    });
+  }
+
+  req.session.cache.delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+    logger.error('Error fetching delegated facilities:', err);
+    return [];
+  });
+}
 
 export class SessionCacheService {
   private readonly apiService = new ApiService();

@@ -154,7 +154,7 @@ export interface Information {
 export interface RepresentingEntity {
   BUSINESS?: RepresentingBusinessEntity;
   PRIVATE?: RepresentingPrivateEntity;
-  mode: "PRIVATE" | "BUSINESS" | 0 | 1;
+  mode: "PRIVATE" | "BUSINESS" | "ADMIN" | 0 | 1 | 2;
 }
 
 export interface ClientRepresentingApiResponse {
@@ -165,7 +165,7 @@ export interface ClientRepresentingApiResponse {
 export interface RepresentsDto {
   organizationNumber?: string;
   personNumber?: string;
-  mode?: "PRIVATE" | "BUSINESS" | 0 | 1;
+  mode?: "PRIVATE" | "BUSINESS" | "ADMIN" | 0 | 1 | 2;
 }
 
 export interface PatchUserSettingsDto {

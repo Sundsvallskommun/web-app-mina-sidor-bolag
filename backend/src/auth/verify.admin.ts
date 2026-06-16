@@ -1,5 +1,7 @@
 import { VerifiedCallback } from '@node-saml/passport-saml';
+import { RequestWithUser } from '../interfaces/auth.interface';
 import { Profile } from '../interfaces/profile.interface';
+import { RepresentingMode } from '../interfaces/representing.interface';
 import { User } from '../interfaces/users.interface';
 import { getPermissionsByGroups } from '@/services/authorization.service';
 
@@ -57,4 +59,14 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   };
 
   done(null, adminUser);
+};
+
+/**
+ * Post-login hook for the admin flow. Admins have no citizen identity, so we set an
+ * explicit ADMIN representing context (no PRIVATE/BUSINESS, no partyId). This gives the
+ * frontend an `/admin` mode to render against, while `getRepresentingPartyId` still
+ * resolves to undefined so no citizen data is fetched.
+ */
+export const adminLoginSuccess = async (req: RequestWithUser): Promise<void> => {
+  req.session.representing = { mode: RepresentingMode.ADMIN };
 };

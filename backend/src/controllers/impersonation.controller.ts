@@ -8,10 +8,12 @@ import authMiddleware from '@middlewares/auth.middleware';
 import { Body, Controller, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+import { RepresentingMode } from '@interfaces/representing.interface';
 import impersonationMiddleware from '@middlewares/impersonation.middleware';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { User, UserEngagement } from '@interfaces/users.interface';
+import { populateRepresentingCache } from '@services/session-cache.service';
 import { logger } from '@utils/logger';
 import { EventType } from '@/responses/eventlog.response';
 import dayjs from 'dayjs';
@@ -112,10 +114,14 @@ export class ImpersonationController {
 
     await this.createEvent(req.user, toImpersonatePartyId, accessReason);
 
-    session.representing.PRIVATE = {
-      personNumber: toImpersonatePersonNumber,
-      partyId: toImpersonatePartyId,
-      name: toImpersonateName,
+    // Flip the session from ADMIN mode into a PRIVATE citizen context for the impersonated user.
+    session.representing = {
+      mode: RepresentingMode.PRIVATE,
+      PRIVATE: {
+        personNumber: toImpersonatePersonNumber,
+        partyId: toImpersonatePartyId,
+        name: toImpersonateName,
+      },
     };
 
     req.user.partyId = toImpersonatePartyId;
@@ -135,6 +141,10 @@ export class ImpersonationController {
       facilities: [],
       delegations: [],
     };
+
+    // Hydrate the impersonated citizen's data (business engagements + delegations),
+    // mirroring citizen login, so the session is ready before returning.
+    await populateRepresentingCache(req, req.user);
 
     return true;
   }

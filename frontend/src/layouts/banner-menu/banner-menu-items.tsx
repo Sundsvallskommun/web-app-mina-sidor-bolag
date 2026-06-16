@@ -73,7 +73,7 @@ export const useBannerMenuItems = () => {
         <NextLink
           key={`banner-menu-item-5`}
           className="w-full flex items-center justify-center"
-          href={`${myPagesRoute}/vaxla-anvandare`}
+          href="/admin/vaxla-anvandare"
         >
           {capitalize(t('common:impersonation'))}
         </NextLink>

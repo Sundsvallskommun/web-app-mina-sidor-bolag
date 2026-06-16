@@ -10,8 +10,7 @@ import { Profile } from '../interfaces/profile.interface';
 import { RepresentingMode } from '../interfaces/representing.interface';
 import { User } from '../interfaces/users.interface';
 import ApiService from '../services/api.service';
-import { getBusinessEngagements } from '../services/business-engagements.service';
-import getDelegatedFacilities from '../services/delegation.service';
+import { populateRepresentingCache } from '../services/session-cache.service';
 import { getPermissions } from '@/services/authorization.service';
 
 /**
@@ -106,21 +105,7 @@ export const customerLoginSuccess = async (
       };
     }
 
-    await getBusinessEngagements(user)
-      .then(engagements => {
-        req.session.representingBusinessChoices = engagements;
-      })
-      .catch(err => {
-        console.error('Error fetching business engagements:', err);
-        req.session.representingBusinessChoices = [];
-      });
-
-    req.session.cache ??= {};
-    const delegations = await getDelegatedFacilities(user.partyId).catch(err => {
-      console.error('Error fetching delegated facilities:', err);
-      return [];
-    });
-    req.session.cache.delegations = delegations;
+    await populateRepresentingCache(req, user);
   } catch (error) {
     logger.error(error);
   }

@@ -95,11 +95,17 @@ export class RepresentingController {
   ): Promise<Response<ClientRepresentingApiResponse>> {
     const representing = req.session?.representing ?? undefined;
 
+    // No citizen context (e.g. a logged-in admin who isn't impersonating): return a neutral
+    // payload instead of 403 so the frontend bootstrap doesn't bounce the admin to /login.
     if (!representing) {
-      throw new HttpException(403, 'Forbidden');
+      return res.send({
+        data: this.getRepresentingToSend({ mode: undefined } as RepresentingEntity),
+        message: 'success',
+      });
     }
 
-    if (!representing.PRIVATE) {
+    // Admins have no citizen identity — never synthesize a PRIVATE default for ADMIN mode.
+    if (representing.mode !== RepresentingMode.ADMIN && !representing.PRIVATE) {
       req.session.representing.PRIVATE = this.getDefaultPRIVATE(req);
     }
 
@@ -120,6 +126,12 @@ export class RepresentingController {
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
   ): Promise<Response<ClientRepresentingApiResponse>> {
+    // An admin who isn't impersonating has no citizen identity; block setting a representing
+    // that would point at their username and trigger downstream 401s.
+    if (req.user.userType === 'admin' && !req.user.permissions?.isImpersonatingUser) {
+      throw new HttpException(403, 'MISSING_PERMISSIONS');
+    }
+
     const representing = req.session?.representing ?? undefined;
     try {
       await deleteAISession(req);

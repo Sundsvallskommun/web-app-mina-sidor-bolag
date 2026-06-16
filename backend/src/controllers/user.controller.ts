@@ -17,7 +17,7 @@ import {
   InstalledBaseResponse,
 } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
-import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+import { getRepresentingPartyId, hasRepresentingContext } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
@@ -93,12 +93,17 @@ export class UserController {
     req.session.cache ??= {};
     req.cache ??= {};
 
-    await sessionCacheService.cacheRelations(req);
+    // Only fetch citizen data when there is a real citizen context (citizen login or an
+    // admin impersonating). A plain admin login has no representing partyId — skip, so the
+    // endpoint still returns the user (name/permissions/userType) without 401/500s.
+    if (hasRepresentingContext(req)) {
+      await sessionCacheService.cacheRelations(req);
 
-    if (!req.session?.ai?.sessionId) {
-      await startAISession(req).catch(err => {
-        logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
-      });
+      if (!req.session?.ai?.sessionId) {
+        await startAISession(req).catch(err => {
+          logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
+        });
+      }
     }
 
     if (

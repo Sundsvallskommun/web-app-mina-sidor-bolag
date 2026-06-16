@@ -126,7 +126,8 @@ export default function ImpersonateUser() {
   const _onSubmit = async (data: ImpersonateFormData) => {
     await impersonateUser(data)
       .then(() => {
-        globalThis.location.assign('/oversikt');
+        // After impersonation the session flips to PRIVATE mode — land in the citizen view.
+        globalThis.location.assign('/privat/oversikt');
       })
       .catch(() => {
         toastMessage({
