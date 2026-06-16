@@ -62,13 +62,13 @@ export const EventItem: React.FC<{ data: StructuredEvent }> = ({ data }) => {
                     <strong>{t('event:facilityId')}</strong>
                     <p>{facility.facilityId ?? t('common:unknown')}</p>
                     <strong>{t('event:category.title')}</strong>
-                    <p>{facility.category ?? t('common:unknown')}</p>
+                    <p>{t(`event:category.${facility.category}`, { defaultValue: t('common:unknown') })}</p>
                     <strong>{t('event:timePeriod')}</strong>
                     <p>
                       {facility.fromDate} - {facility.toDate}
                     </p>
                     <strong>{t('event:aggregateOn')}</strong>
-                    <p>{facility.aggregateOn ?? t('common:unknown')}</p>
+                    <p>{t(`event:aggregation.${facility.aggregateOn}`, { defaultValue: t('common:unknown') })}</p>
                   </div>
                 </div>
               );
