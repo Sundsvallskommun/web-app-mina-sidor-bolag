@@ -1,9 +1,9 @@
 import { getCases } from '@services/case-service';
 import { getInvoices } from '@services/invoice-service';
-import { getBusinessEngagements, getRepresenting } from '@services/organisation-service';
+import { getEngagements, getRepresenting } from '@services/organisation-service';
 import { getMe, getUserMeta } from '@services/user-service';
 
-import { businessEngagements, cases, invoices, representingEntity, user, userMeta } from './data.mock.js';
+import { engagements, cases, invoices, representingEntity, user, userMeta } from './data.mock.js';
 
 jest.mock('@services/user-service', () => {
   const originalModule = jest.requireActual('@services/user-service');
@@ -30,7 +30,7 @@ jest.mock('@services/organisation-service', () => {
     // __esModule: true,
     ...originalModule,
     getRepresenting: jest.fn(),
-    getBusinessEngagements: jest.fn(),
+    getEngagements: jest.fn(),
   };
 });
 
@@ -47,5 +47,5 @@ getMe.mockImplementation(() => Promise.resolve(user));
 getUserMeta.mockImplementation(() => Promise.resolve(userMeta));
 getCases.mockImplementation(() => Promise.resolve(cases));
 getRepresenting.mockImplementation(() => Promise.resolve(representingEntity));
-getBusinessEngagements.mockImplementation(() => Promise.resolve(businessEngagements));
+getEngagements.mockImplementation(() => Promise.resolve(engagements));
 getInvoices.mockImplementation(() => Promise.resolve(invoices));

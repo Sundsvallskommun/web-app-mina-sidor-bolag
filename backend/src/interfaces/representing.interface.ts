@@ -1,5 +1,5 @@
 import { PersonEngagement } from '@/responses/legal-entity.response';
-import { ClientBusinessInformation } from './business-engagement';
+import { ClientBusinessInformation } from './legal-entity';
 
 export enum RepresentingMode {
   PRIVATE,
