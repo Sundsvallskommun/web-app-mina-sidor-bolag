@@ -1,4 +1,4 @@
-import { ClientBusinessInformation } from '@/interfaces/business-engagement';
+import { ClientBusinessInformation } from '@interfaces/legal-entity';
 import { ContactSettingAddress } from '@/interfaces/contact-settings';
 import {
   RepresentingBusinessEntityClient,

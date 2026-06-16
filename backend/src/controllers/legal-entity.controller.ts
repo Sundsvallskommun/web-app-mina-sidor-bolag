@@ -1,7 +1,7 @@
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { BusinessEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
-import { getBusinessEngagements, getBusinessInformation } from '@/services/business-engagements.service';
+import { PersonEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
+import { getPersonEngagements, getBusinessInformation } from '@services/legal-entity.service';
 import { logger } from '@/utils/logger';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Response } from 'express';
@@ -9,15 +9,15 @@ import { Controller, Get, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Controller()
-export class BusinessEngagementController {
-  @Get('/businessengagements')
+export class LegalEntityController {
+  @Get('/engagements')
   @OpenAPI({ summary: 'Return a list of business engagements for current logged in user' })
-  @ResponseSchema(BusinessEngagementsApiResponse)
+  @ResponseSchema(PersonEngagementsApiResponse)
   @UseBefore(authMiddleware)
-  async businessEngagments(
+  async getEngagements(
     @Req() req: RequestWithUser,
-    @Res() res: Response<BusinessEngagementsApiResponse>,
-  ): Promise<Response<BusinessEngagementsApiResponse>> {
+    @Res() res: Response<PersonEngagementsApiResponse>,
+  ): Promise<Response<PersonEngagementsApiResponse>> {
     if (!req.user.personNumber) {
       throw new HttpException(400, 'Bad Request');
     }
@@ -31,7 +31,7 @@ export class BusinessEngagementController {
       let engagements = req.session.representingBusinessChoices;
 
       if (!engagements || engagements.length <= 0) {
-        engagements = await getBusinessEngagements(req.user);
+        engagements = await getPersonEngagements(req.user);
         if (!engagements) {
           throw new HttpException(404, 'Not Found');
         }
@@ -51,10 +51,10 @@ export class BusinessEngagementController {
   }
 
   @Get('/businessinformation')
-  @OpenAPI({ summary: 'Return businessinformation for current representing organisation' })
+  @OpenAPI({ summary: 'Return business information for current representing organisation' })
   @ResponseSchema(BusinessInformationApiResponse)
   @UseBefore(authMiddleware)
-  async businessInformation(
+  async getBusinessInformation(
     @Req() req: RequestWithUser,
     @Res() res: Response<BusinessInformationApiResponse>,
   ): Promise<Response<BusinessInformationApiResponse>> {
@@ -66,7 +66,7 @@ export class BusinessEngagementController {
     });
 
     if (!engagement) {
-      throw new HttpException(500, 'Internal Server Error - Does not exists');
+      throw new HttpException(500, 'Internal Server Error - Does not exist');
     }
 
     if (!engagement.organizationNumber) {

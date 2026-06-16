@@ -17,12 +17,12 @@ export interface PersonEngagement {
   isSoleTrader?: boolean | null;
 }
 
-export interface BusinessEngagementsApiResponse {
+export interface PersonEngagementsApiResponse {
   data: PersonEngagement[];
   message: string;
 }
 
-export interface LegalEntityAdress {
+export interface LegalEntityAddress {
   addressArea: string | null;
   adressNumber: string | null;
   city: string | null;
@@ -32,7 +32,7 @@ export interface LegalEntityAdress {
 }
 
 export interface BusinessInformation {
-  address: LegalEntityAdress;
+  address: LegalEntityAddress;
 }
 
 export interface BusinessInformationApiResponse {

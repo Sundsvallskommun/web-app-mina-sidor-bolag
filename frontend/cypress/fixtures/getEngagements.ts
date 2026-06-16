@@ -1,7 +1,7 @@
 import { PersonEngagement } from '@data-contracts/backend/data-contracts';
 import { ApiResponse } from '@services/api-service';
 
-export const getBusinessEngagements: ApiResponse<PersonEngagement[]> = {
+export const getEngagements: ApiResponse<PersonEngagement[]> = {
   data: [
     {
       name: 'Styrbjörns båtar',

@@ -2,7 +2,7 @@ import { ENVIRONMENT, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPA
 import { getApiBase } from '@/config/api-config';
 import { LegalEntity2, PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
-import { BusinessInformation } from '@/interfaces/business-engagement';
+import { BusinessInformation } from '@interfaces/legal-entity';
 import { User } from '@/interfaces/users.interface';
 import ApiService from './api.service';
 import { Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
@@ -27,7 +27,7 @@ const prioritizeEngagements = (engagements: PersonEngagement[]): PersonEngagemen
   );
 };
 
-export const getBusinessEngagements = async (user: User): Promise<PersonEngagement[]> => {
+export const getPersonEngagements = async (user: User): Promise<PersonEngagement[]> => {
   if (!user.personNumber) {
     throw new Error('Bad Request: personalNumber is required');
   }
