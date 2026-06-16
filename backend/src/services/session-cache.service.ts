@@ -43,13 +43,13 @@ export class SessionCacheService {
       const relations = res.data?.customerRelations ?? [];
 
       relations.forEach(r => {
-        if (!this.whitelistedOrgs.has(r.organizationNumber)) return;
-
-        allCustomerNumbers.add(r.customerNumber);
-        allRelations.push({
-          ...r,
-          organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        });
+        if (this.whitelistedOrgs.has(r.organizationNumber)) {
+          allCustomerNumbers.add(r.customerNumber);
+          allRelations.push({
+            ...r,
+            organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
+          });
+        }
       });
     } catch (error) {
       this.handleCustomerRelationsError(error);
@@ -63,15 +63,15 @@ export class SessionCacheService {
         const relations = res.data?.customerRelations ?? [];
 
         relations.forEach(r => {
-          if (!this.whitelistedOrgs.has(r.organizationNumber)) return;
-
-          allCustomerNumbers.add(r.customerNumber);
-          if (!allRelations.some(existing => existing.organizationNumber === r.organizationNumber)) {
-            allRelations.push({
-              customerNumber: r.customerNumber,
-              organizationNumber: r.organizationNumber,
-              organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
-            });
+          if (this.whitelistedOrgs.has(r.organizationNumber)) {
+            allCustomerNumbers.add(r.customerNumber);
+            if (!allRelations.some(existing => existing.organizationNumber === r.organizationNumber)) {
+              allRelations.push({
+                customerNumber: r.customerNumber,
+                organizationNumber: r.organizationNumber,
+                organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
+              });
+            }
           }
         });
       } catch (error) {

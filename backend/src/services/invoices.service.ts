@@ -27,9 +27,9 @@ export default class InvoicesService {
       {
         url,
         params: {
-          customerNumbers: customerNumbers,
+          customerNumbers: customerNumbers.toString(),
           facilityIds: facilityIds,
-          organizationNumber: organizationNumbers,
+          organizationNumber: organizationNumbers.toString(),
           periodFrom: periodFrom,
           status: invoiceStatus,
           page,
