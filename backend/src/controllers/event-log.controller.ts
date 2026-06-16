@@ -46,8 +46,9 @@ class EventLogController {
 
       const res = await this.apiService.get<PageEvent>({ url, params }, req.user);
 
-      for (const event of res.data.content) {
-        const exportedByPartyId = event.metadata.find(item => item.key === 'exportedByPartyId').value;
+      for (const event of res.data.content ?? []) {
+        const exportedByPartyId = event.metadata?.find(item => item.key === 'exportedByPartyId')?.value;
+        if (!exportedByPartyId) continue;
         const url = `citizen/3.0/${MUNICIPALITY_ID}/${exportedByPartyId}`;
         const citizenRes = await this.apiService.get<CitizenExtended>({ url, params }, req.user);
         Object.assign(event, { exportName: `${citizenRes.data.givenname} ${citizenRes.data.lastname}` });
@@ -59,6 +60,7 @@ class EventLogController {
       if (error.status === 404) {
         return { data: {}, message: '404, empty response' };
       } else {
+        logger.error('Could not fetch event logs', error);
         throw new HttpException(500, 'Could not fetch event logs');
       }
     }
