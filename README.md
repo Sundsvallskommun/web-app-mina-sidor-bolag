@@ -12,7 +12,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Invoices          |     8.0 |
 | SimulatorServer   |     2.0 |
 | Customer          |     4.0 |
-| Installedbase     |     3.1 |
+| Installedbase     |     3.2 |
 | Agreement         |     4.1 |
 | MeasurementData   |     3.3 |
 | MyRepresentatives |     4.4 |
