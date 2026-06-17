@@ -55,7 +55,7 @@ import { routingControllersToSpec } from 'routing-controllers-openapi';
 import createFileStore from 'session-file-store';
 import swaggerUi from 'swagger-ui-express';
 import { registerSamlFlow, SamlIdpConfig } from './auth/saml.factory';
-import { adminVerify } from './auth/verify.admin';
+import { adminVerify, adminLoginSuccess } from './auth/verify.admin';
 import { customerLoginSuccess, customerVerify, noopLogoutVerify } from './auth/verify.customer';
 import { deleteAISession } from '@services/selfserviceai.service';
 import { additionalConverters } from '@utils/custom-validation-classes';
@@ -187,6 +187,7 @@ class App {
       config: adminSamlConfig,
       verify: adminVerify,
       logoutVerify: noopLogoutVerify,
+      onLoginSuccess: adminLoginSuccess,
       rateLimiter: samlLimiter,
     });
   }

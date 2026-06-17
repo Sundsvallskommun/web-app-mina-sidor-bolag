@@ -7,7 +7,6 @@ import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Body, Controller, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import impersonationMiddleware from '@middlewares/impersonation.middleware';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
@@ -16,6 +15,8 @@ import { logger } from '@utils/logger';
 import { EventType } from '@/responses/eventlog.response';
 import dayjs from 'dayjs';
 import { Event, PageEvent } from '@/data-contracts/eventlog/data-contracts';
+import { RepresentingMode } from '@interfaces/representing.interface';
+import { populateRepresentingCache } from '@services/session-cache.service';
 
 @Controller()
 @UseBefore(authMiddleware)
@@ -33,8 +34,6 @@ export class ImpersonationController {
     @Body() body: { personNumber: string },
   ): Promise<ApiResponse<UserEngagement>> {
     const { personNumber } = body;
-    const representing = req.session?.representing ?? undefined;
-    const partyId = getRepresentingPartyId(representing);
 
     const userEngagements: UserEngagement = {
       userPersonNumber: '',
@@ -43,7 +42,7 @@ export class ImpersonationController {
       canRepresent: [],
     };
 
-    if (!partyId || !personNumber) {
+    if (!personNumber) {
       throw new HttpException(400, 'Bad Request');
     }
 
@@ -104,18 +103,20 @@ export class ImpersonationController {
   ): Promise<boolean> {
     const { toImpersonatePersonNumber, toImpersonatePartyId, toImpersonateName, accessReason } = body;
     const session = req.session ?? undefined;
-    const partyId = getRepresentingPartyId(session.representing);
 
-    if (!partyId || !toImpersonatePersonNumber || !toImpersonatePartyId || !accessReason) {
+    if (!toImpersonatePersonNumber || !toImpersonateName || !toImpersonatePartyId || !accessReason) {
       throw new HttpException(400, 'Bad Request');
     }
 
     await this.createEvent(req.user, toImpersonatePartyId, accessReason);
 
-    session.representing.PRIVATE = {
-      personNumber: toImpersonatePersonNumber,
-      partyId: toImpersonatePartyId,
-      name: toImpersonateName,
+    session.representing = {
+      mode: RepresentingMode.PRIVATE,
+      PRIVATE: {
+        personNumber: toImpersonatePersonNumber,
+        partyId: toImpersonatePartyId,
+        name: toImpersonateName,
+      },
     };
 
     req.user.partyId = toImpersonatePartyId;
@@ -136,6 +137,7 @@ export class ImpersonationController {
       delegations: [],
     };
 
+    await populateRepresentingCache(req, req.user);
     return true;
   }
 

@@ -2,6 +2,8 @@ import { VerifiedCallback } from '@node-saml/passport-saml';
 import { Profile } from '@interfaces/profile.interface';
 import { User } from '@interfaces/users.interface';
 import { getPermissionsByGroups } from '@/services/authorization.service';
+import { RequestWithUser } from '@interfaces/auth.interface';
+import { RepresentingMode } from '@interfaces/representing.interface';
 
 export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -39,4 +41,8 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   };
 
   done(null, adminUser);
+};
+
+export const adminLoginSuccess = async (req: RequestWithUser): Promise<void> => {
+  req.session.representing = { mode: RepresentingMode.ADMIN };
 };

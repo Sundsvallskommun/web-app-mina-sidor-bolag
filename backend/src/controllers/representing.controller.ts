@@ -96,10 +96,13 @@ export class RepresentingController {
     const representing = req.session?.representing ?? undefined;
 
     if (!representing) {
-      throw new HttpException(403, 'Forbidden');
+      return res.send({
+        data: this.getRepresentingToSend({ mode: undefined } as RepresentingEntity),
+        message: 'success',
+      });
     }
 
-    if (!representing.PRIVATE) {
+    if (representing.mode !== RepresentingMode.ADMIN && !representing.PRIVATE) {
       req.session.representing.PRIVATE = this.getDefaultPRIVATE(req);
     }
 
@@ -120,6 +123,10 @@ export class RepresentingController {
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
   ): Promise<Response<ClientRepresentingApiResponse>> {
+    if (req.user.userType === 'admin' && !req.user.permissions?.isImpersonatingUser) {
+      throw new HttpException(403, 'MISSING_PERMISSIONS');
+    }
+
     const representing = req.session?.representing ?? undefined;
     try {
       await deleteAISession(req);

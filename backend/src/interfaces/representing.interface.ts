@@ -4,6 +4,7 @@ import { ClientBusinessInformation } from './business-engagement';
 export enum RepresentingMode {
   PRIVATE,
   BUSINESS,
+  ADMIN,
 }
 
 export interface RepresentingBusinessEntity extends Pick<PersonEngagement, 'isAuthorizedSignatory'> {

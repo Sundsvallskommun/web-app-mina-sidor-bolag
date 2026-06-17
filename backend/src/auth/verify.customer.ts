@@ -12,6 +12,7 @@ import ApiService from '../services/api.service';
 import { getBusinessEngagements } from '@services/business-engagements.service';
 import getDelegatedFacilities from '../services/delegation.service';
 import { getPermissions } from '@/services/authorization.service';
+import { populateRepresentingCache } from '@services/session-cache.service';
 
 export const customerVerify = (apiService: ApiService) => async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -109,6 +110,7 @@ export const customerLoginSuccess = async (
       console.error('Error fetching delegated facilities:', err);
       return [];
     });
+    await populateRepresentingCache(req, user);
   } catch (error) {
     logger.error(error);
   }

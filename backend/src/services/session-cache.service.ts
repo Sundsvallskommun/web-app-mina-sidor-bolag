@@ -5,6 +5,27 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { MUNICIPALITY_ID } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
 import { logger } from '@/utils/logger';
+import { User } from '@/interfaces/users.interface';
+import { getBusinessEngagements } from '@/services/business-engagements.service';
+import getDelegatedFacilities from '@/services/delegation.service';
+
+export async function populateRepresentingCache(req: RequestWithUser, user: User): Promise<void> {
+  if (!user?.partyId) return;
+
+  req.session.cache ??= {};
+
+  if (user.personNumber) {
+    req.session.representingBusinessChoices = await getBusinessEngagements(user).catch(err => {
+      logger.error('Error fetching business engagements:', err);
+      return [];
+    });
+  }
+
+  req.session.cache.delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+    logger.error('Error fetching delegated facilities:', err);
+    return [];
+  });
+}
 
 export class SessionCacheService {
   private readonly apiService = new ApiService();

@@ -7,15 +7,12 @@ import { capitalize } from 'lodash';
 import { RepresentingMode } from '@interfaces/app';
 import { titleCase } from '@utils/title-caser';
 import { useAppContext } from '@contexts/app.context';
-import { useApi } from '@services/api-service';
-import { User } from '@interfaces/user';
 
 export const UserMenu = () => {
   const { t } = useTranslation('common');
 
   const router = useRouter();
   const { representingMode, representingName: representingLabel } = useAppContext();
-  const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   return (
     <div className="flex" data-cy="user-menu">
@@ -65,20 +62,6 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
-              {user?.extendedView && (
-                <PopupMenu.Item>
-                  <Button
-                    className="!justify-between"
-                    onClick={() => {
-                      router.push('vaxla-anvandare');
-                    }}
-                    data-cy="user-menu-impersonate-user-button"
-                  >
-                    {capitalize(t('common:impersonation'))}
-                    <Icon icon={<ArrowRight />} />
-                  </Button>
-                </PopupMenu.Item>
-              )}
               <PopupMenu.Item>
                 <Button
                   className="!justify-between"

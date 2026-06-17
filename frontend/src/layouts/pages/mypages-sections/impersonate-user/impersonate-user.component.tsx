@@ -126,7 +126,7 @@ export default function ImpersonateUser() {
   const _onSubmit = async (data: ImpersonateFormData) => {
     await impersonateUser(data)
       .then(() => {
-        globalThis.location.assign('/oversikt');
+        globalThis.location.assign('/privat/oversikt');
       })
       .catch(() => {
         toastMessage({
