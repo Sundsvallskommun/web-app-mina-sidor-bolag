@@ -11,8 +11,8 @@ import { User } from '@interfaces/users.interface';
 import ApiService from '../services/api.service';
 import { getBusinessEngagements } from '@services/business-engagements.service';
 import getDelegatedFacilities from '../services/delegation.service';
-import { getPermissions } from '@/services/authorization.service';
 import { populateRepresentingCache } from '@services/session-cache.service';
+import { defaultPermissions } from '@services/authorization.service';
 
 export const customerVerify = (apiService: ApiService) => async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -55,7 +55,7 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
       nameID: profile.nameID,
       nameIDFormat: profile.nameIDFormat,
       sessionIndex: profile.sessionIndex,
-      permissions: await getPermissions(personId),
+      permissions: defaultPermissions(),
     };
 
     const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
@@ -72,7 +72,7 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
     done(null, findUser);
   } catch (err) {
     if (err instanceof HttpException && err?.status === 404) {
-      // TODO: Handle missing person form Citizen?
+      // Handle missing person from Citizen?
     }
     done(err);
   }
@@ -85,7 +85,7 @@ export const customerLoginSuccess = async (
 ): Promise<void> => {
   try {
     if (relay?.representingMode != null) {
-      const mode = Number.parseInt(relay.representingMode, 10) as RepresentingMode;
+      const mode: RepresentingMode = Number.parseInt(relay.representingMode, 10);
       req.session.representing = {
         mode,
         PRIVATE: {
