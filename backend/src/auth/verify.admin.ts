@@ -18,7 +18,7 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   const groups = profile.attributes?.['groups'];
   const displayName = profile.attributes?.['displayName'];
 
-  if (!username) {
+  if (!username || !groups) {
     return done(null, null, {
       name: 'SAML_MISSING_ATTRIBUTES',
       message: 'Missing admin attributes',
