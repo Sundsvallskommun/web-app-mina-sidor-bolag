@@ -1,7 +1,9 @@
 import React from 'react';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { Aggregation, Months } from '@interfaces/measurement-data';
 import { chartColors } from '@utils/chart-colors.const';
+import { isNormalYear } from '@utils/normal-year';
 import { makeMask } from './mask.component';
 
 const LOCALE = 'se';
@@ -149,8 +151,11 @@ interface StandardTooltipProps {
 }
 
 const StandardTooltip: React.FC<StandardTooltipProps> = ({ fromDate, label, aggregatedOn, payload, unit, year }) => {
-  const currYear = dayjs(fromDate).format('YYYY');
-  const prevYear = year?.toString() ?? null;
+  const { t } = useTranslation('statistics');
+  const normalYear = isNormalYear(year?.toString());
+
+  const currentLabel = normalYear ? t('statistics:consumption.totalConsumption') : dayjs(fromDate).format('YYYY');
+  const comparisonLabel = normalYear ? t('statistics:consumption.correctedConsumption') : (year?.toString() ?? null);
 
   const currentValueItem = payload.find((p) => p.name === PAYLOAD_NAMES.CURRENT);
   const previousValueItem = payload.find((p) => p.name === PAYLOAD_NAMES.PREVIOUS);
@@ -161,13 +166,13 @@ const StandardTooltip: React.FC<StandardTooltipProps> = ({ fromDate, label, aggr
 
       {currentValueItem && (
         <p>
-          <strong>{currYear}:</strong> {formatNumber(currentValueItem.value)} {unit}
+          <strong>{currentLabel}:</strong> {formatNumber(currentValueItem.value)} {unit}
         </p>
       )}
 
-      {prevYear && previousValueItem && (
+      {comparisonLabel && previousValueItem && (
         <p>
-          <strong>{prevYear}:</strong> {formatNumber(previousValueItem.payload.previousValue ?? 0)} {unit}
+          <strong>{comparisonLabel}:</strong> {formatNumber(previousValueItem.payload.previousValue ?? 0)} {unit}
         </p>
       )}
     </div>

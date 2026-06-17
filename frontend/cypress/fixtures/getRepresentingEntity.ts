@@ -1,12 +1,12 @@
 import { ApiResponse } from '@services/api-service';
 import { representingModeDefault } from 'cypress/support/e2e';
-import { getBusinessEngagements } from './getBusinessEngagements';
+import { getEngagements } from './getEngagements';
 import { getMe } from './getMe';
 import { RepresentingBusinessEntity, RepresentingEntity } from '@data-contracts/backend/data-contracts';
 
 export const getBusinessRepresentFromEngagements = (index: number = 0): RepresentingBusinessEntity => ({
-  organizationName: getBusinessEngagements.data[index].name ?? 'organizationName',
-  organizationNumber: getBusinessEngagements.data[index].organizationNumber ?? 'organizationNumber',
+  organizationName: getEngagements.data[index].name ?? 'organizationName',
+  organizationNumber: getEngagements.data[index].organizationNumber ?? 'organizationNumber',
   information: {
     address: {
       city: 'city',

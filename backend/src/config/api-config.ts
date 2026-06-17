@@ -26,7 +26,7 @@ export const APIS = [
   },
   {
     name: 'installedbase',
-    version: '3.1',
+    version: '3.2',
   },
   {
     name: 'agreement',
@@ -58,7 +58,7 @@ export const APIS = [
   },
   {
     name: 'eneo-sundsvall',
-    version: '1.1',
+    version: '2.0',
   },
 ] as const;
 

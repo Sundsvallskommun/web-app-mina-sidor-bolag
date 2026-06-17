@@ -47,7 +47,7 @@ function facilityActiveLastThreeYears(installation: InstalledBaseItem): boolean 
 }
 
 function relevantType(installation: InstalledBaseItem): boolean {
-  const relevantTypes: string[] = ['El', 'Elhandel', 'Elproduktion', 'Fjärrvärme'];
+  const relevantTypes: string[] = ['El', 'Elhandel', 'Elproduktion', 'Fjärrvärme', 'Fjärrkyla'];
   return relevantTypes.includes(installation.type);
 }
 

@@ -29,11 +29,9 @@ describe('Statistik', () => {
   };
 
   const emptyStatisticsDataIntercept = () => {
-    cy.intercept(
-      'GET',
-      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
-      { fixture: null }
-    );
+    cy.intercept('GET', `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`, {
+      fixture: null,
+    });
 
     cy.intercept('POST', '**/api/netowner', getNetOwner());
 
@@ -72,6 +70,28 @@ describe('Statistik', () => {
     cy.get('[data-cy="total-consumption-value"]').should('exist');
     cy.get('[data-cy="highest-consumption-value"]').should('exist');
     cy.get('[data-cy="average-consumption-value"]').should('exist');
+  });
+
+  it('shows the streets of the selected facilities, deduplicated', () => {
+    statisticsDataIntercept();
+
+    cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1');
+
+    cy.get('[data-cy="address-select"]').should('exist').click();
+    cy.get('[data-cy="address-select"]')
+      .contains('label', 'Gamla Vägen 42')
+      .find('input[type="checkbox"]')
+      .check({ force: true })
+      .should('be.checked');
+
+    cy.get('[data-cy="facility-select"]').should('exist').click();
+    cy.get('[data-cy="facility-select"]')
+      .contains('label', '444')
+      .find('input[type="checkbox"]')
+      .check({ force: true })
+      .should('be.checked');
+
+    cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1, Gamla Vägen 42');
   });
 
   it('can change category', () => {
@@ -162,6 +182,53 @@ describe('Statistik', () => {
         dayjs(interception.response?.body.data.toDate).format('YYYY')
       );
     });
+  });
+
+  it('can compare district heating consumption against Normalår', () => {
+    statisticsDataIntercept();
+
+    const fromYear = dayjs().startOf('year').format('YYYY-MM-DD');
+    const toYear = dayjs().endOf('year').format('YYYY-MM-DD');
+
+    // District heating in year view aggregates on MONTH and includes the corrected_usage series
+    cy.intercept(
+      'GET',
+      `**/api/measurementdata?category=DISTRICT_HEATING&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`,
+      getStatisticsData(fromYear, toYear, Category.DISTRICT_HEATING, Aggregation.MONTH, '333', true)
+    ).as('getDistrictHeatingYearData');
+
+    // Normalår is only offered for district heating in the year view
+    cy.get('[data-cy="facility-type-Fjärrvärme"]').should('exist').click({ force: true });
+    cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
+
+    cy.get('[data-cy="compare-year-select"]').should('exist').select('normalYear');
+    cy.get('[data-cy="compare-year-select"]').should('have.value', 'normalYear');
+
+    // Both the total and the normalårskorrigerad value are shown, and the chart still renders
+    cy.get('[data-cy="total-consumption-value"]').should('exist');
+    cy.get('[data-cy="corrected-consumption-value"]').should('exist');
+    cy.get('[data-cy="consumption-chart"]').should('exist');
+    cy.contains('Normalårskorrigerad förbrukning').should('exist');
+  });
+
+  it('does not offer Normalår for electricity', () => {
+    statisticsDataIntercept();
+
+    cy.intercept(
+      'GET',
+      `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=MONTH`,
+      getStatisticsData(
+        dayjs().startOf('year').format('YYYY-MM-DD'),
+        dayjs().endOf('year').format('YYYY-MM-DD'),
+        Category.ELECTRICITY,
+        Aggregation.MONTH
+      )
+    );
+
+    // Stay on electricity (explicit, so the test does not rely on the default selection)
+    cy.get('[data-cy="facility-type-Elförbrukning"]').should('exist').click({ force: true });
+    cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
+    cy.get('[data-cy="compare-year-select"] option[value="normalYear"]').should('not.exist');
   });
 
   it('can view export events', () => {
