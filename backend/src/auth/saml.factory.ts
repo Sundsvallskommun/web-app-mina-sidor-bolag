@@ -4,13 +4,12 @@ import { logger } from '@utils/logger';
 import bodyParser from 'body-parser';
 import express from 'express';
 import passport from 'passport';
-import { RequestWithUser } from '../interfaces/auth.interface';
-import { Profile } from '../interfaces/profile.interface';
-import { User } from '../interfaces/users.interface';
-import { isValidOrigin } from '../utils/isValidOrigin';
-import { isValidUrl } from '../utils/util';
+import { RequestWithUser } from '@interfaces/auth.interface';
+import { Profile } from '@interfaces/profile.interface';
+import { User } from '@interfaces/users.interface';
+import { isValidOrigin } from '@utils/isValidOrigin';
+import { isValidUrl } from '@utils/util';
 
-/** Per-IdP configuration — the bits that differ between login flows. */
 export interface SamlIdpConfig {
   callbackUrl: string;
   entryPoint: string;
@@ -26,33 +25,19 @@ export interface SamlIdpConfig {
   logoutRedirect: string;
 }
 
-/** Runs inside `req.logIn` after a successful login. */
-export type PostLoginHook = (
-  req: RequestWithUser,
-  user: User,
-  relay: Record<string, any> | null,
-) => Promise<void>;
+export type PostLoginHook = (req: RequestWithUser, user: User, relay: Record<string, any> | null) => Promise<void>;
 
 export interface SamlFlowOptions {
-  /** Passport strategy name, e.g. 'saml' or 'saml-admin'. */
   strategyName: string;
-  /** Route sub-prefix appended to BASE_URL_PREFIX, e.g. '/saml' or '/saml/admin'. */
   routePrefix: string;
   config: SamlIdpConfig;
   verify: (profile: Profile, done: VerifiedCallback) => void | Promise<void>;
   logoutVerify: (profile: Profile, done: VerifiedCallback) => void | Promise<void>;
-  /** Optional post-login side effects (session caching etc.). */
   onLoginSuccess?: PostLoginHook;
-  /** Optional pre-logout side effects (e.g. clearing an AI session). */
   onLogout?: (req: RequestWithUser) => Promise<unknown>;
   rateLimiter: express.RequestHandler;
 }
 
-/**
- * Builds a passport-saml Strategy for a single IdP, registers it under a unique
- * passport name, and mounts the five SAML routes under the given sub-prefix.
- * Used once per IdP so multiple login flows can coexist.
- */
 export function registerSamlFlow(app: express.Application, opts: SamlFlowOptions): void {
   const { strategyName, routePrefix, config, onLoginSuccess, onLogout, rateLimiter } = opts;
 
@@ -114,7 +99,7 @@ export function registerSamlFlow(app: express.Application, opts: SamlFlowOptions
       req.query.RelayState = req.query.successRedirect;
     }
 
-    if (!req.user || !req.user.nameID || !req.user.nameIDFormat) {
+    if (!req.user?.nameID || !req.user.nameIDFormat) {
       logger.warn('User missing required SAML fields for logout', { user: req.user });
       res.redirect(config.logoutCallbackUrl);
       return;

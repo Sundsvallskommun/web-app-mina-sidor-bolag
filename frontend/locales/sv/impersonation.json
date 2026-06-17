@@ -1,4 +1,7 @@
 {
+  "adminLogin": "Administratörsinloggning",
+  "loginInternalAccount": "Logga in med ditt interna konto.",
+  "loginAsAdmin": "Logga in som administratör",
   "title": "Växla användare",
   "description": "Ange kundens personnummer för att logga in och ta del av kundens Mina sidor.",
   "searchFieldLabel": "Sök personnummer (ååååmmddnnnn)",

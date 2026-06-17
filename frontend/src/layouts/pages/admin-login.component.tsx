@@ -20,8 +20,7 @@ function AdminLogin() {
   const failMessage = searchParams?.get('failMessage');
 
   const onLogin = () => {
-    // NOTE: send admin to login with the internal IdP (separate /saml/admin flow)
-    window.location.assign(`${process.env.NEXT_PUBLIC_API_URL}/saml/admin/login?successRedirect=${appURL()}/admin`);
+    globalThis.location.assign(`${process.env.NEXT_PUBLIC_API_URL}/saml/admin/login?successRedirect=${appURL()}/admin`);
   };
 
   useEffect(() => {
@@ -53,8 +52,8 @@ function AdminLogin() {
           <Main>
             <CenterDiv className="px-0 desktop:px-80 pt-32 pb-40 desktop:pb-56 gap-40">
               <div className="flex flex-col w-full gap-12">
-                <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">Administratörsinloggning</h1>
-                <p className="text-center text-secondary m-0 px-32">Logga in med ditt interna konto.</p>
+                <h1 className="text-center text-h2-sm desktop:text-h2-lg m-0">{t('impersonation:adminLogin')}</h1>
+                <p className="text-center text-secondary m-0 px-32">{t('impersonation:loginInternalAccount')}</p>
               </div>
 
               <div className="flex flex-col w-full gap-16">
@@ -65,7 +64,7 @@ function AdminLogin() {
                   rightIcon={<Icon icon={<ArrowRight />} />}
                   onClick={onLogin}
                 >
-                  Logga in som administratör
+                  {t('impersonation:loginAsAdmin')}
                 </Button>
                 {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
               </div>

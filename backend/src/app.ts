@@ -57,8 +57,8 @@ import swaggerUi from 'swagger-ui-express';
 import { registerSamlFlow, SamlIdpConfig } from './auth/saml.factory';
 import { adminVerify } from './auth/verify.admin';
 import { customerLoginSuccess, customerVerify, noopLogoutVerify } from './auth/verify.customer';
-import { deleteAISession } from './services/selfserviceai.service';
-import { additionalConverters } from './utils/custom-validation-classes';
+import { deleteAISession } from '@services/selfserviceai.service';
+import { additionalConverters } from '@utils/custom-validation-classes';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
