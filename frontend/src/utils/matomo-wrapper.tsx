@@ -1,13 +1,33 @@
 'use client';
 
-import React, { useEffect, Fragment, useState } from 'react';
+import React, { useEffect, Fragment, Suspense, useState } from 'react';
 import { push, trackAppRouter } from '@socialgouv/matomo-next';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 import { useLocalStorageValue } from '@react-hookz/web';
 import { appURL } from './app-url';
 
-export function MatomoWrapper({ children }: { children?: React.ReactNode }) {
+function MatomoRouteTracker() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const searchParamsString = searchParams.toString();
+
+  useEffect(() => {
+    if (!pathname) return;
+    const url = appURL() + pathname + (searchParamsString ? '?' + searchParamsString : '');
+    push(['setCustomUrl', url]);
+    push(['trackPageView']);
+    push(['enableLinkTracking']);
+  }, [pathname, searchParamsString]);
+
+  return null;
+}
+
+interface MatomoWrapperProps {
+  children?: React.ReactNode;
+}
+
+export function MatomoWrapper({ children }: MatomoWrapperProps) {
   const localstorageKey = 'matomoIsActive';
   const { value: matomo } = useLocalStorageValue(localstorageKey, {
     defaultValue: false,
@@ -30,18 +50,10 @@ export function MatomoWrapper({ children }: { children?: React.ReactNode }) {
     }
   }, [MATOMO_SITE_ID, MATOMO_URL, haveInit, matomo]);
 
-  // Track page view on route change (App Router does not full-reload between pages)
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const searchParamsString = searchParams.toString();
-
-  useEffect(() => {
-    if (!pathname) return;
-    const url = appURL() + pathname + (searchParamsString ? '?' + searchParamsString : '');
-    push(['setCustomUrl', url]);
-    push(['trackPageView']);
-    push(['enableLinkTracking']);
-  }, [pathname, searchParamsString]);
-
-  return <Fragment>{children}</Fragment>;
+  return (
+    <Fragment>
+      <Suspense fallback={null}>{matomo && <MatomoRouteTracker />}</Suspense>
+      {children}
+    </Fragment>
+  );
 }
