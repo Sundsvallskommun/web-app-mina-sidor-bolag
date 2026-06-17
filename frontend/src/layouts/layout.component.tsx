@@ -1,12 +1,12 @@
 'use client';
 import { useLocalStorageValue } from '@react-hookz/web';
-import { CookieConsent, Footer } from '@sk-web-gui/react';
+import { CookieConsent, CookieConsentUtils, Footer } from '@sk-web-gui/react';
 import Head from 'next/head';
 import { NextLink } from '@sk-web-gui/next';
 import { Logotypes } from '@components/logotypes/logotypes.component';
 import { CustomerRelation } from '@data-contracts/customer/data-contracts';
 import { useApi } from '@services/api-service';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { CornerAssistant } from '@components/corner-assistant/corner-assistant.component';
 import { User } from '@interfaces/user';
@@ -14,6 +14,10 @@ import { User } from '@interfaces/user';
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
   const { t } = useTranslation(['common', 'layout', 'organization', 'cookies']);
+
+  useEffect(() => {
+    setMatomo(CookieConsentUtils.getConsent().includes('stats'));
+  }, [setMatomo]);
 
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
