@@ -11,7 +11,7 @@ export default function Overview() {
     <div>
       <Consumption />
       <Todos />
-      <OngoingDisturbances />
+      {process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES === 'true' ? <OngoingDisturbances /> : null}
       <Announcements />
       <ContactSettingsConfirmation />
     </div>

@@ -12,7 +12,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Invoices          |     8.0 |
 | SimulatorServer   |     2.0 |
 | Customer          |     4.0 |
-| Installedbase     |     3.1 |
+| Installedbase     |     3.2 |
 | Agreement         |     4.1 |
 | MeasurementData   |     3.3 |
 | MyRepresentatives |     4.4 |
@@ -20,8 +20,8 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | Eventlog          |     2.3 |
 | BFUS              |   1.0.0 |
 | SelfServiceAI     |     2.0 |
-| Eneo-Sundsvall    |     1.1 |
 | ActiveDirectory   |     2.0 |
+| Eneo-Sundsvall    |     2.0 |
 
 Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 

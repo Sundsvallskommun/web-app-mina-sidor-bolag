@@ -1,12 +1,13 @@
 'use client';
 
-import { Pagination, SearchField, Select, Spinner } from '@sk-web-gui/react';
+import { Pagination, Select, Spinner } from '@sk-web-gui/react';
 import { AgreementListItem } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/agreement-list-item.component';
 import React, { useMemo, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { getCategoryAsNumber, pagedAgreementsWithMetaHandler } from '@services/agreement-service';
 import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
 import { useTranslation } from 'react-i18next';
+import AgreementsFilter from '@components/agreements-filter/agreements-filter.component';
 
 export default function PagedAgreements() {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -60,15 +61,11 @@ export default function PagedAgreements() {
     data && agreements && !isFetching ? (
       <div>
         {Object.keys(agreements).length > 1 && (
-          <SearchField
-            className="mb-40 max-w-[520px]"
-            size="md"
-            value={term}
-            onChange={onChangeHandler}
-            onReset={onResetHandler}
-            showSearchButton={false}
+          <AgreementsFilter
+            term={term}
             placeholder={t('agreement:searchFacility')}
-            data-cy="agreement-search-field"
+            changeHandler={onChangeHandler}
+            resethandler={onResetHandler}
           />
         )}
 

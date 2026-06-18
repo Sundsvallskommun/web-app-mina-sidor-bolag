@@ -9,6 +9,7 @@
     "ELECTRICITY": "Elförbrukning",
     "ELECTRICITY_PRODUCTION": "Elproduktion",
     "DISTRICT_HEATING": "Fjärrvärme",
+    "DISTRICT_COOLING": "Fjärrkyla",
     "ELECTRICITY_TRADE": "Elhandel",
     "COMMUNICATION": "Bredband"
   },
@@ -16,6 +17,7 @@
     "Elförbrukning": "ELECTRICITY",
     "Elproduktion": "ELECTRICITY_PRODUCTION",
     "Fjärrvärme": "DISTRICT_HEATING",
+    "Fjärrkyla": "DISTRICT_COOLING",
     "Bredband": "COMMUNICATION"
   },
   "aggregation": {
@@ -23,7 +25,7 @@
     "DAY": "Dag",
     "MONTH": "Månad",
     "YEAR": "År",
-    "QUARTERLY": "Kvartal"
+    "QUARTER": "Kvartal"
   },
   "timePeriod": "Tidsperiod",
   "aggregateOn": "Tidsupplösning",

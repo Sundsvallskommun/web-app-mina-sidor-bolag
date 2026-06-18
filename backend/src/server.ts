@@ -1,5 +1,5 @@
 import App from '@/app';
-import { BusinessEngagementController } from '@controllers/business-engagement.controller';
+import { LegalEntityController } from '@controllers/legal-entity.controller';
 import { IndexController } from '@controllers/index.controller';
 import { NotificationsController } from '@controllers/notifications.controller';
 import { RepresentingController } from '@controllers/representing.controller';
@@ -26,7 +26,7 @@ validateEnv();
 
 const app = new App([
   IndexController,
-  BusinessEngagementController,
+  LegalEntityController,
   RepresentingController,
   UserController,
   NotificationsController,

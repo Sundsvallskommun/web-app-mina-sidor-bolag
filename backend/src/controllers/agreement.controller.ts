@@ -18,7 +18,12 @@ function activeAgreement(agreement: Agreement): boolean {
   return dayjs(agreement.toDate).isAfter(dayjs()) || typeof agreement.toDate === 'undefined';
 }
 
-const relevantCategories: Category[] = [Category.ELECTRICITY, Category.ELECTRICITY_TRADE, Category.DISTRICT_HEATING];
+const relevantCategories: Category[] = [
+  Category.ELECTRICITY,
+  Category.ELECTRICITY_TRADE,
+  Category.DISTRICT_HEATING,
+  Category.DISTRICT_COOLING,
+];
 
 @Controller()
 export class AgreementController {
@@ -51,6 +56,34 @@ export class AgreementController {
     return { data, message: 'success' };
   }
 
+  private async handleAgreementsRequest(
+    req: RequestWithUser,
+    page: number | undefined,
+    limit: number | undefined,
+    includeInactive: boolean,
+  ): Promise<ApiResponse<Agreement[] | PagedAgreementsResult>> {
+    if (page === undefined) {
+      return this.fetchAgreements(req, includeInactive);
+    }
+
+    const { partyId, partyIdList, delegations } = this.getSessionData(req);
+    if (!partyId) {
+      throw new HttpException(400, 'No partyId found');
+    }
+
+    const data = await fetchPagedAgreements(
+      partyId,
+      partyIdList,
+      delegations,
+      req.user,
+      page,
+      limit ?? 100,
+      relevantCategories,
+      includeInactive,
+    );
+    return { data, message: 'success' };
+  }
+
   @Get('/paged/agreements')
   @OpenAPI({ summary: 'Get agreements by party id' })
   @UseBefore(authMiddleware)
@@ -59,33 +92,18 @@ export class AgreementController {
     @QueryParam('page') page?: number,
     @QueryParam('limit') limit?: number,
   ): Promise<ApiResponse<Agreement[] | PagedAgreementsResult>> {
-    if (page !== undefined) {
-      const { partyId, partyIdList, delegations } = this.getSessionData(req);
-
-      if (!partyId) {
-        throw new HttpException(400, 'No partyId found');
-      }
-
-      const data = await fetchPagedAgreements(
-        partyId,
-        partyIdList,
-        delegations,
-        req.user,
-        page,
-        limit ?? 100,
-        relevantCategories,
-      );
-      return { data, message: 'success' };
-    }
-
-    return this.fetchAgreements(req, false);
+    return this.handleAgreementsRequest(req, page, limit, false);
   }
 
   @Get('/paged/all-agreements')
   @OpenAPI({ summary: 'Get all agreements (active and inactive) by party id' })
   @UseBefore(authMiddleware)
-  async getAllAgreements(@Req() req: RequestWithUser): Promise<ApiResponse<Agreement[]>> {
-    return this.fetchAgreements(req, true);
+  async getAllAgreements(
+    @Req() req: RequestWithUser,
+    @QueryParam('page') page?: number,
+    @QueryParam('limit') limit?: number,
+  ): Promise<ApiResponse<Agreement[] | PagedAgreementsResult>> {
+    return this.handleAgreementsRequest(req, page, limit, true);
   }
 
   @Get('/agreement/:category/:facilityId')

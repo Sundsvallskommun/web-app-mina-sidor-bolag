@@ -2,18 +2,24 @@
 
 import { FormProvider, useForm } from 'react-hook-form';
 import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
+import { StatisticsFilterMobile } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter-mobile.component';
+import { StatisticsFilterMode } from '@layouts/pages/mypages-sections/statistics/statistics-filter/use-statistics-filter';
+import { FacilityType } from '@utils/facility';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
 import React, { useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { Button, Modal, Spinner } from '@sk-web-gui/react';
+import { Button, Icon, Modal, Spinner } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
+import { ListFilter } from 'lucide-react';
+import { usePagedAgreements } from '@utils/use-paged-agreements.hook';
 
 export interface StatisticsForm {
   category: string;
-  facilityId?: string;
-  address: string;
+  facilityType?: FacilityType;
+  facilityIds?: string[];
+  addresses?: string[];
   fromDate: string;
   toDate: string;
   /** four digit string */
@@ -24,6 +30,7 @@ export interface StatisticsForm {
   selectedDay?: string;
   year?: string;
   isHourQuarter?: boolean;
+  mode: StatisticsFilterMode;
 }
 
 export default function Statistics() {
@@ -35,6 +42,7 @@ export default function Statistics() {
     defaultValues: {
       category: '',
       isHourQuarter: false,
+      mode: 'day',
     },
   });
 
@@ -44,6 +52,8 @@ export default function Statistics() {
     queryKey: ['user'],
   });
 
+  const { agreements: allAgreements, isDone, currentPage, totalPages } = usePagedAgreements(200, true);
+
   const openHandler = () => {
     setIsOpen(true);
   };
@@ -52,12 +62,16 @@ export default function Statistics() {
     setIsOpen(false);
   };
 
+  const statisticsFilter = (
+    <StatisticsFilter closeHandler={closeHandler} allAgreements={{ isDone, currentPage, totalPages }} />
+  );
+
   return (
     <div>
       <FormProvider {...context}>
         <div className="md:flex md:justify-between">
-          <h1 className="mb-40">{t('statistics:title')}</h1>
-          <Button className="sm:hidden block" onClick={openHandler}>
+          <h1 className="mb-64">{t('statistics:title')}</h1>
+          <Button size="md" className="sm:hidden" onClick={openHandler} leftIcon={<Icon icon={<ListFilter />} />}>
             {t('statistics:filter')}
           </Button>
         </div>
@@ -67,24 +81,21 @@ export default function Statistics() {
             <Spinner className="mx-auto" />
           ) : (
             <>
-              <div className="sm:block hidden">
-                <StatisticsFilter closeHandler={closeHandler} />
-              </div>
-
-              <Charts />
+              <div className="sm:block hidden">{statisticsFilter}</div>
+              <Charts allAgreements={allAgreements} isAllAgreementsDone={isDone} />
             </>
           )}
         </form>
 
         <Modal
-          className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards"
+          className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95vh]"
           disableCloseOutside={true}
           show={isOpen}
           onClose={closeHandler}
-          label="Filtrera"
+          label={t('statistics:toFilter')}
         >
-          <Modal.Content>
-            <StatisticsFilter closeHandler={closeHandler} />
+          <Modal.Content className="overflow-y-auto">
+            <StatisticsFilterMobile closeHandler={closeHandler} />
           </Modal.Content>
         </Modal>
       </FormProvider>

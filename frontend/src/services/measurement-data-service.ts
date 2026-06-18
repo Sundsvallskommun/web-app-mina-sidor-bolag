@@ -11,6 +11,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
 import { toFixedNumber } from '@react-stately/utils';
 import { TFunction } from 'i18next';
+import { CORRECTED_USAGE_TYPE } from '@utils/normal-year';
 
 export const handleMeasurementDataByMonthResponse = (
   data: Data,
@@ -70,9 +71,15 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     return newPoints;
   };
 
-  const measurementData = data?.measurementSeries?.filter((measurement) => measurement.unit === 'kWh') ?? [];
+  const measurementData =
+    data?.measurementSeries?.filter(
+      (measurement) => measurement.unit === 'kWh' && measurement.measurementType !== CORRECTED_USAGE_TYPE
+    ) ?? [];
   measurementData.forEach(addTimestamps);
   measurementData.forEach(addQuarterValues);
+
+  const correctedUsageData =
+    data?.measurementSeries?.filter((measurement) => measurement.measurementType === CORRECTED_USAGE_TYPE) ?? [];
 
   const peakHourUsage =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'Peakhourusage') ?? [];
@@ -93,6 +100,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     formattedDate: getFormattedDate(data?.aggregateOn, data.fromDate),
     aggregatedOn: data?.aggregateOn,
     measurementData: measurementData,
+    correctedUsageData: correctedUsageData,
     peakHourUsage: peakHourUsage,
     temperatureData: temperatureData,
     totalConsumption: calculateTotalConsumption(measurementData),
@@ -104,22 +112,20 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
 export const statisticsMeasurementDataHandler = (data: Data) => handleStatisticsMeasurementDataResponse(data);
 
-export const getCategoryFromFacilityType = (
-  facilities: InstalledBaseItem[] | undefined,
-  facilityId: string
-): string => {
-  const type =
-    facilities?.find((facility) => facility?.facilityId === facilityId && facility.type !== 'Elhandel')?.type ?? '';
-
-  if (type === 'El') {
-    return 'Elförbrukning';
-  }
-
-  return type;
-};
-
 export const getAreaFromFacility = (facilities: InstalledBaseItem[] | undefined, facilityId: string): string => {
   return facilities?.find((facility) => facility?.facilityId === facilityId)?.address?.city?.toLowerCase() ?? '';
+};
+
+export const getAddressesFromFacilities = (
+  facilities: InstalledBaseItem[] | undefined,
+  facilityIds: string[] | undefined
+): string[] => {
+  const ids = new Set(facilityIds ?? []);
+  const streets = (facilities ?? [])
+    .filter((facility) => facility?.facilityId && ids.has(facility.facilityId))
+    .map((facility) => facility?.address?.street)
+    .filter((street): street is string => !!street);
+  return Array.from(new Set(streets));
 };
 
 export const calculateYearDifference = (current: number | undefined, previous: number | undefined) => {
@@ -343,6 +349,12 @@ export const mergeMeasurementDataSets = (
     };
   }
 };
+
+export const mergeCorrectedUsageDataSets = (
+  current: StatisticsMeasurementData,
+  fromDate: string
+): MergedStatisticsMeasurementData | undefined =>
+  mergeMeasurementDataSets(current, { ...current, measurementData: current.correctedUsageData }, fromDate);
 
 export const mergeTemperatureDataSets = (
   current: StatisticsMeasurementData,

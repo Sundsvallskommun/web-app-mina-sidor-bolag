@@ -158,8 +158,16 @@ export const getStatisticsData: (
   toDate: string,
   category: Category,
   aggregateOn: Aggregation,
-  facilityId?: string
-) => ApiResponse<Data> = (fromDate, toDate, category, aggregateOn, facilityId = '111') => ({
+  facilityId?: string,
+  includeCorrectedUsage?: boolean
+) => ApiResponse<Data> = (
+  fromDate,
+  toDate,
+  category,
+  aggregateOn,
+  facilityId = '111',
+  includeCorrectedUsage = false
+) => ({
   data: {
     category: category,
     facilityId: [facilityId],
@@ -177,6 +185,16 @@ export const getStatisticsData: (
         measurementType: 'outdoor_temperature',
         measurementPoints: generateStatisticsData(fromDate, aggregateOn),
       },
+      // Normalårskorrigerad förbrukning — only delivered for district heating
+      ...(includeCorrectedUsage
+        ? [
+            {
+              unit: 'kWh',
+              measurementType: 'corrected_usage',
+              measurementPoints: generateStatisticsData(fromDate, aggregateOn),
+            },
+          ]
+        : []),
     ],
   },
   message: 'success',

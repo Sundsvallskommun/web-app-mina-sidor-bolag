@@ -1,6 +1,6 @@
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { ClientRepresentingApiResponse } from '@/responses/representing.response';
-import { getBusinessInformation } from '@/services/business-engagements.service';
+import { getBusinessInformation } from '@services/legal-entity.service';
 import { deleteAISession, startAISession } from '@/services/selfserviceai.service';
 import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
 import { logger } from '@/utils/logger';
@@ -89,7 +89,7 @@ export class RepresentingController {
   @OpenAPI({ summary: 'Return which entity a logged in user represents' })
   @ResponseSchema(ClientRepresentingApiResponse)
   @UseBefore(authMiddleware)
-  async getBussinesEngagments(
+  async getRepresenting(
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
   ): Promise<Response<ClientRepresentingApiResponse>> {
@@ -118,7 +118,7 @@ export class RepresentingController {
   @ResponseSchema(ClientRepresentingApiResponse)
   @OpenAPI({ summary: 'Sets which entity a logged in user represents' })
   @UseBefore(authMiddleware)
-  async postBusinessEngagements(
+  async postRepresenting(
     @Body() selectedRepresenting: RepresentsDto,
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
