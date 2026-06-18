@@ -154,7 +154,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
       <span className="absolute bottom-[100%] left-0 hidden sm:block">
         <strong>kWh</strong>
       </span>
-      <ResponsiveContainer width="100%" height="100%" className="my-56">
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart
           width={1000}
           height={500}

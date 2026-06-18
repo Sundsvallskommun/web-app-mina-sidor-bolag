@@ -68,11 +68,15 @@ export class SelfServiceAiController {
     }
     const url = `${this.eneoApiBase}/conversations/`;
     const responseType = body?.stream ? 'stream' : 'json';
+
+    // Eneo 2.0 requires exactly one of session_id / assistant_id / group_chat_id.
+    // When continuing a session, session_id wins and the others must be dropped.
     const data: ConversationRequest = {
-      ...body,
-      assistant_id,
+      question: body.question,
+      stream: body.stream,
       session_id,
     };
+
     try {
       if (responseType === 'json') {
         const res = await this.apiService.post<QuestionResponse, ConversationRequest>(

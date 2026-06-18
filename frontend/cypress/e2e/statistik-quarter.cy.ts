@@ -4,14 +4,12 @@ import { getStatisticsData } from '../fixtures/getMeasurementData';
 import dayjs from 'dayjs';
 import { Aggregation, Category } from '@interfaces/measurement-data';
 import { getNetOwner } from '../fixtures/getNetOwner';
-import { getMyPagedAgreements } from '../fixtures/getMyPagedAgreements';
 import { isReady } from '../fixtures/ai';
 
 describe('Statistik - QUARTER Aggregation', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
     cy.intercept('GET', '**/api/ai/isReady', isReady(false)).as('AIisReady');
-    cy.intercept('GET', '**/api/paged/all-agreements', getMyPagedAgreements());
   });
 
   it('should render chart with QUARTER aggregation', () => {
@@ -28,19 +26,19 @@ describe('Statistik - QUARTER Aggregation', () => {
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=DAY',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=DAY*',
       getStatisticsData(monthStart, today, Category.ELECTRICITY, Aggregation.DAY)
     );
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=HOUR',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=HOUR*',
       getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.HOUR)
     ).as('hourData');
 
     cy.intercept(
       'GET',
-      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=QUARTER',
+      '**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=QUARTER*',
       getStatisticsData(yesterday, yesterday, Category.ELECTRICITY, Aggregation.QUARTER)
     ).as('quarterData');
 
@@ -48,7 +46,7 @@ describe('Statistik - QUARTER Aggregation', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('contain.text', 'Din statistik');
 
-    cy.get('[data-cy="contract-select"]').should('exist').select(2);
+    cy.get('[data-cy="facility-type-Elförbrukning"]').should('exist').click({ force: true });
 
     // Switch to day view
     cy.get('[data-cy="date-toggle-day-button"]').click();

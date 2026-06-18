@@ -2,7 +2,7 @@ import { ENVIRONMENT, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPA
 import { getApiBase } from '@/config/api-config';
 import { LegalEntity2, PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
-import { BusinessInformation } from '@/interfaces/business-engagement';
+import { BusinessInformation } from '@interfaces/legal-entity';
 import { User } from '@/interfaces/users.interface';
 import ApiService from './api.service';
 import { Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
@@ -27,7 +27,7 @@ const prioritizeEngagements = (engagements: PersonEngagement[]): PersonEngagemen
   );
 };
 
-export const getBusinessEngagements = async (user: User): Promise<PersonEngagement[]> => {
+export const getPersonEngagements = async (user: User): Promise<PersonEngagement[]> => {
   if (!user.personNumber) {
     throw new Error('Bad Request: personalNumber is required');
   }
@@ -64,6 +64,10 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
       res = { data: [] };
     }
   }
+  // TEMP LOGGING
+  logger.info(
+    `engagements: pnrLen=${user.personNumber?.length} pnrTail=${user.personNumber?.slice(-5)} count=${res.data?.length ?? 'null'}`,
+  );
 
   // Add engagements from mandates and just pass if error occurs
   try {
@@ -74,7 +78,12 @@ export const getBusinessEngagements = async (user: User): Promise<PersonEngageme
 
   if (!res.data) return [];
 
-  return prioritizeEngagements(res.data);
+  const prioritized = prioritizeEngagements(res.data);
+
+  // TEMP LOGGING
+  logger.info(`engagements pre-prioritize: ${res.data.length}, post: ${prioritized.length}`);
+
+  return prioritized;
 };
 
 export const getBusinessInformation = async (

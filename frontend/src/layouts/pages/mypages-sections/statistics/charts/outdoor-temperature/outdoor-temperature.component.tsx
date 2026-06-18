@@ -7,6 +7,7 @@ import { useFormContext } from 'react-hook-form';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { isNormalYear } from '@utils/normal-year';
 import { ChartStyleSelector } from '../chart-style-selector.component';
 
 export interface OutdoorTemperatureProps {
@@ -33,7 +34,7 @@ export default function OutdoorTemperature(props: OutdoorTemperatureProps) {
           <div className="md:mt-56 mt-0">
             <div className="md:flex mb-56 md:justify-between">
               <div className="content-center">
-                {getValues().year && current === 0 && (
+                {getValues().year && !isNormalYear(getValues().year) && current === 0 && (
                   <div className="flex md:justify-start justify-center justify-items-center">
                     <div className="flex w-90 items-center md:left">
                       <Divider className="max-w-30 border-2 border-[#600724] dark:border-[#FAE9E7]" />

@@ -1,6 +1,8 @@
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
+import { isNormalYear } from '@utils/normal-year';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDarkMode } from 'usehooks-ts';
 
 interface YearsLegendProps {
@@ -10,12 +12,26 @@ interface YearsLegendProps {
 export function YearsLegend({ data }: YearsLegendProps) {
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
+  const { t } = useTranslation('statistics');
 
-  if (!getValues().year) return null;
+  const year = getValues().year;
+  if (!year) return null;
+
+  const normalYear = isNormalYear(year);
+  const currentLabel = normalYear
+    ? t('statistics:consumption.totalConsumption')
+    : dayjs(data?.measurementData?.[0]?.measurementPoints?.[0]?.timestamp).format('YYYY');
+  const comparisonLabel = normalYear ? t('statistics:consumption.correctedConsumption') : year;
 
   return (
-    <div className="flex md:justify-start justify-center">
-      <div className="flex w-90 md:mx-auto items-center md:left">
+    <div
+      className={
+        normalYear
+          ? 'flex flex-col md:flex-row items-start md:items-center md:justify-start gap-8 md:gap-32'
+          : 'flex md:justify-start justify-center'
+      }
+    >
+      <div className={`flex items-center md:left ${normalYear ? '' : 'w-90 md:mx-auto'}`}>
         <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
           <rect
             width="17"
@@ -26,10 +42,10 @@ export function YearsLegend({ data }: YearsLegendProps) {
             stroke={isDarkMode ? '#FAE9E7' : '#600724'}
           />
         </svg>
-        <p className="pl-8">{dayjs(data?.measurementData?.[0].measurementPoints?.[0].timestamp).format('YYYY')}</p>
+        <p className="pl-8 whitespace-nowrap">{currentLabel}</p>
       </div>
 
-      <div className="flex w-90 items-center">
+      <div className={`flex items-center ${normalYear ? '' : 'w-90'}`}>
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 19 19">
           <rect
             width="17"
@@ -39,7 +55,7 @@ export function YearsLegend({ data }: YearsLegendProps) {
             stroke={isDarkMode ? '#FAE9E7' : '#600724'}
           />
         </svg>
-        <p className="pl-8">{getValues().year}</p>
+        <p className="pl-8 whitespace-nowrap">{comparisonLabel}</p>
       </div>
     </div>
   );

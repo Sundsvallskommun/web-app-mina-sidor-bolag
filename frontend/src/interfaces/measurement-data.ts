@@ -16,6 +16,7 @@ export enum Aggregation {
 }
 
 export enum Category {
+  DISTRICT_COOLING = 'DISTRICT_COOLING',
   DISTRICT_HEATING = 'DISTRICT_HEATING',
   ELECTRICITY = 'ELECTRICITY',
   COMMUNICATION = 'COMMUNICATION',
@@ -74,6 +75,7 @@ export enum MeasurementDataSearchParametersAggregateOnEnum {
 
 export interface StatisticsMeasurementData {
   measurementData: MeasurementSerie[] | undefined;
+  correctedUsageData: MeasurementSerie[] | undefined;
   peakHourUsage: MeasurementSerie[] | undefined;
   temperatureData: MeasurementSerie[] | undefined;
   category: string | undefined;

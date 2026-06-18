@@ -65,13 +65,17 @@ export const useBannerMenuItems = () => {
     >
       {capitalize(t('common:eligibility'))}
     </NextLink>,
-    <NextLink
-      key={`banner-menu-item-7`}
-      className="w-full flex items-center justify-center"
-      href={`${myPagesRoute}/driftinformation`}
-    >
-      {capitalize(t('common:disturbances'))}
-    </NextLink>,
+    ...(process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES === 'true'
+      ? [
+          <NextLink
+            key={`banner-menu-item-7`}
+            className="w-full flex items-center justify-center"
+            href={`${myPagesRoute}/driftinformation`}
+          >
+            {capitalize(t('common:disturbances'))}
+          </NextLink>,
+        ]
+      : []),
   ];
 
   return isMinDesktop ? bannerItems : mobileMenuItems;

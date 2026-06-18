@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ChartStyleSelector } from '../chart-style-selector.component';
 import { TimeIntervalSelector } from '../time-interval-selector.component';
 import dayjs from 'dayjs';
+import { isNormalYear } from '@utils/normal-year';
 
 enum EnumViewMode {
   graph = 'graph',
@@ -22,6 +23,7 @@ enum EnumTimeInterval {
 
 export interface ElectricityConsumptionProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
+  addresses: string[];
   isFetching: boolean;
   isPreviousFetching: boolean;
   updateIsHourQuarter?: (isHourQuarter: boolean) => void;
@@ -29,7 +31,7 @@ export interface ElectricityConsumptionProps {
 
 export default function Consumption(props: ElectricityConsumptionProps) {
   const { setValue, getValues, watch } = useFormContext();
-  const { data, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
+  const { data, addresses, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
   const [viewMode, setViewMode] = useState<EnumViewMode>(EnumViewMode.graph);
   const [timeInterval, setTimeInterval] = useState<EnumTimeInterval>(EnumTimeInterval.hour);
   const { t } = useTranslation('statistics');
@@ -58,17 +60,17 @@ export default function Consumption(props: ElectricityConsumptionProps) {
   return (
     <div>
       <h4>
-        {getValues().category} {data?.formattedDate}
-        {getValues().year && !isFetching ? <> och {getValues().year}</> : ''}
+        {getValues().facilityType} {data?.formattedDate}
+        {getValues().year && !isNormalYear(getValues().year) && !isFetching ? <> och {getValues().year}</> : ''}
       </h4>
-      <p data-cy="address">{getValues().address}</p>
+      <p data-cy="address">{addresses.join(', ')}</p>
       {isFetching || isPreviousFetching ? (
         <Spinner className="mx-auto my-80" />
       ) : data?.measurementData?.[0]?.measurementPoints ? (
-        <div>
+        <div className="flex flex-col gap-56">
           <ConsumptionInformation data={data} />
 
-          <div className="md:flex md:mt-56 mt-0 mb-32 md:justify-between">
+          <div className="flex flex-col-reverse gap-40 md:flex-row md:gap-0 mb-32 md:justify-between">
             {getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter && (
               <div className="content-center">
                 <YearsLegend data={data} />
@@ -82,7 +84,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
                 }
               />
             )}
-            <div className="ml-auto">
+            <div className="md:ml-auto">
               <ChartStyleSelector
                 current={viewMode === EnumViewMode.graph ? 0 : 1}
                 onChangeCurrent={(current) =>
