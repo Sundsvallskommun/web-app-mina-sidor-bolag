@@ -9,10 +9,10 @@ import { Profile } from '@interfaces/profile.interface';
 import { RepresentingMode } from '@interfaces/representing.interface';
 import { User } from '@interfaces/users.interface';
 import ApiService from '../services/api.service';
-import { getBusinessEngagements } from '@services/business-engagements.service';
 import getDelegatedFacilities from '../services/delegation.service';
 import { populateRepresentingCache } from '@services/session-cache.service';
 import { defaultPermissions } from '@services/authorization.service';
+import { getPersonEngagements } from '@services/legal-entity.service';
 
 export const customerVerify = (apiService: ApiService) => async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -96,7 +96,7 @@ export const customerLoginSuccess = async (
       };
     }
 
-    await getBusinessEngagements(user)
+    await getPersonEngagements(user)
       .then(engagements => {
         req.session.representingBusinessChoices = engagements;
       })
