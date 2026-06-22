@@ -15,8 +15,9 @@ describe('Växla användare', () => {
   });
 
   it('can impersonate user', () => {
-    cy.visit('/privat/vaxla-anvandare');
-    cy.get('h1').should('exist').should('contain.text', 'Växla användare');
+    cy.visit('/admin');
+    cy.get('h1').should('exist').should('contain.text', 'Administration');
+    cy.get('button').should('exist').should('contain.text', 'Växla användare').click({ multiple: true });
 
     cy.intercept('POST', '**/api/user-engagements', getUserEngagements).as('getUserEngagements');
     cy.intercept('POST', '**/api/impersonate-user', getMeEmptyUserExtendedView).as('impersonateUser');
@@ -43,11 +44,7 @@ describe('Växla användare', () => {
 
   it('user without permission should not be able to reach /vaxla-anvandare', () => {
     cy.intercept('GET', '**/api/me', getMeEmptyUser);
-    cy.visit('/privat/vaxla-anvandare');
-    cy.get('h1').should('not.contain.text', 'Växla användare');
-
-    cy.get('[data-cy="extended-view-banner"]').should('not.exist');
-    cy.get('[data-cy="user-menu"]').should('exist').contains('Förnamn Efternamn').click();
-    cy.get('[data-cy="user-menu-profile-button"]').should('exist').should('not.have.text', 'Växla användare');
+    cy.visit('/admin');
+    cy.get('h1').should('contain.text', 'Administratörsinloggning');
   });
 });
