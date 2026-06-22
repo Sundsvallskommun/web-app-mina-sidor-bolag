@@ -14,5 +14,7 @@ export const getPermissionsByGroups = async (groups: string[] = []): Promise<Per
   const adminGroup = ADMIN_GROUP.toLowerCase();
   permissions.canImpersonateUser = groupsList.includes(adminGroup);
 
+  console.log('>>>>> PERMISSIONS ', permissions);
+
   return permissions;
 };
