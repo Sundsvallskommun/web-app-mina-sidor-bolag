@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { base64ToBlob, downloadFromObjectUrl } from '@utils/file-download';
 
 interface UsePdfDownloadOptions {
@@ -11,16 +11,11 @@ interface UsePdfDownloadReturn {
   handleFallbackClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
-/**
- * Custom hook for handling PDF downloads with fallback link support.
- * Manages object URL creation, cleanup, and fallback window tracking.
- */
 export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownloadReturn => {
   const [fallbackUrl, setFallbackUrl] = useState<string | null>(null);
   const windowRef = useRef<Window | null>(null);
   const intervalRef = useRef<number | null>(null);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (fallbackUrl) {
@@ -38,7 +33,8 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
         URL.revokeObjectURL(fallbackUrl);
       }
       try {
-        const blob = base64ToBlob(base64Data, 'application/pdf');
+        const mimeType = fileName.toLowerCase().endsWith('.zip') ? 'application/zip' : 'application/pdf';
+        const blob = base64ToBlob(base64Data, mimeType);
         const url = URL.createObjectURL(blob);
         downloadFromObjectUrl(url, fileName);
         setFallbackUrl(url);
