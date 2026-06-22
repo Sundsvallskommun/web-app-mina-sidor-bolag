@@ -13,8 +13,6 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
     });
   }
 
-  console.log('>>>> PROFILE', profile);
-
   const username = profile.attributes?.['userid'];
   const email = profile.attributes?.['email'];
   const groups = profile.attributes?.['groups'];
