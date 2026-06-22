@@ -132,6 +132,8 @@ export const fetchPagedAgreements = async (
     agreements = [...agreements, ...matchedDelegationAgreements];
   }
 
+  agreements.sort((a, b) => (a.siteAddress ?? '').localeCompare(b.siteAddress ?? ''));
+
   return {
     agreements,
     _meta: res.data._meta ?? { page, limit, totalPages: 1 },
