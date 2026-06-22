@@ -75,8 +75,9 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     if (!data?.fromDate || !series?.measurementPoints) {
       return;
     }
-    const from = dayjs(data.fromDate);
-    const to = data.toDate ? dayjs(data.toDate) : undefined;
+    // Compare on day boundaries so a date-only toDate (parsed as midnight) still covers the whole day.
+    const from = dayjs(data.fromDate).startOf('day');
+    const to = data.toDate ? dayjs(data.toDate).endOf('day') : undefined;
     series.measurementPoints = series.measurementPoints.filter((point) => {
       const timestamp = dayjs(point.timestamp);
       return !timestamp.isBefore(from) && !(to && timestamp.isAfter(to));
