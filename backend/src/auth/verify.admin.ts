@@ -13,6 +13,8 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
     });
   }
 
+  console.log('>>>> PROFILE', profile);
+
   const username = profile.attributes?.['username'];
   const email = profile.attributes?.['email'];
   const groups = profile.attributes?.['groups'];
@@ -37,7 +39,7 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
     nameID: profile.nameID,
     nameIDFormat: profile.nameIDFormat,
     sessionIndex: profile.sessionIndex,
-    permissions: await getPermissionsByGroups(groups.split(',').map((g: string) => g.trim())),
+    permissions: await getPermissionsByGroups(groups),
   };
 
   done(null, adminUser);
