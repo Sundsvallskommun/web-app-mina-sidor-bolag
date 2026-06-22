@@ -71,22 +71,39 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     return newPoints;
   };
 
+  const filterPointsToRange: (series: MeasurementSerie) => void = (series) => {
+    if (!data?.fromDate || !series?.measurementPoints) {
+      return;
+    }
+    // Compare on day boundaries so a date-only toDate (parsed as midnight) still covers the whole day.
+    const from = dayjs(data.fromDate).startOf('day');
+    const to = data.toDate ? dayjs(data.toDate).endOf('day') : undefined;
+    series.measurementPoints = series.measurementPoints.filter((point) => {
+      const timestamp = dayjs(point.timestamp);
+      return !timestamp.isBefore(from) && !(to && timestamp.isAfter(to));
+    });
+  };
+
   const measurementData =
     data?.measurementSeries?.filter(
       (measurement) => measurement.unit === 'kWh' && measurement.measurementType !== CORRECTED_USAGE_TYPE
     ) ?? [];
+  measurementData.forEach(filterPointsToRange);
   measurementData.forEach(addTimestamps);
   measurementData.forEach(addQuarterValues);
 
   const correctedUsageData =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === CORRECTED_USAGE_TYPE) ?? [];
+  correctedUsageData.forEach(filterPointsToRange);
 
   const peakHourUsage =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'Peakhourusage') ?? [];
+  peakHourUsage.forEach(filterPointsToRange);
   peakHourUsage.forEach(addTimestamps);
 
   const temperatureData =
     data?.measurementSeries?.filter((measurement) => measurement.measurementType === 'outdoor_temperature') ?? [];
+  temperatureData.forEach(filterPointsToRange);
   temperatureData.forEach(addTimestamps);
 
   temperatureData.forEach((series) =>
