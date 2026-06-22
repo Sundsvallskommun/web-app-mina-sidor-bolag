@@ -3,7 +3,6 @@ import dayjs, { OpUnitType } from 'dayjs';
 import { MeasurementPoints, StatisticsMeasurementData, Aggregation, Data } from '@interfaces/measurement-data';
 import { statisticsMeasurementDataHandler, translateAggregateOn } from '@services/measurement-data-service';
 import { ApiResponse, apiService } from '@services/api-service';
-import { getEventCategory } from '@utils/facility';
 import { CreateLogEventData } from '@interfaces/event';
 import { ExportModalData } from './export-statistics-modal.component';
 import { TFunction } from 'i18next';
@@ -27,7 +26,7 @@ export const buildLogInformation = (modalData: ExportModalData): CreateLogEventD
     facilityAddress: f.address,
     fromDate: dayjs(modalData.fromDate).format(),
     toDate: dayjs(modalData.toDate).format(),
-    category: getEventCategory(modalData.category),
+    category: modalData.category,
     aggregation,
   }));
 };

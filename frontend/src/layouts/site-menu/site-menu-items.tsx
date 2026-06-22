@@ -1,13 +1,13 @@
 'use client';
 
 import { useAppContext } from '@contexts/app.context';
-import { useCombinedBusinessEngagements } from '@services/organisation-service';
+import { useRepresentableEntities } from '@services/organisation-service';
 import { Button, Icon, NavigationBar, PopupMenu, Select, cx, useThemeQueries } from '@sk-web-gui/react';
 import { ArrowRight, ChevronDownCircle } from 'lucide-react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useApi, useApiService } from '../../services/api-service';
-import { getRepresentingModeRoute, newRepresentingModePathname } from '../../utils/representingModeRoute';
+import { useApi, useApiService } from '@services/api-service';
+import { getRepresentingModeRoute, newRepresentingModePathname } from '@utils/representingModeRoute';
 import { toRepresentingLabel } from '@utils/to-representing-label';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -71,7 +71,7 @@ export const MyPagesToggle = () => {
 export const MyPagesBusinessSwitch: React.FC<{ submitCallback?: () => void }> = ({ submitCallback }) => {
   const { setRepresentingName } = useAppContext();
   const { setRepresenting } = useRepresentingSwitch();
-  const { engagements } = useCombinedBusinessEngagements();
+  const { engagements } = useRepresentableEntities();
   const { data: representingEntity } = useApi<RepresentingEntity>({
     url: '/representing',
     method: 'get',

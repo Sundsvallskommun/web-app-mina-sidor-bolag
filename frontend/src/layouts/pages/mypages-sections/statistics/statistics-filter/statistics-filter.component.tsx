@@ -1,214 +1,203 @@
 'use client';
 
-import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { User } from '@interfaces/user';
-import { generateComparableYears } from '@layouts/pages/mypages-sections/statistics/statistics-filter/generateDateLists';
-import { useApi } from '@services/api-service';
-import { Button, FormLabel, NavigationBar, Select } from '@sk-web-gui/react';
-import dayjs from 'dayjs';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, RadioButton } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { useTranslation } from 'react-i18next';
+import { CheckboxDropdown } from './components/checkbox-dropdown.component';
+import { CompareYearSelect } from './components/compare-year-select.component';
+import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
+import { Category } from '@interfaces/measurement-data';
 
 export interface StatisticsFilterProps {
   closeHandler: () => void;
+  allAgreements: {
+    isDone: boolean;
+    currentPage: number;
+    totalPages: number;
+  };
 }
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
-  const searchParams = useSearchParams();
-  const linkedFacilityId = searchParams?.get('installation');
   const { t } = useTranslation(['common', 'statistics']);
+  const { closeHandler, allAgreements } = props;
+  const { watch, setValue } = useFormContext<StatisticsForm>();
+  const mode = watch('mode');
+  const facilityType = watch('facilityType');
+  const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
 
-  const { closeHandler } = props;
-  const { register, watch, setValue } = useFormContext<StatisticsForm>();
-  const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
-  const [mode, setMode] = useState<'day' | 'month' | 'year'>('day');
-  const { address, fromDate, selectedDay, selectedMonth, selectedYear, isHourQuarter } = watch();
+  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
 
-  const { data: user } = useApi<User>({
-    method: 'get',
-    url: '/me',
-    queryKey: ['user'],
-  });
-
-  useEffect(() => {
-    const latestFacility = user?.facilities?.sort((a, b) =>
-      dayjs(a?.facilityCommitmentStartDate).isAfter(dayjs(b?.facilityCommitmentStartDate)) ? -1 : 1
-    )?.[0];
-    const matchingUserAddress = user?.addresses?.find((a) => a.address === latestFacility?.address?.street)?.address;
-    setValue('address', matchingUserAddress ?? user?.addresses?.find((a) => a.address)?.address ?? '');
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  useEffect(() => {
-    const nonTradeFacilities =
-      user?.facilities?.filter(
-        (facility) =>
-          facility?.address?.street === address &&
-          facility.type !== 'Fjärrkyla' &&
-          facility.type !== 'Avfallsvåg' &&
-          facility.type !== 'Elhandel'
-      ) ?? [];
-    const uniqueTradeFacilities =
-      user?.facilities?.filter(
-        (facility) =>
-          facility.type === 'Elhandel' &&
-          facility.address?.street === address &&
-          !nonTradeFacilities?.some((_f) => _f.facilityId === facility.facilityId)
-      ) ?? [];
-    const filteredFacilities = [...nonTradeFacilities, ...uniqueTradeFacilities].sort((a, b) =>
-      (a.type ?? '') > (b.type ?? '') ? 1 : -1
-    );
-    setFacilities(filteredFacilities.reverse());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, user]);
-
-  useEffect(() => {
-    if (facilities) {
-      setValue('facilityId', facilities[0]?.facilityId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [facilities, address]);
-
-  useEffect(() => {
-    if (linkedFacilityId) {
-      const facility = user?.facilities?.find((f) => f.facilityId === linkedFacilityId);
-      if (facility?.address?.street && facility?.facilityId) {
-        setValue('address', facility.address?.street ?? '');
-        setTimeout(() => {
-          setValue('facilityId', facility.facilityId);
-        }, 100);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (mode !== 'day') {
-      setValue('isHourQuarter', false);
-    }
-  }, [mode, setValue]);
-
-  useEffect(() => {
-    const today = dayjs();
-    const yesterday = today.subtract(1, 'day');
-    const y = selectedYear ?? yesterday.format('YYYY');
-    const m = selectedMonth ?? yesterday.format('MM');
-    const d = selectedDay ?? yesterday.format('DD');
-
-    // Clamp the day to the last valid day of the target month so dayjs does not overflow
-    // into the next month (e.g. switching from March 31 to April would otherwise become May 1).
-    const lastDayOfTargetMonth = dayjs(`${y}-${m}-01`).daysInMonth();
-    const clampedDay = String(Math.min(Number(d), lastDayOfTargetMonth)).padStart(2, '0');
-
-    let date = dayjs(`${y}-${m}-${mode === 'day' ? clampedDay : '01'}`);
-    if (date.isAfter(today, 'day')) {
-      date = today;
-    }
-
-    setValue('fromDate', date.startOf(mode).format('YYYY-MM-DD'));
-    setValue('toDate', date.endOf(mode).format('YYYY-MM-DD'));
-
-    setValue('selectedYear', date.format('YYYY'));
-    if (mode === 'month' || mode === 'day') {
-      setValue('selectedMonth', date.format('MM'));
-    }
-    if (mode === 'day') {
-      setValue('selectedDay', date.format('DD'));
-    }
-  }, [mode, selectedDay, selectedMonth, selectedYear, setValue]);
+  const modeOptions: { value: StatisticsFilterMode; label: string }[] = [
+    { value: 'year', label: t('statistics:year') },
+    { value: 'month', label: t('statistics:month') },
+    { value: 'day', label: t('statistics:day') },
+  ];
 
   return (
-    <>
-      <section className="lg:flex lg:justify-between block gap-48 lg:pt-0 pt-24" data-cy="statistics-filter">
-        <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-2/5 lg:pt-0 pt-24">
-          <div className="block w-full">
-            <FormLabel>{t('common:address')}</FormLabel>
-
-            <Select {...register('address')} className="w-full mt-8" data-cy="address-select">
-              {user?.addresses
-                ?.filter((a) => a.address)
-                .sort((a, b) => (a.address > b.address ? 1 : -1))
-                .map((address) => (
-                  <Select.Option key={address.address}>
-                    {address.address ? address.address : t('common:unknownAddress')}
-                  </Select.Option>
+    <div className="flex flex-col gap-40" data-cy="statistics-filter">
+      {/* Row 1: Avtalstyp + show by toggle */}
+      {availableFacilityTypes.length > 1 && (
+        <section className="lg:flex gap-48 lg:pt-0 justify-stretch">
+          <div className="flex flex-col lg:flex-row justify-between items-start w-full lg:pt-0">
+            <div className="flex flex-col gap-12 w-full lg:w-auto">
+              <FormLabel className="text-label-large">{t('statistics:agreementType')}</FormLabel>
+              <div className="flex flex-row items-center gap-16">
+                {availableFacilityTypes.map((type) => (
+                  <RadioButton
+                    key={type}
+                    value={type}
+                    name="facilityType"
+                    checked={facilityType === type}
+                    onChange={() => setValue('facilityType', type)}
+                    data-cy={`facility-type-${type}`}
+                  >
+                    {type}
+                  </RadioButton>
                 ))}
-            </Select>
-          </div>
-
-          <div className="block w-full">
-            <FormLabel>{t('statistics:agreementType')}</FormLabel>
-            <Select {...register('facilityId')} className="w-full mt-8" data-cy="contract-select">
-              {facilities?.map((facility) => {
-                return (
-                  <Select.Option key={facility.facilityId + '-' + facility.type} value={facility.facilityId}>
-                    {facility.type === 'El' ? 'Elförbrukning' : facility.type} ({facility.facilityId})
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </div>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-16 items-end w-full lg:w-1/2 lg:pt-0 pt-16">
-          <div className="lg:pt-0 pt-16 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
-            <div className="block w-full lg:pt-0 pt-16">
-              <FormLabel>{t('statistics:showBy')}</FormLabel>
-              <NavigationBar className="!py-6 bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
-                {[
-                  { value: 'year', label: t('statistics:year') },
-                  { value: 'month', label: t('statistics:month') },
-                  { value: 'day', label: t('statistics:day') },
-                ].map((item, index) => (
-                  <NavigationBar.Item key={index} className="lg:w-auto w-full !p-0 !m-0">
-                    <Button
-                      className="lg:w-auto w-full !h-[12px] !py-0"
-                      size="sm"
-                      inverted={mode === item.value}
-                      onClick={() => {
-                        setMode(item.value as 'year' | 'month' | 'day');
-                      }}
-                      data-cy={`date-toggle-${item.value}-button`}
-                    >
-                      {item.label}
-                    </Button>
-                  </NavigationBar.Item>
-                ))}
-              </NavigationBar>
+              </div>
             </div>
           </div>
-          <div className="lg:flex-[0_0_auto] w-full lg:w-auto">
-            {mode === 'year' && <StatisticsFilterYear />}
-            {mode === 'month' && <StatisticsFilterMonth />}
-            {mode === 'day' && <StatisticsFilterDay />}
+        </section>
+      )}
+
+      {/* Row 2: Address, Facilities, Date picker, Compare year */}
+      <section className="lg:flex lg:justify-between block gap-auto">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-48">
+          <div className="flex flex-col md:flex-row md:items-center flex-1 gap-16">
+            {/* Address dropdown with checkboxes */}
+            <div className="flex flex-col justify-start flex-1 gap-8">
+              <FormLabel className="text-label-large">{t('common:address')}</FormLabel>
+              <div>
+                <CheckboxDropdown
+                  label={t('statistics:selection', {
+                    count: addresses.selected.length,
+                    total: addresses.groups.length,
+                  })}
+                  data-cy="address-select"
+                >
+                  <Checkbox
+                    className="py-8 pr-2"
+                    checked={!addresses.noneChecked}
+                    indeterminate={!addresses.allChecked && !addresses.noneChecked}
+                    onChange={addresses.toggleAll}
+                    data-cy="address-select-all"
+                  >
+                    {t('statistics:selectAll')}
+                  </Checkbox>
+                  <div className="pl-16 flex flex-col gap-4">
+                    {addresses.groups.map((group) => (
+                      <Checkbox
+                        className="py-8 pr-2"
+                        key={group.address}
+                        checked={addresses.isChecked('addresses', group.address)}
+                        onChange={() => addresses.toggle('addresses', group.address)}
+                      >
+                        {group.address || t('common:unknownAddress')}
+                      </Checkbox>
+                    ))}
+                  </div>
+                </CheckboxDropdown>
+              </div>
+              {!allAgreements.isDone && (
+                <div className="flex gap-8 mt-8">
+                  <ProgressBar
+                    current={allAgreements.currentPage}
+                    steps={allAgreements.totalPages}
+                    size="md"
+                    color="vattjom"
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Facility dropdown with checkboxes */}
+            <div className="flex flex-col gap-8 flex-1">
+              <FormLabel className="text-label-large">{t('statistics:facilities')}</FormLabel>
+              <div>
+                <CheckboxDropdown
+                  label={t('statistics:selection', { count: facilities.checked.length, total: facilities.list.length })}
+                  data-cy="facility-select"
+                >
+                  <Checkbox
+                    className="py-8 pr-2"
+                    checked={!facilities.noneChecked}
+                    indeterminate={!facilities.allChecked && !facilities.noneChecked}
+                    onChange={facilities.toggleAll}
+                    data-cy="facility-select-all"
+                  >
+                    {t('statistics:selectAll')}
+                  </Checkbox>
+                  <div className="pl-16 flex flex-col gap-4">
+                    {facilities.list.map((facilityId) => (
+                      <Checkbox
+                        className="py-8 pr-2"
+                        key={facilityId}
+                        checked={facilities.isChecked('facilities', facilityId)}
+                        onChange={() => facilities.toggle('facilities', facilityId)}
+                      >
+                        {facilityId}
+                      </Checkbox>
+                    ))}
+                  </div>
+                </CheckboxDropdown>
+              </div>
+            </div>
           </div>
 
-          {!isHourQuarter && (
-            <div className="w-full lg:w-[115px] lg:pt-0 pt-16 flex-shrink-0">
-              <FormLabel>{t('statistics:compareYear')}</FormLabel>
-              <Select {...register('year')} className="w-full mt-8" data-cy="compare-year-select">
-                <Select.Option key={0} value="">
-                  {t('statistics:chooseYear')}
-                </Select.Option>
-                {generateComparableYears(fromDate).map((y) => (
-                  <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
-                ))}
-              </Select>
+          <div className="flex flex-col md:flex-row md:items-end gap-16">
+            <div className="lg:pt-0 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
+              <div className="flex flex-col gap-8 w-full lg:pt-0">
+                <FormLabel className="text-label-large">{t('statistics:showBy')}</FormLabel>
+                <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
+                  {modeOptions.map((item) => (
+                    <NavigationBar.Item key={item.value} className="lg:w-auto w-full !p-0 !m-0">
+                      <Button
+                        className="lg:w-auto w-full !h-[12px] !py-0"
+                        size="sm"
+                        inverted={mode === item.value}
+                        onClick={() => {
+                          setValue('mode', item.value);
+                        }}
+                        data-cy={`date-toggle-${item.value}-button`}
+                      >
+                        {item.label}
+                      </Button>
+                    </NavigationBar.Item>
+                  ))}
+                </NavigationBar>
+              </div>
             </div>
-          )}
+            <div className="lg:flex-[0_0_auto] w-full lg:w-auto">
+              {mode === 'year' && <StatisticsFilterYear />}
+              {mode === 'month' && <StatisticsFilterMonth />}
+              {mode === 'day' && <StatisticsFilterDay />}
+            </div>
+
+            {!isHourQuarter && (
+              <div className="w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
+                <FormLabel className="text-label-large">{t('statistics:compareYear')}</FormLabel>
+                <CompareYearSelect
+                  fromDate={fromDate}
+                  mode={mode}
+                  isDistrictHeating={isDistrictHeating}
+                  isAggregating={facilities.checked.length > 1}
+                  className="w-full mt-8"
+                  dataCy="compare-year-select"
+                />
+              </div>
+            )}
+          </div>
 
           <Button onClick={closeHandler} className="sm:hidden block w-full lg:w-auto lg:flex-[0_0_auto] mt-48">
             {t('statistics:use')}
           </Button>
         </div>
       </section>
-    </>
+    </div>
   );
 };

@@ -116,12 +116,13 @@ export const userMeta = {
   lastLoginTime: '2002-02-11T09:15:15.628Z',
 };
 
-export const businessEngagements = {
+export const engagements = {
   engagements: [
     {
-      organizationName: 'organizationName',
+      name: 'organizationName',
       organizationNumber: 'organizationNumber',
-      organizationId: 'organizationId',
+      isAuthorizedSignatory: true,
+      isSoleTrader: false,
     },
   ],
 };

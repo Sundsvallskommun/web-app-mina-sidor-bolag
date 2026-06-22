@@ -6,7 +6,7 @@ import { useAppContext } from '@contexts/app.context';
 import { EntryLayout } from '@layouts/entry-layout.component';
 import Main from '@layouts/main.component';
 import { useRepresentingSwitch } from '@layouts/site-menu/site-menu-items';
-import { useCombinedBusinessEngagements } from '@services/organisation-service';
+import { useRepresentableEntities } from '@services/organisation-service';
 import { Button, Icon, Pagination, RadioButton, Spinner, Table, cx, useThemeQueries } from '@sk-web-gui/react';
 import { getAdjustedPathname, getRepresentingModeRoute } from '@utils/representingModeRoute';
 import { ArrowRight } from 'lucide-react';
@@ -25,7 +25,7 @@ export default function ValjForetag() {
   const searchParams = useSearchParams();
   const { t } = useTranslation();
 
-  const { engagements, engagementsIsLoading } = useCombinedBusinessEngagements();
+  const { engagements, engagementsIsLoading } = useRepresentableEntities();
   const { setRepresenting } = useRepresentingSwitch();
 
   const [choosen, setChoosen] = useState('');

@@ -7,7 +7,7 @@ import {
   RefinedAgreement,
 } from '@interfaces/agreement';
 
-const visibleCategories = ['ELECTRICITY', 'ELECTRICITY_TRADE', 'DISTRICT_HEATING'];
+const visibleCategories = ['ELECTRICITY', 'ELECTRICITY_TRADE', 'DISTRICT_HEATING', 'DISTRICT_COOLING'];
 
 export const agreementCategories = {
   DISTRICT_COOLING: { label: 'Fjärrkyla', color: 'vattjom', icon: 'snowflake', contractor: 'Sundsvall energi' },

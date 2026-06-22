@@ -5,6 +5,7 @@ import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/cus
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
+import { isNormalYear } from '@utils/normal-year';
 
 export interface OutdoorTemperatureChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -71,7 +72,7 @@ export const OutdoorTemperatureChart = (props: OutdoorTemperatureChartProps) => 
               strokeWidth={2}
               dot={false}
             />
-            {getValues().year && (
+            {getValues().year && !isNormalYear(getValues().year) && (
               <Line
                 type="monotone"
                 dataKey="previousValue"

@@ -2,7 +2,9 @@ import React from 'react';
 import { Icon } from '@sk-web-gui/react';
 import { BarChart, ChartNoAxesCombined, TrendingUp, Zap } from 'lucide-react';
 import { StatisticsMeasurementData } from '@interfaces/measurement-data';
-import { translateAggregateOn } from '@services/measurement-data-service';
+import { calculateTotalConsumption, translateAggregateOn } from '@services/measurement-data-service';
+import { FacilityTypeName } from '@utils/facility';
+import { isNormalYear } from '@utils/normal-year';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -10,10 +12,42 @@ export interface ConsumptionInformationProps {
   data: StatisticsMeasurementData | undefined;
 }
 
-export default function ConsumptionInformation(props: ConsumptionInformationProps) {
+export default function ConsumptionInformation(props: Readonly<ConsumptionInformationProps>) {
   const { data } = props;
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
+
+  if (data && isNormalYear(getValues().year)) {
+    return (
+      <div className="lg:flex block pt-56">
+        <div className="flex-1 border-divider lg:pr-40 lg:border-b-0 border-b-1 lg:py-0 py-16">
+          <div className="flex items-center pb-12">
+            <Icon icon={<BarChart />} size={22} />
+            <p className="text-secondary pl-8">
+              {t('statistics:consumption.total', { label: t('statistics:consumption.consumption') })}
+            </p>
+          </div>
+          <h4 data-cy="total-consumption-value">
+            {t('statistics:consumption.amount', { consumption: data.totalConsumption })}
+          </h4>
+          <p className="capitalize">{data.formattedDate}</p>
+        </div>
+
+        <div className="flex-1 border-divider lg:border-l-1 lg:border-b-0 border-l-0 lg:pl-40 lg:py-0 py-16">
+          <div className="flex items-center pb-12">
+            <Icon icon={<BarChart />} size={22} />
+            <p className="text-secondary pl-8">{t('statistics:consumption.correctedConsumption')}</p>
+          </div>
+          <h4 data-cy="corrected-consumption-value">
+            {t('statistics:consumption.amount', {
+              consumption: calculateTotalConsumption(data.correctedUsageData),
+            })}
+          </h4>
+          <p className="capitalize">{data.formattedDate}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     data && (
@@ -24,7 +58,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
             <p className="text-secondary pl-8">
               {t('statistics:consumption.total', {
                 label:
-                  getValues().category === t('statistics:consumption.electricityProduction')
+                  getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
                     ? t('statistics:consumption.production')
                     : t('statistics:consumption.consumption'),
               })}
@@ -43,7 +77,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
               <p className="text-secondary pl-8">
                 {t('statistics:consumption.highest', {
                   label:
-                    getValues().category === t('statistics:consumption.electricityProduction')
+                    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
                       ? t('statistics:consumption.production')
                       : t('statistics:consumption.consumption'),
                 })}
@@ -63,7 +97,7 @@ export default function ConsumptionInformation(props: ConsumptionInformationProp
               <p className="text-secondary pl-8">
                 {t('statistics:consumption.average', {
                   label:
-                    getValues().category === t('statistics:consumption.electricityProduction')
+                    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
                       ? t('statistics:consumption.production')
                       : t('statistics:consumption.consumption'),
                 })}

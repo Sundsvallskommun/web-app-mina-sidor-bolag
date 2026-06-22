@@ -18,33 +18,30 @@ export const emptyOrganisationInfo: OrganisationInfo = {
   },
 };
 
-interface BusinessToRepresent extends PersonEngagement {
+interface RepresentableEntity extends PersonEngagement {
   isRepresentative: boolean;
 }
 
-const combineAllBusinessToRepresent = (
-  businessEngagements?: PersonEngagement[],
-  businessRepresentatives?: PersonEngagement[]
-) =>
-  (businessEngagements?.map((x) => ({ ...x, isRepresentative: false })) ?? []).concat(
+const combineRepresentableEntities = (engagements?: PersonEngagement[], businessRepresentatives?: PersonEngagement[]) =>
+  (engagements?.map((x) => ({ ...x, isRepresentative: false })) ?? []).concat(
     businessRepresentatives?.map((x) => ({ ...x, isRepresentative: true })) ?? []
   );
 
-export const useCombinedBusinessEngagements = () => {
-  const { data: businessEngagements, isLoading: businessEngagementsIsLoading } = useApi<PersonEngagement[]>({
-    url: '/businessengagements',
+export const useRepresentableEntities = () => {
+  const { data: representingEngagements, isLoading: representingEngagementsIsLoading } = useApi<PersonEngagement[]>({
+    url: '/engagements',
     method: 'get',
   });
 
-  const [engagements, setEngagements] = useState<BusinessToRepresent[]>(
-    combineAllBusinessToRepresent(businessEngagements)
+  const [engagements, setEngagements] = useState<RepresentableEntity[]>(
+    combineRepresentableEntities(representingEngagements)
   );
 
   useEffect(() => {
-    setEngagements(combineAllBusinessToRepresent(businessEngagements));
-  }, [businessEngagements]);
+    setEngagements(combineRepresentableEntities(representingEngagements));
+  }, [representingEngagements]);
   return {
     engagements: engagements,
-    engagementsIsLoading: businessEngagementsIsLoading,
+    engagementsIsLoading: representingEngagementsIsLoading,
   };
 };

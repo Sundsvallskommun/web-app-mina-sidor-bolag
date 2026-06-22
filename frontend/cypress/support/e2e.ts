@@ -1,7 +1,7 @@
 import '@cypress/code-coverage/support';
 
 import { CookieConsentUtils } from '@sk-web-gui/react';
-import { getBusinessEngagements } from 'cypress/fixtures/getBusinessEngagements';
+import { getEngagements } from '../fixtures/getEngagements';
 import { getContactSettings } from 'cypress/fixtures/getContactSettings';
 import { getRepresentingEntity } from 'cypress/fixtures/getRepresentingEntity';
 import { getMe } from '../fixtures/getMe';
@@ -44,7 +44,7 @@ export const setIntercepts = (
 ) => {
   cy.intercept('GET', '**/api/me', getMe).as('getUser');
   interceptRepresentingMode(representingMode, businessIndex);
-  cy.intercept('GET', '**/api/businessengagements', getBusinessEngagements).as('getBusinessEngagements');
+  cy.intercept('GET', '**/api/engagements', getEngagements).as('getEngagements');
   cy.intercept('GET', '**/api/myrelations', getMyRelations).as('getMyRelations');
   cy.intercept('GET', '**/api/paged/agreements', getMyPagedAgreements()).as('getMyPagedAgreements');
   cy.intercept('GET', '**/api/paged/agreements?page=*', {
@@ -54,6 +54,13 @@ export const setIntercepts = (
     },
     message: 'success',
   }).as('getMyPagedAgreementsPages');
+  cy.intercept('GET', '**/api/paged/all-agreements?page=*', {
+    data: {
+      agreements: getMyPagedAgreements().data,
+      _meta: { page: 1, limit: 100, totalPages: 1 },
+    },
+    message: 'success',
+  }).as('getMyPagedAllAgreementsPages');
   cy.intercept('GET', '**/api/contactsettings', getContactSettings(representingMode)).as('getContactSettings');
 
   cy.intercept('GET', '**/api/delegates', getDelegates()).as('getDelegates');

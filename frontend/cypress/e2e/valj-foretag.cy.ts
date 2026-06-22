@@ -12,11 +12,13 @@ describe('Valj företag', () => {
     ).as('getRepresenting');
     cy.visit('/foretag/valj-foretag');
   });
+
   it('should render #content and h1', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('exist');
   });
-  it('choosing a businessengagement should redirect', () => {
+
+  it('choosing an engagement should redirect', () => {
     setIntercepts(RepresentingMode.BUSINESS);
 
     cy.contains('Styrbjörns båtar').click();
@@ -24,8 +26,9 @@ describe('Valj företag', () => {
     cy.url().should('include', '/foretag/oversikt');
     cy.contains('Styrbjörns båtar');
   });
-  it('should show norepresent page if no businessengagements', () => {
-    cy.intercept('GET', '**/api/businessengagements', { statusCode: 404 }).as('getBusinessEngagements');
+
+  it('should show norepresent page if no engagements', () => {
+    cy.intercept('GET', '**/api/engagements', { statusCode: 404 }).as('getEngagements');
     cy.visit('/foretag/valj-foretag');
     cy.contains('h1', 'Hoppsan, vi hittade inget företag som är registrerat på dig');
   });
