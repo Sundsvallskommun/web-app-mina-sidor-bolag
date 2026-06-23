@@ -30,10 +30,10 @@ describe('getActivitySourceTypes', () => {
     expect(getActivitySourceTypes(null)).toEqual(['Login', 'Impersonation', 'HAN']);
   });
 
-  it('handles repeated query params (string[]) gracefully', () => {
-    // Express yields a string[] when a query param appears more than once.
-    expect(getActivitySourceTypes(['login'])).toEqual(['Login']); // single value coerces to its element
-    expect(getActivitySourceTypes(['login', 'han'])).toEqual(['Login', 'Impersonation', 'HAN']); // multiple -> defaults to all
+  it('defaults to all for non-string input (string[] / nested object query params)', () => {
+    expect(getActivitySourceTypes(['login'])).toEqual(['Login', 'Impersonation', 'HAN']);
+    expect(getActivitySourceTypes(['login', 'han'])).toEqual(['Login', 'Impersonation', 'HAN']);
+    expect(getActivitySourceTypes({ foo: 'bar' })).toEqual(['Login', 'Impersonation', 'HAN']);
   });
 
   it('never includes the export source type', () => {

@@ -1,7 +1,8 @@
 import { ACTIVITY_SOURCE_TYPES, ActivityFilter, HAN_SOURCE_TYPE, LOGIN_SOURCE_TYPE } from '@/constants/event-log';
 
 export const getActivitySourceTypes = (sourceTypeFilter: unknown): readonly string[] => {
-  switch (String(sourceTypeFilter ?? '').toLowerCase()) {
+  const value = typeof sourceTypeFilter === 'string' ? sourceTypeFilter.toLowerCase() : '';
+  switch (value) {
     case ActivityFilter.LOGIN:
       return [LOGIN_SOURCE_TYPE];
     case ActivityFilter.HAN:
