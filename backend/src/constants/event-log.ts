@@ -10,7 +10,7 @@
 export const EXPORT_SOURCE_TYPE = 'Export';
 export const LOGIN_SOURCE_TYPE = 'Login';
 export const IMPERSONATION_SOURCE_TYPE = 'Impersonation';
-// TODO(HYDRAN-1821): HAN events not written to the eventlog yet. Confirm the exact sourceType and how
+// TODO: HAN events not written to the eventlog yet. Confirm the exact sourceType and how
 // aktiverad/inaktiverad (BFUS permission grant vs revoke) is encoded with the BFUS->eventlog writer.
 // Recommended: single 'HAN' sourceType + metadata operation (grant|revoke) for the badge.
 export const HAN_SOURCE_TYPE = 'HAN';
