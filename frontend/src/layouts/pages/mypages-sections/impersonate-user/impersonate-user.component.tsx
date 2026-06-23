@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -116,6 +116,21 @@ export default function ImpersonateUser() {
     if (valid) await fetchEngagements({ personNumber: watch('searchPersonNumber') });
   };
 
+  const lastSearchedRef = useRef<string>('');
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name !== 'searchPersonNumber') return;
+      const pn = value.searchPersonNumber ?? '';
+      if (pn.length >= 12 && pn !== lastSearchedRef.current) {
+        lastSearchedRef.current = pn;
+        onSearchHandler();
+      }
+    });
+    return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch]);
+
   const handleSelectRepresenting = () => {
     if (!userEngagements) return;
     setValue('toImpersonateName', userEngagements.userName);
@@ -154,7 +169,7 @@ export default function ImpersonateUser() {
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 onReset={onResetHandler}
-                onSearch={onSearchHandler}
+                showSearchButton={false}
                 placeholder={t('impersonation:search')}
                 data-cy="search-user-to-impersonate"
               />

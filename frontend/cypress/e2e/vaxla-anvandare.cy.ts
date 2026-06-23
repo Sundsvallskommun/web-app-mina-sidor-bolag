@@ -25,7 +25,6 @@ describe('Växla användare', () => {
     cy.get('[data-cy="extended-view-banner"]').should('not.exist');
 
     cy.get('[data-cy="search-user-to-impersonate"]').should('exist').type('199001012385');
-    cy.get('button').contains('Sök').click();
     cy.wait('@getUserEngagements');
     cy.get('[data-cy="user-to-impersonate-radio-button"]').should('exist').click();
 
