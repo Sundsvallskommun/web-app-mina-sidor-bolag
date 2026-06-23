@@ -1,4 +1,4 @@
-import { IInvoice, InvoicePdf, InvoicePdfData, InvoiceStatus, InvoicesData } from '@interfaces/invoice';
+import { IInvoice, InvoicePdfData, InvoiceStatus, InvoicesData } from '@interfaces/invoice';
 import { apiService, ApiResponse } from './api-service';
 import { CustomerInvoice, CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 
@@ -91,8 +91,6 @@ export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) 
   invoiceNumber
 ) =>
   apiService
-    .get<ApiResponse<InvoicePdf>>(`invoicepdf/${organizationNumber}/${invoiceNumber}`)
-    .then((res) => ({ pdf: res.data.data }))
-    .catch(
-      (e) => ({ pdf: { fileName: '', file: '' }, error: e.response?.status ?? 'UNKNOWN ERROR' }) as InvoicePdfData
-    );
+    .get<ApiResponse<string>>(`invoicepdf/${organizationNumber}/${invoiceNumber}`)
+    .then((res) => ({ data: res.data.data }))
+    .catch((e) => ({ data: '', error: e.response?.status ?? 'UNKNOWN ERROR' }) as InvoicePdfData);

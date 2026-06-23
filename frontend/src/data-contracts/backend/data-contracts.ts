@@ -180,11 +180,6 @@ export interface MetaData {
   totalPages?: number;
 }
 
-export interface PdfInvoice {
-  fileName?: string;
-  file?: string;
-}
-
 export interface InvoiceDetail {
   amount?: number;
   amountVatExcluded?: number;

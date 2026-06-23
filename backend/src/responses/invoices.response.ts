@@ -1,6 +1,5 @@
 import {
   MetaData as IMetaData,
-  PdfInvoice as IPdfInvoice,
   InvoiceDetail as IInvoiceDetail,
   InvoiceDetailsResponse as IInvoiceDetailsResponse,
   CustomerInvoice as ICustomerInvoice,
@@ -192,15 +191,6 @@ export class MetaData implements IMetaData {
   @IsOptional()
   @IsNumber()
   totalPages?: number;
-}
-
-export class PdfInvoice implements IPdfInvoice {
-  @IsOptional()
-  @IsString()
-  fileName?: string;
-  @IsOptional()
-  @IsString()
-  file?: string;
 }
 
 export class InvoiceDetail implements IInvoiceDetail {

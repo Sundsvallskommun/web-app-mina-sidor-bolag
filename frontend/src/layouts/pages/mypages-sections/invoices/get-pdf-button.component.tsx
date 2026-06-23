@@ -50,14 +50,13 @@ export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading,
     updateIsLoadingForInvoice(item.invoiceNumber, true);
 
     try {
-      const invoicePdfData = await getInvoicePdf(item.organizationNumber, item.invoiceNumber);
+      const invoiceData = await getInvoicePdf(item.organizationNumber, item.invoiceNumber);
 
-      if (invoicePdfData.error !== undefined) {
+      if (invoiceData.error !== undefined) {
         throw new Error();
       }
 
-      const fileName = invoicePdfData.pdf.fileName ?? item.invoiceName;
-      downloadPdf(invoicePdfData.pdf.file, fileName);
+      downloadPdf(invoiceData.data, item.invoiceNumber);
     } catch {
       showErrorMessage();
     } finally {

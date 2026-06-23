@@ -24,13 +24,8 @@ export type InvoiceStatus =
   | 'WRITTEN_OFF'
   | 'UNKNOWN';
 
-export interface InvoicePdf {
-  fileName: string;
-  file: string;
-}
-
 export interface InvoicePdfData {
-  pdf: InvoicePdf;
+  data: string;
   error?: boolean;
 }
 

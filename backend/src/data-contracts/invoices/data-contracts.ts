@@ -485,6 +485,35 @@ export enum DownloadInvoicePdfParamsEnum {
   PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
 }
 
+/** Invoice type */
+export enum GetPublicAdministrationInvoicesParamsInvoiceTypeEnum {
+  INVOICE = 'INVOICE',
+  CREDIT_INVOICE = 'CREDIT_INVOICE',
+  START_INVOICE = 'START_INVOICE',
+  FINAL_INVOICE = 'FINAL_INVOICE',
+  DIRECT_DEBIT = 'DIRECT_DEBIT',
+  SELF_INVOICE = 'SELF_INVOICE',
+  REMINDER = 'REMINDER',
+  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
+  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
+  OFFSET_INVOICE = 'OFFSET_INVOICE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Invoice status */
+export enum GetPublicAdministrationInvoicesParamsInvoiceStatusEnum {
+  PAID = 'PAID',
+  SENT = 'SENT',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  DEBT_COLLECTION = 'DEBT_COLLECTION',
+  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
+  REMINDER = 'REMINDER',
+  VOID = 'VOID',
+  CREDITED = 'CREDITED',
+  WRITTEN_OFF = 'WRITTEN_OFF',
+  UNKNOWN = 'UNKNOWN',
+}
+
 /** Invoice status filter */
 export enum GetInvoicesForCustomerParamsStatusEnum {
   PAID = 'PAID',

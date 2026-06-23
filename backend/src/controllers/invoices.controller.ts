@@ -4,7 +4,6 @@ import {
   CustomerInvoice,
   CustomerInvoiceInvoiceStatusEnum,
   CustomerInvoicesResponse,
-  PdfInvoice,
 } from '@/responses/invoices.response';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -122,21 +121,20 @@ export class InvoicesController {
   }
 
   @Get('/invoicepdf/:organizationNumber/:id')
-  @OpenAPI({ summary: 'Return the base64 encoded pdf by invoice id' })
-  @ResponseSchema(PdfInvoice)
+  @OpenAPI({ summary: 'Return the base64-encoded invoice document (PDF or ZIP)' })
   @UseBefore(authMiddleware)
   async getInvoicePdf(
     @Req() req: RequestWithUser,
     @Param('organizationNumber') organizationNumber: string,
     @Param('id') id: string,
-  ): Promise<ApiResponse<PdfInvoice>> {
+  ): Promise<ApiResponse<string>> {
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
-    const res = await this.apiService.get<PdfInvoice>({ url }, req.user);
-
-    return { data: res.data, message: 'success' };
+    const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);
+    const base64String = Buffer.from(res.data).toString('base64');
+    return { data: base64String, message: 'success' };
   }
 }

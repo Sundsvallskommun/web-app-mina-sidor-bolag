@@ -18,7 +18,7 @@ export const APIS = [
   },
   {
     name: 'invoices',
-    version: '9.4',
+    version: '9.5',
   },
   {
     name: 'customer',

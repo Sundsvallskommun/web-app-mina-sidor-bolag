@@ -1,4 +1,3 @@
-import { InvoicePdf } from '@interfaces/invoice';
 import { ApiResponse } from '@services/api-service';
 
 function generateMinimalPdfBase64(): string {
@@ -40,20 +39,12 @@ startxref
 %%EOF
 `;
 
-  // Convert the string to a Uint8Array
   const encoder = new TextEncoder();
   const pdfBytes = encoder.encode(pdfContent);
-
-  // Convert the Uint8Array to a base64 string
-  const base64String = btoa(String.fromCharCode(...pdfBytes));
-
-  return base64String;
+  return btoa(String.fromCharCode(...pdfBytes));
 }
 
-export const getPdf: ApiResponse<InvoicePdf> = {
-  data: {
-    fileName: 'pdf-test.pdf',
-    file: generateMinimalPdfBase64(),
-  },
+export const getPdf: ApiResponse<string> = {
+  data: generateMinimalPdfBase64(),
   message: 'success',
 };
