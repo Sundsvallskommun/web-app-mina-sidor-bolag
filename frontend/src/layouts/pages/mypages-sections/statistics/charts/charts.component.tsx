@@ -84,14 +84,14 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
   }, [toDate, useUtcBoundaries]);
   const fromDatePreviousParam = useMemo(() => {
     return formatRequestBoundary(
-      dayjs(fromDate).subtract(parseInt(dayjs(fromDate).format('YYYY')) - year, 'year'),
+      dayjs(fromDate).subtract(Number.parseInt(dayjs(fromDate).format('YYYY')) - year, 'year'),
       'start',
       useUtcBoundaries
     );
   }, [fromDate, year, useUtcBoundaries]);
   const toDatePreviousParam = useMemo(() => {
     return formatRequestBoundary(
-      dayjs(toDate).subtract(parseInt(dayjs(toDate).format('YYYY')) - year, 'year'),
+      dayjs(toDate).subtract(Number.parseInt(dayjs(toDate).format('YYYY')) - year, 'year'),
       'end',
       useUtcBoundaries
     );
