@@ -233,8 +233,10 @@ export class UserController {
     }
 
     const relations = req.session.cache.relations;
-    const facilities = req.session.cache.facilities;
-    const addresses = req.session.cache.addresses;
+    const facilities = [...(req.session.cache.facilities ?? [])].sort((a, b) =>
+      (a.address?.street ?? '').localeCompare(b.address?.street ?? ''),
+    );
+    const addresses = [...(req.session.cache.addresses ?? [])].sort((a, b) => a.address.localeCompare(b.address));
 
     const userData: UserData = {
       userSettings,
