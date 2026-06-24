@@ -1,9 +1,27 @@
 'use client';
 
-import React, { useEffect, Fragment, useState } from 'react';
-import { init } from '@socialgouv/matomo-next';
+import React, { useEffect, Fragment, Suspense, useState } from 'react';
+import { push, trackAppRouter } from '@socialgouv/matomo-next';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import { useLocalStorageValue } from '@react-hookz/web';
+import { appURL } from './app-url';
+
+function MatomoRouteTracker() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const searchParamsString = searchParams.toString();
+
+  useEffect(() => {
+    if (!pathname) return;
+    const url = appURL() + pathname + (searchParamsString ? '?' + searchParamsString : '');
+    push(['setCustomUrl', url]);
+    push(['trackPageView']);
+    push(['enableLinkTracking']);
+  }, [pathname, searchParamsString]);
+
+  return null;
+}
 
 interface MatomoWrapperProps {
   children?: React.ReactNode;
@@ -22,7 +40,7 @@ export function MatomoWrapper({ children }: MatomoWrapperProps) {
 
   useEffect(() => {
     if (matomo && !haveInit) {
-      init({ url: `${MATOMO_URL}`, siteId: `${MATOMO_SITE_ID}` });
+      trackAppRouter({ url: `${MATOMO_URL}`, siteId: `${MATOMO_SITE_ID}` });
       setHaveInit(true);
     }
 
@@ -32,5 +50,10 @@ export function MatomoWrapper({ children }: MatomoWrapperProps) {
     }
   }, [MATOMO_SITE_ID, MATOMO_URL, haveInit, matomo]);
 
-  return <Fragment>{children}</Fragment>;
+  return (
+    <Fragment>
+      <Suspense fallback={null}>{matomo && <MatomoRouteTracker />}</Suspense>
+      {children}
+    </Fragment>
+  );
 }
