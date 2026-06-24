@@ -17,7 +17,7 @@ describe('Växla användare', () => {
   it('can impersonate user', () => {
     cy.visit('/admin');
     cy.get('h1').should('exist').should('contain.text', 'Administration');
-    cy.get('button').should('exist').should('contain.text', 'Växla användare').click({ multiple: true });
+    cy.get('[data-cy="admin-impersonate-link"]').click();
 
     cy.intercept('POST', '**/api/user-engagements', getUserEngagements).as('getUserEngagements');
     cy.intercept('POST', '**/api/impersonate-user', getMeEmptyUserExtendedView).as('impersonateUser');
@@ -34,9 +34,10 @@ describe('Växla användare', () => {
     cy.get('[data-cy="access-reason-error"]').should('exist');
     cy.get('[data-cy="access-reason"]').should('exist').select(1);
 
+    cy.intercept('GET', '**/api/me', getMeEmptyUserExtendedView).as('getMeAfter');
     cy.get('[data-cy="submit-button"]').click();
     cy.wait('@impersonateUser');
-    cy.intercept('GET', '**/api/me', getMeEmptyUserExtendedView);
+    cy.wait('@getMeAfter');
 
     cy.get('[data-cy="extended-view-banner"]').should('exist');
   });
