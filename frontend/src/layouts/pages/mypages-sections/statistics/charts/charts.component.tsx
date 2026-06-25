@@ -28,6 +28,16 @@ export interface ChartsProps {
   readonly isAllAgreementsDone: boolean;
 }
 
+const formatRequestBoundary = (date: dayjs.Dayjs, edge: 'start' | 'end', utcBoundaries: boolean): string => {
+  if (utcBoundaries) {
+    const utcDay = dayjs.utc(date.format('YYYY-MM-DD'));
+    const bounded = edge === 'start' ? utcDay.startOf('date') : utcDay.endOf('date');
+    return bounded.format('YYYY-MM-DDTHH:mm:ss[Z]');
+  }
+  const bounded = edge === 'start' ? date.startOf('date') : date.endOf('date');
+  return bounded.format();
+};
+
 export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
   const { watch, setValue } = useFormContext();
   const { facilityIds, toDate, fromDate, year, category } = watch();
@@ -64,24 +74,28 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
     return aggregationType;
   }, [fromDate, toDate, isHourQuarter, categoryParam]);
 
+  const useUtcBoundaries = aggregateOnParam === Aggregation.MONTH;
+
   const fromDateParam = useMemo(() => {
-    return dayjs(fromDate).startOf('date').format();
-  }, [fromDate]);
+    return formatRequestBoundary(dayjs(fromDate), 'start', useUtcBoundaries);
+  }, [fromDate, useUtcBoundaries]);
   const toDateParam = useMemo(() => {
-    return dayjs(toDate).endOf('date').format();
-  }, [toDate]);
+    return formatRequestBoundary(dayjs(toDate), 'end', useUtcBoundaries);
+  }, [toDate, useUtcBoundaries]);
   const fromDatePreviousParam = useMemo(() => {
-    return dayjs(fromDate)
-      .subtract(parseInt(dayjs(fromDate).format('YYYY')) - year, 'year')
-      .startOf('date')
-      .format();
-  }, [fromDate, year]);
+    return formatRequestBoundary(
+      dayjs(fromDate).subtract(Number.parseInt(dayjs(fromDate).format('YYYY')) - year, 'year'),
+      'start',
+      useUtcBoundaries
+    );
+  }, [fromDate, year, useUtcBoundaries]);
   const toDatePreviousParam = useMemo(() => {
-    return dayjs(toDate)
-      .subtract(parseInt(dayjs(toDate).format('YYYY')) - year, 'year')
-      .endOf('date')
-      .format();
-  }, [toDate, year]);
+    return formatRequestBoundary(
+      dayjs(toDate).subtract(Number.parseInt(dayjs(toDate).format('YYYY')) - year, 'year'),
+      'end',
+      useUtcBoundaries
+    );
+  }, [toDate, year, useUtcBoundaries]);
 
   const buildParamsString = (
     categoryParam: string,
@@ -150,9 +164,7 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
     }
     const netAgreementExistsForFacility = Object.values(allAgreements ?? {})
       .flat()
-      .some(
-        (agreement) => facilityIds?.includes(agreement.facilityId) && agreement.category.code === 'ELECTRICITY'
-      );
+      .some((agreement) => facilityIds?.includes(agreement.facilityId) && agreement.category.code === 'ELECTRICITY');
 
     if (netAgreementExistsForFacility) {
       setOnlyTrade(false);
