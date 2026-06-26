@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
-import { PagedEventsResponse, MetaData } from '@data-contracts/backend/data-contracts';
+import { PagedEventsResponse, EventMetaData } from '@data-contracts/backend/data-contracts';
 import { EventData, MetaDataFacility, StructuredMetaData, StructuredEvent } from '@interfaces/event';
 
-const mapData = (data: MetaData[], startObj = {}) => {
+const mapData = (data: EventMetaData[], startObj = {}) => {
   return data.reduce((object, item) => {
     return { ...object, [item.key]: item.value };
   }, startObj);
 };
 
-const getFacilities = (data: MetaData[]) => {
+const getFacilities = (data: EventMetaData[]) => {
   const indexes = data
     .map((item) => item.key.replaceAll(/\D+/g, ''))
     .filter((key, index, arr) => !!key && arr.indexOf(key) == index);
@@ -32,7 +32,7 @@ export const handleEventLogResponse = (data: PagedEventsResponse): EventData => 
   const events = data.content as StructuredEvent[];
 
   events.forEach((event) => {
-    const eventMetadata = event.metadata as unknown as MetaData[];
+    const eventMetadata = event.metadata as unknown as EventMetaData[];
     const mappedData: StructuredMetaData = mapData(
       eventMetadata.filter((item) => !item.key.startsWith('facilities[')),
       { facilities: getFacilities(eventMetadata) }

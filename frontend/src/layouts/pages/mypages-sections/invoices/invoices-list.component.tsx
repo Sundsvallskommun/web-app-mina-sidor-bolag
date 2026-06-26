@@ -8,7 +8,7 @@ import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { isEqual } from 'lodash';
 import { emptyInvoicesList, invoicesHandler } from '@services/invoice-service';
-import { InvoicesResponse } from '@data-contracts/invoices/data-contracts';
+import { CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 import { RepresentingMode } from '@interfaces/app';
 import { useAppContext } from '@contexts/app.context';
 
@@ -44,7 +44,7 @@ export const InvoicesList: React.FC<{
   }
 
   const base = onlyPending ? '/invoices/pending' : '/invoices';
-  const { data = emptyInvoicesList, isFetched } = useApi<InvoicesResponse, Error, InvoicesData>({
+  const { data = emptyInvoicesList, isFetched } = useApi<CustomerInvoicesResponse, Error, InvoicesData>({
     queryKey: [base, searchParams.toString()],
     url: `${base}?${searchParams.toString()}`,
     method: 'get',
