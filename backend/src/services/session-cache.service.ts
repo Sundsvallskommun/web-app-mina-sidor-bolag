@@ -38,10 +38,18 @@ export class SessionCacheService {
     }
   }
 
+  private readonly whitelistedOrgs = new Set(
+    (process.env.WHITELISTED_ORGS ?? '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean),
+  );
+
   public async cacheRelations(req: RequestWithUser): Promise<void> {
     req.session.cache ??= {};
     const delegations = req.session.cache.delegations ?? [];
     const allRelations: CustomerRelation[] = [];
+    const allCustomerNumbers = new Set<string>();
     const { representing } = req.session ?? {};
 
     if (req.session.cache.relations?.customerRelations.length > 0) return;
@@ -55,12 +63,15 @@ export class SessionCacheService {
 
       const relations = res.data?.customerRelations ?? [];
 
-      relations.forEach(r =>
-        allRelations.push({
-          ...r,
-          organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
-        }),
-      );
+      relations.forEach(r => {
+        if (this.whitelistedOrgs.has(r.organizationNumber)) {
+          allCustomerNumbers.add(r.customerNumber);
+          allRelations.push({
+            ...r,
+            organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
+          });
+        }
+      });
     } catch (error) {
       this.handleCustomerRelationsError(error);
     }
@@ -73,12 +84,15 @@ export class SessionCacheService {
         const relations = res.data?.customerRelations ?? [];
 
         relations.forEach(r => {
-          if (!allRelations.some(existing => existing.organizationNumber === r.organizationNumber)) {
-            allRelations.push({
-              customerNumber: r.customerNumber,
-              organizationNumber: r.organizationNumber,
-              organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
-            });
+          if (this.whitelistedOrgs.has(r.organizationNumber)) {
+            allCustomerNumbers.add(r.customerNumber);
+            if (!allRelations.some(existing => existing.organizationNumber === r.organizationNumber)) {
+              allRelations.push({
+                customerNumber: r.customerNumber,
+                organizationNumber: r.organizationNumber,
+                organizationName: r.organizationName.replace(/\s*(AB)\s*$/g, ''),
+              });
+            }
           }
         });
       } catch (error) {
@@ -86,11 +100,9 @@ export class SessionCacheService {
       }
     }
 
-    const customerNumbers = Array.from(new Set(allRelations.map(r => r.customerNumber).filter(Boolean)));
-
     req.session.cache.relations = {
       customerRelations: allRelations,
-      customerNumber: customerNumbers,
+      customerNumber: Array.from(allCustomerNumbers),
     };
   }
 }

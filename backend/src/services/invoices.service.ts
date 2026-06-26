@@ -1,17 +1,17 @@
-import { InvoicesResponse, InvoiceStatus } from '@/data-contracts/invoices/data-contracts';
+import { CustomerInvoicesResponse, CustomerInvoiceInvoiceStatusEnum } from '@/responses/invoices.response';
 import ApiService from '@/services/api.service';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
 
 type FetchParams = {
-  partyIds: string[];
+  customerNumbers: string[];
   organizationNumbers: string[];
-  facilityId: string[];
-  invoiceDateFrom: string;
+  facilityIds: string[];
+  periodFrom: string;
   page: number;
   limit: number;
-  invoiceStatus?: InvoiceStatus;
+  invoiceStatus?: CustomerInvoiceInvoiceStatusEnum;
 };
 
 export default class InvoicesService {
@@ -19,21 +19,22 @@ export default class InvoicesService {
   private readonly baseUrl = getApiBase('invoices');
 
   async fetchInvoices(req: RequestWithUser, params: FetchParams) {
-    const { partyIds, organizationNumbers, facilityId, invoiceDateFrom, page, limit, invoiceStatus } = params;
+    const { customerNumbers, organizationNumbers, facilityIds, periodFrom, page, limit, invoiceStatus } = params;
 
-    const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL`;
+    const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
 
-    const res = await this.api.get<InvoicesResponse>(
+    const res = await this.api.get<CustomerInvoicesResponse>(
       {
         url,
         params: {
-          partyId: partyIds,
-          facilityId,
-          organizationNumber: organizationNumbers,
-          invoiceDateFrom,
-          invoiceStatus,
+          customerNumbers: customerNumbers.toString(),
+          facilityIds: facilityIds,
+          organizationNumber: organizationNumbers.toString(),
+          periodFrom: periodFrom,
+          status: invoiceStatus,
           page,
           limit,
+          sortDirection: 'DESC',
         },
       },
       req.user,

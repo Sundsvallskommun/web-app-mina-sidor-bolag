@@ -36,6 +36,7 @@ const validateEnv = () => {
     FEEDBACK_EMAIL: emails(),
     ADMIN_GROUP: str(),
     NAMESPACE: str(),
+    WHITELISTED_ORGS: str(),
   });
 };
 

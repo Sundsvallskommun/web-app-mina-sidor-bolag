@@ -172,6 +172,94 @@ export interface PatchUserSettingsDto {
   feedbackLifespan: "untilRemoved" | "oneMonth" | "twoWeeks";
 }
 
+export interface MetaData {
+  page?: number;
+  limit?: number;
+  count?: number;
+  totalRecords?: number;
+  totalPages?: number;
+}
+
+export interface InvoiceDetail {
+  amount?: number;
+  amountVatExcluded?: number;
+  vat?: number;
+  vatRate?: number;
+  quantity?: number;
+  unit?: string;
+  unitPrice?: number;
+  description?: string;
+  productCode?: string;
+  productName?: string;
+  fromDate?: string;
+  toDate?: string;
+  facilityId?: string;
+  administration?: string;
+}
+
+export interface InvoiceDetailsResponse {
+  details: InvoiceDetail[];
+}
+
+export interface CustomerInvoice {
+  customerNumber?: string;
+  customerType?: "ENTERPRISE" | "PRIVATE";
+  facilityIds?: string[];
+  invoiceNumber?: string;
+  invoiceId?: number;
+  jointInvoiceId?: number;
+  invoiceDate?: string;
+  invoiceName?: string;
+  invoiceType?:
+    | "INVOICE"
+    | "CREDIT_INVOICE"
+    | "START_INVOICE"
+    | "FINAL_INVOICE"
+    | "DIRECT_DEBIT"
+    | "SELF_INVOICE"
+    | "REMINDER"
+    | "CONSOLIDATED_INVOICE"
+    | "INTERNAL_INVOICE"
+    | "OFFSET_INVOICE"
+    | "UNKNOWN";
+  invoiceDescription?: string;
+  invoiceStatus?:
+    | "PAID"
+    | "SENT"
+    | "PARTIALLY_PAID"
+    | "DEBT_COLLECTION"
+    | "PAID_TOO_MUCH"
+    | "REMINDER"
+    | "VOID"
+    | "CREDITED"
+    | "WRITTEN_OFF"
+    | "UNKNOWN";
+  ocrNumber?: string;
+  dueDate?: string;
+  periodFrom?: string;
+  periodTo?: string;
+  totalAmount?: number;
+  amountVatIncluded?: number;
+  amountVatExcluded?: number;
+  vatEligibleAmount?: number;
+  rounding?: number;
+  organizationGroup?: string;
+  organizationNumber?: string;
+  administration?: string;
+  street?: string;
+  postCode?: string;
+  city?: string;
+  careOf?: string;
+  invoiceReference?: string;
+  pdfAvailable?: boolean;
+  details: InvoiceDetail[];
+}
+
+export interface CustomerInvoicesResponse {
+  invoices?: CustomerInvoice[];
+  _meta?: MetaData;
+}
+
 export interface Grantor {
   name?: string;
   grantorPartyId: string;
@@ -399,7 +487,7 @@ export interface CitizenLookupDto {
   personnumber: string;
 }
 
-export interface MetaData {
+export interface EventMetaData {
   key: string;
   value: string;
 }
@@ -424,7 +512,7 @@ export interface EventResponse {
   created?: string;
   historyReference?: string | null;
   sourceType?: string | null;
-  metadata: MetaData;
+  metadata: EventMetaData;
 }
 
 export interface SortObject {
