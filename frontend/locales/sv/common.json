@@ -43,7 +43,8 @@
       "login": "Det gick inte att logga in, försök igen senare.",
       "missingGroups": "Användaren saknar rätt grupper",
       "missingAttributes": "Användaren saknar rätt attribut",
-      "missingPermissions": "Användaren saknar rättigheter"
+      "missingPermissions": "Användaren saknar rättigheter",
+      "adminMissingPermissions": "Användaren saknar administratörsrättigheter"
     }
   },
   "logout": {

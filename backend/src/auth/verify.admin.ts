@@ -18,7 +18,9 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   const groups = profile.attributes?.['groups'];
   const displayName = profile.attributes?.['displayName'];
 
-  if (!username || !groups) {
+  const userPermissions = await getPermissionsByGroups(groups);
+
+  if (!username || !userPermissions.canImpersonateUser) {
     return done(null, null, {
       name: 'SAML_MISSING_ATTRIBUTES',
       message: 'Missing admin attributes',
@@ -37,7 +39,7 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
     nameID: profile.nameID,
     nameIDFormat: profile.nameIDFormat,
     sessionIndex: profile.sessionIndex,
-    permissions: await getPermissionsByGroups(groups),
+    permissions: userPermissions,
   };
 
   done(null, adminUser);
