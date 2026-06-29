@@ -4,5 +4,18 @@
   "card": {
     "title": "Aktivitet",
     "description": "Se inloggningar och HAN-portändringar på ditt konto."
+  },
+  "item": {
+    "company": "Företag",
+    "supportReason": "Supportanledning",
+    "address": "Adress",
+    "facilityId": "Anläggnings-ID",
+    "timestamp": "Tidpunkt"
+  },
+  "badge": {
+    "login": "Inloggning",
+    "impersonation": "Kundtjänst",
+    "hanActivated": "HAN-port aktiverad",
+    "hanDeactivated": "HAN-port inaktiverad"
   }
 }
