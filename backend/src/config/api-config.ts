@@ -18,7 +18,7 @@ export const APIS = [
   },
   {
     name: 'invoices',
-    version: '8.0',
+    version: '9.5',
   },
   {
     name: 'customer',
@@ -58,6 +58,14 @@ export const APIS = [
   },
   {
     name: 'eneo-sundsvall',
+    version: '2.0',
+  },
+  {
+    name: 'activedirectory',
+    version: '2.0',
+  },
+  {
+    name: 'employee',
     version: '2.0',
   },
 ] as const;

@@ -13,7 +13,7 @@ import getDelegatedFacilities from '@services/delegation.service';
 import { Response } from 'express';
 import { Body, Controller, Get, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
-import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '../interfaces/representing.interface';
+import { RepresentingEntity, RepresentingEntityClient, RepresentingMode } from '@interfaces/representing.interface';
 import { getIsWhitelisted } from '@services/mandate.service';
 
 type IntersectByProperties<T, U> = Pick<T & U, Extract<keyof T, keyof U>>;
@@ -96,10 +96,13 @@ export class RepresentingController {
     const representing = req.session?.representing ?? undefined;
 
     if (!representing) {
-      throw new HttpException(403, 'Forbidden');
+      return res.send({
+        data: this.getRepresentingToSend({ mode: undefined } as RepresentingEntity),
+        message: 'success',
+      });
     }
 
-    if (!representing.PRIVATE) {
+    if (representing.mode !== RepresentingMode.ADMIN && !representing.PRIVATE) {
       req.session.representing.PRIVATE = this.getDefaultPRIVATE(req);
     }
 
@@ -120,6 +123,10 @@ export class RepresentingController {
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
   ): Promise<Response<ClientRepresentingApiResponse>> {
+    if (req.user.userType === 'admin' && !req.user.permissions?.isImpersonatingUser) {
+      throw new HttpException(403, 'MISSING_PERMISSIONS');
+    }
+
     const representing = req.session?.representing ?? undefined;
     try {
       await deleteAISession(req);
@@ -130,32 +137,29 @@ export class RepresentingController {
     let newRepresenting = representing;
 
     if (selectedRepresenting.organizationNumber !== undefined) {
-      const data: RepresentingEntity = {
+      newRepresenting = {
         BUSINESS: await this.getDefaultBUSINESS(req),
         PRIVATE: newRepresenting?.PRIVATE,
         mode: newRepresenting?.mode,
       };
-      newRepresenting = data;
     }
     if (
       selectedRepresenting.personNumber !== undefined ||
       selectedRepresenting.mode === RepresentingMode.PRIVATE ||
       selectedRepresenting.mode === undefined
     ) {
-      const data: RepresentingEntity = {
+      newRepresenting = {
         BUSINESS: newRepresenting?.BUSINESS,
         PRIVATE: this.getDefaultPRIVATE(req),
         mode: newRepresenting?.mode,
       };
-      newRepresenting = data;
     }
     if (selectedRepresenting.mode !== undefined) {
-      const data: RepresentingEntity = {
+      newRepresenting = {
         BUSINESS: newRepresenting?.BUSINESS,
         PRIVATE: newRepresenting?.PRIVATE,
         mode: selectedRepresenting.mode,
       };
-      newRepresenting = data;
     }
 
     req.session.representing = newRepresenting;

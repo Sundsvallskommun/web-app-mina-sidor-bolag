@@ -20,7 +20,7 @@ export enum EventType {
   DROP = 'DROP',
 }
 
-export class MetaData implements Metadata {
+export class EventMetaData implements Metadata {
   @IsString()
   key: string;
   @IsString()
@@ -57,8 +57,8 @@ export class EventResponse implements EventDetails {
   @IsNullable()
   sourceType?: string | null;
   @ValidateNested()
-  @Type(() => MetaData)
-  metadata?: MetaData[];
+  @Type(() => EventMetaData)
+  metadata?: EventMetaData[];
 }
 
 export class SortObject implements ISortObject {

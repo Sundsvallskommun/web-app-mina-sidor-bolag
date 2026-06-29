@@ -56,6 +56,7 @@ function Login() {
 
   const isLoggedOut = searchParams?.get('loggedout') === '';
   const failMessage = searchParams?.get('failMessage');
+  const path = searchParams?.get('path');
 
   // Turn on/off automatic login
   const autoLogin = false;
@@ -98,6 +99,9 @@ function Login() {
             setErrorMessage(t('common:login.error.login'));
             break;
           //
+        }
+        if (path === '/admin' && failMessage) {
+          setErrorMessage(t('common:login.error.adminMissingPermissions'));
         }
       }
     }
@@ -163,7 +167,7 @@ function Login() {
                         {t('common:organization')}
                       </Button>
                     </div>
-                    {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
+                    {errorMessage && <FormErrorMessage className="text-error">{errorMessage}</FormErrorMessage>}
 
                     <DeprecationNotice />
                   </div>

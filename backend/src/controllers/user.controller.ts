@@ -17,7 +17,7 @@ import {
   InstalledBaseResponse,
 } from '@/data-contracts/installedbase/data-contracts';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
-import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
+import { getRepresentingPartyId, hasRepresentingContext } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
@@ -30,6 +30,8 @@ interface UserData {
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
+  extendedView: boolean;
+  isExtendingView: boolean;
 }
 
 export class PatchUserSettingsDto {
@@ -60,7 +62,7 @@ export class UserController {
   @OpenAPI({ summary: 'Return current user' })
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
-    const { name } = req.user;
+    const { name, permissions } = req.user;
     const representing = req.session?.representing ?? undefined;
 
     if (!name) {
@@ -91,12 +93,14 @@ export class UserController {
     req.session.cache ??= {};
     req.cache ??= {};
 
-    await sessionCacheService.cacheRelations(req);
+    if (hasRepresentingContext(req)) {
+      await sessionCacheService.cacheRelations(req);
 
-    if (!req.session?.ai?.sessionId) {
-      await startAISession(req).catch(err => {
-        logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
-      });
+      if (!req.session?.ai?.sessionId) {
+        await startAISession(req).catch(err => {
+          logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
+        });
+      }
     }
 
     if (
@@ -233,8 +237,10 @@ export class UserController {
     }
 
     const relations = req.session.cache.relations;
-    const facilities = req.session.cache.facilities;
-    const addresses = req.session.cache.addresses;
+    const facilities = [...(req.session.cache.facilities ?? [])].sort((a, b) =>
+      (a.address?.street ?? '').localeCompare(b.address?.street ?? ''),
+    );
+    const addresses = [...(req.session.cache.addresses ?? [])].sort((a, b) => a.address.localeCompare(b.address));
 
     const userData: UserData = {
       userSettings,
@@ -242,6 +248,8 @@ export class UserController {
       relations,
       addresses,
       facilities,
+      extendedView: permissions.canImpersonateUser,
+      isExtendingView: permissions.isImpersonatingUser,
     };
 
     return response.send({ data: userData, message: 'success' });

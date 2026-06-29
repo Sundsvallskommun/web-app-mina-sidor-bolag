@@ -99,7 +99,7 @@ export interface Agreement {
   /** Signal indicating whether the agreement has a binding period or not */
   binding?: boolean;
   /** Description of the binding rule in cases where the agreement has a binding period */
-  bindingRule?: string;
+  bindingRule?: string | null;
   /** Placement status for agreement */
   placementStatus?: string;
   /** Net area id for agreement */
@@ -107,7 +107,7 @@ export interface Agreement {
   /** Site address connected to the agreement */
   siteAddress?: string;
   /** Signal if the agreement is a production agreement or not (can be null if not applicable) */
-  production?: boolean;
+  production?: boolean | null;
   /**
    * Start date of the agreement
    * @format date

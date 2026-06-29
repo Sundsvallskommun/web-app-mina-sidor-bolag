@@ -1,14 +1,17 @@
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
-import { Invoice, InvoiceStatus, PdfInvoice } from '@/data-contracts/invoices/data-contracts';
+import {
+  CustomerInvoice,
+  CustomerInvoiceInvoiceStatusEnum,
+  CustomerInvoicesResponse,
+} from '@/responses/invoices.response';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
-import { OpenAPI } from 'routing-controllers-openapi';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
-import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 import InvoicesService from '@/services/invoices.service';
 
@@ -18,9 +21,9 @@ const emptyInvoice = {
 };
 
 const pendingStatuses = [
-  'SENT' as InvoiceStatus,
-  'DEBT_COLLECTION' as InvoiceStatus,
-  'REMINDER' as InvoiceStatus,
+  'SENT' as CustomerInvoiceInvoiceStatusEnum,
+  'DEBT_COLLECTION' as CustomerInvoiceInvoiceStatusEnum,
+  'REMINDER' as CustomerInvoiceInvoiceStatusEnum,
   // NOTE: Doesn't return the correct entries yet
   // 'PARTIALLY_PAID' as InvoiceStatus,
 ];
@@ -32,29 +35,32 @@ export class InvoicesController {
   private readonly invoiceDateFrom = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
   private readonly invoicesService = new InvoicesService();
 
+  private getCustomerIdentifiers(req: RequestWithUser) {
+    const { relations } = req.session.cache;
+    return {
+      organizationNumbers: relations.customerRelations.map(c => c.organizationNumber),
+      customerNumbers: relations.customerNumber,
+    };
+  }
+
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
+  @ResponseSchema(CustomerInvoicesResponse)
   @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser) {
-    const representing = req.session?.representing;
     const { facilityId, page, limit } = req.query;
 
     if (!facilityId) {
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
-
-    // TO DO: add orgNr's when Invoices is updated to 9.x
-    // const customerRelations = req.session.cache.relations.customerRelations;
-    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
-    const organizationNumbers = [];
+    const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
 
     const result = await this.invoicesService.fetchInvoices(req, {
-      partyIds,
-      organizationNumbers,
-      facilityId: facilityId as string[],
-      invoiceDateFrom: this.invoiceDateFrom,
+      customerNumbers: customerNumbers,
+      organizationNumbers: organizationNumbers,
+      facilityIds: facilityId as string[],
+      periodFrom: this.invoiceDateFrom,
       page: Number(page),
       limit: Number(limit),
     });
@@ -70,31 +76,26 @@ export class InvoicesController {
 
   @Get('/invoices/pending')
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
+  @ResponseSchema(CustomerInvoicesResponse)
   @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser) {
-    const representing = req.session?.representing;
     const { facilityId, page, limit } = req.query;
 
     if (!facilityId) {
       return { data: { ...emptyInvoice }, message: 'Empty response' };
     }
 
-    const partyIds = [getRepresentingPartyId(representing), ...(req.session.cache.delegations ?? []).map(d => d.owner)];
+    const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
 
-    // TO DO: add orgNr's when Invoices is updated to 9.x
-    // const customerRelations = req.session.cache.relations.customerRelations;
-    // const organizationNumbers = customerRelations.map(c => c.organizationNumber);
-    const organizationNumbers = [];
-
-    let allInvoices: Invoice[] = [];
+    const allInvoices: CustomerInvoice[] = [];
     let totalRecords = 0;
 
     for (const status of pendingStatuses) {
       const result = await this.invoicesService.fetchInvoices(req, {
-        partyIds,
+        customerNumbers,
         organizationNumbers,
-        facilityId: facilityId as string[],
-        invoiceDateFrom: this.invoiceDateFrom,
+        facilityIds: facilityId as string[],
+        periodFrom: this.invoiceDateFrom,
         page: Number(page),
         limit: Number(limit),
         invoiceStatus: status,
@@ -120,20 +121,20 @@ export class InvoicesController {
   }
 
   @Get('/invoicepdf/:organizationNumber/:id')
-  @OpenAPI({ summary: 'Return the base64 encoded pdf by invoice id' })
+  @OpenAPI({ summary: 'Return the base64-encoded invoice document (PDF or ZIP)' })
   @UseBefore(authMiddleware)
   async getInvoicePdf(
     @Req() req: RequestWithUser,
     @Param('organizationNumber') organizationNumber: string,
     @Param('id') id: string,
-  ): Promise<ApiResponse<PdfInvoice>> {
+  ): Promise<ApiResponse<string>> {
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf`;
-    const res = await this.apiService.get<PdfInvoice>({ url }, req.user);
-
-    return { data: res.data, message: 'success' };
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
+    const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);
+    const base64String = Buffer.from(res.data).toString('base64');
+    return { data: base64String, message: 'success' };
   }
 }

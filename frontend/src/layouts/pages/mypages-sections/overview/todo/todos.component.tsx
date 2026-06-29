@@ -1,6 +1,6 @@
 'use client';
 
-import { InvoicesResponse } from '@data-contracts/invoices/data-contracts';
+import { CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 import { User } from '@interfaces/user';
 import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
@@ -23,7 +23,7 @@ export const Todos = () => {
     searchParams.append('facilityId', facilityIds.toString());
   }
 
-  const { data: invoices, isFetching: invoicesIsFetching } = useApi<InvoicesResponse>({
+  const { data: invoices, isFetching: invoicesIsFetching } = useApi<CustomerInvoicesResponse>({
     queryKey: ['/invoices/pending', searchParams.toString()],
     url: `/invoices/pending?${searchParams.toString()}`,
     method: 'get',
