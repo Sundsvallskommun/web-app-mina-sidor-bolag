@@ -1,4 +1,10 @@
 {
+  "title": "Aktivitet",
+  "description": "Här ser du kontots aktivitet de senaste 36 månaderna. Exportlogg för statistik hittar du under Statistik.",
+  "card": {
+    "title": "Aktivitet",
+    "description": "Se inloggningar och HAN-portändringar på ditt konto."
+  },
   "item": {
     "company": "Företag",
     "supportReason": "Supportanledning",
