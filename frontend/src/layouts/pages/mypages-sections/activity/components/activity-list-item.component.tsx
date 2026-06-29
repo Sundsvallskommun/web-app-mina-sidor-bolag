@@ -49,16 +49,16 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
   return (
     <div
       data-cy="activity-list-item"
-      className="flex flex-col-reverse gap-8 rounded-cards bg-background-color-mixin-1 p-20 sm:flex-row sm:items-start sm:justify-between sm:gap-16"
+      className="flex flex-col-reverse gap-8 rounded-cards bg-background-color-mixin-1 p-16 sm:flex-row sm:items-center sm:justify-between sm:gap-16"
     >
-      <div className="flex flex-col gap-4">
-        <p className="m-0">
+      <div className="flex flex-col gap-4 text-dark-secondary">
+        <p className="m-0 text-dark-primary">
           <strong>{item.name}</strong>, {item.personNumber}
         </p>
         {renderDetails()}
         <p className="m-0">
           <strong>{t('activity:item.timestamp')}:</strong>{' '}
-          {dayjs(item.timestamp).format('DD MMMM YYYY, kl HH.mm').toLowerCase()}
+          {dayjs(item.timestamp).format('DD MMMM YYYY, kl. HH.mm').toLowerCase()}
         </p>
       </div>
       <div className="sm:shrink-0">
