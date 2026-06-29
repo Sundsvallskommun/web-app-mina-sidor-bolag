@@ -5,6 +5,27 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { MUNICIPALITY_ID } from '@/config';
 import { HttpException } from '@/exceptions/HttpException';
 import { logger } from '@/utils/logger';
+import { User } from '@/interfaces/users.interface';
+import getDelegatedFacilities from '@/services/delegation.service';
+import { getPersonEngagements } from '@services/legal-entity.service';
+
+export async function populateRepresentingCache(req: RequestWithUser, user: User): Promise<void> {
+  if (!user?.partyId) return;
+
+  req.session.cache ??= {};
+
+  if (user.personNumber) {
+    req.session.representingBusinessChoices = await getPersonEngagements(user).catch(err => {
+      logger.error('Error fetching business engagements:', err);
+      return [];
+    });
+  }
+
+  req.session.cache.delegations = await getDelegatedFacilities(user.partyId).catch(err => {
+    logger.error('Error fetching delegated facilities:', err);
+    return [];
+  });
+}
 
 export class SessionCacheService {
   private readonly apiService = new ApiService();
@@ -31,7 +52,7 @@ export class SessionCacheService {
     const allCustomerNumbers = new Set<string>();
     const { representing } = req.session ?? {};
 
-    if (req.session.cache.relations) return;
+    if (req.session.cache.relations?.customerRelations.length > 0) return;
 
     const partyId = getRepresentingPartyId(representing);
     if (!partyId) throw new HttpException(400, 'Representing partyId not available');

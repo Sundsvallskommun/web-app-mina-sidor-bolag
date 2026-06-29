@@ -19,6 +19,7 @@ import { CitizenController } from './controllers/citizen.controller';
 import EventLogController from '@controllers/event-log.controller';
 import { BFUSController } from './controllers/bfus.controller';
 import { SelfServiceAiController } from '@controllers/self-service-ai.controller';
+import { ImpersonationController } from '@controllers/impersonation.controller';
 import { DisturbancesController } from '@controllers/disturbances.controller';
 
 validateEnv();
@@ -43,6 +44,7 @@ const app = new App([
   EventLogController,
   BFUSController,
   SelfServiceAiController,
+  ImpersonationController,
   DisturbancesController,
 ]);
 
