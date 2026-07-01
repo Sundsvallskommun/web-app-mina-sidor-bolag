@@ -21,28 +21,18 @@ const DeprecationNotice = () => {
       <Label className="w-fit mb-16" rounded>
         FÖR ORGANISATIONER
       </Label>
-      <p className="font-bold">Den gamla Mina sidor stänger 1 juni 2026</p>
+      <p className="font-bold">Den 1 juli stängde vi gamla Mina sidor</p>
       <p className="pb-16">
-        Vi byter till säkrare inloggning med BankID – det ger bättre kontroll över vem som kommer åt ert konto och vad
-        de gör. För att era medarbetare ska kunna logga in på nya Mina sidor behöver firmatecknaren eller VD:n logga in
-        en gång och lägga till dem som ombud.
+        Vi har bytt till säkrare inloggning med BankID – det ger bättre kontroll över vem som kommer åt ert konto och
+        vad de gör. För att era medarbetare ska kunna logga in på nya Mina sidor behöver firmatecknaren eller VD:n logga
+        in en gång och lägga till dem som ombud.
       </p>
       <p className="font-bold">
         Observera att regioner, myndigheter, kommuner och ideella föreningar kräver en särskild hantering.
       </p>
-      <Link href="https://sundsvallelnat.se/ombud" target="_blank" className="text-small mt-8 mb-24">
+      <Link href="https://sundsvallelnat.se/ombud" target="_blank" className="text-small mt-8">
         Mer information om hur ni kommer igång →
       </Link>
-      <a
-        className="sk-btn sk-btn-lg sk-btn-secondary flex-grow w-full"
-        href="https://e-tjanster.stadsbacken.se/foretag"
-        target="_blank"
-      >
-        <Button.Content>
-          Till gamla Mina Sidor (Organisationer)
-          <Icon icon={<ArrowRight />} />
-        </Button.Content>
-      </a>
     </div>
   );
 };
