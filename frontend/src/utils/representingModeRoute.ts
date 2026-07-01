@@ -21,6 +21,8 @@ export const getRepresentingModeName = (representingMode: RepresentingMode, opti
       return 'privat';
     case RepresentingMode.BUSINESS:
       return options.urlFriendly ? 'foretag' : 'företag';
+    case RepresentingMode.ADMIN:
+      return 'admin';
     default:
       return '';
   }
@@ -32,6 +34,8 @@ export const getRepresentingModeRoute = (representingMode: RepresentingMode) => 
       return `/${getRepresentingModeName(RepresentingMode.PRIVATE, { urlFriendly: true })}`;
     case RepresentingMode.BUSINESS:
       return `/${getRepresentingModeName(RepresentingMode.BUSINESS, { urlFriendly: true })}`;
+    case RepresentingMode.ADMIN:
+      return `/${getRepresentingModeName(RepresentingMode.ADMIN, { urlFriendly: true })}`;
     default:
       return '';
   }
@@ -45,6 +49,7 @@ const myPagesRegex = new RegExp(
 export const getRepresentingMode = (
   pathname: string = window.location.pathname.toString()
 ): RepresentingMode | null => {
+  if (pathname.match(getRepresentingModeRoute(RepresentingMode.ADMIN)) !== null) return RepresentingMode.ADMIN;
   if (pathname.match(getRepresentingModeRoute(RepresentingMode.PRIVATE)) !== null) return RepresentingMode.PRIVATE;
   if (pathname.match(getRepresentingModeRoute(RepresentingMode.BUSINESS)) !== null) return RepresentingMode.BUSINESS;
   return null;

@@ -1,0 +1,33 @@
+{
+  "adminLogin": "Administratörsinloggning",
+  "loginInternalAccount": "Logga in med ditt interna konto.",
+  "loginAsAdmin": "Logga in som administratör",
+  "administration": "Administration",
+  "loggedInAs": "Inloggad som {{user}}",
+  "title": "Växla användare",
+  "mainDescription": "Sök upp en kund via personnummer och växla till deras vy.",
+  "description": "Ange kundens personnummer för att logga in och ta del av kundens Mina sidor.",
+  "searchFieldLabel": "Sök personnummer (ååååmmddnnnn)",
+  "search": "Sök",
+  "tableHeader": {
+    "name": "Namn",
+    "representingNumber": "Personnummer"
+  },
+  "canRepresent": "{{name}}, {{personNumber}} företräder följande organisationer:",
+  "accessReason": {
+    "title": "Åtkomstskäl *",
+    "chooseAlternative": "Välj ett alternativ",
+    "error": "Åtkomstskäl måste anges."
+  },
+  "error": {
+    "personNumber": "Fyll i ett korrekt personnummer",
+    "accessReason": "Åtkomstskäl måste anges",
+    "representingNumber": "Välj en person eller företag att växla till",
+    "impersonation": "Kunde inte växla till vald användare."
+  },
+  "goBack": "Tillbaka",
+  "impersonate": "Växla till användare",
+  "loading": "Växlar till användare...",
+  "bannerInfo": "Du är inloggad på kontot som Administratör",
+  "exit": "Avsluta och gå tillbaka"
+}

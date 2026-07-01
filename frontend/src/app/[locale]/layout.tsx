@@ -26,6 +26,7 @@ const namespaces = [
   'bankid',
   'event',
   'eligibility',
+  'impersonation',
   'disturbances',
 ];
 

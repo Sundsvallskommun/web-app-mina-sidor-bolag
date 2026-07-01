@@ -130,3 +130,10 @@ export const getBfusPartyPermissions: (
     ],
   },
 });
+
+export const getEmptyBfusPartyPermissions: () => BFUSEligiblePartyPermissionsApiResponse = () => ({
+  message: 'success',
+  data: {
+    eligablePartyParts: [],
+  },
+});
