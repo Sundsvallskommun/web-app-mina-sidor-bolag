@@ -8,7 +8,6 @@ import { appName } from '@utils/app-name';
 import React from 'react';
 import { Logotypes } from '@components/logotypes/logotypes.component';
 import { AlertBanner } from '@components/alert-banner/alert-banner.component';
-import { ReferralBanner } from '@components/referral-banner/referral-banner.component';
 import { ExtendedViewBanner } from '@components/extended-view-banner/extended-view-banner.component';
 
 interface DefaultLayoutProps {
@@ -30,7 +29,6 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         {isMinDesktop && <SiteMenu />}
       </Header>
       <AlertBanner />
-      <ReferralBanner />
       {children}
     </Layout>
   );
