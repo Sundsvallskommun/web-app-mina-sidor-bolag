@@ -3,7 +3,7 @@
 import { Button, DatePicker, FormLabel, Icon, Modal, RadioButton } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { ListFilter } from 'lucide-react';
-import { ChangeEvent, ReactElement, useId, useState } from 'react';
+import { ChangeEvent, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const LOOKBACK_MONTHS = 36;
@@ -33,27 +33,23 @@ const MAX_DATE = dayjs().format('YYYY-MM-DD');
 
 const FilterFields = ({ value, onChange }: ActivityFilterProps): ReactElement => {
   const { t } = useTranslation('activity');
-  const groupName = useId();
 
   return (
     <>
       <fieldset className="flex flex-col gap-12">
         <FormLabel className="text-label-large">{t('activity:filter.show')}</FormLabel>
-        <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
+        <RadioButton.Group className="gap-8 sm:!flex-row sm:gap-16" size="lg" value={value.activityTypeFilter}>
           {ACTIVITY_TYPE_FILTERS.map((option) => (
             <RadioButton
               key={option}
-              name={groupName}
-              size="lg"
               value={option}
-              checked={value.activityTypeFilter === option}
               onChange={() => onChange({ ...value, activityTypeFilter: option })}
               data-cy={`activity-filter-${option}`}
             >
               {t(`activity:filter.${option}`)}
             </RadioButton>
           ))}
-        </div>
+        </RadioButton.Group>
       </fieldset>
 
       <div className="flex flex-col gap-8">
