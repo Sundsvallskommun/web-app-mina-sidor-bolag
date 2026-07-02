@@ -52,6 +52,8 @@ export interface Violation {
 
 /** Event model */
 export interface Event {
+  /** Unique identifier for this event */
+  id?: string;
   /** Unique identifier */
   logKey?: string;
   /**
@@ -67,6 +69,14 @@ export interface Event {
    * * `DROP` - skip, omit, ignore, disregard
    */
   type: EventType;
+  /** Event sub type */
+  subType?: string;
+  /** Request group id, groups events originating from the same operation */
+  requestGroupId?: string;
+  /** The user that executed the action that caused this event */
+  executingUser?: null;
+  /** Additional details about the event */
+  details?: string;
   /** Municipality ID */
   municipalityId?: string;
   /**
@@ -78,7 +88,7 @@ export interface Event {
    * Date when event can be scheduled for delete. 'null' means never
    * @format date-time
    */
-  expires?: string;
+  expires?: string | null;
   /**
    * Service that created event
    * @minLength 1
@@ -90,9 +100,9 @@ export interface Event {
    */
   created?: string;
   /** Historical external reference to an immutable snapshot of data */
-  historyReference?: string;
+  historyReference?: string | null;
   /** Source which the event refers to */
-  sourceType?: string;
+  sourceType?: string | null;
   metadata?: Metadata[];
 }
 
@@ -119,6 +129,31 @@ export enum EventType {
   DROP = 'DROP',
 }
 
+/** Executing user model */
+export interface ExecutingUser {
+  /**
+   * ## Executing user types:
+   * * `AD_USER` - Active Directory user
+   * * `PARTY_ID` - Party identifier (UUID)
+   */
+  type: ExecutingUserType;
+  /**
+   * The identifier of the executing user
+   * @minLength 1
+   */
+  value: string;
+}
+
+/**
+ * ## Executing user types:
+ * * `AD_USER` - Active Directory user
+ * * `PARTY_ID` - Party identifier (UUID)
+ */
+export enum ExecutingUserType {
+  AD_USER = 'AD_USER',
+  PARTY_ID = 'PARTY_ID',
+}
+
 /** Metadata model */
 export interface Metadata {
   /**
@@ -134,10 +169,10 @@ export interface Metadata {
 }
 
 export interface PageEvent {
-  /** @format int32 */
-  totalPages?: number;
   /** @format int64 */
   totalElements?: number;
+  /** @format int32 */
+  totalPages?: number;
   /** @format int32 */
   size?: number;
   content?: Event[];

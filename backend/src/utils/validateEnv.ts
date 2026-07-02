@@ -34,6 +34,9 @@ const validateEnv = () => {
     SAML_SUCCESS_REDIRECT: str(),
     ENEO_API_KEY: str(),
     FEEDBACK_EMAIL: emails(),
+    ADMIN_GROUP: str(),
+    NAMESPACE: str(),
+    WHITELISTED_ORGS: str(),
   });
 };
 

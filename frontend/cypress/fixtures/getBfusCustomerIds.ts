@@ -5,3 +5,8 @@ export const getBfusCustomerIds: (representingMode: RepresentingMode) => BFUSCus
   data: { customerIds: [12345678] },
   message: 'success',
 });
+
+export const getEmptyBfusCustomerIds: (representingMode: RepresentingMode) => BFUSCustomerIdsApiResponse = () => ({
+  data: { customerIds: [] },
+  message: 'success',
+});

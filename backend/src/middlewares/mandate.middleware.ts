@@ -13,7 +13,7 @@ const mandateMiddleware = async (req: RequestWithUser, res: Response, next: Next
     const { grantorId } = cacheHandler.get<SignMandateCache>('mandates', body.transactionId);
     if (
       req.session.representing.BUSINESS.partyId === grantorId &&
-      req.session.representing.BUSINESS.isAuthorizedSignatory
+      (req.session.representing.BUSINESS.isAuthorizedSignatory || req.session.representing.BUSINESS.whitelisted)
     ) {
       next();
     } else {

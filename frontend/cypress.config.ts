@@ -10,6 +10,8 @@ export default defineConfig({
     env: {
       apiUrl: `${process.env.NEXT_PUBLIC_API_URL}`,
       // IMPORTANT
+      // The value below is a test person number from Skatteverket, it is not a real person number
+      mockPersonNumber: '199001012385',
       // The value below is a test email
       mockEmail: 'mail@example.com',
       // The value below is a test phone number from Post- och telestyrelsen, it is not a real phone number

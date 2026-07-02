@@ -1,20 +1,18 @@
 import { InvoiceStatus } from '@interfaces/invoice';
 import { statusMapInvoices } from '@services/invoice-service';
+import { CustomerInvoice } from '@data-contracts/backend/data-contracts';
 
-const baseInvoice = {
+const baseInvoice: CustomerInvoice = {
   dueDate: '2024-08-30',
   totalAmount: 814,
   amountVatIncluded: 813.5,
   amountVatExcluded: 651.2,
   vatEligibleAmount: 651.2,
   rounding: 0.5,
-  vat: 162.8,
-  reversedVat: false,
   pdfAvailable: false,
-  currency: 'SEK',
   invoiceDate: '2024-08-30',
-  fromDate: '2024-08-30',
-  toDate: '2024-08-30',
+  periodFrom: '2024-08-30',
+  periodTo: '2024-08-30',
   invoiceNumber: '999',
   invoiceStatus: 'PAID',
   ocrNumber: '96758235',
@@ -22,14 +20,12 @@ const baseInvoice = {
   invoiceName: 'faktura-999.pdf',
   invoiceType: 'INVOICE',
   invoiceDescription: 'Fjärrvärme',
-  invoiceAddress: {
-    street: 'Storgatan 1',
-    postcode: '11122',
-    city: 'Sundsvall',
-    careOf: 'Kalle',
-  },
-  facilityId: '111',
-  invoiceOrigin: 'COMMERCIAL',
+  street: 'Storgatan 1',
+  postCode: '11122',
+  city: 'Sundsvall',
+  careOf: 'Kalle',
+  facilityIds: ['111'],
+  details: [],
 };
 
 export const getGeneratedInvoices = () =>

@@ -21,28 +21,18 @@ const DeprecationNotice = () => {
       <Label className="w-fit mb-16" rounded>
         FÖR ORGANISATIONER
       </Label>
-      <p className="font-bold">Den gamla Mina sidor stänger 1 juni 2026</p>
+      <p className="font-bold">Den 1 juli stängde vi gamla Mina sidor</p>
       <p className="pb-16">
-        Vi byter till säkrare inloggning med BankID – det ger bättre kontroll över vem som kommer åt ert konto och vad
-        de gör. För att era medarbetare ska kunna logga in på nya Mina sidor behöver firmatecknaren eller VD:n logga in
-        en gång och lägga till dem som ombud.
+        Vi har bytt till säkrare inloggning med BankID – det ger bättre kontroll över vem som kommer åt ert konto och
+        vad de gör. För att era medarbetare ska kunna logga in på nya Mina sidor behöver firmatecknaren eller VD:n logga
+        in en gång och lägga till dem som ombud.
       </p>
       <p className="font-bold">
         Observera att regioner, myndigheter, kommuner och ideella föreningar kräver en särskild hantering.
       </p>
-      <Link href="https://sundsvallelnat.se/ombud" target="_blank" className="text-small mt-8 mb-24">
+      <Link href="https://sundsvallelnat.se/ombud" target="_blank" className="text-small mt-8">
         Mer information om hur ni kommer igång →
       </Link>
-      <a
-        className="sk-btn sk-btn-lg sk-btn-secondary flex-grow w-full"
-        href="https://e-tjanster.stadsbacken.se/foretag"
-        target="_blank"
-      >
-        <Button.Content>
-          Till gamla Mina Sidor (Organisationer)
-          <Icon icon={<ArrowRight />} />
-        </Button.Content>
-      </a>
     </div>
   );
 };
@@ -56,6 +46,7 @@ function Login() {
 
   const isLoggedOut = searchParams?.get('loggedout') === '';
   const failMessage = searchParams?.get('failMessage');
+  const path = searchParams?.get('path');
 
   // Turn on/off automatic login
   const autoLogin = false;
@@ -98,6 +89,9 @@ function Login() {
             setErrorMessage(t('common:login.error.login'));
             break;
           //
+        }
+        if (path === '/admin' && failMessage) {
+          setErrorMessage(t('common:login.error.adminMissingPermissions'));
         }
       }
     }
@@ -163,7 +157,7 @@ function Login() {
                         {t('common:organization')}
                       </Button>
                     </div>
-                    {errorMessage && <FormErrorMessage className="text-error mt-lg">{errorMessage}</FormErrorMessage>}
+                    {errorMessage && <FormErrorMessage className="text-error">{errorMessage}</FormErrorMessage>}
 
                     <DeprecationNotice />
                   </div>

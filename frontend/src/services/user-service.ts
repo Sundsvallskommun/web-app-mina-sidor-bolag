@@ -13,6 +13,8 @@ const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
   },
   addresses: res.data.addresses,
   facilities: res.data.facilities,
+  extendedView: res.data.extendedView,
+  isExtendingView: res.data.isExtendingView,
 });
 
 export const getMe: () => Promise<User> = () => {
