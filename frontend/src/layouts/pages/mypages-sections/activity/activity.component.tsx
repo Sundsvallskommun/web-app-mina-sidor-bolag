@@ -97,7 +97,7 @@ export const ActivityComponent = () => {
     return (
       data &&
       data.totalPages > 1 && (
-        <div className="flex justify-center">
+        <div className="flex justify-center" data-cy="activity-pagination">
           <Pagination
             fitContainer={true}
             pages={data.totalPages}
