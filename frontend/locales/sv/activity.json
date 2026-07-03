@@ -17,5 +17,18 @@
     "impersonation": "Kundtjänst",
     "hanActivated": "HAN-port aktiverad",
     "hanDeactivated": "HAN-port inaktiverad"
+  },
+  "filter": {
+    "filter": "Filter",
+    "title": "Filtrera",
+    "show": "Visa",
+    "all": "Allt",
+    "login": "Inloggningar",
+    "han": "HAN-port (mätaranslutning)",
+    "period": "Period",
+    "from": "Från",
+    "to": "Till",
+    "cancel": "Avbryt",
+    "apply": "Välj"
   }
 }
