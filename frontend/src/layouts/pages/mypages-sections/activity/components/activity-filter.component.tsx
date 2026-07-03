@@ -86,7 +86,7 @@ const FilterFields = ({ value, onChange }: ActivityFilterProps): ReactElement =>
 };
 
 const DesktopFilterBar = ({ value, onChange }: ActivityFilterProps): ReactElement => (
-  <div className="hidden sm:flex sm:items-end sm:justify-between sm:gap-24">
+  <div className="hidden sm:flex sm:items-end sm:justify-between sm:gap-24 h-[86px]">
     <FilterFields value={value} onChange={onChange} />
   </div>
 );
@@ -109,8 +109,8 @@ const MobileFilterOverlay = ({ value, onChange }: ActivityFilterProps): ReactEle
   return (
     <>
       <Button
-        variant="secondary"
-        size="sm"
+        color="primary"
+        size="md"
         className="sm:hidden"
         leftIcon={<Icon icon={<ListFilter />} />}
         onClick={openModal}

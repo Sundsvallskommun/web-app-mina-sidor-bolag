@@ -53,7 +53,8 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
     >
       <div className="flex flex-col gap-4 text-dark-secondary">
         <p className="m-0 text-dark-primary">
-          <strong>{item.name}</strong>, {item.personNumber}
+          <strong>{item.name}</strong>
+          {item.personNumber ? `, ${item.personNumber}` : ''}
         </p>
         {renderDetails()}
         <p className="m-0">
