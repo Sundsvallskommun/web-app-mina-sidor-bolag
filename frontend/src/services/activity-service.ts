@@ -91,7 +91,7 @@ const groupByYearMonth = (items: ActivityItem[]): ActivityYearGroup[] => {
 export const mapActivityResponse = (data: PagedEventsResponse): ActivityData => {
   const events = (data.content ?? []) as EventResponse[];
   return {
-    years: groupByYearMonth(events.map(mapEvent)),
+    years: groupByYearMonth(events.map((event, index) => mapEvent(event, index))),
     totalPages: data.totalPages ?? 0,
     totalElements: data.totalElements ?? 0,
   };
