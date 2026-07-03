@@ -102,7 +102,7 @@ describe('Aktivitet', () => {
     cy.get('[data-cy="activity-pagination"]').should('exist');
 
     cy.intercept('GET', '**/api/event/activity?**page=1**', getActivityEventsPageTwo()).as('getActivityPage2');
-    cy.get('[data-cy="activity-pagination"]').contains('2').click({ force: true });
+    cy.get('[data-cy="activity-pagination"]').contains('2').click();
 
     cy.wait('@getActivityPage2').its('request.query.page').should('eq', '1');
     cy.get('[data-cy="activity-list-item"]').should('include.text', 'Sven Svensson');
