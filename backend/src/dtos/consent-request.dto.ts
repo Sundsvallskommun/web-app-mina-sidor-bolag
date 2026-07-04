@@ -1,28 +1,26 @@
-import { IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNumber, IsIn } from 'class-validator';
 
-export class PermissionHeaderDto {
+export class ConsentHeaderDto {
   @IsString()
   ExternalId: string;
-
   @IsString()
+  @IsIn(['grant', 'deny', 'revoke'])
   Operation: 'grant' | 'deny' | 'revoke';
 }
 
-export class PermissionRequestDto {
+export class ConsentRequestDto {
   @IsString()
   EligablePartyId: string;
-
   @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
   ContractIdList?: number[];
-
   @IsOptional()
   @IsNumber()
   CustomerId?: number;
 }
 
-export class FullPermissionDto {
-  Header: PermissionHeaderDto;
-  PermissionRequest: PermissionRequestDto;
+export class FullConsentDto {
+  Header: ConsentHeaderDto;
+  PermissionRequest: ConsentRequestDto;
 }

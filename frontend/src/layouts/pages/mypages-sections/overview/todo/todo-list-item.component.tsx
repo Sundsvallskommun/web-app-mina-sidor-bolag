@@ -6,7 +6,7 @@ import { getAdjustedPathname } from '@utils/representingModeRoute';
 import { ChevronRight, FileCheck, Files } from 'lucide-react';
 import NextLink from 'next/link';
 
-type TodoTypeUnion = 'eligibility' | 'invoices';
+type TodoTypeUnion = 'consent' | 'invoices';
 
 interface TodoListItemProps {
   type: TodoTypeUnion;
@@ -20,10 +20,8 @@ const getIcon = (type: TodoTypeUnion) => {
   switch (type) {
     case 'invoices':
       return <Files />;
-
-    case 'eligibility':
+    case 'consent':
       return <FileCheck />;
-
     default:
       return <></>;
   }

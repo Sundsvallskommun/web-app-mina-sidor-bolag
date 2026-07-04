@@ -1,8 +1,8 @@
-import { BFUSEligablePartyPart, BFUSEndReason, BFUSStatusCode } from '@/interfaces/bfus.interface';
+import { BFUSConsent, BFUSEndReason, BFUSStatusCode } from '@/interfaces/bfus.interface';
 
-export type PermissionStatusCategory = 'new' | 'ongoing' | 'denied' | 'ended' | 'revoked' | 'expired';
+export type ConsentStatusCategory = 'new' | 'ongoing' | 'denied' | 'ended' | 'revoked' | 'expired';
 
-export const mapPartStatus = (part: BFUSEligablePartyPart): PermissionStatusCategory => {
+export const mapPartStatus = (part: BFUSConsent): ConsentStatusCategory => {
   switch (part.StatusCode) {
     case BFUSStatusCode.New:
       return 'new';

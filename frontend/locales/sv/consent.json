@@ -3,7 +3,7 @@
   "description": "Här kan du se och hantera vilka energitjänsteleverantörer som får ta del av dina mätvärden.",
   "noData": "Du har inga medgivanden.",
   "noCustomerId": "Du har just nu inga medgivanden.",
-  "permissions": {
+  "consents": {
     "new": "Nytt medgivande",
     "current": "Aktuella",
     "closed": "Avslutade",
