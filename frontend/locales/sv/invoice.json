@@ -15,7 +15,7 @@
   "toPay": "Belopp",
   "amount": "{{amount}} kr",
   "period": "Period",
-  "periodFromAndTo": "{{from}} - {{to}}",
+  "periodFromAndTo": "{{from}} – {{to}}",
   "unknown": "Okänd",
   "other": "Övrigt",
   "facilityId": "Anläggnings-ID: {{facilityId}}",

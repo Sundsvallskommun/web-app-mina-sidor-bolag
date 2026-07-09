@@ -35,7 +35,7 @@ export const InvoiceListItem = ({ invoice, limit }: InvoiceListItemProps) => {
       >
         <div className="flex-1">
           <div className="flex md:flex-row flex-col justify-between text-large">
-            <div className="flex gap-16 sm:items-center items-start">
+            <div className="flex gap-16 md:justify-start justify-between sm:items-center items-start">
               <p>{invoice.invoiceDescription}</p>
               <InvoiceLabel invoiceStatus={invoice.invoiceStatus} />
             </div>
