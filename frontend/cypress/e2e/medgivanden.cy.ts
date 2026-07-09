@@ -67,16 +67,14 @@ describe('Dina medgivanden', () => {
   });
 
   it('can handle user with customerIds, without any consents', () => {
-    cy.intercept('GET', '**/api/bfus/eligable-party-consents?customerIds=12345678', { fixture: null }).as(
-      'getConsents'
-    );
+    cy.intercept('GET', '**/api/bfus/consents?customerIds=12345678', { fixture: null }).as('getConsents');
     handleVisitWait();
     cy.get('[data-cy="no-data"]').should('exist').contains('Du har inga medgivanden.');
   });
 
   it('can handle user without customerIds or consents', () => {
     cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', { fixture: null }).as('getCustomerIds');
-    cy.intercept('GET', '**/api/bfus/eligable-party-consents?customerIds=12345678', { fixture: null });
+    cy.intercept('GET', '**/api/bfus/consents?customerIds=12345678', { fixture: null }).as('getConsents');
     cy.visit('/privat/medgivanden');
     cy.get('[data-cy="no-customer-id"]').should('exist').contains('Du har just nu inga medgivanden.');
   });
