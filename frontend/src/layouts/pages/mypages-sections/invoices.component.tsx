@@ -1,12 +1,13 @@
 'use client';
 
-import { Button, FormControl, FormLabel, Select, Spinner, useThemeQueries } from '@sk-web-gui/react';
+import { Button, FormControl, FormLabel, Select, useThemeQueries } from '@sk-web-gui/react';
 import { InvoicesList } from './invoices/invoice-list/invoices-list.component';
 import React, { useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useTranslation } from 'react-i18next';
 import { emptyInvoicesList, useInvoicesQuery } from '@services/invoice-service';
+import { InvoicesSection } from '@layouts/pages/mypages-sections/invoices/invoices-section/invoices-section.component';
 
 export default function Invoices() {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
@@ -53,7 +54,7 @@ export default function Invoices() {
           <h1>{t('invoice:title')}</h1>
         </div>
       </div>
-      {userData && userData.addresses?.length > 1 ? (
+      {userData && userData.addresses?.length > 1 && (
         <FormControl className="w-full desktop:w-fit">
           <FormLabel>{t('invoice:byAddress')}</FormLabel>
           <Select className="w-full" title="address" size="md" onSelectValue={handleOnSelectAddress}>
@@ -67,13 +68,13 @@ export default function Invoices() {
             ))}
           </Select>
         </FormControl>
-      ) : undefined}
+      )}
 
       <div className="flex flex-col gap-64" data-cy="invoices-wrapper">
         <div data-cy="unhandled-invoices">
           <h2 className="text-h3 mb-24">{t('invoice:unhandled')}</h2>
 
-          {onlyPending.invoices.length > 0 ? (
+          <InvoicesSection data={onlyPending} isFetching={pendingFetching} isError={pendingError} emptyDataCy="no-data">
             <div>
               <InvoicesList
                 data={onlyPending}
@@ -81,7 +82,7 @@ export default function Invoices() {
                 facilityIds={facilityIds?.join(',') ?? ''}
               />
 
-              {canFetchPending ? (
+              {canFetchPending && (
                 <div className="flex flex-col items-center gap-12">
                   <p className="text-small text-center text-secondary mt-lg">
                     {t('invoice:showing', { count: onlyPending.invoices.length, total: onlyPending.totalCount })}
@@ -96,20 +97,14 @@ export default function Invoices() {
                     {t('invoice:showMore')}
                   </Button>
                 </div>
-              ) : null}
+              )}
             </div>
-          ) : pendingFetching ? (
-            <Spinner className="mx-auto" />
-          ) : pendingError ? (
-            <p>{t('invoice:loadError')}</p>
-          ) : (
-            <p>{t('invoice:noData')}</p>
-          )}
+          </InvoicesSection>
         </div>
 
         <div data-cy="all-invoices">
           <h2 className="text-h3 mb-24">{t('invoice:all')}</h2>
-          {allInvoices.invoices.length > 0 ? (
+          <InvoicesSection data={allInvoices} isFetching={isFetching} isError={isError} emptyDataCy="no-data">
             <div>
               <InvoicesList
                 data={allInvoices}
@@ -121,7 +116,7 @@ export default function Invoices() {
                 <p className="text-small text-center text-secondary mt-lg">
                   {t('invoice:showing', { count: allInvoices.invoices.length, total: allInvoices.totalCount })}
                 </p>
-                {canFetch ? (
+                {canFetch && (
                   <Button
                     variant="secondary"
                     size="lg"
@@ -130,16 +125,10 @@ export default function Invoices() {
                   >
                     {t('invoice:showMore')}
                   </Button>
-                ) : undefined}
+                )}
               </div>
             </div>
-          ) : isFetching ? (
-            <Spinner className="mx-auto" />
-          ) : isError ? (
-            <p>{t('invoice:loadError')}</p>
-          ) : (
-            <p data-cy="no-data">{t('invoice:noData')}</p>
-          )}
+          </InvoicesSection>
         </div>
       </div>
     </div>
