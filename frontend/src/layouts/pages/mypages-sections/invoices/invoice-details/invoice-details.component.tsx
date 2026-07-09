@@ -76,7 +76,7 @@ export const InvoiceDetails = ({ groupedDetails }: { groupedDetails: GroupedDeta
                 {items.map((item, i) => (
                   <div key={`${item.productCode}-${i}`}>
                     <Divider className="my-16" />
-                    <p className="font-bold">{item.productName}</p>
+                    <p className="text-large font-bold">{item.productName}</p>
                     <p>{t('invoice:periodFromAndTo', { from: item.fromDate, to: item.toDate })}</p>
                     <div className="flex pt-8 justify-between">
                       <p className="font-bold">{t('invoice:quantity')}</p>
