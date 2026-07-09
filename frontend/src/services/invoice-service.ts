@@ -1,5 +1,5 @@
 import { IInvoice, InvoicePdfData, InvoiceStatus, InvoicesData } from '@interfaces/invoice';
-import { apiService, ApiResponse } from './api-service';
+import { apiService, ApiResponse, useApi } from './api-service';
 import { CustomerInvoice, CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 
 export const emptyInvoicesList: InvoicesData = {
@@ -53,12 +53,6 @@ export const mapStatus = (s?: InvoiceStatus) => {
 export const handleInvoiceResponse: (data: CustomerInvoicesResponse) => IInvoice[] = (data) =>
   data.invoices ? data.invoices.map((n: CustomerInvoice) => ({ ...n, invoiceStatus: mapStatus(n.invoiceStatus) })) : [];
 
-// export const getInvoices: () => Promise<InvoicesData> = () =>
-//   apiService
-//     .get<ApiResponse<InvoicesResponse>>('invoices')
-//     .then((res) => ({ invoices: handleInvoiceResponse(res.data), labels: invoicesLabels } as InvoicesData))
-//     .catch((e) => ({ ...emptyInvoicesList, error: e.response?.status ?? 'UNKNOWN ERROR' } as InvoicesData));
-
 export const invoicesHandler = (data: CustomerInvoicesResponse): InvoicesData => ({
   invoices: handleInvoiceResponse(data),
   labels: invoicesLabels,
@@ -66,25 +60,7 @@ export const invoicesHandler = (data: CustomerInvoicesResponse): InvoicesData =>
 });
 
 export const notPaidInvoices = ['UNPAID', 'SENT', 'PARTIALLY_PAID', 'REMINDER', 'DEBT_COLLECTION'];
-export const getNotPaidInvoices: (invoicesData: InvoicesData) => InvoicesData = (invoicesData) => ({
-  ...invoicesData,
-  labels: invoicesLabels,
-  invoices: invoicesData?.invoices.filter((x) => notPaidInvoices.includes(x.invoiceStatus.code)),
-});
-
 export const paidInvoices = ['PAID', 'PAID_TOO_MUCH'];
-export const getPaidInvoices: (invoicesData: InvoicesData) => InvoicesData = (invoicesData) => ({
-  ...invoicesData,
-  labels: invoicesLabels,
-  invoices: invoicesData?.invoices.filter((x) => paidInvoices.includes(x.invoiceStatus.code)),
-});
-
-export const otherInvoices = ['CREDITED', 'WRITTEN_OFF', 'UNKNOWN', 'VOID'];
-export const getOtherInvoices: (invoicesData: InvoicesData) => InvoicesData = (invoicesData) => ({
-  ...invoicesData,
-  labels: invoicesLabels,
-  invoices: invoicesData?.invoices.filter((x) => otherInvoices.includes(x.invoiceStatus.code)),
-});
 
 export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) => Promise<InvoicePdfData> = (
   organizationNumber,
@@ -94,3 +70,23 @@ export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) 
     .get<ApiResponse<string>>(`invoicepdf/${organizationNumber}/${invoiceNumber}`)
     .then((res) => ({ data: res.data.data }))
     .catch((e) => ({ data: '', error: e.response?.status ?? 'UNKNOWN ERROR' }) as InvoicePdfData);
+
+export const useInvoicesQuery = ({
+  pending,
+  limit,
+  facilityIds,
+}: {
+  pending: boolean;
+  limit: number;
+  facilityIds: string[];
+}) =>
+  useApi<CustomerInvoicesResponse, Error, InvoicesData>({
+    queryKey: [pending ? 'pendingInvoices' : 'allInvoices', limit.toString(), facilityIds.toString()],
+    url: `/invoices${pending ? '/pending' : ''}?page=1&limit=${limit}&facilityId=${facilityIds.toString()}`,
+    method: 'get',
+    dataHandler: invoicesHandler,
+    queryOptions: {
+      placeholderData: (prev) => prev,
+      enabled: facilityIds.length > 0,
+    },
+  });
