@@ -6,15 +6,19 @@ import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.compon
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '@services/api-service';
-import { GroupedDetails, InvoicesData } from '@interfaces/invoice';
+import { InvoicesData } from '@interfaces/invoice';
 import { CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
 import { invoicesHandler } from '@services/invoice-service';
 import { User } from '@interfaces/user';
 import { InvoiceLabel } from '@layouts/pages/mypages-sections/invoices/invoice-label/invoice-label.component';
 import { InvoiceDetails } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details.component';
 import { DownloadPdfButton } from '@layouts/pages/mypages-sections/invoices/get-pdf-button.component';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { PagesLayout } from '@layouts/pages-layout.component';
+import {
+  getInvoiceAddress,
+  groupInvoiceDetails,
+} from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details-helpers';
 
 export const Invoice = () => {
   const params = useParams<{ slug: [string, string] }>();
@@ -23,12 +27,6 @@ export const Invoice = () => {
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
-
-  const getInvoiceAddress = useCallback(
-    (facilityIds: string[]): string =>
-      userData?.addresses.find((address) => facilityIds.some((id) => address.facilityIds.includes(id)))?.address ?? '',
-    [userData]
-  );
 
   const facilityIds =
     userData?.facilities
@@ -49,13 +47,10 @@ export const Invoice = () => {
   });
 
   const invoice = data?.invoices.find((i) => i.invoiceNumber === invoiceNumber);
-
-  const groupedDetails = invoice?.details.reduce<GroupedDetails>((acc, d) => {
-    const fac = d.facilityId ?? t('invoice:unknown');
-    const desc = d.description ?? t('invoice:other');
-    ((acc[fac] ??= {})[desc] ??= []).push(d);
-    return acc;
-  }, {});
+  const groupedDetails = groupInvoiceDetails(invoice?.details ?? [], {
+    unknown: t('invoice:unknown'),
+    other: t('invoice:other'),
+  });
 
   if (isLoading) return <Spinner className="mx-auto my-80" />;
   if (isError)
@@ -76,6 +71,8 @@ export const Invoice = () => {
         </NextLink>
       </PagesLayout>
     );
+
+  const invoiceAddress = getInvoiceAddress(userData, invoice?.facilityIds ?? []);
 
   return (
     <PagesBreadcrumbsLayout
@@ -117,7 +114,7 @@ export const Invoice = () => {
           </div>
           <div className="pr-24">
             <p className="font-bold">{t('invoice:address')}</p>
-            <p>{getInvoiceAddress(invoice.facilityIds ?? [])}</p>
+            <p>{invoiceAddress}</p>
           </div>
           <div>
             <p className="font-bold">{t('invoice:period')}</p>
