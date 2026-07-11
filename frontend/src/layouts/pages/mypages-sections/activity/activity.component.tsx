@@ -19,7 +19,7 @@ const CURRENT_YEAR = dayjs().year();
 const OLDEST_YEAR = dayjs().subtract(LOOKBACK_MONTHS, 'month').year();
 const NAVIGABLE_YEARS = Array.from({ length: CURRENT_YEAR - OLDEST_YEAR + 1 }, (_, index) => CURRENT_YEAR - index);
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 12;
 const YEAR_PAGE_SIZE = 300;
 
 const toTimelineYears = (years: ActivityYearGroup[]): TimelineYear[] =>
