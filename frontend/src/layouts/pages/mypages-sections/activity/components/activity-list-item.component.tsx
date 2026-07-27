@@ -29,7 +29,7 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
       case 'hanActivated':
       case 'hanDeactivated':
         return (
-          <div className="flex flex-col gap-4 sm:flex-row sm:gap-0">
+          <div className="flex flex-col gap-4 md:flex-row md:gap-0">
             {item.address && (
               <p className="m-0">
                 <strong>{t('activity:item.address')}:</strong> {item.address}
@@ -37,7 +37,7 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
             )}
             {item.facilityId && (
               <p className="m-0">
-                {item.address && <span className="hidden sm:inline">, </span>}
+                {item.address && <span className="hidden md:inline">, </span>}
                 <strong>{t('activity:item.facilityId')}:</strong> {item.facilityId}
               </p>
             )}
@@ -49,11 +49,12 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
   return (
     <div
       data-cy="activity-list-item"
-      className="flex flex-col-reverse gap-8 rounded-cards bg-background-color-mixin-1 p-16 sm:flex-row sm:items-center sm:justify-between sm:gap-16"
+      className="flex flex-col-reverse gap-8 rounded-cards bg-background-color-mixin-1 p-16 md:flex-row md:items-center md:justify-between md:gap-16"
     >
       <div className="flex flex-col gap-4 text-dark-secondary">
         <p className="m-0 text-dark-primary">
-          <strong>{item.name}</strong>, {item.personNumber}
+          <strong>{item.name}</strong>
+          {item.personNumber ? `, ${item.personNumber}` : ''}
         </p>
         {renderDetails()}
         <p className="m-0">
@@ -61,7 +62,7 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
           {dayjs(item.timestamp).format('DD MMMM YYYY, kl. HH.mm').toLowerCase()}
         </p>
       </div>
-      <div className="sm:shrink-0">
+      <div className="md:shrink-0">
         <ActivityBadge activityType={item.type} />
       </div>
     </div>
