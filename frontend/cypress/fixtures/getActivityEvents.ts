@@ -58,7 +58,7 @@ const LOGIN = event('2026-05-20T14:13:00.000Z', 'Login', [
 ]);
 
 const IMPERSONATION = event('2026-05-18T09:46:00.000Z', 'Impersonation', [
-  { key: 'requestedByName', value: 'Ronny Lundberg' },
+  { key: 'requestedByName', value: 'Maja Andersson' },
   { key: 'requestedByPersonNumber', value: '198501011234' },
   { key: 'accessReason', value: 'I samtal med kunden' },
 ]);

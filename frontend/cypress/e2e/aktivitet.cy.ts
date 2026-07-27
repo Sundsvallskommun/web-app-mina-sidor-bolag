@@ -43,7 +43,7 @@ describe('Aktivitet', () => {
     cy.get('[data-cy="activity-badge-impersonation"]').should('contain.text', 'Kundtjänst');
     cy.get('[data-cy="activity-badge-impersonation"]')
       .closest('[data-cy="activity-list-item"]')
-      .should('include.text', 'Ronny Lundberg')
+      .should('include.text', 'Maja Andersson')
       .should('include.text', 'Supportanledning')
       .should('include.text', 'I samtal med kunden');
   });
