@@ -20,6 +20,9 @@ import { getOrgMandates } from 'cypress/fixtures/getMandate';
 import { RepresentingMode } from '@interfaces/app';
 import { isReady } from 'cypress/fixtures/ai';
 import { getBfusCustomerIds } from '../fixtures/getBfusCustomerIds';
+import { getOverviewDisturbances } from 'cypress/fixtures/getDisturbances';
+import { getPendingInvoices } from 'cypress/fixtures/getInvoices';
+import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -99,6 +102,15 @@ export const setIntercepts = (
     `**/api/measurementdata?category=ELECTRICITY&facilityIds=444&fromDate=*&toDate=*&aggregateOn=MONTH`,
     getOverviewElectricityData(fromDate, toDate)
   ).as('getOverviewPreviousFacilityData');
+
+  cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
+  cy.intercept('GET', '**/api/disturbances?status=*', getOverviewDisturbances()).as('getOverviewDisturbances');
+
+  cy.intercept(
+      'GET',
+      '**/api/bfus/new-permissions?customerIds=12345678',
+      getBfusPartyPermissions(RepresentingMode.PRIVATE)
+    ).as('getNewPermissions');
 };
 
 beforeEach(() => {

@@ -2,12 +2,13 @@ import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
 import { getAllDisturbances } from '../fixtures/getDisturbances';
 import { Affected } from '@data-contracts/backend/data-contracts';
+import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
 
 describe('Driftinformation', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.visit('/privat/driftinformation');
     cy.intercept('GET', '**/api/disturbances', getAllDisturbances()).as('getDisturbances');
+    cy.visit('/privat/driftinformation');
   });
 
   it('should render list of disturbances', () => {

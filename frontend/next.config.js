@@ -24,28 +24,40 @@ envalid.cleanEnv(process.env, {
 });
 
 module.exports = withBundleAnalyzer({
-  output: 'standalone',
+  turbopack: {},
   images: {
     remotePatterns: [{ hostname: process.env.DOMAIN_NAME || 'localhost' }],
     formats: ['image/avif', 'image/webp'],
   },
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
-  sassOptions: {
-    functions: {
-      'env($variable)': (variable) => {
-        const value = variable.getValue();
-        const envValue = process.env[value];
-        const sassValue = new nodeSass.SassString(envValue);
-        return sassValue;
-      },
-    },
-  },
   transpilePackages: ['lucide-react'],
   experimental: {
-    swcPlugins: process.env.TEST === 'true' ? [['swc-plugin-coverage-instrument', {}]] : [],
-    optimizePackageImports: ['@sk-web-gui'],
+    swcPlugins: process.env.COVERAGE === 'true' ? [['swc-plugin-coverage-instrument', {}]] : [],
+    optimizePackageImports: [
+      '@sk-web-gui/core',
+      '@sk-web-gui/react',
+      '@sk-web-gui/ai',
+      '@sk-web-gui/alert',
+      '@sk-web-gui/next',
+      '@sk-web-gui/countrycode-select',
+      'dayjs',
+    ],
   },
   async rewrites() {
     return [{ source: '/napi/:path*', destination: '/api/:path*' }];
+  },
+  //Note: This is a workaround for JS not working correctly when reloading a page.
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
   },
 });

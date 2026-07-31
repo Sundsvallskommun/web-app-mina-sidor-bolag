@@ -5,7 +5,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "jsx": "react-jsx"
   },
   "include": [
     "next-env.d.ts",
@@ -13,7 +14,10 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "./*.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
