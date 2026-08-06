@@ -6,8 +6,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { RepresentingEntity } from '@/interfaces/representing.interface';
 import ApiService from '@/services/api.service';
-import authMiddleware from '@middlewares/auth.middleware';
-import { Controller, Get, Req, UseBefore } from 'routing-controllers';
+import { Controller, Get, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
@@ -19,7 +18,6 @@ export class MeasurementDataController {
 
   @Get('/measurementdata')
   @OpenAPI({ summary: 'Return measurement data by category' })
-  @UseBefore(authMiddleware)
   async getMeasurementData(@Req() req: RequestWithUser): Promise<ApiResponse<Data>> {
     const representing = req.session?.representing ?? undefined;
     const delegations = req.session?.cache?.delegations ?? [];

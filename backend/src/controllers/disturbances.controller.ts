@@ -2,10 +2,9 @@ import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import authMiddleware from '@/middlewares/auth.middleware';
 import ApiService, { ApiResponse } from '@/services/api.service';
 import { logger } from '@/utils/logger';
-import { Controller, Get, Req, UseBefore } from 'routing-controllers';
+import { Controller, Get, Req } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Disturbance } from '@/data-contracts/disturbances/data-contracts';
 import { DisturbanceApiResponse } from '@/responses/disturbances.response';
@@ -19,7 +18,6 @@ export class DisturbancesController {
 
   @Get('/disturbances')
   @OpenAPI({ summary: 'Return disturbances for a person or organization' })
-  @UseBefore(authMiddleware)
   @ResponseSchema(DisturbanceApiResponse)
   async getDisturbances(@Req() req: RequestWithUser): Promise<ApiResponse<Disturbance[]>> {
     const representing = req.session?.representing ?? undefined;

@@ -34,7 +34,9 @@ import {
   SESSION_MEMORY,
   SWAGGER_ENABLED,
 } from '@config';
+import authMiddleware from '@middlewares/auth.middleware';
 import errorMiddleware from '@middlewares/error.middleware';
+import { enforceGlobalAuth } from '@middlewares/global-auth';
 import { logger, stream } from '@utils/logger';
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
@@ -161,6 +163,11 @@ class App {
         store: sessionStore,
         cookie: {
           sameSite: 'lax',
+          // Explicit rather than relying on the default, since this cookie is the
+          // only thing standing between a request and someone's personal data.
+          httpOnly: true,
+          // Off in local development, which runs over plain http.
+          secure: NODE_ENV === 'production',
         },
       }),
     );
@@ -193,6 +200,11 @@ class App {
   }
 
   private initializeRoutes(controllers) {
+    // Deny by default: every action without an explicit @Public() gets the auth
+    // middleware injected here, so a forgotten @UseBefore cannot open an endpoint.
+    // Must run before useExpressServer builds the router.
+    enforceGlobalAuth({ authMiddleware, controllers, logger });
+
     useExpressServer(this.app, {
       routePrefix: BASE_URL_PREFIX,
       cors: {

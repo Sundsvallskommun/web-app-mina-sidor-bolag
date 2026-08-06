@@ -58,7 +58,7 @@ export const getPersonEngagements = async (user: User): Promise<PersonEngagement
     };
   } else {
     try {
-      res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
+      res = await apiService.get<PersonEngagement[]>({ url }, user);
     } catch (error) {
       logger.error('Could not get engagements', error);
       res = { data: [] };

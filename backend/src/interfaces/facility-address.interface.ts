@@ -1,4 +1,4 @@
 export interface FacilityAddress {
-    address: string;
-    facilityIds: string[];
+  address: string;
+  facilityIds: string[];
 }

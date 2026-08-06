@@ -1,6 +1,5 @@
 import { Controller, Body, Req, Get, Post, UseBefore, HttpCode, Delete } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import authMiddleware from '@middlewares/auth.middleware';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
 import prisma from '@utils/prisma';
@@ -24,7 +23,6 @@ export class CreateReadNotificationsDto {
 export class NotificationsController {
   @Get('/notifications/read')
   @OpenAPI({ summary: 'Return read notifications for user' })
-  @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser): Promise<Response> {
     const { name } = req.user;
 
@@ -53,7 +51,7 @@ export class NotificationsController {
   @Post('/notifications/read')
   @HttpCode(201)
   @OpenAPI({ summary: 'Create new read notifications for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(CreateReadNotificationsDto, 'body'))
+  @UseBefore(validationMiddleware(CreateReadNotificationsDto, 'body'))
   async newReadNotification(@Req() req: RequestWithUser, @Body() userData: CreateReadNotificationsDto): Promise<any> {
     const { partyId } = req.user;
 
@@ -73,7 +71,6 @@ export class NotificationsController {
 
   @Delete('/notifications/read/all')
   @OpenAPI({ summary: 'Mark all read notifications for current logged in user' })
-  @UseBefore(authMiddleware)
   async clearNotifications(@Req() req: RequestWithUser): Promise<any> {
     const { partyId } = req.user;
 

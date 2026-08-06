@@ -3,9 +3,19 @@ import { config } from 'dotenv';
 import { APIS } from './api-config';
 export { APIS };
 
-config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
+const env = process.env.NODE_ENV || 'development';
+
+config({ path: `.env.${env}.local` });
+// Fallback to a committed, non-secret env file. Only `.env.test` exists today: jest
+// forces NODE_ENV=test, and without this there is no env at all, so anything that
+// reads config throws at import and takes the whole suite with it.
+config({ path: `.env.${env}` });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'true';
+// Defaulted rather than destructured below: dotenv loads `.env.${NODE_ENV}.local`,
+// so under jest (NODE_ENV=test) there is no env file and an undefined LOG_DIR made
+// logger.ts throw at import, taking every suite that touched it down with it.
+export const LOG_DIR = process.env.LOG_DIR ?? '../../data/logs';
 export const SWAGGER_ENABLED = process.env.SWAGGER_ENABLED === 'true';
 export const SESSION_MEMORY = process.env.SESSION_MEMORY === 'true';
 
@@ -14,7 +24,6 @@ export const {
   PORT,
   API_BASE_URL,
   LOG_FORMAT,
-  LOG_DIR,
   ORIGIN,
   SECRET_KEY,
   CLIENT_KEY,
@@ -58,4 +67,6 @@ export const {
   BFUS_API_KEY,
   ENEO_API_KEY,
   ADMIN_GROUP,
+  ELOMRADEN_API_USER,
+  ELOMRADEN_API_KEY,
 } = process.env;

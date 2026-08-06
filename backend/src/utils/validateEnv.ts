@@ -37,6 +37,8 @@ const validateEnv = () => {
     ADMIN_GROUP: str(),
     NAMESPACE: str(),
     WHITELISTED_ORGS: str(),
+    ELOMRADEN_API_USER: str(),
+    ELOMRADEN_API_KEY: str(),
   });
 };
 
