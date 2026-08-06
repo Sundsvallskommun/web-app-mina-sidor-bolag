@@ -1,5 +1,5 @@
-import { AsyncLocalStorage } from 'async_hooks';
-import { createHash } from 'crypto';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { createHash } from 'node:crypto';
 
 interface RequestContext {
   sessionMarker: string;
