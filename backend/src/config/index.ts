@@ -1,4 +1,5 @@
 import { config } from 'dotenv';
+import { existsSync } from 'fs';
 
 import { APIS } from './api-config';
 export { APIS };
@@ -6,10 +7,16 @@ export { APIS };
 const env = process.env.NODE_ENV || 'development';
 
 config({ path: `.env.${env}.local` });
+
 // Fallback to a committed, non-secret env file. Only `.env.test` exists today: jest
 // forces NODE_ENV=test, and without this there is no env at all, so anything that
-// reads config throws at import and takes the whole suite with it.
-config({ path: `.env.${env}` });
+// reads config throws at import and takes the whole suite with it. Guarded on
+// existence so dev and prod boots do not log a confusing "injecting env (0)" line
+// for a file that was never meant to be there.
+const fallbackEnvFile = `.env.${env}`;
+if (existsSync(fallbackEnvFile)) {
+  config({ path: fallbackEnvFile });
+}
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'true';
 // Defaulted rather than destructured below: dotenv loads `.env.${NODE_ENV}.local`,

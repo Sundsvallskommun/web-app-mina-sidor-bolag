@@ -32,6 +32,21 @@ const validateEnv = () => {
     SAML_LOGOUT_CALLBACK_URL: str(),
     SAML_LOGOUT_REDIRECT: str(),
     SAML_SUCCESS_REDIRECT: str(),
+    // The admin login flow is registered unconditionally at boot, so its config is
+    // as mandatory as the customer one. Left unchecked, a missing value surfaced as
+    // "TypeError: callbackUrl is required" from inside @node-saml instead of naming
+    // the variable that was absent.
+    SAML_ADMIN_CALLBACK_URL: url(),
+    SAML_ADMIN_FAILURE_REDIRECT: url(),
+    SAML_ADMIN_ENTRY_SSO: url(),
+    SAML_ADMIN_ISSUER: str(),
+    SAML_ADMIN_IDP_PUBLIC_CERT: str(),
+    SAML_ADMIN_PRIVATE_KEY: str(),
+    SAML_ADMIN_PUBLIC_KEY: str(),
+    SAML_ADMIN_LOGOUT_URL: str(),
+    SAML_ADMIN_LOGOUT_CALLBACK_URL: str(),
+    SAML_ADMIN_LOGOUT_REDIRECT: str(),
+    SAML_ADMIN_SUCCESS_REDIRECT: str(),
     ENEO_API_KEY: str(),
     FEEDBACK_EMAIL: emails(),
     ADMIN_GROUP: str(),
