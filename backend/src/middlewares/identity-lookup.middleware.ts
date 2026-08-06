@@ -2,6 +2,7 @@ import { NextFunction, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
+import { getAdministrableBusiness } from '@services/ownership.service';
 import { logger } from '@utils/logger';
 
 /**
@@ -39,18 +40,12 @@ export const identityLookupLimiter = rateLimit({
  * business resolving a stranger's personnummer. Mirrors `mandate.middleware.ts`.
  */
 export const requireMandateAdministrator = (req: RequestWithUser, _res: Response, next: NextFunction) => {
-  const business = req.session?.representing?.BUSINESS;
-
-  if (!business?.partyId) {
-    return next(new HttpException(403, 'NOT_REPRESENTING_ORGANIZATION'));
+  try {
+    getAdministrableBusiness(req);
+    return next();
+  } catch (error) {
+    return next(error);
   }
-
-  if (!business.isAuthorizedSignatory && !business.whitelisted) {
-    logger.warn(`Identity lookup denied: party '${business.partyId}' may not administer mandates`);
-    return next(new HttpException(403, 'MISSING_PERMISSIONS'));
-  }
-
-  return next();
 };
 
 /**

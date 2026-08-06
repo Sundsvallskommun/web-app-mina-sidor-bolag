@@ -202,6 +202,17 @@ describe('assertIsMandateGrantor', () => {
     expect(apiGet).not.toHaveBeenCalled();
   });
 
+  // postRepresenting keeps BUSINESS in the session when you switch back to private,
+  // so checking that it merely exists would let a private-mode session through.
+  it('refuses a private-mode session that still carries a business from earlier', async () => {
+    const session = businessSession(ORG, true);
+    session.session.representing.mode = RepresentingMode.PRIVATE;
+    session.session.representing.PRIVATE = { partyId: ME };
+
+    await expect(assertIsMandateGrantor(session, 'm-1')).rejects.toThrow(/NOT_REPRESENTING_ORGANIZATION/);
+    expect(apiGet).not.toHaveBeenCalled();
+  });
+
   it('refuses a non-signatory who is not whitelisted either', async () => {
     await expectForbidden(assertIsMandateGrantor(businessSession(ORG, false), 'm-1'));
     expect(apiGet).not.toHaveBeenCalled();

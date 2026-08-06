@@ -6,6 +6,7 @@ import { MandateDetails, Mandates } from '@/data-contracts/myrepresentatives/dat
 import { CustomerInvoice, CustomerInvoicesResponse } from '@/responses/invoices.response';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
+import { RepresentingBusinessEntity, RepresentingMode } from '@interfaces/representing.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { logger } from '@utils/logger';
 import ApiService from './api.service';
@@ -241,6 +242,34 @@ export async function assertOwnsFacilityDelegation(req: RequestWithUser, delegat
 }
 
 /**
+ * The organization this session may administer mandates for, or a 403.
+ *
+ * Requires the session to actually be *in* business mode, not merely to have a
+ * business left over in the session from an earlier selection - `postRepresenting`
+ * keeps `BUSINESS` populated when you switch back to private. Everything else here
+ * goes through `getRepresentingPartyId`, which respects the mode, so this does too.
+ *
+ * The permission rule mirrors `mandate.middleware.ts`: a signatory, or someone the
+ * organization has whitelisted through an active mandate. Keep them in step.
+ */
+export function getAdministrableBusiness(req: RequestWithUser): RepresentingBusinessEntity {
+  const representing = req.session?.representing;
+
+  if (representing?.mode !== RepresentingMode.BUSINESS || !representing.BUSINESS?.partyId) {
+    throw new HttpException(403, 'NOT_REPRESENTING_ORGANIZATION');
+  }
+
+  const business = representing.BUSINESS;
+
+  if (!business.isAuthorizedSignatory && !business.whitelisted) {
+    logger.warn(`Denied: party '${business.partyId}' may not administer mandates`);
+    throw new HttpException(403, 'MISSING_PERMISSIONS');
+  }
+
+  return business;
+}
+
+/**
  * Facility ids the session may read data for: the facilities of the represented
  * party plus those delegated to it. Populated by `/me`, which the frontend calls
  * from its login guard before any page renders.
@@ -366,23 +395,11 @@ export async function assertOwnsInvoice(
  * `mandate.middleware.ts`. Keep the two in step if that rule changes.
  */
 export async function assertIsMandateGrantor(req: RequestWithUser, mandateId: string): Promise<MandateDetails> {
-  const business = req.session?.representing?.BUSINESS;
-
   if (!mandateId) {
     throw new HttpException(400, 'Bad Request');
   }
 
-  if (!business?.partyId) {
-    throw new HttpException(403, 'NOT_REPRESENTING_ORGANIZATION');
-  }
-
-  // Same authority as creating one: a signatory, or someone the organization has
-  // whitelisted through an active mandate.
-  if (!business.isAuthorizedSignatory && !business.whitelisted) {
-    logger.warn(`Ownership denied: mandate '${mandateId}' - party '${business.partyId}' may not administer mandates`);
-    throw new HttpException(403, 'MISSING_PERMISSIONS');
-  }
-
+  const business = getAdministrableBusiness(req);
   const url = `${mandatesBase()}/mandates`;
 
   for (let page = 1; page <= MAX_SEARCH_PAGES; page++) {
