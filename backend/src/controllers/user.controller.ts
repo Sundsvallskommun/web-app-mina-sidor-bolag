@@ -22,6 +22,7 @@ import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
 import { logger } from '@/utils/logger';
+import { getSessionMarker } from '@utils/request-context';
 
 interface UserData {
   name: string;
@@ -153,8 +154,15 @@ export class UserController {
 
       // Fetch complete facility information for delegated facilities
       const delegations = req.session.cache.delegations;
+      // NOTE: One request is made per delegated facility, but the request is fully
+      // determined by the organization number/owner pair. Counting both tells us how
+      // many of these requests are duplicates.
+      const delegatedRequestPairs = new Set<string>();
+      let delegatedFacilityCount = 0;
       delegations.forEach(delegation => {
         delegation.facilities.forEach(facility => {
+          delegatedFacilityCount += 1;
+          delegatedRequestPairs.add(`${facility.businessEngagementOrgId}|${delegation.owner}`);
           try {
             const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
             const installedBaseParams = {
@@ -184,6 +192,9 @@ export class UserController {
           }
         });
       });
+      logger.info(
+        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_pairs=${delegatedRequestPairs.size}`,
+      );
       await Promise.allSettled(delegatedInstalledBasePromises)
         .then(results => {
           delegatedItems = results
