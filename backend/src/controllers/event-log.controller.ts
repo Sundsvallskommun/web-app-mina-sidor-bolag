@@ -81,8 +81,9 @@ class EventLogController {
       throw new HttpException(400, 'Bad Request');
     }
 
+    const url = `${this.apiBase}/${MUNICIPALITY_ID}/${partyId}`;
+
     try {
-      const url = `${this.apiBase}/${MUNICIPALITY_ID}/${partyId}`;
       const params = {
         partyId,
         size,
@@ -99,7 +100,7 @@ class EventLogController {
       if (error.status === 404) {
         return { data: {}, message: '404, empty response' };
       } else {
-        logger.error('Could not fetch activity events', error);
+        logger.error(`Could not fetch activity events, url was: ${url}`, error);
         throw new HttpException(500, 'Could not fetch activity events');
       }
     }

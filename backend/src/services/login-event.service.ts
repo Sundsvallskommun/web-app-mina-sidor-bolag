@@ -31,10 +31,11 @@ export const writeLoginEvent = async (representing: RepresentingEntity | undefin
     metadata: buildLoginMetadata(representing),
   };
 
+  const url = `${eventLogApiBase}/${MUNICIPALITY_ID}/${logKey}`;
+
   try {
-    const url = `${eventLogApiBase}/${MUNICIPALITY_ID}/${logKey}`;
     await apiService.post<PageEvent, Event>({ url, data: loginEvent }, user);
   } catch (error) {
-    logger.error('Could not create login event log', error);
+    logger.error(`Could not create login event log, url was: ${url}`, error);
   }
 };
