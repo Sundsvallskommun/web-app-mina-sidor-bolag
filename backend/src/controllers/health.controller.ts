@@ -17,10 +17,12 @@ export class HealthController {
       status: 'OK',
     };
     const emptyUser = { username: '' };
-    const res = await this.apiService.post<{ status: string }, { status: string }>({ url, data }, emptyUser).catch(e => {
-      logger.error('Error when doing health check:', e);
-      return e;
-    });
+    const res = await this.apiService
+      .post<{ status: string }, { status: string }>({ url, data }, emptyUser)
+      .catch(e => {
+        logger.error('Error when doing health check:', e);
+        return e;
+      });
 
     return res.data;
   }

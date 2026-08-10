@@ -42,31 +42,35 @@ export class DelegateController {
     if (delegateRes.data.length === 0) {
       throw new HttpException(404, 'Not Found');
     }
-    const delegatePromises: Promise<{ delegate: ClientDelegate; contactSetting: ClientContactSetting }>[] = delegateRes.data.map(async delegate => {
-      const agentId = delegate?.agentId;
-      if (!agentId) {
-        throw new HttpException(404, 'Not Found');
-      }
-      const sUrl = `${this.apiBase}/${MUNICIPALITY_ID}/settings/${agentId}`;
-
-      let res: ApiResponse<ContactSetting>;
-      try {
-        res = await this.apiService.get<ContactSetting>({ url: sUrl }, req.user);
-        const clientContactSettingData = makeClientContactSetting(res?.data);
-        if (!clientContactSettingData) {
+    const delegatePromises: Promise<{ delegate: ClientDelegate; contactSetting: ClientContactSetting }>[] =
+      delegateRes.data.map(async delegate => {
+        const agentId = delegate?.agentId;
+        if (!agentId) {
           throw new HttpException(404, 'Not Found');
         }
-        return { delegate, contactSetting: clientContactSettingData };
-      } catch (err) {
-        Promise.reject(new Error(err));
-      }
-    });
+        const sUrl = `${this.apiBase}/${MUNICIPALITY_ID}/settings/${agentId}`;
+
+        let res: ApiResponse<ContactSetting>;
+        try {
+          res = await this.apiService.get<ContactSetting>({ url: sUrl }, req.user);
+          const clientContactSettingData = makeClientContactSetting(res?.data);
+          if (!clientContactSettingData) {
+            throw new HttpException(404, 'Not Found');
+          }
+          return { delegate, contactSetting: clientContactSettingData };
+        } catch (err) {
+          Promise.reject(new Error(err));
+        }
+      });
 
     return Promise.allSettled(delegatePromises)
       .then(results => ({
         data: results
           .filter(r => r.status === 'fulfilled')
-          .map((result: PromiseFulfilledResult<{ delegate: ClientDelegate; contactSetting: ClientContactSetting }>) => result.value),
+          .map(
+            (result: PromiseFulfilledResult<{ delegate: ClientDelegate; contactSetting: ClientContactSetting }>) =>
+              result.value,
+          ),
         message: 'ok',
       }))
       .catch(error => {
@@ -79,7 +83,10 @@ export class DelegateController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update delegate for current logged in user' })
   @UseBefore(authMiddleware, validationMiddleware(ClientDelegate, 'body'))
-  async editDelegate(@Req() req: RequestWithUser, @Body() delegateData: ClientDelegate): Promise<ResponseData<ClientDelegate>> {
+  async editDelegate(
+    @Req() req: RequestWithUser,
+    @Body() delegateData: ClientDelegate,
+  ): Promise<ResponseData<ClientDelegate>> {
     if (delegateData.filters?.length === 0) {
       throw new HttpException(471, 'Bad Request: At least one filter is required');
     }
@@ -96,7 +103,10 @@ export class DelegateController {
     delegateData.filters?.forEach(filter => {
       delete filter.id;
     });
-    const res = await this.apiService.post<ClientDelegate, ClientDelegate>({ url, baseURL, data: delegateData }, req.user);
+    const res = await this.apiService.post<ClientDelegate, ClientDelegate>(
+      { url, baseURL, data: delegateData },
+      req.user,
+    );
 
     const data = _.merge(delegateData, {
       id: res.data?.id,
@@ -109,13 +119,19 @@ export class DelegateController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Create delegate for current logged in user' })
   @UseBefore(authMiddleware, validationMiddleware(ClientDelegate, 'body'))
-  async createDelegate(@Req() req: RequestWithUser, @Body() delegateData: ClientDelegate): Promise<ResponseData<ClientDelegate>> {
+  async createDelegate(
+    @Req() req: RequestWithUser,
+    @Body() delegateData: ClientDelegate,
+  ): Promise<ResponseData<ClientDelegate>> {
     if (delegateData.filters?.length === 0) {
       throw new HttpException(471, 'Bad Request: At least one filter is required');
     }
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegates`;
-    const res = await this.apiService.post<ClientDelegate, ClientDelegate>({ url, baseURL, data: delegateData }, req.user);
+    const res = await this.apiService.post<ClientDelegate, ClientDelegate>(
+      { url, baseURL, data: delegateData },
+      req.user,
+    );
     console.log('res', res);
 
     const data = _.merge(delegateData, {
@@ -129,7 +145,10 @@ export class DelegateController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update delegate for current logged in user' })
   @UseBefore(authMiddleware)
-  async _deleteDelegate(@Req() req: RequestWithUser, @Param('delegateId') delegateId: string): Promise<ResponseData<boolean>> {
+  async _deleteDelegate(
+    @Req() req: RequestWithUser,
+    @Param('delegateId') delegateId: string,
+  ): Promise<ResponseData<boolean>> {
     if (!delegateId) {
       throw new HttpException(400, 'Bad Request');
     }
