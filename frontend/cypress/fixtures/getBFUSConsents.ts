@@ -1,12 +1,10 @@
 import { RepresentingMode } from '@interfaces/app';
-import { BFUSEligiblePartyPermissionsApiResponse } from '@interfaces/eligibility';
+import { BFUSConsentsApiResponse } from '@interfaces/consent';
 
-export const getBfusPartyPermissions: (
-  representingMode: RepresentingMode
-) => BFUSEligiblePartyPermissionsApiResponse = () => ({
+export const getBFUSConsents: (representingMode: RepresentingMode) => BFUSConsentsApiResponse = () => ({
   message: 'success',
   data: {
-    eligablePartyParts: [
+    consents: [
       {
         EnergyServiceParty: '45210 - Test Energy Solutions AB',
         LastDayToApprove: '2026-03-31T00:00:00',
@@ -131,9 +129,9 @@ export const getBfusPartyPermissions: (
   },
 });
 
-export const getEmptyBfusPartyPermissions: () => BFUSEligiblePartyPermissionsApiResponse = () => ({
+export const getEmptyBFUSConsents: () => BFUSConsentsApiResponse = () => ({
   message: 'success',
   data: {
-    eligablePartyParts: [],
+    consents: [],
   },
 });

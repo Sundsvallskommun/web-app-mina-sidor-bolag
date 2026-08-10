@@ -3,22 +3,22 @@ export interface BFUSCustomerIdsApiResponse {
   message: string;
 }
 
-export type PermissionStatusCategory = 'new' | 'ongoing' | 'denied' | 'ended' | 'revoked' | 'expired';
+export type ConsentStatusCategory = 'new' | 'ongoing' | 'denied' | 'ended' | 'revoked' | 'expired';
 
-export enum BFUSStatusCode {
+export enum ConsentStatusCode {
   New = 0,
   Active = 1,
   Denied = 2,
   Ended = 3,
 }
 
-export enum BFUSEndReason {
+export enum BFUSConsentEndReason {
   Revoked = 'Återkallat av kund',
   Expired = 'Upphört',
   Dismissed = 'Uppsagt',
 }
 
-export interface EligablePartyPart {
+export interface Consent {
   EnergyServiceParty: string;
   LastDayToApprove: string;
   ContractReference: string;
@@ -27,7 +27,7 @@ export interface EligablePartyPart {
   StartDay: string;
   EndDay: string | null;
   UserRevokedContractTime: string | null;
-  EndReason: BFUSEndReason | null;
+  EndReason: BFUSConsentEndReason | null;
   RequestPurpose: string;
   ContractInUse: boolean;
   ContractId: number;
@@ -37,22 +37,22 @@ export interface EligablePartyPart {
   ServiceIdentifier: string;
   UsePlaceAddress: string;
   EligablePartyId: string;
-  StatusCode: BFUSStatusCode;
+  StatusCode: ConsentStatusCode;
   IsProduction: boolean;
   ObjectVersion: number;
-  StatusCategory: PermissionStatusCategory;
+  StatusCategory: ConsentStatusCategory;
 }
 
-export interface BFUSEligiblePartyPermissionsApiResponse {
-  data: { eligablePartyParts: EligablePartyPart[] };
+export interface BFUSConsentsApiResponse {
+  data: { consents: Consent[] };
   message: string;
 }
 
-export interface PermissionRequestDto {
+export interface ConsentRequestDto {
   PermissionRequest: { ContractIdList?: number[]; EligablePartyId: string; CustomerId?: number };
 }
 
-export interface FullPermissionDto {
+export interface FullConsentDto {
   Header: { ExternalId: string; Operation: 'grant' | 'deny' | 'revoke' };
   PermissionRequest: { EligablePartyId: string; ContractIdList?: number[]; CustomerId?: number };
 }

@@ -26,9 +26,9 @@
       "fetching": "Hämtar ohanterade uppgifter",
       "showInvoices": "Visa fakturor"
     },
-    "eligibility" : {
+    "consent": {
       "description": "Nytt medgivande",
-      "eligibility": "medgivanden",
+      "consent": "medgivanden",
       "current": "Du har fått ett nytt medgivande som du måste hantera.",
       "show": "Visa medgivanden"
     }
