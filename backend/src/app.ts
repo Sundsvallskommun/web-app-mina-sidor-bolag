@@ -163,6 +163,11 @@ class App {
         store: sessionStore,
         cookie: {
           sameSite: 'lax',
+          // Explicit rather than relying on the default, since this cookie is the
+          // only thing standing between a request and someone's personal data.
+          httpOnly: true,
+          // Off in local development, which runs over plain http.
+          secure: NODE_ENV === 'production',
         },
       }),
     );

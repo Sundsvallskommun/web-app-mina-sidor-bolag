@@ -13,6 +13,7 @@ import getDelegatedFacilities from '../services/delegation.service';
 import { populateRepresentingCache } from '@services/session-cache.service';
 import { defaultPermissions } from '@services/authorization.service';
 import { getPersonEngagements } from '@services/legal-entity.service';
+import { sanitizePersonNumber } from '@utils/sanitizePersonNumber';
 
 export const customerVerify = (apiService: ApiService) => async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -32,9 +33,11 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
 
   try {
     const apiBase = getApiBase('citizen');
-    const personNumber = profile.citizenIdentifier;
+    // Normalises the IdP's format before it goes into a URL path.
+    const personNumber = sanitizePersonNumber(profile.citizenIdentifier);
     const url = `${apiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
-    const citizenResult = await apiService.get<any>({ url }, { username: 'unknown' });
+    // No partyId to attribute this to yet - it is the call that resolves one.
+    const citizenResult = await apiService.get<any>({ url }, { username: 'saml-login' });
     const { data: personId } = citizenResult;
 
     if (!personId) {
@@ -50,7 +53,11 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
       name: `${givenName} ${surname}`,
       givenName: givenName,
       surname: surname,
-      username: 'unknown',
+      // Ends up in the X-Sent-By header on every upstream call. It used to be the
+      // literal 'unknown', which made all customer traffic indistinguishable in the
+      // platform logs - there was no way to answer "who read this" after the fact.
+      // partyId is already present in upstream URLs, so this exposes nothing new.
+      username: personId,
       userType: 'customer',
       nameID: profile.nameID,
       nameIDFormat: profile.nameIDFormat,

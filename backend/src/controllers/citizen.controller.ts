@@ -3,11 +3,16 @@ import { getApiBase } from '@/config/api-config';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
+import {
+  identityLookupLimiter,
+  logIdentityLookup,
+  requireMandateAdministrator,
+} from '@/middlewares/identity-lookup.middleware';
 import { CitizenApiResponse } from '@/responses/citizen.response';
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
 import { Response } from 'express';
-import { Body, Controller, Post, Req, Res } from 'routing-controllers';
+import { Body, Controller, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { IsString, Length } from 'class-validator';
 
@@ -25,6 +30,7 @@ export class CitizenController {
 
   @Post('/citizen')
   @OpenAPI({ summary: 'Return a citizen' })
+  @UseBefore(requireMandateAdministrator, identityLookupLimiter)
   @ResponseSchema(CitizenApiResponse)
   async getCitizen(
     @Req() req: RequestWithUser,
@@ -32,6 +38,11 @@ export class CitizenController {
     @Res() res: Response<CitizenApiResponse>,
   ): Promise<Response<CitizenApiResponse>> {
     const { user } = req;
+
+    // Resolving a personnummer to a name and partyId is a register lookup; keep it
+    // attributable even when the request itself is legitimate.
+    logIdentityLookup(req, body.personnumber);
+
     const guidUrl = `${this.baseUrl}/${body.personnumber}/guid`;
     try {
       const guid = await this.apiService.get<string>({ url: guidUrl }, user);

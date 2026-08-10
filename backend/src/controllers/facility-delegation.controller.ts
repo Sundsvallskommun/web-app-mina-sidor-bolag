@@ -2,6 +2,7 @@ import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
+import { logIdentityLookup } from '@/middlewares/identity-lookup.middleware';
 import { assertOwnsFacilityDelegation } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
 import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req } from 'routing-controllers';
@@ -121,12 +122,18 @@ export class FacilityDelegationController {
     return { data: res.data, message: 'Deleted facility delegation' };
   }
 
-  @Get('/personNumber/:personNumber')
-  @OpenAPI({ summary: 'Get personId from person number' })
-  async getPersonIdByPersonNumber(
-    @Req() req: RequestWithUser,
-    @Param('personNumber') personNumber: string,
-  ): Promise<ResponseData<string>> {
+  /**
+   * Resolves a personnummer to a partyId.
+   *
+   * Deliberately not a route. It used to be exposed as GET /personNumber/:personNumber,
+   * which let any session translate any personnummer into a partyId; nothing called
+   * it but the delegation flow below, so the route is gone and only this internal
+   * use remains. If it ever needs exposing again, put it behind
+   * `identity-lookup.middleware` like POST /citizen.
+   */
+  private async getPersonIdByPersonNumber(req: RequestWithUser, personNumber: string): Promise<ResponseData<string>> {
+    logIdentityLookup(req, personNumber);
+
     try {
       const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
       const res = await this.apiService.get<string>({ url }, req.user);

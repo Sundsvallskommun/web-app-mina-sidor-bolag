@@ -14,6 +14,7 @@ import { PageEvent, Event } from '@/data-contracts/eventlog/data-contracts';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { CreateLogEventData } from '@interfaces/event';
+import { RepresentingMode } from '@interfaces/representing.interface';
 dayjs.extend(utc);
 
 const EXPORT_SOURCE_TYPE = 'Export';
@@ -81,14 +82,24 @@ class EventLogController {
       throw new HttpException(400, 'Bad Request');
     }
 
+    if (!exportLogData?.length) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    // A delegated facility is logged against its real owner; anything else against
+    // the acting party. Every step here is optional in practice, so guard each one
+    // rather than letting a crafted body turn into a 500.
     const checkIfDelegatedFacility = () => {
-      return (
-        user.facilities.find(facility => facility.facilityId === exportLogData[0].facilityId).facilityOwnerPartyId ??
-        representing.PRIVATE.partyId
-      );
+      const facility = (user?.facilities ?? []).find(item => item.facilityId === exportLogData[0].facilityId);
+      return facility?.facilityOwnerPartyId ?? representing.PRIVATE?.partyId ?? partyId;
     };
 
-    const ownerPartyId = representing.mode === 0 ? checkIfDelegatedFacility() : representing.BUSINESS.partyId;
+    const ownerPartyId =
+      representing.mode === RepresentingMode.PRIVATE ? checkIfDelegatedFacility() : representing.BUSINESS?.partyId;
+
+    if (!ownerPartyId) {
+      throw new HttpException(400, 'Bad Request');
+    }
 
     exportLogData.forEach(logItem => {
       if (logItem.year) {
@@ -125,7 +136,7 @@ class EventLogController {
         ];
       },
       [
-        { key: 'exportedByPartyId', value: representing.PRIVATE.partyId },
+        { key: 'exportedByPartyId', value: representing.PRIVATE?.partyId ?? req.user.partyId },
         { key: 'ownerPartyId', value: ownerPartyId },
       ],
     );
