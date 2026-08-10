@@ -332,11 +332,7 @@ export async function assertOwnsInvoice(
     throw new HttpException(400, 'Bad Request');
   }
 
-  const relations = req.session?.cache?.relations;
-  const customerNumbers = relations?.customerNumber ?? [];
-  const organizationNumbers = (relations?.customerRelations ?? [])
-    .map(relation => relation.organizationNumber)
-    .filter(Boolean);
+  const customerNumbers = req.session?.cache?.relations?.customerNumber ?? [];
 
   if (!customerNumbers.length) {
     logger.warn(`Ownership denied: no customer relations cached for party '${actingPartyId}'`);
@@ -351,9 +347,13 @@ export async function assertOwnsInvoice(
         api.get<CustomerInvoicesResponse>(
           {
             url,
+            // Scoped by customer number only. Deliberately no organizationNumber
+            // filter: that parameter names the invoice issuer, and under delegated
+            // billing the issuer is a company the customer has no relation with, so
+            // filtering on our own relations would hide exactly those invoices.
+            // The customer numbers are what tie the result set to the caller.
             params: {
               customerNumbers: customerNumbers.toString(),
-              organizationNumber: organizationNumbers.toString(),
               periodFrom: getInvoicePeriodFrom(),
               page,
               limit: SEARCH_PAGE_SIZE,
