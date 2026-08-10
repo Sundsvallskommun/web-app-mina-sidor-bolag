@@ -314,10 +314,40 @@ describe('assertOwnsInvoice', () => {
     await expectForbidden(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-victim'));
   });
 
-  it('refuses an issuer we have no relation with, before calling upstream', async () => {
-    upstream([{ match: 'customers/invoices', data: { invoices: [{ invoiceNumber: 'INV-1' }] } }]);
+  // Delegated billing (uppdragsfakturering): Sundsvall Elnat has handed invoicing
+  // to Sundsvall Energi, so the issuer on the invoice is a company the customer has
+  // no relation with. Checking the issuer against customerRelations broke every
+  // invoice issued this way.
+  it('allows an invoice issued by a company we are not a customer of', async () => {
+    const BILLER = '1122334455';
+    upstream([
+      {
+        match: 'customers/invoices',
+        data: { invoices: [{ invoiceNumber: 'INV-1', organizationNumber: BILLER }], _meta: { totalPages: 1 } },
+      },
+    ]);
+    await expect(assertOwnsInvoice(sessionWithRelations(), BILLER, 'INV-1')).resolves.toMatchObject({
+      invoiceNumber: 'INV-1',
+    });
+  });
+
+  it('refuses when the requested issuer is not the one on the invoice', async () => {
+    upstream([
+      {
+        match: 'customers/invoices',
+        data: { invoices: [{ invoiceNumber: 'INV-1', organizationNumber: ORG }], _meta: { totalPages: 1 } },
+      },
+    ]);
     await expectForbidden(assertOwnsInvoice(sessionWithRelations(), '9999999999', 'INV-1'));
-    expect(apiGet).not.toHaveBeenCalled();
+  });
+
+  it('falls back to invoice-number ownership when the issuer field is absent', async () => {
+    upstream([
+      { match: 'customers/invoices', data: { invoices: [{ invoiceNumber: 'INV-1' }], _meta: { totalPages: 1 } } },
+    ]);
+    await expect(assertOwnsInvoice(sessionWithRelations(), '9999999999', 'INV-1')).resolves.toMatchObject({
+      invoiceNumber: 'INV-1',
+    });
   });
 
   it('refuses when no customer relations are cached', async () => {

@@ -343,12 +343,6 @@ export async function assertOwnsInvoice(
     throw new HttpException(403, 'MISSING_CUSTOMER_CONTEXT');
   }
 
-  // The issuing organization has to be one we actually have a relation with, so a
-  // caller cannot pivot to an unrelated issuer even with a valid invoice number.
-  if (!organizationNumbers.includes(organizationNumber)) {
-    deny('invoice issuer', organizationNumber, actingPartyId);
-  }
-
   const url = customerInvoicesUrl();
 
   for (let page = 1; page <= MAX_SEARCH_PAGES; page++) {
@@ -377,6 +371,15 @@ export async function assertOwnsInvoice(
     const match = invoices.find(invoice => invoice.invoiceNumber === invoiceNumber);
 
     if (match) {
+      // The path also names an issuer, and that has to be pinned to something or a
+      // valid invoice number could be replayed against another issuer's document.
+      // Pin it to the issuer on *this* invoice - not to the organizations we are a
+      // customer of. Under delegated billing (uppdragsfakturering) one company
+      // invoices on another's behalf, so the issuer is legitimately an organization
+      // we have no customer relation with.
+      if (match.organizationNumber && match.organizationNumber !== organizationNumber) {
+        deny('invoice issuer', organizationNumber, actingPartyId);
+      }
       return match;
     }
 
