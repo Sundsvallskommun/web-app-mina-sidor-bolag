@@ -11,6 +11,7 @@ import { Agreement, AgreementResponse, Category } from '@/data-contracts/agreeme
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
 import { fetchAgreementsForPartyAndDelegations, fetchPagedAgreements } from '@/services/agreement.service';
+import { assertOwnsFacility } from '@/services/ownership.service';
 import { PagedAgreementsResult } from '@/interfaces/agreements.interface';
 
 function activeAgreement(agreement: Agreement): boolean {
@@ -114,6 +115,8 @@ export class AgreementController {
     @Param('category') category: Category,
     @Param('facilityId') facilityId: string,
   ): Promise<ApiResponse<Agreement[]>> {
+    assertOwnsFacility(req, facilityId);
+
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/agreements/${category}/${facilityId}`;
 
     const res = await this.apiService.get<AgreementResponse>({ url }, req.user);

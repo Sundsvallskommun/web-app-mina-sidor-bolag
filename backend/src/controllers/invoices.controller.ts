@@ -12,8 +12,8 @@ import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
-import dayjs from 'dayjs';
-import InvoicesService from '@/services/invoices.service';
+import InvoicesService, { getInvoicePeriodFrom } from '@/services/invoices.service';
+import { assertOwnsInvoice } from '@/services/ownership.service';
 
 const emptyInvoice = {
   invoices: [],
@@ -32,7 +32,7 @@ const pendingStatuses = [
 export class InvoicesController {
   private readonly apiService = new ApiService();
   private readonly apiBase = getApiBase('invoices');
-  private readonly invoiceDateFrom = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
+  private readonly invoiceDateFrom = getInvoicePeriodFrom();
   private readonly invoicesService = new InvoicesService();
 
   private getCustomerIdentifiers(req: RequestWithUser) {
@@ -131,6 +131,8 @@ export class InvoicesController {
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsInvoice(req, organizationNumber, id);
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
     const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);

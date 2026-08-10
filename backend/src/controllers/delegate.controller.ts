@@ -3,6 +3,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
 import { deleteDelegate, makeClientContactSetting } from '@/services/contact-setting.service';
+import { assertOwnsContactSetting, assertOwnsDelegate, assertOwnsPrincipal } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
 import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
@@ -32,6 +33,11 @@ export class DelegateController {
     if (!contactSettingId) {
       return { data: [], message: 'No contact setting id provided' };
     }
+
+    // Reading someone else's delegates also exposes their contact channels, and
+    // the agentIds returned here are what make other contact settings guessable.
+    await assertOwnsContactSetting(req, contactSettingId);
+
     const params = { principalId: contactSettingId };
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/delegates`;
     const delegateRes = await this.apiService.get<ClientDelegate[]>({ url, params }, req.user);
@@ -93,6 +99,14 @@ export class DelegateController {
     if (!delegateData.id) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    // The edit is a delete followed by a re-create, so both the delegate being
+    // replaced and the principal it is re-attached to have to belong to us.
+    await assertOwnsDelegate(req, delegateData.id);
+    if (delegateData.principalId) {
+      await assertOwnsPrincipal(req, delegateData.principalId);
+    }
+
     const deletionOk = await deleteDelegate(delegateData.id, req);
     if (!deletionOk) {
       throw new HttpException(500, 'Internal Server Error');
@@ -126,13 +140,16 @@ export class DelegateController {
     if (delegateData.filters?.length === 0) {
       throw new HttpException(471, 'Bad Request: At least one filter is required');
     }
+
+    // principalId decides whose notifications get delegated away.
+    await assertOwnsPrincipal(req, delegateData.principalId);
+
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegates`;
     const res = await this.apiService.post<ClientDelegate, ClientDelegate>(
       { url, baseURL, data: delegateData },
       req.user,
     );
-    console.log('res', res);
 
     const data = _.merge(delegateData, {
       id: res.data?.id,
@@ -152,6 +169,9 @@ export class DelegateController {
     if (!delegateId) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsDelegate(req, delegateId);
+
     const deletionOk = await deleteDelegate(delegateId, req);
     if (!deletionOk) {
       throw new HttpException(500, 'Internal Server Error');

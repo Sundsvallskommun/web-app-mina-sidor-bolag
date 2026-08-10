@@ -8,6 +8,7 @@ import {
   getContactSettingChannels,
   makeClientContactSetting,
 } from '@/services/contact-setting.service';
+import { assertOwnsContactSetting } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
 import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
@@ -128,6 +129,13 @@ export class ContactSettingsController {
     @Body() userData: ClientContactSetting,
   ): Promise<ResponseData<ClientContactSetting>> {
     const representing = req.session?.representing ?? undefined;
+
+    // A virtual setting is attributed to the setting named by createdById, so that
+    // id decides who ends up owning it - it cannot be taken on trust from the body.
+    if (userData.createdById) {
+      await assertOwnsContactSetting(req, userData.createdById);
+    }
+
     const newContactSettings: NewContactSettings = {
       alias: userData.alias ?? 'default',
       virtual: userData.virtual ?? false,
@@ -165,6 +173,9 @@ export class ContactSettingsController {
     if (!userData.id) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsContactSetting(req, userData.id);
+
     try {
       const editedContactSettings: UpdateContactSettings = {
         alias: userData.alias,
@@ -198,6 +209,9 @@ export class ContactSettingsController {
     if (!contactSettingId) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsContactSetting(req, contactSettingId);
+
     try {
       const deletionOk = await deleteContactSetting(contactSettingId, req);
       if (!deletionOk) {
