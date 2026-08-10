@@ -5,8 +5,7 @@
       {
         "name": "next"
       }
-    ],
-    "jsx": "react-jsx"
+    ]
   },
   "include": [
     "next-env.d.ts",

@@ -6,7 +6,7 @@
     "dev": "next dev",
     "dev:coverage": "cross-env COVERAGE=true next dev",
     "build": "next build",
-    "build:test": "cross-env NODE_ENV=test next build",
+    "build:test": "cross-env NODE_ENV=test COVERAGE=true next build",
     "start": "next start",
     "generate:contracts": "cross-env NODE_ENV=development npx tsx ./src/swagger-typescript-api.ts",
     "lint": "eslint src --ext .ts,.tsx",
@@ -53,7 +53,6 @@
     "sanitize-html": "^2.17.0",
     "sass": "^1.93.3",
     "sharp": "^0.34.4",
-    "swc-plugin-coverage-instrument": "^0.0.32",
     "xlsx": "^0.18.5",
     "yup": "^1.7.1",
     "zustand": "^5.0.8"
@@ -85,8 +84,6 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@types/sanitize-html": "^2.16.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.3",
-    "@typescript-eslint/parser": "^8.46.3",
     "autoprefixer": "^10.4.21",
     "babel-jest": "^30.2.0",
     "babel-plugin-istanbul": "^7.0.1",
@@ -111,6 +108,7 @@
     "prettier": "^3.6.2",
     "react-test-renderer": "^19.2.0",
     "swagger-typescript-api": "^13.2.16",
+    "swc-plugin-coverage-instrument": "^0.0.32",
     "tailwindcss": "^3.4.18",
     "typescript": "5.9.3"
   },
