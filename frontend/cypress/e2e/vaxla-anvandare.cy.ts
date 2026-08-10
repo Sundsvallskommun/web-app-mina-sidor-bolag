@@ -3,14 +3,14 @@ import { RepresentingMode } from '@interfaces/app';
 import { getUserEngagements } from '../fixtures/impersonation';
 import { getMeEmptyUser, getMeEmptyUserExtendedView } from '../fixtures/getMe';
 import { getPendingInvoices } from '../fixtures/getInvoices';
-import { getEmptyBfusCustomerIds } from '../fixtures/getBfusCustomerIds';
-import { getEmptyBfusPartyPermissions } from '../fixtures/getBfusPartyPermissions';
+import { getEmptyBfusCustomerIds } from '../fixtures/getBFUSCustomerIds';
+import { getEmptyBFUSConsents } from '../fixtures/getBFUSConsents';
 
 describe('Växla användare', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
     cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', getEmptyBfusCustomerIds(RepresentingMode.PRIVATE));
-    cy.intercept('GET', '**/api/bfus/new-permissions?**', getEmptyBfusPartyPermissions());
+    cy.intercept('GET', '**/api/bfus/new-permissions?**', getEmptyBFUSConsents());
     cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices());
   });
 
