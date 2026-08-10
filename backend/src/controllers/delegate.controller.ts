@@ -5,7 +5,6 @@ import ApiService from '@/services/api.service';
 import { deleteDelegate, makeClientContactSetting } from '@/services/contact-setting.service';
 import { assertOwnsContactSetting, assertOwnsDelegate, assertOwnsPrincipal } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
-import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
 import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
@@ -25,7 +24,6 @@ export class DelegateController {
   @OnUndefined(204)
   @OpenAPI({ summary: 'Get delegates for given contact setting id' })
   @ResponseSchema(DelegatedContactSetting)
-  @UseBefore(authMiddleware)
   async getDelegates(
     @Req() req: RequestWithUser,
     @Param('contactSettingId') contactSettingId: string,
@@ -88,7 +86,7 @@ export class DelegateController {
   @Patch('/delegates')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update delegate for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(ClientDelegate, 'body'))
+  @UseBefore(validationMiddleware(ClientDelegate, 'body'))
   async editDelegate(
     @Req() req: RequestWithUser,
     @Body() delegateData: ClientDelegate,
@@ -132,7 +130,7 @@ export class DelegateController {
   @Post('/delegates')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Create delegate for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(ClientDelegate, 'body'))
+  @UseBefore(validationMiddleware(ClientDelegate, 'body'))
   async createDelegate(
     @Req() req: RequestWithUser,
     @Body() delegateData: ClientDelegate,
@@ -161,7 +159,6 @@ export class DelegateController {
   @Delete('/delegates/:delegateId')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update delegate for current logged in user' })
-  @UseBefore(authMiddleware)
   async _deleteDelegate(
     @Req() req: RequestWithUser,
     @Param('delegateId') delegateId: string,

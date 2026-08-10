@@ -6,12 +6,11 @@ import {
   BFUSEligablePartyResponse,
   BFUSHasNewPermissionResponse,
 } from '@/interfaces/bfus.interface';
-import authMiddleware from '@/middlewares/auth.middleware';
 import { BFUSApiResponse, BFUSEligablePartyApiResponse, BFUSNewPermissionApiResponse } from '@/responses/bfus.response';
 import { logger } from '@/utils/logger';
 import axios from 'axios';
 import { Response } from 'express';
-import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
+import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
 import { handleCustomerIds, sendPermissionRequest } from '@/services/bfus.service';
@@ -101,7 +100,6 @@ export class BFUSController {
 
   @Get('/new-permissions')
   @OpenAPI({ summary: 'Check if user has new permissions' })
-  @UseBefore(authMiddleware)
   async hasNewPermissions(
     @Req() req: RequestWithUser,
     @Res() res: Response<BFUSNewPermissionApiResponse>,
@@ -134,7 +132,6 @@ export class BFUSController {
   @Get('/eligable-party-permissions')
   @OpenAPI({ summary: 'Returns a list of eligable party permissions' })
   @ResponseSchema(BFUSEligablePartyApiResponse)
-  @UseBefore(authMiddleware)
   async GetEligablePartyPermissions(
     @Req() req: RequestWithUser,
     @QueryParam('customerIds') customerIds: string,

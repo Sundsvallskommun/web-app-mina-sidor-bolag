@@ -16,7 +16,6 @@ import {
   GrpSubjectIdentifierType,
 } from '@/interfaces/grp.interface';
 import { SignMandateCache } from '@/interfaces/mandates.interface';
-import authMiddleware from '@/middlewares/auth.middleware';
 import { Sign, SignApiResponse, SignCollectApiResponse } from '@/responses/grp.response';
 import { ApiResponse } from '@/services/api.service';
 import GrpApiService from '@/services/grp-api.service';
@@ -25,11 +24,10 @@ import { handleSignCache } from '@/utils/handleSignCache';
 import { logger } from '@/utils/logger';
 import { Response } from 'express';
 import { randomUUID } from 'node:crypto';
-import { Body, Controller, Get, Param, Post, Req, Res, UseBefore } from 'routing-controllers';
+import { Body, Controller, Get, Param, Post, Req, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Controller()
-@UseBefore(authMiddleware)
 export class SignController {
   private readonly apiService = new GrpApiService();
   private readonly qrService = new QRGenerator();

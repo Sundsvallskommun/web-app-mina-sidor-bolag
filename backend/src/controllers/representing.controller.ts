@@ -7,7 +7,6 @@ import { logger } from '@/utils/logger';
 import { RepresentsDto } from '@dtos/represents.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
-import authMiddleware from '@middlewares/auth.middleware';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import getDelegatedFacilities from '@services/delegation.service';
 import { Response } from 'express';
@@ -88,7 +87,6 @@ export class RepresentingController {
   @Get('/representing')
   @OpenAPI({ summary: 'Return which entity a logged in user represents' })
   @ResponseSchema(ClientRepresentingApiResponse)
-  @UseBefore(authMiddleware)
   async getRepresenting(
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
@@ -117,7 +115,6 @@ export class RepresentingController {
   @UseBefore(validationMiddleware(RepresentsDto, 'body'))
   @ResponseSchema(ClientRepresentingApiResponse)
   @OpenAPI({ summary: 'Sets which entity a logged in user represents' })
-  @UseBefore(authMiddleware)
   async postRepresenting(
     @Body() selectedRepresenting: RepresentsDto,
     @Req() req: RequestWithUser,
