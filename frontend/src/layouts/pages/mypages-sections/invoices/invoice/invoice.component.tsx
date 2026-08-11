@@ -23,16 +23,13 @@ import {
 export const Invoice = () => {
   const { t } = useTranslation(['common', 'invoices']);
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
-
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
-
-  const facilityIds =
-    [...new Set(userData?.facilities?.map((f) => f.facilityId).filter(Boolean) ?? [])].join(',') ?? '';
 
   const [invoiceNumber] = useParams<{ slug: [string] }>().slug;
   const search = useSearchParams();
   const periodFrom = search.get('periodFrom') ?? '';
   const periodTo = search.get('periodTo') ?? '';
+  const facilityIds = search.get('facilityId') ?? '';
 
   const {
     data: invoice,
