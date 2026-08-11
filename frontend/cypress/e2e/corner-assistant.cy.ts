@@ -2,7 +2,6 @@ import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '../../src/interfaces/app';
 import { isReady } from 'cypress/fixtures/ai';
 import { getPendingInvoices } from '../fixtures/getInvoices';
-import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
 
 describe('Corner Assistant', () => {
   before(() => {
@@ -21,11 +20,6 @@ describe('Corner Assistant', () => {
       data: { status: 'PENDING', details: 'pending' },
       message: 'pending',
     }).as('AIisReadyPending');
-    cy.intercept(
-          'GET',
-          '**/api/bfus/new-permissions?customerIds=12345678',
-          getBfusPartyPermissions(RepresentingMode.PRIVATE)
-        ).as('getNewPermissions');
     cy.visit('/privat/oversikt');
   });
 

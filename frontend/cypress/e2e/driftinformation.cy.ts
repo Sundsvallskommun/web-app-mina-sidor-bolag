@@ -2,7 +2,6 @@ import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
 import { getAllDisturbances } from '../fixtures/getDisturbances';
 import { Affected } from '@data-contracts/backend/data-contracts';
-import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
 
 describe('Driftinformation', () => {
   beforeEach(() => {

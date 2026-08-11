@@ -1,7 +1,7 @@
 import { RepresentingMode } from '@interfaces/app';
-import { BFUSCustomerIdsApiResponse } from '@interfaces/eligibility';
+import { BFUSCustomerIdsApiResponse } from '@interfaces/consent';
 
-export const getBfusCustomerIds: (representingMode: RepresentingMode) => BFUSCustomerIdsApiResponse = () => ({
+export const getBFUSCustomerIds: (representingMode: RepresentingMode) => BFUSCustomerIdsApiResponse = () => ({
   data: { customerIds: [12345678] },
   message: 'success',
 });

@@ -1,29 +1,29 @@
 import { JSX } from 'react';
-import { EligablePartyPart } from '@interfaces/eligibility';
+import { Consent } from '@interfaces/consent';
 import { Table } from '@sk-web-gui/react';
 
-export interface CurrentAndClosedEligibilityPermissionsProps {
+export interface CurrentAndClosedConsentsProps {
   ongoing: boolean;
   activePanel: number;
   headerLabel: (label: string) => string;
   formatDate: (date: string | null) => string;
-  filterPermissions: (ongoing: boolean) => EligablePartyPart[];
-  revokeActionButton: (p: EligablePartyPart) => JSX.Element;
-  handleEndDate: (p: EligablePartyPart) => string | null;
+  filterConsents: (ongoing: boolean) => Consent[];
+  revokeActionButton: (p: Consent) => JSX.Element;
+  handleEndDate: (p: Consent) => string | null;
 }
 
-const CurrentAndClosedEligibilityPermissionsTable = ({
+const CurrentAndClosedConsentsTable = ({
   ongoing,
   activePanel,
   headerLabel,
   formatDate,
-  filterPermissions,
+  filterConsents,
   revokeActionButton,
   handleEndDate,
-}: CurrentAndClosedEligibilityPermissionsProps) => {
+}: CurrentAndClosedConsentsProps) => {
   return (
     <div className="bg-background-content p-20 rounded-cards shadow-50">
-      <Table data-cy="current-and-closed-permissions-table">
+      <Table data-cy="current-and-closed-consents-table">
         <Table.Header>
           <Table.HeaderColumn>{headerLabel('company')}</Table.HeaderColumn>
           <Table.HeaderColumn>{headerLabel('address')}</Table.HeaderColumn>
@@ -33,7 +33,7 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
           <Table.HeaderColumn />
         </Table.Header>
         <Table.Body>
-          {filterPermissions(ongoing)?.map((p) => {
+          {filterConsents(ongoing)?.map((p) => {
             return (
               <Table.Row key={p.EligablePartyPermissionId}>
                 <Table.Column>{p.EnergyServiceParty}</Table.Column>
@@ -55,4 +55,4 @@ const CurrentAndClosedEligibilityPermissionsTable = ({
   );
 };
 
-export default CurrentAndClosedEligibilityPermissionsTable;
+export default CurrentAndClosedConsentsTable;

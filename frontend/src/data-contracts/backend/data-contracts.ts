@@ -559,18 +559,18 @@ export interface BFUSNewPermissionApiResponse {
   data: boolean;
 }
 
-export interface PermissionHeaderDto {
+export interface ConsentHeaderDto {
   ExternalId: string;
-  Operation: string;
+  Operation: "grant" | "deny" | "revoke";
 }
 
-export interface PermissionRequestDto {
+export interface ConsentRequestDto {
   EligablePartyId: string;
   ContractIdList?: number[];
   CustomerId?: number;
 }
 
-export interface UpdatePermissionDto {
+export interface UpdateConsentDto {
   PermissionRequest: any;
 }
 

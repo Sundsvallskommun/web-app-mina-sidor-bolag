@@ -19,10 +19,10 @@ import { getCitizen } from '../fixtures/getCitizen';
 import { getOrgMandates } from 'cypress/fixtures/getMandate';
 import { RepresentingMode } from '@interfaces/app';
 import { isReady } from 'cypress/fixtures/ai';
-import { getBfusCustomerIds } from '../fixtures/getBfusCustomerIds';
 import { getOverviewDisturbances } from 'cypress/fixtures/getDisturbances';
+import { getBFUSCustomerIds } from '../fixtures/getBFUSCustomerIds';
 import { getPendingInvoices } from 'cypress/fixtures/getInvoices';
-import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
+import { getBFUSConsents } from 'cypress/fixtures/getBFUSConsents';
 export const DEFAULT_COOKIE_VALUE = 'necessary%2Cstats';
 
 localStorage.clear();
@@ -73,7 +73,7 @@ export const setIntercepts = (
   cy.intercept('GET', '**/api/mandates/org', getOrgMandates).as('getOrgMandates');
   cy.intercept('GET', '**/api/ai/isReady', isReady()).as('AIisReady');
 
-  cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', getBfusCustomerIds(RepresentingMode.PRIVATE)).as(
+  cy.intercept('GET', '**/api/bfus/eligable-party-customer-id', getBFUSCustomerIds(RepresentingMode.PRIVATE)).as(
     'getCustomerIds'
   );
 
@@ -106,11 +106,9 @@ export const setIntercepts = (
   cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
   cy.intercept('GET', '**/api/disturbances?status=*', getOverviewDisturbances()).as('getOverviewDisturbances');
 
-  cy.intercept(
-      'GET',
-      '**/api/bfus/new-permissions?customerIds=12345678',
-      getBfusPartyPermissions(RepresentingMode.PRIVATE)
-    ).as('getNewPermissions');
+  cy.intercept('GET', '**/api/bfus/consents/new?customerIds=12345678', getBFUSConsents(RepresentingMode.PRIVATE)).as(
+    'getNewPermissions'
+  );
 };
 
 beforeEach(() => {

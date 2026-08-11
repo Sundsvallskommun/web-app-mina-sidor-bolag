@@ -4,20 +4,19 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import {
   BFUSCustomerResponse,
   BFUSEligablePartyResponse,
-  BFUSHasNewPermissionResponse,
+  BFUSHasNewConsentsResponse,
 } from '@/interfaces/bfus.interface';
 import authMiddleware from '@/middlewares/auth.middleware';
-import { BFUSApiResponse, BFUSEligablePartyApiResponse, BFUSNewPermissionApiResponse } from '@/responses/bfus.response';
+import { BFUSApiResponse, BFUSConsentsApiResponse, BFUSNewConsentApiResponse } from '@/responses/bfus.response';
 import { logger } from '@/utils/logger';
 import axios from 'axios';
 import { Response } from 'express';
 import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
-import { UpdatePermissionDto } from '@/dtos/update-permission.dto';
-import { handleCustomerIds, sendPermissionRequest } from '@/services/bfus.service';
-import { FullPermissionDto, PermissionRequestDto } from '@/dtos/permission-request.dto';
-import { PermissionHeaderDto } from '@/dtos/permission-header.dto';
-import { mapPartStatus } from '@/utils/bfus-permission-status-code-helpers';
+import { UpdateConsentDto } from '@dtos/update-consent.dto';
+import { handleCustomerIds, sendConsentRequest } from '@/services/bfus.service';
+import { FullConsentDto, ConsentRequestDto, ConsentHeaderDto } from '@dtos/consent-request.dto';
+import { mapPartStatus } from '@utils/bfus-consent-status-code-helpers';
 import { getApiBase } from '@/config/api-config';
 import ApiService from '@/services/api.service';
 import { User } from '@/interfaces/users.interface';
@@ -28,8 +27,8 @@ export class BFUSController {
   private readonly apiService = new ApiService();
   private apiBase = getApiBase('bfus');
 
-  async processPermission(operation: PermissionHeaderDto['Operation'], request: PermissionRequestDto, user: User) {
-    const body: FullPermissionDto = {
+  async processConsent(operation: ConsentHeaderDto['Operation'], request: ConsentRequestDto, user: User) {
+    const body: FullConsentDto = {
       Header: {
         ExternalId: BFUS_EXTERNAL_ID,
         Operation: operation,
@@ -48,7 +47,7 @@ export class BFUSController {
     }
 
     try {
-      const result = await sendPermissionRequest(body, user, this.apiBase);
+      const result = await sendConsentRequest(body, user, this.apiBase);
 
       if (result.Content.PermissionRequestExecuted === false) {
         throw new HttpException(500, 'Internal server error, request was not processed');
@@ -56,7 +55,7 @@ export class BFUSController {
 
       return result;
     } catch (error) {
-      logger.error(`Error processing permission (${operation})`, error);
+      logger.error(`Error processing consent (${operation})`, error);
       if (axios.isAxiosError(error) && error.response) {
         console.error('Status:', error.response?.status);
         console.error('Data:', JSON.stringify(error.response?.data, null, 2));
@@ -79,7 +78,7 @@ export class BFUSController {
     const uniqueCustomerNumbers = Array.from(new Set(allCustomerNumbers));
 
     if (!uniqueCustomerNumbers.length) {
-      throw new HttpException(400, 'No relations or customer number available');
+      throw new HttpException(400, 'No BFUS customer number available');
     }
 
     const results = await Promise.allSettled(
@@ -99,47 +98,45 @@ export class BFUSController {
     });
   }
 
-  @Get('/new-permissions')
-  @OpenAPI({ summary: 'Check if user has new permissions' })
+  @Get('/consents/new')
+  @OpenAPI({ summary: 'Check if user has new consents' })
   @UseBefore(authMiddleware)
-  async hasNewPermissions(
+  async hasNewConsent(
     @Req() req: RequestWithUser,
-    @Res() res: Response<BFUSNewPermissionApiResponse>,
+    @Res() res: Response<BFUSNewConsentApiResponse>,
     @QueryParam('customerIds') customerIds: string,
-  ): Promise<Response<BFUSNewPermissionApiResponse>> {
+  ): Promise<Response<BFUSNewConsentApiResponse>> {
     const ids = await handleCustomerIds(customerIds);
 
     try {
       const responses = await Promise.allSettled(
         ids.map(cn => {
           const url = `${this.apiBase}/EP/EligableParty/NewPermissions/${BFUS_EXTERNAL_ID}/${cn}`;
-          return this.apiService.get<BFUSHasNewPermissionResponse>({ url }, req.user);
+          return this.apiService.get<BFUSHasNewConsentsResponse>({ url }, req.user);
         }),
       );
 
-      const newPermissions = responses
-        .filter(r => r.status === 'fulfilled')
-        .map(r => r.value.data.Content.NewPermissions);
+      const newConsents = responses.filter(r => r.status === 'fulfilled').map(r => r.value.data.Content.NewPermissions);
 
       return res.send({
-        data: newPermissions.some(r => r.HasPermissions === true),
+        data: newConsents.some(r => r.HasPermissions === true),
         message: 'success',
       });
     } catch (error: any) {
-      logger.error('Unexpected error in eligable party new permissions', error.message);
+      logger.error('Unexpected error when checking if user has new consents', error.message);
       throw new HttpError(500, 'Unexpected server error');
     }
   }
 
-  @Get('/eligable-party-permissions')
-  @OpenAPI({ summary: 'Returns a list of eligable party permissions' })
-  @ResponseSchema(BFUSEligablePartyApiResponse)
+  @Get('/consents')
+  @OpenAPI({ summary: 'Returns a list of BFUS consents' })
+  @ResponseSchema(BFUSConsentsApiResponse)
   @UseBefore(authMiddleware)
-  async GetEligablePartyPermissions(
+  async GetConsents(
     @Req() req: RequestWithUser,
     @QueryParam('customerIds') customerIds: string,
-    @Res() res: Response<BFUSEligablePartyApiResponse>,
-  ): Promise<Response<BFUSEligablePartyApiResponse>> {
+    @Res() res: Response<BFUSConsentsApiResponse>,
+  ): Promise<Response<BFUSConsentsApiResponse>> {
     const ids = await handleCustomerIds(customerIds);
 
     try {
@@ -150,42 +147,42 @@ export class BFUSController {
         }),
       );
 
-      const permissions = responses
+      const consents = responses
         .filter(r => r.status === 'fulfilled')
         .map(r => r.value.data.Content.EligablePartyParts);
 
-      const permissionParts = permissions.flatMap(r => r ?? []);
+      const consentParts = consents.flatMap(r => r ?? []);
 
-      const mappedParts = permissionParts.map(p => ({
+      const mappedParts = consentParts.map(p => ({
         ...p,
         StatusCategory: mapPartStatus(p),
       }));
 
       return res.send({
-        message: mappedParts.length ? 'success' : 'no eligable party permission parts available',
-        data: { eligablePartyParts: mappedParts },
+        message: mappedParts.length ? 'success' : 'no consents available',
+        data: { consents: mappedParts },
       });
     } catch (error: any) {
-      logger.error('Unexpected error in eligable party permissions', error.message);
+      logger.error('Unexpected error fetching consents', error.message);
       throw new HttpError(500, 'Unexpected server error');
     }
   }
 
-  @Post('/eligable-party-grant-permission')
+  @Post('/consent/grant')
   @HttpCode(201)
-  async grantPermission(@Req() req: RequestWithUser, @Body() dto: UpdatePermissionDto) {
-    return this.processPermission('grant', dto.PermissionRequest, req.user);
+  async grantPermission(@Req() req: RequestWithUser, @Body() dto: UpdateConsentDto) {
+    return this.processConsent('grant', dto.PermissionRequest, req.user);
   }
 
-  @Post('/eligable-party-deny-permission')
+  @Post('/consent/deny')
   @HttpCode(200)
-  async denyPermission(@Req() req: RequestWithUser, @Body() dto: UpdatePermissionDto) {
-    return this.processPermission('deny', dto.PermissionRequest, req.user);
+  async denyPermission(@Req() req: RequestWithUser, @Body() dto: UpdateConsentDto) {
+    return this.processConsent('deny', dto.PermissionRequest, req.user);
   }
 
-  @Post('/eligable-party-revoke-permission')
+  @Post('/consent/revoke')
   @HttpCode(200)
-  async revokePermission(@Req() req: RequestWithUser, @Body() dto: UpdatePermissionDto) {
-    return this.processPermission('revoke', dto.PermissionRequest, req.user);
+  async revokePermission(@Req() req: RequestWithUser, @Body() dto: UpdateConsentDto) {
+    return this.processConsent('revoke', dto.PermissionRequest, req.user);
   }
 }
