@@ -8,6 +8,7 @@ const namespaces = [
   'ai',
   'about',
   'accessibility',
+  'activity',
   'agreement',
   'category',
   'common',
