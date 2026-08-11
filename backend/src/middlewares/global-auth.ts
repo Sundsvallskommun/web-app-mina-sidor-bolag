@@ -9,7 +9,7 @@ import { getMetadataArgsStorage } from 'routing-controllers';
  * built and injects the auth middleware into every registered action that is not
  * explicitly marked `@Public()`.
  *
- * Usage — call after the controllers have been imported (their decorators must have
+ * Usage - call after the controllers have been imported (their decorators must have
  * run) and before `useExpressServer`:
  *
  *   const report = enforceGlobalAuth({ authMiddleware, controllers, logger });
@@ -20,10 +20,7 @@ import { getMetadataArgsStorage } from 'routing-controllers';
  *   @Public('Liveness probe - no user context')
  *   async up() { ... }
  *
- * Portability: this file has no application-specific imports. The auth middleware
- * is supplied by the caller, so it can be copied verbatim into any backend built on
- * the same routing-controllers structure.
- *
+ 
  * Scope and limits:
  *  - Only covers routes registered through routing-controllers. Routes mounted
  *    straight onto Express (SAML callbacks, Swagger UI) are untouched and must be
@@ -234,8 +231,8 @@ export function enforceGlobalAuth(options: EnforceGlobalAuthOptions): AuthGuardR
 
     const foreignClassMiddleware = classLevelUses.filter(use => use.middleware !== authMiddleware);
 
-    // Class-level middleware runs before anything we attach per action. When the
-    // whole controller needs auth we can hoist the guard to class level and stay
+    // Class-level middleware runs before anything gets attached per action. When the
+    // whole controller needs auth the application can hoist the guard to class level and stay
     // ahead of it; otherwise the public routes would inherit auth too.
     if (foreignClassMiddleware.length && publicCount === 0) {
       storage.uses.unshift({
@@ -281,7 +278,7 @@ function logReport(report: AuthGuardReport, logger?: EnforceGlobalAuthOptions['l
       `${report.alreadyProtected.length} already protected, ${report.publicRoutes.length} public`,
   );
 
-  // The open endpoints are the interesting part of the boot log; name them all.
+  // The open endpoints - everyone must be named.
   for (const route of report.publicRoutes) {
     logger.warn?.(
       `Auth guard: PUBLIC ${route.httpMethod} ${route.route} (${route.controller}.${route.action})` +
