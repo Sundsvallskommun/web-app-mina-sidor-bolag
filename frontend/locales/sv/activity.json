@@ -1,0 +1,42 @@
+{
+  "title": "Aktivitet",
+  "description": "Här ser du kontots aktivitet de senaste 36 månaderna. Exportlogg för statistik hittar du under Statistik.",
+  "loading": "Hämtar aktivitet …",
+  "empty": "Det finns ingen aktivitet att visa.",
+  "error": "Det gick inte att hämta aktiviteten. Försök igen senare.",
+  "card": {
+    "title": "Aktivitet",
+    "description": "Se inloggningar och HAN-portändringar på ditt konto."
+  },
+  "item": {
+    "company": "Företag",
+    "supportReason": "Supportanledning",
+    "address": "Adress",
+    "facilityId": "Anläggnings-ID",
+    "timestamp": "Tidpunkt"
+  },
+  "badge": {
+    "login": "Inloggning",
+    "impersonation": "Kundtjänst",
+    "hanActivated": "HAN-port aktiverad",
+    "hanDeactivated": "HAN-port inaktiverad"
+  },
+  "filter": {
+    "filter": "Filter",
+    "title": "Filtrera",
+    "show": "Visa",
+    "all": "Allt",
+    "login": "Inloggningar",
+    "han": "HAN-port (mätaranslutning)",
+    "period": "Period",
+    "from": "Från",
+    "to": "Till",
+    "cancel": "Avbryt",
+    "apply": "Välj"
+  },
+  "pagination": {
+    "label": "Årsnavigering",
+    "previousYear": "Föregående år",
+    "nextYear": "Nästa år"
+  }
+}

@@ -1,10 +1,10 @@
 import { PagesLayout } from '@layouts/pages-layout.component';
-import Eligibility from '@layouts/pages/mypages-sections/eligibility/eligibility.component';
+import Consent from '@layouts/pages/mypages-sections/consent/consent.component';
 
 export default function Medgivanden() {
   return (
     <PagesLayout>
-      <Eligibility />
+      <Consent />
     </PagesLayout>
   );
 }
