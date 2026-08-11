@@ -12,14 +12,14 @@ import { User } from '@interfaces/user';
 
 interface InvoiceListItemProps {
   invoice: IInvoice;
-  facilityIds: string;
   periodFrom: string;
   periodTo: string;
 }
 
-export const InvoiceListItem = ({ invoice, facilityIds, periodFrom, periodTo }: InvoiceListItemProps) => {
+export const InvoiceListItem = ({ invoice, periodFrom, periodTo }: InvoiceListItemProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { t } = useTranslation();
+  const facilityIds = invoice.facilityIds?.join(',') ?? '';
 
   const getInvoiceAddress = useCallback(
     (facilityIds: string[]): string =>
