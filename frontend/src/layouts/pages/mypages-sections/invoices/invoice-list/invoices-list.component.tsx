@@ -4,14 +4,21 @@ import { InvoiceListItem } from '@layouts/pages/mypages-sections/invoices/invoic
 
 export const InvoicesList: React.FC<{
   data: InvoicesData;
-  limit: number;
   facilityIds: string;
-}> = ({ data, limit, facilityIds }) => {
+}> = ({ data, facilityIds }) => {
   const ref = useRef<null | HTMLDivElement>(null);
   return (
     <div ref={ref} className="flex flex-col gap-16">
       {data.invoices.map((invoice) => {
-        return <InvoiceListItem key={invoice.invoiceId} invoice={invoice} limit={limit} facilityIds={facilityIds} />;
+        return (
+          <InvoiceListItem
+            key={invoice.invoiceId}
+            invoice={invoice}
+            facilityIds={facilityIds}
+            periodFrom={invoice.periodFrom!}
+            periodTo={invoice.periodTo!}
+          />
+        );
       })}
     </div>
   );

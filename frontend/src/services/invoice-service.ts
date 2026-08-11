@@ -59,6 +59,11 @@ export const invoicesHandler = (data: CustomerInvoicesResponse): InvoicesData =>
   totalCount: data._meta?.totalRecords ?? 0,
 });
 
+export const invoiceHandler = (data: CustomerInvoice): IInvoice => ({
+  ...data,
+  invoiceStatus: mapStatus(data.invoiceStatus),
+});
+
 export const notPaidInvoices = ['UNPAID', 'SENT', 'PARTIALLY_PAID', 'REMINDER', 'DEBT_COLLECTION'];
 export const paidInvoices = ['PAID', 'PAID_TOO_MUCH'];
 
