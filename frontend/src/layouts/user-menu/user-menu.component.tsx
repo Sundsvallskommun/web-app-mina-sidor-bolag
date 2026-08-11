@@ -56,9 +56,9 @@ export const UserMenu = () => {
                   onClick={() => {
                     router.push('medgivanden');
                   }}
-                  data-cy="user-menu-eligibility-button"
+                  data-cy="user-menu-consents-button"
                 >
-                  {capitalize(t('common:eligibility'))}
+                  {capitalize(t('common:consents'))}
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
