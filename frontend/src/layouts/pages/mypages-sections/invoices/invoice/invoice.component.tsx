@@ -6,9 +6,9 @@ import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.compon
 import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '@services/api-service';
-import { InvoicesData } from '@interfaces/invoice';
-import { CustomerInvoicesResponse } from '@data-contracts/backend/data-contracts';
-import { invoicesHandler } from '@services/invoice-service';
+import { IInvoice } from '@interfaces/invoice';
+import { CustomerInvoice } from '@data-contracts/backend/data-contracts';
+import { invoiceHandler } from '@services/invoice-service';
 import { User } from '@interfaces/user';
 import { InvoiceLabel } from '@layouts/pages/mypages-sections/invoices/invoice-label/invoice-label.component';
 import { InvoiceDetails } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details.component';
@@ -21,32 +21,31 @@ import {
 } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details-helpers';
 
 export const Invoice = () => {
-  const params = useParams<{ slug: [string, string] }>();
-  const [invoiceNumber] = params.slug;
   const { t } = useTranslation(['common', 'invoices']);
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
 
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   const facilityIds =
-    userData?.facilities
-      ?.map((f) => f.facilityId)
-      .filter(Boolean)
-      .join(',') ?? '';
+    [...new Set(userData?.facilities?.map((f) => f.facilityId).filter(Boolean) ?? [])].join(',') ?? '';
 
+  const [invoiceNumber] = useParams<{ slug: [string] }>().slug;
   const search = useSearchParams();
-  const page = search.get('page') ?? '1';
-  const limit = search.get('limit') ?? '24';
+  const periodFrom = search.get('periodFrom') ?? '';
+  const periodTo = search.get('periodTo') ?? '';
 
-  const { data, isLoading, isError } = useApi<CustomerInvoicesResponse, Error, InvoicesData>({
-    queryKey: ['allInvoices', limit.toString(), facilityIds.toString()],
-    url: `/invoices?page=${page}&limit=${limit}&facilityId=${facilityIds}`,
+  const {
+    data: invoice,
+    isLoading,
+    isError,
+  } = useApi<CustomerInvoice, Error, IInvoice>({
+    queryKey: ['invoice', invoiceNumber, periodFrom],
+    url: `/invoice/${invoiceNumber}?facilityId=${facilityIds}&periodFrom=${periodFrom}&periodTo=${periodTo}`,
     method: 'get',
-    dataHandler: invoicesHandler,
+    dataHandler: invoiceHandler,
     queryOptions: { enabled: !!facilityIds },
   });
 
-  const invoice = data?.invoices.find((i) => i.invoiceNumber === invoiceNumber);
   const groupedDetails = groupInvoiceDetails(invoice?.details ?? [], {
     unknown: t('invoice:unknown'),
     other: t('invoice:other'),

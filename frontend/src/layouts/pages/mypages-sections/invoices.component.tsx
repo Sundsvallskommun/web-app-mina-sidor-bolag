@@ -43,7 +43,9 @@ export default function Invoices() {
   };
 
   useEffect(() => {
-    const ids = userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? [];
+    const ids = [
+      ...new Set(userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? []),
+    ];
     setFacilityIds(ids);
   }, [userData]);
 
@@ -76,11 +78,7 @@ export default function Invoices() {
 
           <InvoicesSection data={onlyPending} isFetching={pendingFetching} isError={pendingError} emptyDataCy="no-data">
             <div>
-              <InvoicesList
-                data={onlyPending}
-                limit={Math.max(limit, pendingLimit)}
-                facilityIds={facilityIds?.join(',') ?? ''}
-              />
+              <InvoicesList data={onlyPending} facilityIds={facilityIds?.join(',') ?? ''} />
 
               {canFetchPending && (
                 <div className="flex flex-col items-center gap-12">
@@ -106,11 +104,7 @@ export default function Invoices() {
           <h2 className="text-h3 mb-24">{t('invoice:all')}</h2>
           <InvoicesSection data={allInvoices} isFetching={isFetching} isError={isError} emptyDataCy="no-data">
             <div>
-              <InvoicesList
-                data={allInvoices}
-                limit={Math.max(limit, pendingLimit)}
-                facilityIds={facilityIds?.join(',') ?? ''}
-              />
+              <InvoicesList data={allInvoices} facilityIds={facilityIds?.join(',') ?? ''} />
 
               <div className="flex flex-col items-center gap-12">
                 <p className="text-small text-center text-secondary mt-lg">

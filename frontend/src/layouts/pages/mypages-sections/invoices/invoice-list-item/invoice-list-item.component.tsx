@@ -12,11 +12,12 @@ import { User } from '@interfaces/user';
 
 interface InvoiceListItemProps {
   invoice: IInvoice;
-  limit: number;
   facilityIds: string;
+  periodFrom: string;
+  periodTo: string;
 }
 
-export const InvoiceListItem = ({ invoice, limit }: InvoiceListItemProps) => {
+export const InvoiceListItem = ({ invoice, facilityIds, periodFrom, periodTo }: InvoiceListItemProps) => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { t } = useTranslation();
 
@@ -29,7 +30,7 @@ export const InvoiceListItem = ({ invoice, limit }: InvoiceListItemProps) => {
   return (
     invoice && (
       <NextLink
-        href={`./fakturor/${invoice.invoiceNumber}?page=1&limit=${limit}`}
+        href={`./fakturor/${invoice.invoiceNumber}?facilityId=${facilityIds}&periodFrom=${periodFrom}&periodTo=${periodTo}`}
         className="flex justify-between w-full bg-background-content shadow-50 rounded-2xl pl-24 pr-16 lg:py-12 py-16 hover:bg-background-100 focus:ring"
         data-cy={`invoice-list-item-${invoice.invoiceNumber}`}
       >

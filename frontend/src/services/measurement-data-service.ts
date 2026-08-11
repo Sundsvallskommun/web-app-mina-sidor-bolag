@@ -20,8 +20,13 @@ export const handleMeasurementDataByMonthResponse = (
   const currentMonth = date.startOf('month');
   const previousMonth = date.subtract(1, 'year').startOf('month');
 
-  const energySeries = data.measurementSeries?.find((m) => m.measurementType?.toLowerCase() === 'energy');
-  const points = energySeries?.measurementPoints ?? [];
+  const usageSeries =
+    data.measurementSeries?.find((m) => {
+      const type = m.measurementType?.toLowerCase();
+      return type === 'energy' || (data.category === 'DISTRICT_COOLING' && type === 'flow');
+    }) ?? {};
+
+  const points = usageSeries?.measurementPoints ?? [];
 
   const valueForMonth = (month: Dayjs): number => {
     const point = points.find((p) => dayjs(p.timestamp).isSame(month, 'month'));
@@ -86,7 +91,9 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
   const measurementData =
     data?.measurementSeries?.filter(
-      (measurement) => measurement.unit === 'kWh' && measurement.measurementType !== CORRECTED_USAGE_TYPE
+      (measurement) =>
+        (measurement.unit === 'kWh' && measurement.measurementType !== CORRECTED_USAGE_TYPE) ||
+        (data.category === 'DISTRICT_COOLING' && measurement.measurementType?.toLowerCase() === 'flow')
     ) ?? [];
   measurementData.forEach(filterPointsToRange);
   measurementData.forEach(addTimestamps);
