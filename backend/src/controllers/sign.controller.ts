@@ -34,7 +34,10 @@ export class SignController {
   private readonly apiService = new GrpApiService();
   private readonly qrService = new QRGenerator();
 
-  private readonly initiateSign = async (req: RequestWithUser, userMessage: GrpInitiateBody['userMessage']): Promise<Sign> => {
+  private readonly initiateSign = async (
+    req: RequestWithUser,
+    userMessage: GrpInitiateBody['userMessage'],
+  ): Promise<Sign> => {
     const endUserInfo = req.ip;
     const { personNumber } = req.user;
     const transactionId = randomUUID();
@@ -76,7 +79,11 @@ export class SignController {
   @Post('/sign')
   @OpenAPI({ summary: 'Initiate BankID signing process' })
   @ResponseSchema(SignApiResponse)
-  async sign(@Req() req: RequestWithUser, @Body() body: SignDto, @Res() res: Response<SignApiResponse>): Promise<Response<SignApiResponse>> {
+  async sign(
+    @Req() req: RequestWithUser,
+    @Body() body: SignDto,
+    @Res() res: Response<SignApiResponse>,
+  ): Promise<Response<SignApiResponse>> {
     const { details, ...rest } = body;
 
     try {
@@ -171,7 +178,10 @@ export class SignController {
         cacheHandler.remove('details', transactionId);
       }
 
-      return res.send({ message: 'success', data: { transactionId: result.transactionId, progressStatus: result.progressStatus, qrCode } });
+      return res.send({
+        message: 'success',
+        data: { transactionId: result.transactionId, progressStatus: result.progressStatus, qrCode },
+      });
     } catch (error) {
       logger.error('Failed to get BankID signing process', error);
       throw new HttpException(500, 'Failed to get BankID signing process');
