@@ -27,10 +27,7 @@ export const Invoice = () => {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
   const facilityIds =
-    userData?.facilities
-      ?.map((f) => f.facilityId)
-      .filter(Boolean)
-      .join(',') ?? '';
+    [...new Set(userData?.facilities?.map((f) => f.facilityId).filter(Boolean) ?? [])].join(',') ?? '';
 
   const [invoiceNumber] = useParams<{ slug: [string] }>().slug;
   const search = useSearchParams();

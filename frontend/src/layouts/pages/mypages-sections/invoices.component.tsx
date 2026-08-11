@@ -43,7 +43,9 @@ export default function Invoices() {
   };
 
   useEffect(() => {
-    const ids = userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? [];
+    const ids = [
+      ...new Set(userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? []),
+    ];
     setFacilityIds(ids);
   }, [userData]);
 
