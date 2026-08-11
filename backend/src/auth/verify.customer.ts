@@ -13,6 +13,7 @@ import getDelegatedFacilities from '../services/delegation.service';
 import { populateRepresentingCache } from '@services/session-cache.service';
 import { defaultPermissions } from '@services/authorization.service';
 import { getPersonEngagements } from '@services/legal-entity.service';
+import { writeLoginEvent } from '@services/login-event.service';
 
 export const customerVerify = (apiService: ApiService) => async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -95,6 +96,8 @@ export const customerLoginSuccess = async (
         },
       };
     }
+
+    await writeLoginEvent(req.session.representing, user);
 
     await getPersonEngagements(user)
       .then(engagements => {
