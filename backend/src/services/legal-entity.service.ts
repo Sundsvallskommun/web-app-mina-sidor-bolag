@@ -36,7 +36,7 @@ export const getPersonEngagements = async (user: User): Promise<PersonEngagement
   const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/person/${user.personNumber}`;
 
   let res: { data: PersonEngagement[] };
-  if (ENVIRONMENT === 'TEST' && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER) {
+  if ((ENVIRONMENT === 'TEST' || ENVIRONMENT === 'LOCAL') && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER) {
     res = {
       data: [
         {

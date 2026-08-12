@@ -48,7 +48,7 @@ export class SignController {
     };
     const data: GrpInitiateBody = {
       subjectIdentifier: {
-        value: ENVIRONMENT === 'TEST' ? GRP_DEV_PERSONNUMBER : personNumber,
+        value: ENVIRONMENT === 'TEST' || ENVIRONMENT === 'LOCAL' ? GRP_DEV_PERSONNUMBER : personNumber,
         type: GrpSubjectIdentifierType.Tin,
       },
       userMessage,

@@ -50,12 +50,12 @@ export function registerSamlFlow(app: express.Application, opts: SamlFlowOptions
       privateKey: config.privateKey,
       idpCert: config.idpCert,
       issuer: config.issuer,
-      wantAssertionsSigned: false,
+      wantAssertionsSigned: true,
       wantAuthnResponseSigned: false,
-      audience: false,
+      audience: config.issuer,
       logoutUrl: config.logoutUrl,
       logoutCallbackUrl: config.logoutCallbackUrl,
-      acceptedClockSkewMs: -1,
+      acceptedClockSkewMs: 5000,
     },
     opts.verify,
     opts.logoutVerify,
@@ -132,7 +132,7 @@ export function registerSamlFlow(app: express.Application, opts: SamlFlowOptions
   });
 
   app.get(`${base}/logout/callback`, rateLimiter, bodyParser.urlencoded({ extended: false }), (req, res) => {
-    logger.info('SAML logout callback received', { query: req.query, body: req.body, user: req.user });
+    logger.debug('SAML logout callback received', { query: req.query, body: req.body, user: req.user });
     req.logout(err => {
       if (err) return res.status(500).send(err);
       let successRedirect: URL = new URL(config.logoutRedirect);
@@ -195,7 +195,10 @@ export function registerSamlFlow(app: express.Application, opts: SamlFlowOptions
         failureMessage: true,
       },
       (err, user) => {
-        if (err) return next(err);
+        if (err) {
+          logger.warn(`SAML login callback failed [${strategyName}]: ${err.name}: ${err.message}`);
+          return next(err);
+        }
         if (!user) return res.redirect(failureRedirect);
 
         req.logIn(user, async err => {

@@ -4,6 +4,7 @@ import ApiService from '@/services/api.service';
 import {
   BASE_URL_PREFIX,
   CREDENTIALS,
+  ENVIRONMENT,
   LOG_FORMAT,
   NODE_ENV,
   ORIGIN,
@@ -61,10 +62,10 @@ import { deleteAISession } from '@services/selfserviceai.service';
 import { additionalConverters } from '@utils/custom-validation-classes';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
-const sessionTTL = 4 * 24 * 60 * 60;
+const sessionTTL = 12 * 60 * 60;
 // NOTE: memory uses ms while file uses seconds
 const sessionStore = new SessionStoreCreate(
-  SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
+  SESSION_MEMORY ? { ttl: sessionTTL * 1000, checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
 );
 const apiService = new ApiService();
 
@@ -160,7 +161,12 @@ class App {
         saveUninitialized: false,
         store: sessionStore,
         cookie: {
+          httpOnly: true,
           sameSite: 'lax',
+          secure: this.env === 'production' && ENVIRONMENT !== 'LOCAL',
+          // No maxAge → session cookie: dropped on browser close (matters on shared/public devices).
+          // Idle sessions are logged out client-side via a full SAML logout; the server-side store TTL
+          // (sessionTTL, refreshed per request) is the idle backstop.
         },
       }),
     );

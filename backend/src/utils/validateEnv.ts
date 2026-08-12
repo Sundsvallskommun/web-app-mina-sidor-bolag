@@ -11,6 +11,23 @@ const emails = makeValidator(emailString => {
   return emailString;
 });
 
+const EXAMPLE_SECRET = '{{INSERT_RANDOM_STRING}}';
+const RECOMMENDED_SECRET_LENGTH = 32;
+
+function validateSecretStrength(): void {
+  if (process.env.NODE_ENV !== 'production') {
+    return;
+  }
+  const secret = (process.env.SECRET_KEY ?? '').trim();
+  if (secret === '' || secret === EXAMPLE_SECRET) {
+    console.error('\nInsecure SECRET_KEY: it is empty or the shipped placeholder value; set a strong unique secret.\n');
+    process.exit(1);
+  }
+  if (secret.length < RECOMMENDED_SECRET_LENGTH) {
+    console.warn(`⚠️  SECRET_KEY is shorter than the recommended ${RECOMMENDED_SECRET_LENGTH} characters.`);
+  }
+}
+
 // NOTE: Make sure we got these in ENV
 const validateEnv = () => {
   cleanEnv(process.env, {
@@ -38,6 +55,8 @@ const validateEnv = () => {
     NAMESPACE: str(),
     WHITELISTED_ORGS: str(),
   });
+
+  validateSecretStrength();
 };
 
 export default validateEnv;
