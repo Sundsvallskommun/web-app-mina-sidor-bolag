@@ -39,11 +39,17 @@ describe('Fakturor', () => {
   });
 
   it('can view invoice details', () => {
+    const invoice = getPendingInvoices().data.invoices![0]!;
+
+    cy.intercept('GET', '**/api/invoice/*?**', {
+      data: invoice,
+      message: 'success',
+    }).as('getInvoice');
+
     cy.get('[data-cy="unhandled-invoices"]').should('exist');
     cy.get(`[data-cy='invoice-list-item-1']`).first().click();
-    cy.wait('@getInvoices');
+    cy.wait('@getInvoice');
 
-    const invoice: CustomerInvoice = getPendingInvoices().data.invoices![0] ?? {};
     cy.get('[data-cy="invoice-details"]').should('exist');
     cy.get('[data-cy="description"]').should('have.text', invoice.invoiceDescription);
     cy.get('[data-cy="invoice-status-label"]').should('have.text', 'Obetald');
@@ -91,27 +97,24 @@ describe('Fakturor', () => {
   });
 
   it('shows an error state when the detail fetch fails', () => {
-    cy.intercept('GET', '**/api/invoices?**', {
+    cy.intercept('GET', '**/api/invoice/*?**', {
       statusCode: 500,
       body: { message: 'Internal Server Error' },
     }).as('getInvoiceError');
-    cy.visit('/privat/fakturor/1?page=1&limit=12');
+    cy.visit('/privat/fakturor/1?facilityId=X&periodFrom=2024-01-01&periodTo=2024-01-31');
     cy.wait('@getInvoiceError');
 
     cy.contains('Något gick fel').should('be.visible');
-    cy.contains('Gå tillbaka till Mina fakturor').should('have.attr', 'href'); // the back link
+    cy.contains('Gå tillbaka till Mina fakturor').should('have.attr', 'href');
   });
 
   it('shows a notFound state when the invoice is not in the response', () => {
-    cy.intercept('GET', '**/api/invoices?**', {
-      data: {
-        invoices: [],
-        _meta: { page: 1, limit: 12, totalRecords: 0, totalPages: 0, count: 0 },
-      },
-      message: 'success',
-    }).as('getInvoicesEmpty');
-    cy.visit('/privat/fakturor/123?page=1&limit=12');
-    cy.wait('@getInvoicesEmpty');
+    cy.intercept('GET', '**/api/invoice/*?**', {
+      statusCode: 404,
+      body: { message: 'Invoice not found' },
+    }).as('getInvoiceNotFound');
+    cy.visit('/privat/fakturor/123?facilityId=X&periodFrom=2024-01-01&periodTo=2024-01-31');
+    cy.wait('@getInvoiceNotFound');
 
     cy.contains('Kunde inte hitta faktura med fakturanummer 123').should('be.visible');
     cy.contains('Gå tillbaka till Mina fakturor').should('have.attr', 'href');
