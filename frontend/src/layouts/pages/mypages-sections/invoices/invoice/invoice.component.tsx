@@ -19,6 +19,7 @@ import {
   getInvoiceAddress,
   groupInvoiceDetails,
 } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details-helpers';
+import { AxiosError } from 'axios';
 
 export const Invoice = () => {
   const { t } = useTranslation(['common', 'invoices']);
@@ -35,7 +36,8 @@ export const Invoice = () => {
     data: invoice,
     isLoading,
     isError,
-  } = useApi<CustomerInvoice, Error, IInvoice>({
+    error,
+  } = useApi<CustomerInvoice, AxiosError, IInvoice>({
     queryKey: ['invoice', invoiceNumber, periodFrom],
     url: `/invoice/${invoiceNumber}?facilityId=${facilityIds}&periodFrom=${periodFrom}&periodTo=${periodTo}`,
     method: 'get',
@@ -49,24 +51,21 @@ export const Invoice = () => {
   });
 
   if (isLoading) return <Spinner className="mx-auto my-80" />;
-  if (isError)
+
+  if (isError) {
+    const status = error?.response?.status;
+    const isNotFound = status === 404;
     return (
       <PagesLayout>
-        <h3 className="mb-24">{t('invoice:loadError')}</h3>
+        <h3 className="mb-24">{isNotFound ? t('invoice:notFound', { invoiceNumber }) : t('invoice:loadError')}</h3>
         <NextLink className="underline" href="./../fakturor">
           {t('invoice:goBack')}
         </NextLink>
       </PagesLayout>
     );
-  if (!invoice)
-    return (
-      <PagesLayout>
-        <h3 className="mb-24">{t('invoice:notFound', { invoiceNumber: invoiceNumber })}</h3>
-        <NextLink className="underline" href="./../fakturor">
-          {t('invoice:goBack')}
-        </NextLink>
-      </PagesLayout>
-    );
+  }
+
+  if (!invoice) return null;
 
   const invoiceAddress = getInvoiceAddress(userData, invoice?.facilityIds ?? []);
 
