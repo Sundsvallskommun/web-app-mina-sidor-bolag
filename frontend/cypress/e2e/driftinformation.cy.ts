@@ -6,8 +6,8 @@ import { Affected } from '@data-contracts/backend/data-contracts';
 describe('Driftinformation', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.visit('/privat/driftinformation');
     cy.intercept('GET', '**/api/disturbances', getAllDisturbances()).as('getDisturbances');
+    cy.visit('/privat/driftinformation');
   });
 
   it('should render list of disturbances', () => {
