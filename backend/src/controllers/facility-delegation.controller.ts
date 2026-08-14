@@ -4,8 +4,7 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
 import { assertOwnsFacilityDelegation } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
-import authMiddleware from '@middlewares/auth.middleware';
-import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req, UseBefore } from 'routing-controllers';
+import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { MUNICIPALITY_ID } from '@config';
 import { ApiResponse, ResponseData } from '@interfaces/service';
@@ -22,7 +21,6 @@ export class FacilityDelegationController {
 
   @Get('/facility/delegations')
   @OpenAPI({ summary: 'Get my delegations as owner' })
-  @UseBefore(authMiddleware)
   async getMyFacilityDelegations(@Req() req: RequestWithUser): Promise<ApiResponse<ResolvedFacilityDelegation[]>> {
     const { representing } = req.session ?? {};
     const partyId = getRepresentingPartyId(representing);
@@ -76,7 +74,6 @@ export class FacilityDelegationController {
   @Patch('/delegations/:id')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update an existing facility delegation' })
-  @UseBefore(authMiddleware)
   async updateFacilityDelegation(
     @Req() req: RequestWithUser,
     @Body() delegateFacilityData: UpdateDelegation,
@@ -105,7 +102,6 @@ export class FacilityDelegationController {
   @Delete('/delegations/:id')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Delete a facility delegation' })
-  @UseBefore(authMiddleware)
   async deleteFacilityDelegation(
     @Req() req: RequestWithUser,
     @Param('id') delegationId: string,
@@ -126,7 +122,6 @@ export class FacilityDelegationController {
 
   @Get('/personNumber/:personNumber')
   @OpenAPI({ summary: 'Get personId from person number' })
-  @UseBefore(authMiddleware)
   async getPersonIdByPersonNumber(
     @Req() req: RequestWithUser,
     @Param('personNumber') personNumber: string,
@@ -147,7 +142,6 @@ export class FacilityDelegationController {
   @Post('/delegations')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Create facility delegation' })
-  @UseBefore(authMiddleware)
   async createDelegate(
     @Req() req: RequestWithUser,
     @Body() facilityDelegationData: CreateDelegation,

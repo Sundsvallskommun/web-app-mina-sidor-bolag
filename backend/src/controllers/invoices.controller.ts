@@ -8,8 +8,7 @@ import {
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import authMiddleware from '@middlewares/auth.middleware';
-import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
+import { Controller, Get, Param, Req } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
 import InvoicesService, { getInvoicePeriodFrom } from '@/services/invoices.service';
@@ -46,7 +45,6 @@ export class InvoicesController {
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @ResponseSchema(CustomerInvoicesResponse)
-  @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser) {
     const { facilityId, page, limit } = req.query;
 
@@ -77,7 +75,6 @@ export class InvoicesController {
   @Get('/invoices/pending')
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @ResponseSchema(CustomerInvoicesResponse)
-  @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser) {
     const { facilityId, page, limit } = req.query;
 
@@ -122,7 +119,6 @@ export class InvoicesController {
 
   @Get('/invoicepdf/:organizationNumber/:id')
   @OpenAPI({ summary: 'Return the base64-encoded invoice document (PDF or ZIP)' })
-  @UseBefore(authMiddleware)
   async getInvoicePdf(
     @Req() req: RequestWithUser,
     @Param('organizationNumber') organizationNumber: string,

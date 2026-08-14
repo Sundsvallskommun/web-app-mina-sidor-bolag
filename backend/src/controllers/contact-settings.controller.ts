@@ -10,7 +10,6 @@ import {
 } from '@/services/contact-setting.service';
 import { assertOwnsContactSetting, assertOwnsParentSetting } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
-import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
 import {
   Body,
@@ -51,7 +50,6 @@ export class ContactSettingsController {
   @Get('/contactsettings')
   @OpenAPI({ summary: 'Return a list of contact settings' })
   @ResponseSchema(ClientContactSetting)
-  @UseBefore(authMiddleware)
   async getContactSettings(
     @Req() req: RequestWithUser,
     @QueryParam('limit', { required: false }) limit?: number,
@@ -123,7 +121,7 @@ export class ContactSettingsController {
   @Post('/contactsettings')
   @HttpCode(201)
   @OpenAPI({ summary: 'Create contact settings for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
+  @UseBefore(validationMiddleware(ClientContactSetting, 'body'))
   async newContactSettings(
     @Req() req: RequestWithUser,
     @Body() userData: ClientContactSetting,
@@ -161,7 +159,7 @@ export class ContactSettingsController {
   @Patch('/contactsettings')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update contact settings for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
+  @UseBefore(validationMiddleware(ClientContactSetting, 'body'))
   async editContactSettings(
     @Req() req: RequestWithUser,
     @Body() userData: ClientContactSetting,
@@ -197,7 +195,6 @@ export class ContactSettingsController {
   @Delete('/contactsettings/:contactSettingId')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Delete contact setting for current logged in user' })
-  @UseBefore(authMiddleware)
   async _deleteContactSetting(
     @Req() req: RequestWithUser,
     @Param('contactSettingId') contactSettingId: string,

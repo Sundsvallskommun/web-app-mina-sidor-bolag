@@ -4,8 +4,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { ApiResponse } from '@/interfaces/service';
 import ApiService from '@/services/api.service';
-import authMiddleware from '@middlewares/auth.middleware';
-import { Controller, Get, Param, QueryParam, Req, UseBefore } from 'routing-controllers';
+import { Controller, Get, Param, QueryParam, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { Agreement, AgreementResponse, Category } from '@/data-contracts/agreement/data-contracts';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
@@ -87,7 +86,6 @@ export class AgreementController {
 
   @Get('/paged/agreements')
   @OpenAPI({ summary: 'Get agreements by party id' })
-  @UseBefore(authMiddleware)
   async getAgreements(
     @Req() req: RequestWithUser,
     @QueryParam('page') page?: number,
@@ -98,7 +96,6 @@ export class AgreementController {
 
   @Get('/paged/all-agreements')
   @OpenAPI({ summary: 'Get all agreements (active and inactive) by party id' })
-  @UseBefore(authMiddleware)
   async getAllAgreements(
     @Req() req: RequestWithUser,
     @QueryParam('page') page?: number,
@@ -109,7 +106,6 @@ export class AgreementController {
 
   @Get('/agreement/:category/:facilityId')
   @OpenAPI({ summary: 'Get agreements by category and facility id' })
-  @UseBefore(authMiddleware)
   async getAgreement(
     @Req() req: RequestWithUser,
     @Param('category') category: Category,

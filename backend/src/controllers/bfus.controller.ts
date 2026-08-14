@@ -6,12 +6,11 @@ import {
   BFUSEligablePartyResponse,
   BFUSHasNewConsentsResponse,
 } from '@/interfaces/bfus.interface';
-import authMiddleware from '@/middlewares/auth.middleware';
 import { BFUSApiResponse, BFUSConsentsApiResponse, BFUSNewConsentApiResponse } from '@/responses/bfus.response';
 import { logger } from '@/utils/logger';
 import axios from 'axios';
 import { Response } from 'express';
-import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
+import { Body, Controller, Get, HttpCode, HttpError, Post, QueryParam, Req, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { UpdateConsentDto } from '@dtos/update-consent.dto';
 import { handleCustomerIds, sendConsentRequest } from '@/services/bfus.service';
@@ -100,7 +99,6 @@ export class BFUSController {
 
   @Get('/consents/new')
   @OpenAPI({ summary: 'Check if user has new consents' })
-  @UseBefore(authMiddleware)
   async hasNewConsent(
     @Req() req: RequestWithUser,
     @Res() res: Response<BFUSNewConsentApiResponse>,
@@ -131,7 +129,6 @@ export class BFUSController {
   @Get('/consents')
   @OpenAPI({ summary: 'Returns a list of BFUS consents' })
   @ResponseSchema(BFUSConsentsApiResponse)
-  @UseBefore(authMiddleware)
   async GetConsents(
     @Req() req: RequestWithUser,
     @QueryParam('customerIds') customerIds: string,
