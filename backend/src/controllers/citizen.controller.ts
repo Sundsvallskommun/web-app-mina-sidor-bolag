@@ -39,8 +39,6 @@ export class CitizenController {
   ): Promise<Response<CitizenApiResponse>> {
     const { user } = req;
 
-    // Resolving a personnummer to a name and partyId is a register lookup; keep it
-    // attributable even when the request itself is legitimate.
     logIdentityLookup(req, body.personnumber);
 
     const guidUrl = `${this.baseUrl}/${body.personnumber}/guid`;

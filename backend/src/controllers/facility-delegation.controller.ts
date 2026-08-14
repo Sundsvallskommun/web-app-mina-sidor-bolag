@@ -89,7 +89,6 @@ export class FacilityDelegationController {
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
 
-    // Only the updatable fields; forwarding the body verbatim would pass anything else on.
     const update: UpdateDelegation = {
       facilities: delegateFacilityData.facilities,
       delegatedTo: delegateFacilityData.delegatedTo,
@@ -121,15 +120,6 @@ export class FacilityDelegationController {
     return { data: res.data, message: 'Deleted facility delegation' };
   }
 
-  /**
-   * Resolves a personnummer to a partyId.
-   *
-   * Deliberately not a route. It used to be exposed as GET /personNumber/:personNumber,
-   * which let any session translate any personnummer into a partyId; nothing called
-   * it but the delegation flow below, so the route is gone and only this internal
-   * use remains. If it ever needs exposing again, put it behind
-   * `identity-lookup.middleware` like POST /citizen.
-   */
   private async getPersonIdByPersonNumber(req: RequestWithUser, personNumber: string): Promise<ResponseData<string>> {
     logIdentityLookup(req, personNumber);
 

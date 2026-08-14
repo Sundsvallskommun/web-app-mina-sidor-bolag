@@ -123,9 +123,6 @@ class EventLogController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    // A delegated facility is logged against its real owner; anything else against
-    // the acting party. Every step here is optional in practice, so guard each one
-    // rather than letting a crafted body turn into a 500.
     const checkIfDelegatedFacility = () => {
       const facility = (user?.facilities ?? []).find(item => item.facilityId === exportLogData[0].facilityId);
       return facility?.facilityOwnerPartyId ?? representing.PRIVATE?.partyId ?? partyId;
