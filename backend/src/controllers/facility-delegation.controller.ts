@@ -2,6 +2,7 @@ import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
+import { assertOwnsFacilityDelegation } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req, UseBefore } from 'routing-controllers';
@@ -85,13 +86,18 @@ export class FacilityDelegationController {
       throw new HttpException(400, 'Bad Request');
     }
 
+    await assertOwnsFacilityDelegation(req, delegationId);
+
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
 
-    const res = await this.apiService.patch<number, UpdateDelegation>(
-      { url, baseURL, data: delegateFacilityData },
-      req.user,
-    );
+    // Only the updatable fields; forwarding the body verbatim would pass anything else on.
+    const update: UpdateDelegation = {
+      facilities: delegateFacilityData.facilities,
+      delegatedTo: delegateFacilityData.delegatedTo,
+    };
+
+    const res = await this.apiService.patch<number, UpdateDelegation>({ url, baseURL, data: update }, req.user);
 
     return { data: res.data, message: 'Updated facility delegation' };
   }
@@ -107,6 +113,8 @@ export class FacilityDelegationController {
     if (!delegationId) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsFacilityDelegation(req, delegationId);
 
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
