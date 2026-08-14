@@ -22,6 +22,43 @@ export const buildSentBy = (user: Sender): string =>
 
 const apiTokenService = new ApiTokenService();
 
+const MAX_TRIES = 3;
+
+const buildRequestConfig = (config: AxiosRequestConfig, user: Sender): AxiosRequestConfig => ({
+  ...config,
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
+  headers: { ...config.headers, 'X-Sent-By': [buildSentBy(user)] },
+  params: { ...config.params },
+  url: config.baseURL ? config.url : apiURL(config.url),
+  httpAgent: agent,
+  httpsAgent: agent,
+});
+
+const isClassifiedFailure = (error: unknown): error is AxiosError =>
+  axios.isAxiosError(error) &&
+  (error.response?.status === 404 || error.response?.status === 409 || Boolean(error.response?.data));
+
+const logRequestFailure = (error: AxiosError): void => {
+  logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
+  logger.error(`Error details: ${JSON.stringify(error.response?.data)}`);
+  logger.error(`Error url: ${error.response?.config.baseURL ?? ''}/${error.response?.config.url}`);
+  logger.error(`Error data: ${error.response?.config.data}`);
+  logger.error(`Error method: ${error.response?.config.method}`);
+};
+
+const toHttpException = (error: AxiosError): HttpException => {
+  const status = error.response?.status;
+
+  if (status === 404) return new HttpException(404, 'Not found');
+  if (status === 409) return new HttpException(409, 'Duplicate');
+
+  return new HttpException(status ?? 500, 'API request failed');
+};
+
+const shouldRetry = (config: AxiosRequestConfig, tries: number): boolean =>
+  config.method === 'GET' && tries < MAX_TRIES;
+
 class ApiService {
   private readonly instance: AxiosInstance;
   constructor() {
@@ -79,58 +116,27 @@ class ApiService {
     );
   }
   private async request<T>(config: AxiosRequestConfig, user: Sender): Promise<ApiResponse<T>> {
-    const defaultParams = {};
-    const preparedConfig: AxiosRequestConfig = {
-      ...config,
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-      headers: { ...config.headers, 'X-Sent-By': [buildSentBy(user)] },
-      params: { ...defaultParams, ...config.params },
-      url: config.baseURL ? config.url : apiURL(config.url),
-      httpAgent: agent,
-      httpsAgent: agent,
-    };
+    const preparedConfig = buildRequestConfig(config, user);
     let tries = 0;
 
-    const call = async () => {
-      const res = await this.instance(preparedConfig);
-      return { data: res.data, message: 'success' };
-    };
-
-    while (tries < 3) {
+    while (tries < MAX_TRIES) {
       try {
         tries += 1;
-        return await call();
-      } catch (error: unknown | AxiosError) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data}`);
-          logger.error(`Error method: ${error.response.config.method}`);
-          throw new HttpException(404, 'Not found');
-        } else if (axios.isAxiosError(error) && error.response?.status === 409) {
-          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data}`);
-          logger.error(`Error method: ${error.response.config.method}`);
-          throw new HttpException(409, 'Duplicate');
-        } else if (axios.isAxiosError(error) && (error as AxiosError).response?.data) {
-          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data}`);
-          logger.error(`Error method: ${error.response.config.method}`);
-          throw new HttpException(error.response.status ?? 500, 'API request failed');
-        } else {
-          logger.error(`Unknown error: ${error}`);
-          if (preparedConfig.method === 'GET' && tries < 3) {
-            logger.info(`Retrying... (${tries})`);
-            continue;
-          }
+        const res = await this.instance(preparedConfig);
+        return { data: res.data, message: 'success' };
+      } catch (error: unknown) {
+        if (isClassifiedFailure(error)) {
+          logRequestFailure(error);
+          throw toHttpException(error);
+        }
+
+        logger.error(`Unknown error: ${error}`);
+
+        if (!shouldRetry(preparedConfig, tries)) {
           throw new HttpException(500, 'Internal server error');
         }
+
+        logger.info(`Retrying... (${tries})`);
       }
     }
   }
