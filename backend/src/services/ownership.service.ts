@@ -13,20 +13,13 @@ import ApiService from './api.service';
 import { customerInvoicesUrl, getInvoicePeriodFrom } from './invoices.service';
 
 /**
- * Per-object authorization.
+ * Per-object authorization. The platform APIs authenticate the application rather
+ * than the end user, so ownership has to be decided here.
  *
- * The BFF authenticates to every upstream API with one machine token
- * (client_credentials), so the platform services cannot tell one end user from
- * another and will happily act on any object id they are handed. That makes this
- * layer the only thing standing between a valid session and someone else's data.
- *
- * The global auth guard answers "is someone logged in". These helpers answer the
- * separate question "does this session own the object it is addressing", and must
- * be called by every action that takes an object id from the client.
- *
- * Each helper resolves the object upstream, compares its owner against the
- * session, and either returns the object or throws 403. Callers can use the
- * returned object instead of fetching it again.
+ * Every action that takes an object id from the client should call one of these.
+ * Each fetches the object from the platform API, compares its owner against the
+ * session, and either returns it - so the caller need not fetch it again - or
+ * throws 403.
  */
 
 const api = new ApiService();
@@ -35,15 +28,14 @@ const contactSettingsBase = () => `${getApiBase('contactsettings')}/${MUNICIPALI
 const installedBaseBase = () => `${getApiBase('installedbase')}/${MUNICIPALITY_ID}`;
 const mandatesBase = () => `${getApiBase('myrepresentatives')}/${MUNICIPALITY_ID}/${NAMESPACE}`;
 
-/** Pages to walk when searching a paged upstream list before giving up. */
+/** Pages to walk when searching a paged platform API list before giving up. */
 const MAX_SEARCH_PAGES = 20;
 const SEARCH_PAGE_SIZE = 100;
 
 /**
- * The partyId this session is currently acting as: the represented private person
- * or organization. Deliberately a single identity rather than "any party the user
- * has some relation to" - it mirrors how the read endpoints scope their queries,
- * so what you can change is exactly what you can see.
+ * The single party this session acts as. Deliberately not "any party the user has
+ * some relation to": it mirrors how reads are scoped, so what you may change is
+ * exactly what you may see.
  */
 export function getActingPartyId(req: RequestWithUser): string {
   const representing = req.session?.representing;
@@ -57,9 +49,8 @@ export function getActingPartyId(req: RequestWithUser): string {
 }
 
 /**
- * Refuses access. The message is deliberately uniform: a caller must not be able
- * to tell "exists but not yours" from "does not exist", or object ids become
- * enumerable through the error response.
+ * Refuses access with a uniform message, so the response cannot be used to tell
+ * "not yours" apart from "does not exist".
  */
 function deny(resource: string, id: string, actingPartyId: string): never {
   logger.warn(`Ownership denied: ${resource} '${id}' is not owned by party '${actingPartyId}'`);
@@ -76,7 +67,7 @@ function statusOf(error: unknown): number | undefined {
   return typeof status === 'number' ? status : undefined;
 }
 
-/** Upstream 404/403 must look the same as a failed ownership check. */
+/** A 404 or 403 from the platform API must look like a failed ownership check. */
 async function resolveOrDeny<T>(
   load: () => Promise<T>,
   resource: string,
@@ -115,9 +106,8 @@ async function fetchContactSetting(
 }
 
 /**
- * Contact settings belong to a party directly, except for virtual ones. A virtual
- * setting represents a delegate who is not themselves a customer; it carries no
- * partyId and is owned by the setting that created it.
+ * A setting belongs to a party directly, or - when virtual - to whoever owns the
+ * setting that created it.
  */
 export async function assertOwnsContactSetting(
   req: RequestWithUser,
@@ -140,8 +130,7 @@ export async function assertOwnsContactSetting(
 
   if (setting.createdById) {
     const parent = await fetchContactSetting(req, setting.createdById, actingPartyId);
-    // Only one level up: that is how the delegate flow creates them, and following
-    // an arbitrary chain would let a crafted parent launder ownership.
+    // One level only; a longer chain could be arranged to obscure the real owner.
     if (!parent.partyId || parent.partyId !== actingPartyId) {
       deny('contact setting', contactSettingId, actingPartyId);
     }
@@ -182,9 +171,8 @@ async function listDelegates(req: RequestWithUser, principalId: string): Promise
 }
 
 /**
- * A delegate is owned by the party behind its principal contact setting. Resolved
- * by listing the acting party's own delegates rather than fetching the delegate by
- * id, so this only relies on upstream endpoints the app already uses.
+ * A delegate belongs to the party behind its principal setting. Resolved by listing
+ * our own delegates, which relies only on endpoints already in use.
  */
 export async function assertOwnsDelegate(req: RequestWithUser, delegateId: string): Promise<Delegate> {
   const actingPartyId = getActingPartyId(req);
@@ -205,13 +193,21 @@ export async function assertOwnsDelegate(req: RequestWithUser, delegateId: strin
   deny('delegate', delegateId, actingPartyId);
 }
 
-/**
- * Guards the principal a delegate is being attached to, for create and update
- * where the principal id comes from the request body.
- */
+/** Guards a principal id taken from the request body. */
 export async function assertOwnsPrincipal(req: RequestWithUser, principalId: string): Promise<void> {
   await assertOwnsContactSetting(req, principalId);
 }
+
+/**
+ * Guards the setting a new one is created under: `createdById` makes the new record
+ * virtual and owned by that setting's owner, so the body decides ownership and has
+ * to be verified. No id means an ordinary setting owned by the acting party.
+ */
+export const assertOwnsParentSetting = async (req: RequestWithUser, createdById?: string): Promise<void> => {
+  if (!createdById) return;
+
+  await assertOwnsContactSetting(req, createdById);
+};
 
 /**
  * Facility delegations are owned by `owner`. Resolved through the same
@@ -242,15 +238,9 @@ export async function assertOwnsFacilityDelegation(req: RequestWithUser, delegat
 }
 
 /**
- * The organization this session may administer mandates for, or a 403.
- *
- * Requires the session to actually be *in* business mode, not merely to have a
- * business left over in the session from an earlier selection - `postRepresenting`
- * keeps `BUSINESS` populated when you switch back to private. Everything else here
- * goes through `getRepresentingPartyId`, which respects the mode, so this does too.
- *
- * The permission rule mirrors `mandate.middleware.ts`: a signatory, or someone the
- * organization has whitelisted through an active mandate. Keep them in step.
+ * The organization this session may administer mandates for, or a 403. Requires
+ * business mode, not merely a business left in the session after switching back to
+ * private. Mirrors the rule in `mandate.middleware.ts` - keep the two in step.
  */
 export function getAdministrableBusiness(req: RequestWithUser): RepresentingBusinessEntity {
   const representing = req.session?.representing;
@@ -270,9 +260,8 @@ export function getAdministrableBusiness(req: RequestWithUser): RepresentingBusi
 }
 
 /**
- * Facility ids the session may read data for: the facilities of the represented
- * party plus those delegated to it. Populated by `/me`, which the frontend calls
- * from its login guard before any page renders.
+ * Facility ids the session may read: the represented party's own plus those
+ * delegated to it. Resolved from the platform API when the session cache is built.
  */
 export function getAccessibleFacilityIds(req: RequestWithUser): Set<string> {
   const cache = req.session?.cache;
@@ -291,10 +280,7 @@ export function getAccessibleFacilityIds(req: RequestWithUser): Set<string> {
   return ids;
 }
 
-/**
- * Guards reads keyed by facility id. Purely session-local - the accessible set is
- * already resolved upstream when the session cache is built.
- */
+/** Guards reads keyed by facility id. Session-local, so it makes no API call. */
 export function assertOwnsFacility(req: RequestWithUser, facilityId: string): void {
   const actingPartyId = getActingPartyId(req);
 
@@ -305,8 +291,7 @@ export function assertOwnsFacility(req: RequestWithUser, facilityId: string): vo
   const accessible = getAccessibleFacilityIds(req);
 
   if (!accessible.size) {
-    // Nothing to compare against, so nothing can be proven. Refuse rather than
-    // fall through, and make the cause distinguishable in the logs.
+    // Nothing to compare against, so refuse rather than fall through.
     logger.warn(`Ownership denied: no facilities cached for party '${actingPartyId}'`);
     throw new HttpException(403, 'MISSING_FACILITY_CONTEXT');
   }
@@ -317,9 +302,8 @@ export function assertOwnsFacility(req: RequestWithUser, facilityId: string): vo
 }
 
 /**
- * Invoices are keyed by invoiceNumber, which is not derivable from the session, so
- * this searches the caller's own invoice list for it. Costs one upstream call per
- * 100 invoices in the same window the list endpoint uses.
+ * The invoice number cannot be derived from the session, so this searches the
+ * caller's own list for it. Costs one platform API call per page.
  */
 export async function assertOwnsInvoice(
   req: RequestWithUser,
@@ -347,11 +331,9 @@ export async function assertOwnsInvoice(
         api.get<CustomerInvoicesResponse>(
           {
             url,
-            // Scoped by customer number only. Deliberately no organizationNumber
-            // filter: that parameter names the invoice issuer, and under delegated
-            // billing the issuer is a company the customer has no relation with, so
-            // filtering on our own relations would hide exactly those invoices.
-            // The customer numbers are what tie the result set to the caller.
+            // Customer number is what ties the result to the caller. No issuer
+            // filter: under delegated billing the issuer is a company the customer
+            // has no relation with, so filtering on ours would hide those invoices.
             params: {
               customerNumbers: customerNumbers.toString(),
               periodFrom: getInvoicePeriodFrom(),
@@ -371,12 +353,8 @@ export async function assertOwnsInvoice(
     const match = invoices.find(invoice => invoice.invoiceNumber === invoiceNumber);
 
     if (match) {
-      // The path also names an issuer, and that has to be pinned to something or a
-      // valid invoice number could be replayed against another issuer's document.
-      // Pin it to the issuer on *this* invoice - not to the organizations we are a
-      // customer of. Under delegated billing (uppdragsfakturering) one company
-      // invoices on another's behalf, so the issuer is legitimately an organization
-      // we have no customer relation with.
+      // Pin the requested issuer to the one on this invoice, not to our own
+      // relations: under delegated billing another company issues it legitimately.
       if (match.organizationNumber && match.organizationNumber !== organizationNumber) {
         deny('invoice issuer', organizationNumber, actingPartyId);
       }
@@ -393,9 +371,8 @@ export async function assertOwnsInvoice(
 }
 
 /**
- * Mandates may only be revoked by the granting organization, and only by someone
- * who could have created one in the first place - so this mirrors the rule in
- * `mandate.middleware.ts`. Keep the two in step if that rule changes.
+ * Only the granting organization may revoke, and only with the authority needed to
+ * create one.
  */
 export async function assertIsMandateGrantor(req: RequestWithUser, mandateId: string): Promise<MandateDetails> {
   if (!mandateId) {

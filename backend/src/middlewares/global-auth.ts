@@ -9,7 +9,7 @@ import { getMetadataArgsStorage } from 'routing-controllers';
  * built and injects the auth middleware into every registered action that is not
  * explicitly marked `@Public()`.
  *
- * Usage — call after the controllers have been imported (their decorators must have
+ * Usage - call after the controllers have been imported (their decorators must have
  * run) and before `useExpressServer`:
  *
  *   const report = enforceGlobalAuth({ authMiddleware, controllers, logger });
@@ -20,10 +20,7 @@ import { getMetadataArgsStorage } from 'routing-controllers';
  *   @Public('Liveness probe - no user context')
  *   async up() { ... }
  *
- * Portability: this file has no application-specific imports. The auth middleware
- * is supplied by the caller, so it can be copied verbatim into any backend built on
- * the same routing-controllers structure.
- *
+ 
  * Scope and limits:
  *  - Only covers routes registered through routing-controllers. Routes mounted
  *    straight onto Express (SAML callbacks, Swagger UI) are untouched and must be
@@ -54,6 +51,18 @@ interface UseEntry {
   method?: string;
   middleware: Middleware;
   afterAction: boolean;
+}
+
+/** routing-controllers' metadata store and the two entry shapes read from it. */
+type MetadataStorage = ReturnType<typeof getMetadataArgsStorage>;
+type ActionArgs = MetadataStorage['actions'][number];
+type StoredUse = MetadataStorage['uses'][number];
+
+/** A controller's actions sorted by what the guard needs to do with each. */
+interface ClassifiedActions {
+  publicRoutes: RouteRef[];
+  alreadyProtected: RouteRef[];
+  needsAuth: { action: ActionArgs; ref: RouteRef }[];
 }
 
 export interface RouteRef {
@@ -180,96 +189,158 @@ export function enforceGlobalAuth(options: EnforceGlobalAuthOptions): AuthGuardR
   const report: AuthGuardReport = { protectedRoutes: [], alreadyProtected: [], publicRoutes: [], warnings: [] };
   const scope = controllers ? new Set<Ctor>(controllers) : null;
 
-  const actionsByController = new Map<Ctor, typeof storage.actions>();
-  for (const action of storage.actions) {
-    const ctor = action.target as Ctor;
-    if (scope && !scope.has(ctor)) continue;
-    const existing = actionsByController.get(ctor);
-    if (existing) {
-      existing.push(action);
-    } else {
-      actionsByController.set(ctor, [action]);
-    }
-  }
-
-  for (const [controller, actions] of actionsByController) {
-    // The @Controller('/prefix') base path, so the report shows the full route.
-    const controllerArgs = storage.controllers.find(entry => entry.target === controller);
-    const basePath = typeof controllerArgs?.route === 'string' ? controllerArgs.route : '';
-
-    // routing-controllers resolves controller-level middleware with an exact
-    // target match and no method, then runs it ahead of all action-level ones.
+  for (const [controller, actions] of groupActionsByController(storage.actions, scope)) {
+    // routing-controllers resolves controller-level middleware with an exact target
+    // match and no method, then runs it ahead of all action-level ones.
     const classLevelUses = storage.uses.filter(use => use.target === controller && !use.method);
     const classIsAuthed = classLevelUses.some(use => use.middleware === authMiddleware);
 
-    const needsAuth: { action: (typeof actions)[number]; ref: RouteRef }[] = [];
-    let publicCount = 0;
+    const classified = classifyActions(storage, controller, actions, authMiddleware, classIsAuthed);
+    report.publicRoutes.push(...classified.publicRoutes);
+    report.alreadyProtected.push(...classified.alreadyProtected);
 
-    for (const action of actions) {
-      const actionName = String(action.method ?? '');
-      const { isPublic, reason } = resolvePublic(controller, actionName);
-      const ref = describeRoute(controller, action, basePath, reason);
-
-      if (isPublic) {
-        publicCount += 1;
-        report.publicRoutes.push(ref);
-        continue;
-      }
-
-      const actionIsAuthed =
-        classIsAuthed ||
-        storage.uses.some(
-          use => use.target === controller && use.method === actionName && use.middleware === authMiddleware,
-        );
-
-      if (actionIsAuthed) {
-        report.alreadyProtected.push(ref);
-        continue;
-      }
-
-      needsAuth.push({ action, ref });
-    }
-
-    if (!needsAuth.length) continue;
+    if (!classified.needsAuth.length) continue;
 
     const foreignClassMiddleware = classLevelUses.filter(use => use.middleware !== authMiddleware);
+    const outcome = protectController({
+      storage,
+      controller,
+      classified,
+      foreignClassMiddleware,
+      authMiddleware,
+      strict,
+    });
 
-    // Class-level middleware runs before anything we attach per action. When the
-    // whole controller needs auth we can hoist the guard to class level and stay
-    // ahead of it; otherwise the public routes would inherit auth too.
-    if (foreignClassMiddleware.length && publicCount === 0) {
-      storage.uses.unshift({
-        target: controller,
-        middleware: authMiddleware,
-        afterAction: false,
-      } as UseEntry as unknown as (typeof storage.uses)[number]);
-      needsAuth.forEach(({ ref }) => report.protectedRoutes.push(ref));
-      continue;
-    }
-
-    if (foreignClassMiddleware.length) {
-      const names = foreignClassMiddleware.map(use => use.middleware.name || 'anonymous').join(', ');
-      const message =
-        `${controller.name}: class-level middleware (${names}) runs before the injected auth guard on ` +
-        `${needsAuth.length} route(s), because the controller also has @Public() routes. ` +
-        `Add @UseBefore(authMiddleware) at class level, or move that middleware onto the actions.`;
-      if (strict) throw new Error(`enforceGlobalAuth: ${message}`);
-      report.warnings.push(message);
-    }
-
-    for (const { action, ref } of needsAuth) {
-      storage.uses.unshift({
-        target: controller,
-        method: String(action.method ?? ''),
-        middleware: authMiddleware,
-        afterAction: false,
-      } as UseEntry as unknown as (typeof storage.uses)[number]);
-      report.protectedRoutes.push(ref);
-    }
+    report.protectedRoutes.push(...outcome.protectedRoutes);
+    if (outcome.warning) report.warnings.push(outcome.warning);
   }
 
   logReport(report, logger);
   return report;
+}
+
+/** Groups registered actions by controller, honouring the optional scope. */
+function groupActionsByController(actions: ActionArgs[], scope: Set<Ctor> | null): Map<Ctor, ActionArgs[]> {
+  const grouped = new Map<Ctor, ActionArgs[]>();
+
+  for (const action of actions) {
+    const controller = action.target as Ctor;
+    if (scope && !scope.has(controller)) continue;
+
+    const existing = grouped.get(controller);
+    if (existing) {
+      existing.push(action);
+    } else {
+      grouped.set(controller, [action]);
+    }
+  }
+
+  return grouped;
+}
+
+/** The `@Controller('/prefix')` base path, so reports show the full route. */
+function controllerBasePath(storage: MetadataStorage, controller: Ctor): string {
+  const args = storage.controllers.find(entry => entry.target === controller);
+  return typeof args?.route === 'string' ? args.route : '';
+}
+
+function hasActionLevelAuth(
+  storage: MetadataStorage,
+  controller: Ctor,
+  method: string,
+  authMiddleware: Middleware,
+): boolean {
+  return storage.uses.some(
+    use => use.target === controller && use.method === method && use.middleware === authMiddleware,
+  );
+}
+
+/**
+ * Sorts a controller's actions into the three possible outcomes: deliberately
+ * public, already carrying the auth middleware, and needing it injected.
+ */
+function classifyActions(
+  storage: MetadataStorage,
+  controller: Ctor,
+  actions: ActionArgs[],
+  authMiddleware: Middleware,
+  classIsAuthed: boolean,
+): ClassifiedActions {
+  const basePath = controllerBasePath(storage, controller);
+  const classified: ClassifiedActions = { publicRoutes: [], alreadyProtected: [], needsAuth: [] };
+
+  for (const action of actions) {
+    const actionName = String(action.method ?? '');
+    const { isPublic, reason } = resolvePublic(controller, actionName);
+    const ref = describeRoute(controller, action, basePath, reason);
+
+    if (isPublic) {
+      classified.publicRoutes.push(ref);
+    } else if (classIsAuthed || hasActionLevelAuth(storage, controller, actionName, authMiddleware)) {
+      classified.alreadyProtected.push(ref);
+    } else {
+      classified.needsAuth.push({ action, ref });
+    }
+  }
+
+  return classified;
+}
+
+/** Registers the auth middleware ahead of everything already stored for this target. */
+function injectAuth(storage: MetadataStorage, controller: Ctor, authMiddleware: Middleware, method?: string): void {
+  const entry: UseEntry = { target: controller, middleware: authMiddleware, afterAction: false };
+  if (method !== undefined) entry.method = method;
+  storage.uses.unshift(entry as unknown as StoredUse);
+}
+
+function orderingConflictMessage(controller: Ctor, foreignClassMiddleware: StoredUse[], routeCount: number): string {
+  const names = foreignClassMiddleware.map(use => use.middleware.name || 'anonymous').join(', ');
+  return (
+    `${controller.name}: class-level middleware (${names}) runs before the injected auth guard on ` +
+    `${routeCount} route(s), because the controller also has @Public() routes. ` +
+    `Add @UseBefore(authMiddleware) at class level, or move that middleware onto the actions.`
+  );
+}
+
+/**
+ * Injects the guard for one controller and reports how it went.
+ *
+ * Class-level middleware runs before anything attached per action. When the whole
+ * controller needs auth the guard is hoisted to class level and stays ahead of it.
+ * With `@Public()` routes present that is not possible - they would inherit auth
+ * too - so the guard goes per action and the ordering is flagged instead.
+ */
+function protectController(args: {
+  storage: MetadataStorage;
+  controller: Ctor;
+  classified: ClassifiedActions;
+  foreignClassMiddleware: StoredUse[];
+  authMiddleware: Middleware;
+  strict: boolean;
+}): { protectedRoutes: RouteRef[]; warning?: string } {
+  const { storage, controller, classified, foreignClassMiddleware, authMiddleware, strict } = args;
+  const { needsAuth, publicRoutes } = classified;
+  const protectedRoutes = needsAuth.map(({ ref }) => ref);
+
+  if (foreignClassMiddleware.length && publicRoutes.length === 0) {
+    injectAuth(storage, controller, authMiddleware);
+    return { protectedRoutes };
+  }
+
+  const warning = foreignClassMiddleware.length
+    ? orderingConflictMessage(controller, foreignClassMiddleware, needsAuth.length)
+    : undefined;
+
+  // Thrown before injecting anything, so strict mode leaves this controller untouched.
+  if (warning && strict) {
+    throw new Error(`enforceGlobalAuth: ${warning}`);
+  }
+
+  for (const { action } of needsAuth) {
+    injectAuth(storage, controller, authMiddleware, String(action.method ?? ''));
+  }
+
+  return { protectedRoutes, warning };
 }
 
 function logReport(report: AuthGuardReport, logger?: EnforceGlobalAuthOptions['logger']): void {
@@ -281,7 +352,7 @@ function logReport(report: AuthGuardReport, logger?: EnforceGlobalAuthOptions['l
       `${report.alreadyProtected.length} already protected, ${report.publicRoutes.length} public`,
   );
 
-  // The open endpoints are the interesting part of the boot log; name them all.
+  // The open endpoints - everyone must be named.
   for (const route of report.publicRoutes) {
     logger.warn?.(
       `Auth guard: PUBLIC ${route.httpMethod} ${route.route} (${route.controller}.${route.action})` +
