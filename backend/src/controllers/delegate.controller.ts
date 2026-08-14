@@ -34,8 +34,7 @@ export class DelegateController {
       return { data: [], message: 'No contact setting id provided' };
     }
 
-    // Reading someone else's delegates also exposes their contact channels, and
-    // the agentIds returned here are what make other contact settings guessable.
+    // The response carries contact channels and further ids, so ownership is required.
     await assertOwnsContactSetting(req, contactSettingId);
 
     const params = { principalId: contactSettingId };
@@ -100,8 +99,7 @@ export class DelegateController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    // The edit is a delete followed by a re-create, so both the delegate being
-    // replaced and the principal it is re-attached to have to belong to us.
+    // An edit deletes and re-creates, so both the delegate and its principal are checked.
     await assertOwnsDelegate(req, delegateData.id);
     if (delegateData.principalId) {
       await assertOwnsPrincipal(req, delegateData.principalId);
@@ -141,7 +139,7 @@ export class DelegateController {
       throw new HttpException(471, 'Bad Request: At least one filter is required');
     }
 
-    // principalId decides whose notifications get delegated away.
+    // The principal decides whose notifications are delegated.
     await assertOwnsPrincipal(req, delegateData.principalId);
 
     const baseURL = apiURL(this.apiBase);

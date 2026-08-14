@@ -8,7 +8,7 @@ import {
   getContactSettingChannels,
   makeClientContactSetting,
 } from '@/services/contact-setting.service';
-import { assertOwnsContactSetting } from '@/services/ownership.service';
+import { assertOwnsContactSetting, assertOwnsParentSetting } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
 import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
@@ -130,11 +130,7 @@ export class ContactSettingsController {
   ): Promise<ResponseData<ClientContactSetting>> {
     const representing = req.session?.representing ?? undefined;
 
-    // A virtual setting is attributed to the setting named by createdById, so that
-    // id decides who ends up owning it - it cannot be taken on trust from the body.
-    if (userData.createdById) {
-      await assertOwnsContactSetting(req, userData.createdById);
-    }
+    await assertOwnsParentSetting(req, userData.createdById);
 
     const newContactSettings: NewContactSettings = {
       alias: userData.alias ?? 'default',
