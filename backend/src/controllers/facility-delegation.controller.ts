@@ -91,7 +91,7 @@ export class FacilityDelegationController {
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
 
-    // Only the updatable fields; forwarding the body verbatim would pass anything else upstream.
+    // Only the updatable fields; forwarding the body verbatim would pass anything else on.
     const update: UpdateDelegation = {
       facilities: delegateFacilityData.facilities,
       delegatedTo: delegateFacilityData.delegatedTo,

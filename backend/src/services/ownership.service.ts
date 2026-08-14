@@ -13,12 +13,13 @@ import ApiService from './api.service';
 import { customerInvoicesUrl, getInvoicePeriodFrom } from './invoices.service';
 
 /**
- * Per-object authorization. Upstream services authenticate the application rather
+ * Per-object authorization. The platform APIs authenticate the application rather
  * than the end user, so ownership has to be decided here.
  *
  * Every action that takes an object id from the client should call one of these.
- * Each resolves the object upstream, compares its owner against the session, and
- * either returns it - so the caller need not fetch it again - or throws 403.
+ * Each fetches the object from the platform API, compares its owner against the
+ * session, and either returns it - so the caller need not fetch it again - or
+ * throws 403.
  */
 
 const api = new ApiService();
@@ -27,7 +28,7 @@ const contactSettingsBase = () => `${getApiBase('contactsettings')}/${MUNICIPALI
 const installedBaseBase = () => `${getApiBase('installedbase')}/${MUNICIPALITY_ID}`;
 const mandatesBase = () => `${getApiBase('myrepresentatives')}/${MUNICIPALITY_ID}/${NAMESPACE}`;
 
-/** Pages to walk when searching a paged upstream list before giving up. */
+/** Pages to walk when searching a paged platform API list before giving up. */
 const MAX_SEARCH_PAGES = 20;
 const SEARCH_PAGE_SIZE = 100;
 
@@ -66,7 +67,7 @@ function statusOf(error: unknown): number | undefined {
   return typeof status === 'number' ? status : undefined;
 }
 
-/** Upstream 404/403 must look the same as a failed ownership check. */
+/** A 404 or 403 from the platform API must look like a failed ownership check. */
 async function resolveOrDeny<T>(
   load: () => Promise<T>,
   resource: string,
@@ -260,7 +261,7 @@ export function getAdministrableBusiness(req: RequestWithUser): RepresentingBusi
 
 /**
  * Facility ids the session may read: the represented party's own plus those
- * delegated to it. Resolved upstream when the session cache is built.
+ * delegated to it. Resolved from the platform API when the session cache is built.
  */
 export function getAccessibleFacilityIds(req: RequestWithUser): Set<string> {
   const cache = req.session?.cache;
@@ -279,7 +280,7 @@ export function getAccessibleFacilityIds(req: RequestWithUser): Set<string> {
   return ids;
 }
 
-/** Guards reads keyed by facility id. Session-local, so it costs no upstream call. */
+/** Guards reads keyed by facility id. Session-local, so it makes no API call. */
 export function assertOwnsFacility(req: RequestWithUser, facilityId: string): void {
   const actingPartyId = getActingPartyId(req);
 
@@ -302,7 +303,7 @@ export function assertOwnsFacility(req: RequestWithUser, facilityId: string): vo
 
 /**
  * The invoice number cannot be derived from the session, so this searches the
- * caller's own list for it. Costs one upstream call per page.
+ * caller's own list for it. Costs one platform API call per page.
  */
 export async function assertOwnsInvoice(
   req: RequestWithUser,
