@@ -20,13 +20,6 @@ import { SelfServiceAiController } from '@controllers/self-service-ai.controller
 import { SignController } from '@controllers/sign.controller';
 import { UserController } from '@controllers/user.controller';
 
-/**
- * Every controller mounted by the app.
- *
- * Kept separate from `server.ts` so tests can assert over the real route table
- * without booting the server. `app-routes.test.ts` checks that nothing in here is
- * reachable without authentication.
- */
 export const registeredControllers = [
   IndexController,
   LegalEntityController,
