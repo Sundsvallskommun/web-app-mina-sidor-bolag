@@ -24,6 +24,7 @@ import {
   assertOwnsFacility,
   assertOwnsFacilityDelegation,
   assertOwnsInvoice,
+  assertOwnsParentSetting,
   getActingPartyId,
 } from '@/services/ownership.service';
 
@@ -377,5 +378,24 @@ describe('assertOwnsInvoice', () => {
       invoiceNumber: 'INV-late',
     });
     expect(apiGet).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('assertOwnsParentSetting', () => {
+  it('allows a parent we own', async () => {
+    upstream([{ match: 'settings/cs-mine', data: { id: 'cs-mine', partyId: ME } }]);
+    await expect(assertOwnsParentSetting(privateSession(), 'cs-mine')).resolves.toBeUndefined();
+  });
+
+  it('refuses a parent owned by someone else', async () => {
+    upstream([{ match: 'settings/cs-victim', data: { id: 'cs-victim', partyId: SOMEONE_ELSE } }]);
+    await expectForbidden(assertOwnsParentSetting(privateSession(), 'cs-victim'));
+  });
+
+  // No parent means an ordinary setting owned by the acting party. The no-op branch
+  // is the one place this function does not check anything, so it is pinned here.
+  it('passes when no parent is claimed, without calling upstream', async () => {
+    await expect(assertOwnsParentSetting(privateSession(), undefined)).resolves.toBeUndefined();
+    expect(apiGet).not.toHaveBeenCalled();
   });
 });

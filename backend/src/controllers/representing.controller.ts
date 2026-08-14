@@ -9,6 +9,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import getDelegatedFacilities from '@services/delegation.service';
+import { writeLoginEvent } from '@services/login-event.service';
 import { Response } from 'express';
 import { Body, Controller, Get, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
@@ -160,6 +161,8 @@ export class RepresentingController {
     }
 
     req.session.representing = newRepresenting;
+
+    await writeLoginEvent(newRepresenting, req.user);
 
     const clearRelations = () => (req.session.cache.relations = null);
 

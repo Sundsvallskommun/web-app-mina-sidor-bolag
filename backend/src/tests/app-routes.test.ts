@@ -45,9 +45,9 @@ describe('registered routes', () => {
   it.each([
     'POST /netowner',
     'GET /bfus/eligable-party-customer-id',
-    'POST /bfus/eligable-party-grant-permission',
-    'POST /bfus/eligable-party-deny-permission',
-    'POST /bfus/eligable-party-revoke-permission',
+    'POST /bfus/consent/grant',
+    'POST /bfus/consent/deny',
+    'POST /bfus/consent/revoke',
   ])('keeps %s behind authentication', route => {
     expect(report.publicRoutes.map(asKey)).not.toContain(route);
     expect([...report.protectedRoutes, ...report.alreadyProtected].map(asKey)).toContain(route);
