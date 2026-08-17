@@ -54,8 +54,8 @@ function relevantType(installation: InstalledBaseItem): boolean {
 
 @Controller()
 export class UserController {
-  private apiService = new ApiService();
-  private installedBaseApiBase = getApiBase('installedbase');
+  private readonly apiService = new ApiService();
+  private readonly installedBaseApiBase = getApiBase('installedbase');
 
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
