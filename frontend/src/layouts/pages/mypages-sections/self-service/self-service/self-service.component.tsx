@@ -44,7 +44,7 @@ export default function SelfService() {
       .sort(([a], [b]) => categorySortIndex(a) - categorySortIndex(b))
       .map(([category, services]) => ({
         category,
-        services: services.sort((a, b) => a.Name.localeCompare(b.Name, 'sv')),
+        services: services.toSorted((a, b) => a.Name.localeCompare(b.Name, 'sv')),
       }));
   }, [serviceData, facilityTypes]);
 

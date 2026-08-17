@@ -10,7 +10,7 @@ export default class OpenEApiService {
   }
 
   public async get<T>(config: AxiosRequestConfig): Promise<T> {
-    logger.info(`MAKING GET REQUEST TO URL ${config.baseURL ?? ''}/${config.url}`);
+    logger.info(`MAKING GET REQUEST TO URL ${OPENE_URL ?? ''}/${config.url}`);
     try {
       const result = await this.instance({ ...config, method: 'GET', responseType: 'arraybuffer' });
       return JSON.parse(Buffer.from(result.data).toString('latin1'));

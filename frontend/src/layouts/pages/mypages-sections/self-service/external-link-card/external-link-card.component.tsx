@@ -5,13 +5,10 @@ import { ExternalLinkIcon } from 'lucide-react';
 import { ReactElement } from 'react';
 
 interface ExternalLinkCardProps {
-  ID: number;
   Name: string;
   URL: string;
   suffix: string;
-  Category: string;
   ShortDescription: string;
-  Enabled: boolean;
   icon: ReactElement;
   bgColor: string;
 }

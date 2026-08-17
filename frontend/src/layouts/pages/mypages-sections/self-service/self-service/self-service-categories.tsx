@@ -1,4 +1,4 @@
-import { LightbulbIcon, SnowflakeIcon, TextIcon, WavesIcon, WifiIcon } from 'lucide-react';
+import { LightbulbIcon, TextIcon, WavesIcon } from 'lucide-react';
 import { ReactElement } from 'react';
 
 interface SelfServiceCategory {

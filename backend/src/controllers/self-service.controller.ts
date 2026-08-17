@@ -1,7 +1,6 @@
 import { Controller, Get, UseBefore } from 'routing-controllers';
 import { logger } from '@/utils/logger';
 import { ApiResponse } from '@/services/api.service';
-import authMiddleware from '@/middlewares/auth.middleware';
 import OpenEApiService from '@/services/opene-api.service';
 import { HttpException } from '@/exceptions/HttpException';
 import { htmlToPlainText } from '@/utils/htmlToPlainText';
@@ -16,7 +15,6 @@ interface SelfService {
 }
 
 @Controller()
-@UseBefore(authMiddleware)
 export class SelfServiceController {
   private readonly openEApiService = new OpenEApiService();
 
