@@ -15,7 +15,6 @@ export default class OpenEApiService {
       const result = await this.instance({ ...config, method: 'GET', responseType: 'arraybuffer' });
       return JSON.parse(Buffer.from(result.data).toString('latin1'));
     } catch (error) {
-      console.log(error);
       if (isAxiosError(error)) {
         logger.error(`Request failed with status: ${error.response?.status}`);
       }
