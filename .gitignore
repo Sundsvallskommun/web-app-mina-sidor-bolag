@@ -6,3 +6,4 @@ node_modules
 .vscode/settings.json
 .claude/
 CLAUDE.md
+.playwright-mcp
