@@ -5,20 +5,24 @@ import { ExternalLinkIcon } from 'lucide-react';
 import { ReactElement } from 'react';
 
 interface ExternalLinkCardProps {
-  title: string;
-  description: string;
-  url: string;
+  ID: number;
+  Name: string;
+  URL: string;
+  suffix: string;
+  Category: string;
+  ShortDescription: string;
+  Enabled: boolean;
   icon: ReactElement;
   bgColor: string;
 }
 
 export const ExternalLinkCard = (props: ExternalLinkCardProps) => {
-  const { title, description, url, icon, bgColor } = props;
+  const { Name, ShortDescription, URL, suffix, bgColor, icon } = props;
 
   return (
     <Link
       className="text-dark-secondary no-underline hover:no-underline hover:text-dark-secondary"
-      href={url}
+      href={URL + suffix}
       target="_blank"
     >
       <div className="relative flex items-start justify-between gap-14 bg-background-color-mixin-1 rounded-cards shadow-50 p-14 lg:mb-0 mb-24 border-1 ">
@@ -28,8 +32,8 @@ export const ExternalLinkCard = (props: ExternalLinkCardProps) => {
           </div>
         </div>
         <div className="pt-6">
-          <span className="text-large font-bold">{title}</span>
-          <p>{description}</p>
+          <span className="text-large font-bold">{Name}</span>
+          <p>{ShortDescription}</p>
         </div>
         <div className="p-6">
           <Icon icon={<ExternalLinkIcon />} size={20} />
