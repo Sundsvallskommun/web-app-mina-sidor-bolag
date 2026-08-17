@@ -1,46 +1,16 @@
+import {
+  ActionArgs,
+  AuthGuardReport,
+  ClassifiedActions,
+  Ctor,
+  EnforceGlobalAuthOptions,
+  Middleware,
+  RouteRef,
+  StoredUse,
+  UseEntry,
+  MetadataStorage,
+} from '@/interfaces/global-auth.interface';
 import { getMetadataArgsStorage } from 'routing-controllers';
-
-type Ctor = { readonly name: string; readonly prototype: unknown };
-type Middleware = { readonly name: string } & ((...args: never[]) => unknown);
-
-interface UseEntry {
-  target: Ctor;
-  method?: string;
-  middleware: Middleware;
-  afterAction: boolean;
-}
-
-type MetadataStorage = ReturnType<typeof getMetadataArgsStorage>;
-type ActionArgs = MetadataStorage['actions'][number];
-type StoredUse = MetadataStorage['uses'][number];
-
-interface ClassifiedActions {
-  publicRoutes: RouteRef[];
-  alreadyProtected: RouteRef[];
-  needsAuth: { action: ActionArgs; ref: RouteRef }[];
-}
-
-export interface RouteRef {
-  controller: string;
-  action: string;
-  httpMethod: string;
-  route: string;
-  reason?: string;
-}
-
-export interface AuthGuardReport {
-  protectedRoutes: RouteRef[];
-  alreadyProtected: RouteRef[];
-  publicRoutes: RouteRef[];
-  warnings: string[];
-}
-
-export interface EnforceGlobalAuthOptions {
-  authMiddleware: Middleware;
-  controllers?: Ctor[];
-  logger?: { info?: (message: string) => void; warn?: (message: string) => void };
-  strict?: boolean;
-}
 
 const publicClasses = new Map<Ctor, string | undefined>();
 const publicMethods = new Map<Ctor, Map<string, string | undefined>>();
