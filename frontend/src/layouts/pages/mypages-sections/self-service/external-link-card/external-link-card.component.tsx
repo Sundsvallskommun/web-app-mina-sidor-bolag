@@ -28,7 +28,7 @@ export const ExternalLinkCard = (props: ExternalLinkCardProps) => {
             <Icon icon={icon} size={20} />
           </div>
         </div>
-        <div className="pt-6">
+        <div className="pt-6 flex flex-col grow">
           <span className="text-large font-bold">{Name}</span>
           <p>{ShortDescription}</p>
         </div>
