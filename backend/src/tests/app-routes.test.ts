@@ -52,4 +52,10 @@ describe('registered routes', () => {
     expect(report.publicRoutes.map(asKey)).not.toContain(route);
     expect([...report.protectedRoutes, ...report.alreadyProtected].map(asKey)).toContain(route);
   });
+
+  // Removed because any session could resolve any personnummer to a partyId.
+  it('no longer exposes the personnummer lookup route', () => {
+    const all = [...report.protectedRoutes, ...report.alreadyProtected, ...report.publicRoutes];
+    expect(all.filter(route => route.route.includes('personNumber'))).toEqual([]);
+  });
 });

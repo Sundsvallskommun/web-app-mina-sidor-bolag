@@ -2,6 +2,7 @@ import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
+import { logIdentityLookup } from '@/middlewares/identity-lookup.middleware';
 import { assertOwnsFacilityDelegation } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
 import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req } from 'routing-controllers';
@@ -88,7 +89,6 @@ export class FacilityDelegationController {
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
 
-    // Only the updatable fields; forwarding the body verbatim would pass anything else on.
     const update: UpdateDelegation = {
       facilities: delegateFacilityData.facilities,
       delegatedTo: delegateFacilityData.delegatedTo,
@@ -120,12 +120,9 @@ export class FacilityDelegationController {
     return { data: res.data, message: 'Deleted facility delegation' };
   }
 
-  @Get('/personNumber/:personNumber')
-  @OpenAPI({ summary: 'Get personId from person number' })
-  async getPersonIdByPersonNumber(
-    @Req() req: RequestWithUser,
-    @Param('personNumber') personNumber: string,
-  ): Promise<ResponseData<string>> {
+  private async getPersonIdByPersonNumber(req: RequestWithUser, personNumber: string): Promise<ResponseData<string>> {
+    logIdentityLookup(req, personNumber);
+
     try {
       const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
       const res = await this.apiService.get<string>({ url }, req.user);

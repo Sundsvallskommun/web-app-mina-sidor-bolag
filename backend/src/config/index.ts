@@ -66,4 +66,6 @@ export const {
   BFUS_API_KEY,
   ENEO_API_KEY,
   ADMIN_GROUP,
+  ELOMRADEN_API_USER,
+  ELOMRADEN_API_KEY,
 } = process.env;
