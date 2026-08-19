@@ -1,3 +1,5 @@
+export const DEFAULT_PHONE_COUNTRY_CODE = '+46';
+
 export const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
   if (phoneNumber.startsWith('0')) {
     phoneNumber = phoneNumber.substring(1);

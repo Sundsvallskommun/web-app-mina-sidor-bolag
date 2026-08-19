@@ -40,7 +40,7 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
                 <Input.LeftAddon>
                   <CountryCodeSelect
                     className="sm:max-w-[33.8rem] max-w-[8rem]"
-                    defaultValue="SE"
+                    defaultValue="SE+46"
                     countries={['SE']}
                     {...methods.register(`${name}CountryCode`)}
                   />

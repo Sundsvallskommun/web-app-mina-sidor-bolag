@@ -5,7 +5,7 @@ import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, SubmitHandler, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { formatPhoneNumber } from '@utils/format-phone-number';
+import { DEFAULT_PHONE_COUNTRY_CODE, formatPhoneNumber } from '@utils/format-phone-number';
 import { ExtendedClientContactSetting } from '@interfaces/contactsettings';
 
 const defaultContactSettingsForm: Partial<ExtendedClientContactSetting> = {
@@ -128,7 +128,7 @@ export default function ContactSettingsFormLogic({
         alias: data.alias,
         email: data.email,
         phone: context.formState?.touchedFields?.phoneNumber
-          ? formatPhoneNumber(data.phoneCountryCode ?? '', data.phoneNumber ?? '')
+          ? formatPhoneNumber(data.phoneCountryCode || DEFAULT_PHONE_COUNTRY_CODE, data.phoneNumber ?? '')
           : data.phone,
         notifications: {
           email_enabled: data.notifications?.email_enabled,
