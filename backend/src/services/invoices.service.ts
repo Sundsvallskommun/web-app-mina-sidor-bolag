@@ -9,6 +9,7 @@ type FetchParams = {
   organizationNumbers: string[];
   facilityIds: string[];
   periodFrom: string;
+  periodTo?: string;
   page: number;
   limit: number;
   invoiceStatus?: CustomerInvoiceInvoiceStatusEnum;
@@ -19,7 +20,8 @@ export default class InvoicesService {
   private readonly baseUrl = getApiBase('invoices');
 
   async fetchInvoices(req: RequestWithUser, params: FetchParams) {
-    const { customerNumbers, organizationNumbers, facilityIds, periodFrom, page, limit, invoiceStatus } = params;
+    const { customerNumbers, organizationNumbers, facilityIds, periodFrom, periodTo, page, limit, invoiceStatus } =
+      params;
 
     const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
 
@@ -31,6 +33,7 @@ export default class InvoicesService {
           facilityIds: facilityIds,
           organizationNumber: organizationNumbers.toString(),
           periodFrom: periodFrom,
+          periodTo: periodTo,
           status: invoiceStatus,
           page,
           limit,

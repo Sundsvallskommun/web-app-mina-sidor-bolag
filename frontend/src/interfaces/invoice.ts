@@ -1,6 +1,4 @@
-import { CustomerInvoice } from '@data-contracts/backend/data-contracts';
-import React, { ReactNode, RefObject } from 'react';
-import { RepresentingMode } from '@interfaces/app';
+import { CustomerInvoice, InvoiceDetail } from '@data-contracts/backend/data-contracts';
 
 export interface IInvoice extends Omit<CustomerInvoice, 'invoiceStatus'> {
   invoiceStatus: { code: InvoiceStatus; color: string; label: string };
@@ -29,21 +27,4 @@ export interface InvoicePdfData {
   error?: boolean;
 }
 
-export interface InvoiceBaseProps {
-  data: InvoicesData;
-  isFetched: boolean;
-  activePage: number;
-  setActivePage: React.Dispatch<React.SetStateAction<number>>;
-  previousActivePage: RefObject<number>;
-  previousFacilityIds: RefObject<string[] | undefined>;
-  representingModeChanged: boolean;
-  facilityIds?: string[];
-  emptyComponent?: ReactNode;
-  representingMode: RepresentingMode;
-  representingName: string | undefined;
-}
-
-export interface InvoiceTableProps extends InvoiceBaseProps {
-  pageSize: number;
-  previousRepresentingMode: RefObject<RepresentingMode | undefined>;
-}
+export type GroupedDetails = Record<string, Record<string, InvoiceDetail[]>>;
