@@ -16,13 +16,13 @@ describe('Ändra representationsläge (privat/företag)', () => {
       getRepresentingEntity({ PRIVATE: getPrivateRepresentFromGetMe(), mode: RepresentingMode.PRIVATE })
     ).as('postRepresenting');
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.visit('/privat');
+    cy.visit('/privat/oversikt');
   });
 
   it('should render /privat/oversikt then /foretag/valj-foretag then /foretag/oversikt with no chosen business', () => {
     cy.contains('[data-cy="representingLabel"]', getMe.data.name);
-    cy.url().should('include', '/privat/oversikt');
     cy.wait(['@getRepresenting']).then(() => {
+      cy.url().should('include', '/privat/oversikt');
       setIntercepts(RepresentingMode.BUSINESS);
       cy.intercept('GET', '**/api/representing', { statusCode: 400 }).as('getRepresenting');
 
