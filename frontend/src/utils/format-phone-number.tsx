@@ -47,7 +47,7 @@ export const isValidMobileNumber = (phoneNumber?: string | null) =>
 export const toDisplayPhoneNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) => {
   const dialCode = getDialCode(countryCode);
   const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber ?? ''), dialCode);
-  const groups = subscriberNumber.match(/^(\d{2})(\d{3})(\d{2})(\d{2})$/);
+  const groups = /^(\d{2})(\d{3})(\d{2})(\d{2})$/.exec(subscriberNumber);
 
   return groups ? `+${dialCode} ${groups[1]}-${groups[2]} ${groups[3]} ${groups[4]}` : (phoneNumber ?? '');
 };
