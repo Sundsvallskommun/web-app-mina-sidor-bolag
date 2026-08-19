@@ -5,7 +5,7 @@ import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, SubmitHandler, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { DEFAULT_PHONE_COUNTRY_CODE, formatPhoneNumber } from '@utils/format-phone-number';
+import { DEFAULT_PHONE_COUNTRY_CODE, formatPhoneNumber, isValidMobileNumber } from '@utils/format-phone-number';
 import { ExtendedClientContactSetting } from '@interfaces/contactsettings';
 
 const defaultContactSettingsForm: Partial<ExtendedClientContactSetting> = {
@@ -42,16 +42,14 @@ interface ContactSettingsFormLogicProps {
   onSubmitFailed?: () => void;
 }
 
-const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
-
 const formSchema = yup
   .object<Partial<ExtendedClientContactSetting>>({
     name: yup.string().nullable().optional(),
-    email: yup.string().email('E-postadress har fel format').nullable().optional(),
+    email: yup.string().email('profile:error.invalidEmail').nullable().optional(),
     alias: yup.string().nullable().optional(),
     virtual: yup.boolean().optional(),
     phoneCountryCode: yup.string().optional(),
-    phoneNumber: yup.string().matches(phoneRegExp, 'Fyll i ett giltigt mobilnummer').optional(),
+    phoneNumber: yup.string().test('mobileNumber', 'profile:error.invalidPhone', isValidMobileNumber).optional(),
     phone: yup.string().nullable().optional(),
     notifications: yup
       .object({

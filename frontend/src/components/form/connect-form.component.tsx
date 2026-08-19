@@ -1,7 +1,9 @@
 import { FormControl, FormErrorMessage, FormLabel, Input } from '@sk-web-gui/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { CountryCodeSelect } from '@sk-web-gui/countrycode-select';
 import { useFormContext } from 'react-hook-form';
+import { toNationalPhoneNumber } from '@utils/format-phone-number';
+import { useTranslation } from 'react-i18next';
 
 interface ConnectFormProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,6 +25,19 @@ interface ConnectFormInputProps {
 
 export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header, children, inputProps }) => {
   const methods = useFormContext();
+  const { t } = useTranslation('profile');
+  const { errors, touchedFields, isSubmitted, submitCount } = methods.formState;
+  const isPhoneField = name.includes('phone');
+  const [editingAtSubmitCount, setEditingAtSubmitCount] = useState<number | null>(null);
+  const isEditingPhone = editingAtSubmitCount === submitCount;
+  const showPhoneError =
+    !!errors?.phoneNumber?.message && (!!touchedFields?.phoneNumber || isSubmitted) && !isEditingPhone;
+  const phoneNumberField = isPhoneField
+    ? methods.register(`${name}Number`, {
+        onChange: () => setEditingAtSubmitCount(submitCount),
+        onBlur: () => setEditingAtSubmitCount(null),
+      })
+    : undefined;
 
   return (
     <FormControl id={name} className="w-full">
@@ -34,7 +49,7 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
       ) : (
         <>
           <FormLabel>{header}</FormLabel>
-          {name.includes('phone') ? (
+          {isPhoneField ? (
             <>
               <Input.Group className="sm:max-w-[33.8rem] max-w-[12rem]" size="md">
                 <Input.LeftAddon>
@@ -46,16 +61,16 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
                   />
                 </Input.LeftAddon>
                 <Input
-                  {...methods.register(`${name}Number`)}
-                  defaultValue={methods.getValues(`${name}`)?.substring(3) ?? ''}
-                  placeholder="701234567"
+                  {...phoneNumberField}
+                  defaultValue={toNationalPhoneNumber(methods.getValues(`${name}`))}
+                  placeholder="0701234567"
                   aria-label="Telefonnummer"
                 />
               </Input.Group>
-              {methods.formState.errors?.phoneNumber?.message ? (
+              {showPhoneError ? (
                 <div className="my-sm">
                   <FormErrorMessage className="text-error">
-                    {(methods.formState.errors?.phoneNumber?.message as string) ?? ''}
+                    {t(methods.formState.errors?.phoneNumber?.message as string)}
                   </FormErrorMessage>
                 </div>
               ) : null}
@@ -72,7 +87,7 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
       {methods.formState.errors?.[name]?.message ? (
         <div className="my-sm">
           <FormErrorMessage className="text-error">
-            {(methods.formState.errors?.[name]?.message as string) ?? ''}
+            {t(methods.formState.errors?.[name]?.message as string)}
           </FormErrorMessage>
         </div>
       ) : null}

@@ -7,7 +7,7 @@ import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { formatPhoneNumber } from '@utils/format-phone-number';
+import { DEFAULT_PHONE_COUNTRY_CODE, formatPhoneNumber, isValidMobileNumber } from '@utils/format-phone-number';
 import { useTranslation } from 'react-i18next';
 import { DelegatedContactSetting, ExtendedClientContactSetting } from '@interfaces/contactsettings';
 import { ClientDelegate, Filter, Rule } from '@data-contracts/backend/data-contracts';
@@ -45,17 +45,15 @@ interface DelegatedContactSettingsFormLogicProps {
   onSubmitFailed?: () => void;
 }
 
-const phoneRegExp = /^$|^[0-9\s-]{6,19}$/;
-
 const formSchema = yup
   .object<DelegatedContactSetting>({
     contactSetting: yup.object<ExtendedClientContactSetting>({
       name: yup.string().nullable().optional(),
-      email: yup.string().email('E-postadress har fel format').nullable().optional(),
+      email: yup.string().email('profile:error.invalidEmail').nullable().optional(),
       alias: yup.string().nullable().required('Namn på kontakt är obligatoriskt'),
       virtual: yup.boolean(),
       phoneCountryCode: yup.string().optional(),
-      phoneNumber: yup.string().matches(phoneRegExp, 'Fyll i ett giltigt mobilnummer').optional(),
+      phoneNumber: yup.string().test('mobileNumber', 'profile:error.invalidPhone', isValidMobileNumber).optional(),
       phone: yup.string().nullable().optional(),
     }),
     delegate: yup
@@ -156,7 +154,10 @@ export default function DelegatedContactSettingsFormLogic({
       id: formData?.contactSetting?.id,
       createdById: isContactSettingPatch() ? undefined : values?.contactSetting?.createdById,
       alias: values.contactSetting?.alias,
-      phone: formatPhoneNumber(values.contactSetting?.phoneCountryCode ?? '', values.contactSetting?.phoneNumber ?? ''),
+      phone: formatPhoneNumber(
+        values.contactSetting?.phoneCountryCode || DEFAULT_PHONE_COUNTRY_CODE,
+        values.contactSetting?.phoneNumber ?? ''
+      ),
       virtual: values.contactSetting?.virtual,
     });
     contactSettingResult = await contactSettingApiCall(contactSettingData).catch((error) => {

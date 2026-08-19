@@ -1,11 +1,53 @@
 export const DEFAULT_PHONE_COUNTRY_CODE = '+46';
 
+const MOBILE_NUMBER_REGEXP = /^(?:\+46|0046|0)?7\d{8}$/;
+
+const getDialCode = (countryCode: string) => countryCode.split('+').slice(1).join('');
+
+const stripSeparators = (phoneNumber: string) => phoneNumber.replace(/[\s-]/g, '');
+
+const toSubscriberNumber = (digits: string, dialCode: string) => {
+  if (digits.startsWith(`+${dialCode}`)) {
+    return digits.substring(dialCode.length + 1);
+  }
+  if (digits.startsWith(`00${dialCode}`)) {
+    return digits.substring(dialCode.length + 2);
+  }
+  if (digits.startsWith('0')) {
+    return digits.substring(1);
+  }
+  return digits.replace(/^\+/, '');
+};
+
+/** Turns the number from the input into the stored format (e.g "0701234567" -> "+46701234567") */
 export const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
-  if (phoneNumber.startsWith('0')) {
-    phoneNumber = phoneNumber.substring(1);
+  const dialCode = getDialCode(countryCode);
+  const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber), dialCode);
+
+  return subscriberNumber.length ? `+${dialCode}${subscriberNumber}` : '';
+};
+
+/** Turns a stored number (e.g "+46701234567") into the national format used in the input (e.g "0701234567") */
+export const toNationalPhoneNumber = (
+  phoneNumber?: string | null,
+  countryCode: string = DEFAULT_PHONE_COUNTRY_CODE
+) => {
+  if (!phoneNumber) {
+    return '';
   }
 
-  return phoneNumber.length
-    ? `+${countryCode.split('+').slice(1)}${phoneNumber}`.replaceAll('-', '').replaceAll(' ', '')
-    : '';
+  const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber), getDialCode(countryCode));
+
+  return subscriberNumber.length ? `0${subscriberNumber}` : '';
+};
+
+export const isValidMobileNumber = (phoneNumber?: string | null) =>
+  !phoneNumber || MOBILE_NUMBER_REGEXP.test(stripSeparators(phoneNumber));
+
+export const toDisplayPhoneNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) => {
+  const dialCode = getDialCode(countryCode);
+  const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber ?? ''), dialCode);
+  const groups = subscriberNumber.match(/^(\d{2})(\d{3})(\d{2})(\d{2})$/);
+
+  return groups ? `+${dialCode} ${groups[1]}-${groups[2]} ${groups[3]} ${groups[4]}` : (phoneNumber ?? '');
 };
