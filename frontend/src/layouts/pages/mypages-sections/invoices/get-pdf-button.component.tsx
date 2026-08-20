@@ -67,10 +67,10 @@ export const DownloadPdfButton: React.FC<DownloadPdfButtonProps> = ({ isLoading,
   const invoiceKey = item.invoiceNumber;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 sm:items-start">
       <Button
         aria-label={t('invoice:pdf.fetchInvoice', { invoice: item.invoiceDescription })}
-        size={isMinDesktop ? 'sm' : 'lg'}
+        size={isMinDesktop ? 'md' : 'lg'}
         variant="secondary"
         loading={!!invoiceKey && isLoading?.[invoiceKey]}
         loadingText={t('invoice:pdf.fetching')}

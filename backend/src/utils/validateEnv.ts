@@ -37,6 +37,7 @@ const validateEnv = () => {
     ADMIN_GROUP: str(),
     NAMESPACE: str(),
     WHITELISTED_ORGS: str(),
+    OPENE_URL: str(),
   });
 };
 
