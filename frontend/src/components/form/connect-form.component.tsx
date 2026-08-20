@@ -51,7 +51,7 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
           <FormLabel>{header}</FormLabel>
           {isPhoneField ? (
             <>
-              <Input.Group className="sm:max-w-[33.8rem] max-w-[12rem]" size="md">
+              <Input.OuterGroup className="sm:max-w-[33.8rem] max-w-[12rem]" size="md">
                 <Input.LeftAddon>
                   <CountryCodeSelect
                     className="sm:max-w-[33.8rem] max-w-[8rem]"
@@ -65,8 +65,9 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
                   defaultValue={toNationalPhoneNumber(methods.getValues(`${name}`))}
                   placeholder="0701234567"
                   aria-label="Telefonnummer"
+                  className="focus:z-10"
                 />
-              </Input.Group>
+              </Input.OuterGroup>
               {showPhoneError ? (
                 <div className="my-sm">
                   <FormErrorMessage className="text-error">
