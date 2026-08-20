@@ -21,6 +21,7 @@ import { BFUSController } from './controllers/bfus.controller';
 import { SelfServiceAiController } from '@controllers/self-service-ai.controller';
 import { ImpersonationController } from '@controllers/impersonation.controller';
 import { DisturbancesController } from '@controllers/disturbances.controller';
+import { SelfServiceController } from './controllers/self-service.controller';
 
 validateEnv();
 
@@ -46,6 +47,7 @@ const app = new App([
   SelfServiceAiController,
   ImpersonationController,
   DisturbancesController,
+  SelfServiceController
 ]);
 
 app.listen();
