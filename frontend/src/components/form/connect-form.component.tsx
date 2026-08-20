@@ -2,7 +2,7 @@ import { FormControl, FormErrorMessage, FormLabel, Input } from '@sk-web-gui/rea
 import React, { useState } from 'react';
 import { CountryCodeSelect } from '@sk-web-gui/countrycode-select';
 import { useFormContext } from 'react-hook-form';
-import { toSubscriberPhoneNumber } from '@utils/format-phone-number';
+import { isValidMobileNumber, toGroupedPhoneNumber } from '@utils/format-phone-number';
 import { useTranslation } from 'react-i18next';
 
 interface ConnectFormProps {
@@ -35,7 +35,13 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
   const phoneNumberField = isPhoneField
     ? methods.register(`${name}Number`, {
         onChange: () => setEditingAtSubmitCount(submitCount),
-        onBlur: () => setEditingAtSubmitCount(null),
+        onBlur: () => {
+          setEditingAtSubmitCount(null);
+          const value = methods.getValues(`${name}Number`);
+          if (isValidMobileNumber(value)) {
+            methods.setValue(`${name}Number`, toGroupedPhoneNumber(value));
+          }
+        },
       })
     : undefined;
 
@@ -62,8 +68,8 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
                 </Input.LeftAddon>
                 <Input
                   {...phoneNumberField}
-                  defaultValue={toSubscriberPhoneNumber(methods.getValues(`${name}`))}
-                  placeholder="701234567"
+                  defaultValue={toGroupedPhoneNumber(methods.getValues(`${name}`))}
+                  placeholder="70 123 45 67"
                   aria-label="Telefonnummer"
                   className="focus:z-10"
                 />

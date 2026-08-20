@@ -2,6 +2,8 @@ export const DEFAULT_PHONE_COUNTRY_CODE = '+46';
 
 const MOBILE_NUMBER_REGEXP = /^(?:\+46|0046|0)?7\d{8}$/;
 
+const SUBSCRIBER_GROUPS_REGEXP = /^(\d{2})(\d{3})(\d{2})(\d{2})$/;
+
 const getDialCode = (countryCode: string) => countryCode.split('+').slice(1).join('');
 
 const stripSeparators = (phoneNumber: string) => phoneNumber.replace(/[\s-]/g, '');
@@ -28,10 +30,16 @@ export const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
 };
 
 /** Turns a number "+46701234567" into "701234567". */
-export const toSubscriberPhoneNumber = (
-  phoneNumber?: string | null,
-  countryCode: string = DEFAULT_PHONE_COUNTRY_CODE
-) => (phoneNumber ? toSubscriberNumber(stripSeparators(phoneNumber), getDialCode(countryCode)) : '');
+const toSubscriberPhoneNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) =>
+  phoneNumber ? toSubscriberNumber(stripSeparators(phoneNumber), getDialCode(countryCode)) : '';
+
+/** "701234567" -> "70 123 45 67" */
+export const toGroupedPhoneNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) => {
+  const subscriberNumber = toSubscriberPhoneNumber(phoneNumber, countryCode);
+  const groups = SUBSCRIBER_GROUPS_REGEXP.exec(subscriberNumber);
+
+  return groups ? `${groups[1]} ${groups[2]} ${groups[3]} ${groups[4]}` : subscriberNumber;
+};
 
 export const isValidMobileNumber = (phoneNumber?: string | null) =>
   !phoneNumber || MOBILE_NUMBER_REGEXP.test(stripSeparators(phoneNumber));
@@ -39,7 +47,7 @@ export const isValidMobileNumber = (phoneNumber?: string | null) =>
 export const toDisplayPhoneNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) => {
   const dialCode = getDialCode(countryCode);
   const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber ?? ''), dialCode);
-  const groups = /^(\d{2})(\d{3})(\d{2})(\d{2})$/.exec(subscriberNumber);
+  const groups = SUBSCRIBER_GROUPS_REGEXP.exec(subscriberNumber);
 
   return groups ? `+${dialCode} ${groups[1]}-${groups[2]} ${groups[3]} ${groups[4]}` : (phoneNumber ?? '');
 };
