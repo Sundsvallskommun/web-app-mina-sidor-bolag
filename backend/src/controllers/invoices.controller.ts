@@ -117,6 +117,34 @@ export class InvoicesController {
     };
   }
 
+  @Get('/invoice/:invoiceNumber')
+  @OpenAPI({ summary: 'Returns invoice' })
+  @ResponseSchema(CustomerInvoice)
+  @UseBefore(authMiddleware)
+  async getInvoice(@Req() req: RequestWithUser, @Param('invoiceNumber') invoiceNumber: string) {
+    const { facilityId, periodFrom, periodTo } = req.query;
+
+    if (!facilityId) {
+      return { data: { ...emptyInvoice }, message: 'Empty response' };
+    }
+
+    const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
+
+    const result = await this.invoicesService.fetchInvoices(req, {
+      customerNumbers: customerNumbers,
+      organizationNumbers: organizationNumbers,
+      facilityIds: facilityId as string[],
+      periodFrom: periodFrom ? periodFrom.toString() : this.invoiceDateFrom,
+      periodTo: periodTo ? periodTo.toString() : undefined,
+      page: 1,
+      limit: 25,
+    });
+
+    const invoice = result.invoices.find(i => i.invoiceNumber === invoiceNumber);
+    if (!invoice) throw new HttpException(404, 'Invoice not found');
+    return { data: invoice, message: 'success' };
+  }
+
   @Get('/invoicepdf/:organizationNumber/:id')
   @OpenAPI({ summary: 'Return the base64-encoded invoice document (PDF or ZIP)' })
   async getInvoicePdf(

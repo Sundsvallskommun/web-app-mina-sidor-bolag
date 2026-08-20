@@ -1,17 +1,35 @@
 'use client';
 
-import { FormControl, FormLabel, Select } from '@sk-web-gui/react';
-import { InvoicesList } from './invoices/invoices-list.component';
-import { useState } from 'react';
+import { Button, FormControl, FormLabel, Select, useThemeQueries } from '@sk-web-gui/react';
+import { InvoicesList } from './invoices/invoice-list/invoices-list.component';
+import React, { useEffect, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useTranslation } from 'react-i18next';
+import { emptyInvoicesList, useInvoicesQuery } from '@services/invoice-service';
+import { InvoicesSection } from '@layouts/pages/mypages-sections/invoices/invoices-section/invoices-section.component';
 
 export default function Invoices() {
-  const [facilityIds, setFacilityIds] = useState<string[] | undefined>();
-  const { t } = useTranslation('invoice');
-
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
+  const { isMinDesktop } = useThemeQueries();
+  const [facilityIds, setFacilityIds] = useState<string[]>([]);
+  const { t } = useTranslation('invoice');
+  const [limit, setLimit] = useState<number>(isMinDesktop ? 12 : 6);
+  const [pendingLimit, setPendingLimit] = useState<number>(isMinDesktop ? 12 : 6);
+
+  const {
+    data: onlyPending = emptyInvoicesList,
+    isFetching: pendingFetching,
+    isError: pendingError,
+  } = useInvoicesQuery({ pending: true, limit: pendingLimit, facilityIds });
+
+  const {
+    data: allInvoices = emptyInvoicesList,
+    isFetching,
+    isError,
+  } = useInvoicesQuery({ pending: false, limit, facilityIds });
+  const canFetch = allInvoices.invoices.length > 0 && allInvoices.invoices.length < allInvoices.totalCount;
+  const canFetchPending = onlyPending.invoices.length > 0 && onlyPending.invoices.length < onlyPending.totalCount;
 
   const handleOnSelectAddress = (value: string) => {
     if (!value) {
@@ -20,9 +38,16 @@ export default function Invoices() {
       setFacilityIds(userFacilityIds.map((id) => id ?? '') ?? []);
       return;
     }
-    const facilityIds = JSON.parse(value);
-    setFacilityIds(facilityIds);
+    const parsedFacilityIds = JSON.parse(value);
+    setFacilityIds(parsedFacilityIds);
   };
+
+  useEffect(() => {
+    const ids = [
+      ...new Set(userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? []),
+    ];
+    setFacilityIds(ids);
+  }, [userData]);
 
   return (
     <div className="flex flex-col gap-[4.0rem]">
@@ -31,7 +56,7 @@ export default function Invoices() {
           <h1>{t('invoice:title')}</h1>
         </div>
       </div>
-      {userData && userData.addresses?.length > 1 ? (
+      {userData && userData.addresses?.length > 1 && (
         <FormControl className="w-full desktop:w-fit">
           <FormLabel>{t('invoice:byAddress')}</FormLabel>
           <Select className="w-full" title="address" size="md" onSelectValue={handleOnSelectAddress}>
@@ -45,23 +70,59 @@ export default function Invoices() {
             ))}
           </Select>
         </FormControl>
-      ) : undefined}
-      <div className="flex flex-col gap-[6.4rem]" data-cy="invoices-wrapper">
-        <div data-cy="unhandled-invoices-table">
-          <InvoicesList
-            heading={<h2 className="text-h3">{t('invoice:unhandled')}</h2>}
-            pageSize={24}
-            facilityIds={facilityIds}
-            onlyPending
-          />
+      )}
+
+      <div className="flex flex-col gap-64" data-cy="invoices-wrapper">
+        <div data-cy="unhandled-invoices">
+          <h2 className="text-h3 mb-24">{t('invoice:unhandled')}</h2>
+
+          <InvoicesSection data={onlyPending} isFetching={pendingFetching} isError={pendingError} emptyDataCy="no-data">
+            <div>
+              <InvoicesList data={onlyPending} />
+
+              {canFetchPending && (
+                <div className="flex flex-col items-center gap-12">
+                  <p className="text-small text-center text-secondary mt-lg">
+                    {t('invoice:showing', { count: onlyPending.invoices.length, total: onlyPending.totalCount })}
+                  </p>
+
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => setPendingLimit((prev) => prev + (isMinDesktop ? 12 : 6))}
+                    loading={pendingFetching}
+                  >
+                    {t('invoice:showMore')}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </InvoicesSection>
         </div>
 
-        <div data-cy="all-invoices-table">
-          <InvoicesList
-            heading={<h2 className="text-h3">{t('invoice:all')}</h2>}
-            pageSize={12}
-            facilityIds={facilityIds}
-          />
+        <div data-cy="all-invoices">
+          <h2 className="text-h3 mb-24">{t('invoice:all')}</h2>
+          <InvoicesSection data={allInvoices} isFetching={isFetching} isError={isError} emptyDataCy="no-data">
+            <div>
+              <InvoicesList data={allInvoices} />
+
+              <div className="flex flex-col items-center gap-12">
+                <p className="text-small text-center text-secondary mt-lg">
+                  {t('invoice:showing', { count: allInvoices.invoices.length, total: allInvoices.totalCount })}
+                </p>
+                {canFetch && (
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => setLimit((prev) => prev + (isMinDesktop ? 12 : 6))}
+                    loading={isFetching}
+                  >
+                    {t('invoice:showMore')}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </InvoicesSection>
         </div>
       </div>
     </div>
