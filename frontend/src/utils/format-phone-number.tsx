@@ -27,19 +27,11 @@ export const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
   return subscriberNumber.length ? `+${dialCode}${subscriberNumber}` : '';
 };
 
-/** Turns a stored number (e.g "+46701234567") into the national format used in the input (e.g "0701234567") */
-export const toNationalPhoneNumber = (
+/** Turns a number "+46701234567" into "701234567". */
+export const toSubscriberPhoneNumber = (
   phoneNumber?: string | null,
   countryCode: string = DEFAULT_PHONE_COUNTRY_CODE
-) => {
-  if (!phoneNumber) {
-    return '';
-  }
-
-  const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber), getDialCode(countryCode));
-
-  return subscriberNumber.length ? `0${subscriberNumber}` : '';
-};
+) => (phoneNumber ? toSubscriberNumber(stripSeparators(phoneNumber), getDialCode(countryCode)) : '');
 
 export const isValidMobileNumber = (phoneNumber?: string | null) =>
   !phoneNumber || MOBILE_NUMBER_REGEXP.test(stripSeparators(phoneNumber));

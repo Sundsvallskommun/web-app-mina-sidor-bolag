@@ -2,7 +2,7 @@ import { FormControl, FormErrorMessage, FormLabel, Input } from '@sk-web-gui/rea
 import React, { useState } from 'react';
 import { CountryCodeSelect } from '@sk-web-gui/countrycode-select';
 import { useFormContext } from 'react-hook-form';
-import { toNationalPhoneNumber } from '@utils/format-phone-number';
+import { toSubscriberPhoneNumber } from '@utils/format-phone-number';
 import { useTranslation } from 'react-i18next';
 
 interface ConnectFormProps {
@@ -62,8 +62,8 @@ export const ConnectFormInput: React.FC<ConnectFormInputProps> = ({ name, header
                 </Input.LeftAddon>
                 <Input
                   {...phoneNumberField}
-                  defaultValue={toNationalPhoneNumber(methods.getValues(`${name}`))}
-                  placeholder="0701234567"
+                  defaultValue={toSubscriberPhoneNumber(methods.getValues(`${name}`))}
+                  placeholder="701234567"
                   aria-label="Telefonnummer"
                   className="focus:z-10"
                 />
