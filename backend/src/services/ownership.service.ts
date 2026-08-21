@@ -1,7 +1,8 @@
-import { MUNICIPALITY_ID, NAMESPACE } from '@config';
+import { BFUS_EXTERNAL_ID, MUNICIPALITY_ID, NAMESPACE } from '@config';
 import { getApiBase } from '@/config/api-config';
 import { ContactSetting, Delegate } from '@/data-contracts/contactsettings/data-contracts';
 import { Delegation } from '@/data-contracts/installedbase/data-contracts';
+import { BFUSCustomerResponse, BFUSEligablePartyResponse } from '@/interfaces/bfus.interface';
 import { MandateDetails, Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
 import { CustomerInvoice, CustomerInvoicesResponse } from '@/responses/invoices.response';
 import { HttpException } from '@exceptions/HttpException';
@@ -11,6 +12,7 @@ import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { logger } from '@utils/logger';
 import ApiService from './api.service';
 import { customerInvoicesUrl, getInvoicePeriodFrom } from './invoices.service';
+import { sessionCacheService } from './session-cache.service';
 
 /**
  * Per-object authorization. The platform APIs authenticate the application rather
@@ -409,3 +411,79 @@ export async function assertIsMandateGrantor(req: RequestWithUser, mandateId: st
 
   deny('mandate', mandateId, business.partyId);
 }
+
+const bfusBase = () => getApiBase('bfus');
+
+export const getAccessibleBfusCustomerIds = async (req: RequestWithUser): Promise<number[]> => {
+  await sessionCacheService.cacheRelations(req);
+
+  const relations = req.session?.cache?.relations;
+  const customerNumbers = Array.from(
+    new Set([
+      ...(relations?.customerNumber ?? []),
+      ...(relations?.customerRelations?.map(relation => relation.customerNumber).filter(Boolean) ?? []),
+    ]),
+  );
+
+  if (!customerNumbers.length) {
+    throw new HttpException(400, 'No BFUS customer number available');
+  }
+
+  const results = await Promise.allSettled(
+    customerNumbers.map(customerNumber =>
+      api.get<BFUSCustomerResponse>(
+        { url: `${bfusBase()}/EP/Customer/GetEPCustomerByCode_v1/${BFUS_EXTERNAL_ID}/${customerNumber}` },
+        req.user,
+      ),
+    ),
+  );
+
+  return results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value.data.Content.Customer.CustomerId);
+};
+
+export const assertOwnsBfusCustomers = async (req: RequestWithUser, requested: number[]): Promise<void> => {
+  const actingPartyId = getActingPartyId(req);
+  const accessible = new Set(await getAccessibleBfusCustomerIds(req));
+
+  for (const customerId of requested) {
+    if (!accessible.has(customerId)) {
+      deny('BFUS customer', String(customerId), actingPartyId);
+    }
+  }
+};
+
+export const getAccessibleBfusContractIds = async (req: RequestWithUser): Promise<Set<number>> => {
+  const customerIds = await getAccessibleBfusCustomerIds(req);
+
+  const results = await Promise.allSettled(
+    customerIds.map(customerId =>
+      api.get<BFUSEligablePartyResponse>(
+        { url: `${bfusBase()}/EP/EligableParty/EligablePartyPermissions/${BFUS_EXTERNAL_ID}/${customerId}` },
+        req.user,
+      ),
+    ),
+  );
+
+  const contractIds = new Set<number>();
+  for (const result of results) {
+    if (result.status !== 'fulfilled') continue;
+    for (const part of result.value.data.Content.EligablePartyParts ?? []) {
+      if (typeof part.ContractId === 'number') contractIds.add(part.ContractId);
+    }
+  }
+
+  return contractIds;
+};
+
+export const assertOwnsBfusContracts = async (req: RequestWithUser, contractIds: number[]): Promise<void> => {
+  const actingPartyId = getActingPartyId(req);
+  const accessible = await getAccessibleBfusContractIds(req);
+
+  for (const contractId of contractIds) {
+    if (!accessible.has(contractId)) {
+      deny('BFUS contract', String(contractId), actingPartyId);
+    }
+  }
+};

@@ -4,11 +4,14 @@ import { RepresentingMode } from '@interfaces/representing.interface';
 
 const apiGet = jest.fn();
 
-jest.mock('@config', () => ({ MUNICIPALITY_ID: '2281', NAMESPACE: 'minasidorbolagen' }));
+jest.mock('@config', () => ({ MUNICIPALITY_ID: '2281', NAMESPACE: 'minasidorbolagen', BFUS_EXTERNAL_ID: 'ext-1' }));
 jest.mock('@/config/api-config', () => ({ getApiBase: (key: string) => key }));
 jest.mock('@utils/logger', () => ({
   logger: { warn: jest.fn(), info: jest.fn(), error: jest.fn() },
   stream: { write: jest.fn() },
+}));
+jest.mock('@/services/session-cache.service', () => ({
+  sessionCacheService: { cacheRelations: jest.fn() },
 }));
 jest.mock('@/services/api.service', () => ({
   __esModule: true,
@@ -24,6 +27,9 @@ import {
   assertOwnsFacility,
   assertOwnsFacilityDelegation,
   assertOwnsInvoice,
+  assertOwnsBfusContracts,
+  assertOwnsBfusCustomers,
+  getAccessibleBfusCustomerIds,
   assertOwnsParentSetting,
   getActingPartyId,
 } from '@/services/ownership.service';
@@ -397,5 +403,72 @@ describe('assertOwnsParentSetting', () => {
   it('passes when no parent is claimed, without calling upstream', async () => {
     await expect(assertOwnsParentSetting(privateSession(), undefined)).resolves.toBeUndefined();
     expect(apiGet).not.toHaveBeenCalled();
+  });
+});
+
+/** Session with the customer numbers BFUS ownership is resolved from. */
+function bfusSession(customerNumbers: string[]): any {
+  return {
+    user: { partyId: ME, username: 'unknown' },
+    session: {
+      representing: { mode: RepresentingMode.PRIVATE, PRIVATE: { partyId: ME } },
+      cache: { relations: { customerNumber: customerNumbers, customerRelations: [] } },
+    },
+  };
+}
+
+/** Maps customer number -> BFUS customer id, and customer id -> its contracts. */
+function bfusUpstream(customers: Record<string, number>, contracts: Record<number, number[]>) {
+  upstream([
+    ...Object.entries(customers).map(([customerNumber, customerId]) => ({
+      match: `GetEPCustomerByCode_v1/ext-1/${customerNumber}`,
+      data: { Content: { Customer: { CustomerId: customerId } } },
+    })),
+    ...Object.entries(contracts).map(([customerId, contractIds]) => ({
+      match: `EligablePartyPermissions/ext-1/${customerId}`,
+      data: {
+        Content: {
+          EligablePartyParts: contractIds.map(ContractId => ({ ContractId, CustomerId: Number(customerId) })),
+        },
+      },
+    })),
+  ]);
+}
+
+describe('BFUS ownership', () => {
+  it('resolves the customer ids behind the session customer numbers', async () => {
+    bfusUpstream({ 'CN-1': 11, 'CN-2': 22 }, {});
+
+    await expect(getAccessibleBfusCustomerIds(bfusSession(['CN-1', 'CN-2']))).resolves.toEqual([11, 22]);
+  });
+
+  it('allows a customer id the session owns', async () => {
+    bfusUpstream({ 'CN-1': 11 }, {});
+
+    await expect(assertOwnsBfusCustomers(bfusSession(['CN-1']), [11])).resolves.toBeUndefined();
+  });
+
+  it('refuses a customer id belonging to someone else', async () => {
+    bfusUpstream({ 'CN-1': 11 }, {});
+
+    await expectForbidden(assertOwnsBfusCustomers(bfusSession(['CN-1']), [99]));
+  });
+
+  it('refuses when only one of several customer ids is foreign', async () => {
+    bfusUpstream({ 'CN-1': 11 }, {});
+
+    await expectForbidden(assertOwnsBfusCustomers(bfusSession(['CN-1']), [11, 99]));
+  });
+
+  it('allows contract ids behind the session own consents', async () => {
+    bfusUpstream({ 'CN-1': 11 }, { 11: [101, 102] });
+
+    await expect(assertOwnsBfusContracts(bfusSession(['CN-1']), [101, 102])).resolves.toBeUndefined();
+  });
+
+  it('refuses a contract id from another customer', async () => {
+    bfusUpstream({ 'CN-1': 11 }, { 11: [101] });
+
+    await expectForbidden(assertOwnsBfusContracts(bfusSession(['CN-1']), [999]));
   });
 });
