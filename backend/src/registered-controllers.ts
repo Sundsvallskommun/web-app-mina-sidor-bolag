@@ -17,6 +17,7 @@ import { NetOwnerController } from '@controllers/netowner.controller';
 import { NotificationsController } from '@controllers/notifications.controller';
 import { RepresentingController } from '@controllers/representing.controller';
 import { SelfServiceAiController } from '@controllers/self-service-ai.controller';
+import { SelfServiceController } from '@controllers/self-service.controller';
 import { SignController } from '@controllers/sign.controller';
 import { UserController } from '@controllers/user.controller';
 
@@ -42,4 +43,5 @@ export const registeredControllers = [
   SelfServiceAiController,
   ImpersonationController,
   DisturbancesController,
+  SelfServiceController,
 ];

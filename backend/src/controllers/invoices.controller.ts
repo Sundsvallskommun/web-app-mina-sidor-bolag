@@ -8,11 +8,12 @@ import {
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import { Controller, Get, Param, Req } from 'routing-controllers';
+import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
 import InvoicesService, { getInvoicePeriodFrom } from '@/services/invoices.service';
 import { assertOwnsInvoice } from '@/services/ownership.service';
+import authMiddleware from '@/middlewares/auth.middleware';
 
 const emptyInvoice = {
   invoices: [],
