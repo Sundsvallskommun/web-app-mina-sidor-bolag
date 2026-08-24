@@ -309,6 +309,7 @@ const INVOICE_SEARCH_CONCURRENCY = 5;
 const fetchInvoicePage = async (
   req: RequestWithUser,
   customerNumbers: string[],
+  facilityIds: string[],
   page: number,
   invoiceNumber: string,
   actingPartyId: string,
@@ -323,6 +324,7 @@ const fetchInvoicePage = async (
           // has no relation with, so filtering on ours would hide those invoices.
           params: {
             customerNumbers: customerNumbers.toString(),
+            ...(facilityIds.length ? { facilityIds } : {}),
             periodFrom: getInvoicePeriodFrom(),
             page,
             limit: SEARCH_PAGE_SIZE,
@@ -373,7 +375,8 @@ export async function assertOwnsInvoice(
     return match;
   };
 
-  const first = await fetchInvoicePage(req, customerNumbers, 1, invoiceNumber, actingPartyId);
+  const facilityIds = Array.from(getAccessibleFacilityIds(req));
+  const first = await fetchInvoicePage(req, customerNumbers, facilityIds, 1, invoiceNumber, actingPartyId);
   const firstMatch = (first?.data?.invoices ?? []).find(invoice => invoice.invoiceNumber === invoiceNumber);
   if (firstMatch) return accept(firstMatch);
 
@@ -382,7 +385,7 @@ export async function assertOwnsInvoice(
   for (let page = 2; page <= lastPage; page += INVOICE_SEARCH_CONCURRENCY) {
     const batch = [];
     for (let offset = 0; offset < INVOICE_SEARCH_CONCURRENCY && page + offset <= lastPage; offset++) {
-      batch.push(fetchInvoicePage(req, customerNumbers, page + offset, invoiceNumber, actingPartyId));
+      batch.push(fetchInvoicePage(req, customerNumbers, facilityIds, page + offset, invoiceNumber, actingPartyId));
     }
 
     for (const res of await Promise.all(batch)) {
@@ -552,11 +555,11 @@ export const rememberListedInvoices = (req: RequestWithUser, invoices: CustomerI
  * invoice API cannot answer in production. The download is always reached from a
  * listed invoice, so the listing is where the decision can be made cheaply.
  */
-export const assertInvoiceWasListed = (
+export const assertInvoiceAccess = async (
   req: RequestWithUser,
   organizationNumber: string,
   invoiceNumber: string,
-): void => {
+): Promise<void> => {
   const actingPartyId = getActingPartyId(req);
 
   if (!invoiceNumber || !organizationNumber) {
@@ -565,13 +568,18 @@ export const assertInvoiceWasListed = (
 
   const listed = req.session?.cache?.listedInvoices ?? {};
 
-  if (!Object.prototype.hasOwnProperty.call(listed, invoiceNumber)) {
-    deny('invoice', invoiceNumber, actingPartyId);
+  if (Object.prototype.hasOwnProperty.call(listed, invoiceNumber)) {
+    // Empty means the listing carried no issuer, so there is nothing to pin it to.
+    const issuer = listed[invoiceNumber];
+    if (issuer && issuer !== organizationNumber) {
+      deny('invoice issuer', organizationNumber, actingPartyId);
+    }
+    return;
   }
 
-  // Empty means the listing carried no issuer, so there is nothing to pin it to.
-  const issuer = listed[invoiceNumber];
-  if (issuer && issuer !== organizationNumber) {
-    deny('invoice issuer', organizationNumber, actingPartyId);
-  }
+  // The record can be incomplete: the invoice page loads both listings at once, and
+  // the session store writes the whole session, so one response can overwrite what
+  // the other just noted. Falling back to the search keeps that from denying a
+  // download the caller is entitled to.
+  await assertOwnsInvoice(req, organizationNumber, invoiceNumber);
 };
