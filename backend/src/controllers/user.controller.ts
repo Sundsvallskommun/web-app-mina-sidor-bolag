@@ -1,6 +1,5 @@
 import { Controller, Body, Req, Get, UseBefore, Res, Patch, OnUndefined } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import authMiddleware from '@middlewares/auth.middleware';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
 import prisma from '@utils/prisma';
@@ -61,7 +60,6 @@ export class UserController {
 
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
-  @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name, permissions } = req.user;
     const representing = req.session?.representing ?? undefined;
@@ -268,7 +266,6 @@ export class UserController {
 
   @Get('/myrelations')
   @OpenAPI({ summary: 'Return current users relations' })
-  @UseBefore(authMiddleware)
   async getUserRelations(@Req() req: RequestWithUser, @Res() response: any): Promise<CustomerRelation[]> {
     const { name } = req.user;
 
@@ -289,7 +286,7 @@ export class UserController {
   @Patch('/settings')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Patch user settings' })
-  @UseBefore(authMiddleware, validationMiddleware(PatchUserSettingsDto, 'body'))
+  @UseBefore(validationMiddleware(PatchUserSettingsDto, 'body'))
   async patchSettings(@Req() req: RequestWithUser, @Body() userData: PatchUserSettingsDto): Promise<void> {
     const { partyId } = req.user;
 

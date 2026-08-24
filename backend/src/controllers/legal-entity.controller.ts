@@ -3,9 +3,8 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import { PersonEngagementsApiResponse, BusinessInformationApiResponse } from '@/responses/legal-entity.response';
 import { getPersonEngagements, getBusinessInformation } from '@services/legal-entity.service';
 import { logger } from '@/utils/logger';
-import authMiddleware from '@middlewares/auth.middleware';
 import { Response } from 'express';
-import { Controller, Get, Req, Res, UseBefore } from 'routing-controllers';
+import { Controller, Get, Req, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Controller()
@@ -13,7 +12,6 @@ export class LegalEntityController {
   @Get('/engagements')
   @OpenAPI({ summary: 'Return a list of business engagements for current logged in user' })
   @ResponseSchema(PersonEngagementsApiResponse)
-  @UseBefore(authMiddleware)
   async getEngagements(
     @Req() req: RequestWithUser,
     @Res() res: Response<PersonEngagementsApiResponse>,
@@ -53,7 +51,6 @@ export class LegalEntityController {
   @Get('/businessinformation')
   @OpenAPI({ summary: 'Return business information for current representing organisation' })
   @ResponseSchema(BusinessInformationApiResponse)
-  @UseBefore(authMiddleware)
   async getBusinessInformation(
     @Req() req: RequestWithUser,
     @Res() res: Response<BusinessInformationApiResponse>,

@@ -11,7 +11,7 @@ const getDelegatedFacilities = async (partyId: string) => {
 
   const url = `${apiBase}/${MUNICIPALITY_ID}/delegations?delegatedTo=${partyId}`;
   const apiService = new ApiService();
-  const res = await apiService.get<Delegation[]>({ url }, { username: 'unknown' });
+  const res = await apiService.get<Delegation[]>({ url }, { username: partyId });
 
   return res.data ?? [];
 };

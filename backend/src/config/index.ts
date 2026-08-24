@@ -1,11 +1,20 @@
 import { config } from 'dotenv';
+import { existsSync } from 'fs';
 
 import { APIS } from './api-config';
 export { APIS };
 
-config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
+const env = process.env.NODE_ENV || 'development';
+
+config({ path: `.env.${env}.local` });
+
+const fallbackEnvFile = `.env.${env}`;
+if (existsSync(fallbackEnvFile)) {
+  config({ path: fallbackEnvFile });
+}
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'true';
+export const LOG_DIR = process.env.LOG_DIR ?? '../../data/logs';
 export const SWAGGER_ENABLED = process.env.SWAGGER_ENABLED === 'true';
 export const SESSION_MEMORY = process.env.SESSION_MEMORY === 'true';
 
@@ -14,7 +23,6 @@ export const {
   PORT,
   API_BASE_URL,
   LOG_FORMAT,
-  LOG_DIR,
   ORIGIN,
   SECRET_KEY,
   CLIENT_KEY,
@@ -59,4 +67,6 @@ export const {
   BFUS_API_KEY,
   ENEO_API_KEY,
   ADMIN_GROUP,
+  ELOMRADEN_API_USER,
+  ELOMRADEN_API_KEY,
 } = process.env;

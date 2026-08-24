@@ -6,15 +6,13 @@ import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
 import { HttpException } from '@exceptions/HttpException';
 import { ResponseData } from '@interfaces/service';
-import authMiddleware from '@middlewares/auth.middleware';
 import { Request, Response } from 'express';
 import Stream from 'node:stream';
-import { Body, Controller, Get, HttpError, Post, Req, Res, UseBefore } from 'routing-controllers';
+import { Body, Controller, Get, HttpError, Post, Req, Res } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { SessionStatusApiResponse } from '@/responses/self-service-ai.response';
 
 @Controller()
-@UseBefore(authMiddleware)
 export class SelfServiceAiController {
   private readonly apiService = new ApiService();
   private readonly selfServiceAIApiBase = getApiBase('selfserviceai');
@@ -24,7 +22,6 @@ export class SelfServiceAiController {
   @OpenAPI({
     summary: 'Check if assistant is ready for interaction',
   })
-  @UseBefore(authMiddleware)
   @ResponseSchema(SessionStatusApiResponse)
   async isReady(@Req() req: Request): Promise<ResponseData<SessionStatusResponse>> {
     const id = req.session?.ai?.sessionId;
@@ -54,7 +51,6 @@ export class SelfServiceAiController {
   @OpenAPI({
     summary: 'Chat with an assistant',
   })
-  @UseBefore(authMiddleware)
   async conversation(
     @Req() req: Request,
     @Body() body: ConversationRequest,

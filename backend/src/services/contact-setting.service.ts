@@ -9,16 +9,19 @@ import { ContactMethod } from '@/data-contracts/contactsettings/data-contracts';
 import { getEmailSettingsFromChannels, getPhoneSettingsFromChannels } from '@/controllers/contact-settings/utils';
 
 export const getContactSettingChannels = (userData: ClientContactSetting) => {
+  // notifications is optional on the DTO, so a body without it must not throw.
+  const notifications = userData.notifications ?? { email_enabled: false, phone_enabled: false };
+
   const emailSettings: ContactSettingChannel = {
     contactMethod: ContactMethod.EMAIL,
     destination: userData.email,
-    disabled: !userData.notifications.email_enabled,
+    disabled: !notifications.email_enabled,
     alias: 'default',
   };
   const phoneSettings: ContactSettingChannel = {
     contactMethod: ContactMethod.SMS,
     destination: userData.phone,
-    disabled: !userData.notifications.phone_enabled,
+    disabled: !notifications.phone_enabled,
     alias: 'default',
   };
   return [...(userData.email ? [emailSettings] : []), ...(userData.phone ? [phoneSettings] : [])];

@@ -14,6 +14,7 @@ import { populateRepresentingCache } from '@services/session-cache.service';
 import { defaultPermissions } from '@services/authorization.service';
 import { getPersonEngagements } from '@services/legal-entity.service';
 import { writeLoginEvent } from '@services/login-event.service';
+import { sanitizePersonNumber } from '@utils/sanitizePersonNumber';
 
 export const customerVerify = (apiService: ApiService) => async (profile: Profile, done: VerifiedCallback) => {
   if (!profile) {
@@ -33,9 +34,9 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
 
   try {
     const apiBase = getApiBase('citizen');
-    const personNumber = profile.citizenIdentifier;
+    const personNumber = sanitizePersonNumber(profile.citizenIdentifier);
     const url = `${apiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
-    const citizenResult = await apiService.get<any>({ url }, { username: 'unknown' });
+    const citizenResult = await apiService.get<any>({ url }, { username: 'saml-login' });
     const { data: personId } = citizenResult;
 
     if (!personId) {
@@ -51,7 +52,7 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
       name: `${givenName} ${surname}`,
       givenName: givenName,
       surname: surname,
-      username: 'unknown',
+      username: personId,
       userType: 'customer',
       nameID: profile.nameID,
       nameIDFormat: profile.nameIDFormat,
@@ -60,7 +61,6 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
     };
 
     const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
-    // Create user settings for new users
     if (!userSettings) {
       await prisma.userSettings.create({
         data: {
