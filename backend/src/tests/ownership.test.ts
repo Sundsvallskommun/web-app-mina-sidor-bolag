@@ -27,11 +27,13 @@ import {
   assertOwnsFacility,
   assertOwnsFacilityDelegation,
   assertOwnsInvoice,
+  assertInvoiceWasListed,
   assertOwnsBfusContracts,
   assertOwnsBfusCustomers,
   getAccessibleBfusCustomerIds,
   assertOwnsParentSetting,
   getActingPartyId,
+  rememberListedInvoices,
 } from '@/services/ownership.service';
 
 const ME = 'party-me';
@@ -385,6 +387,18 @@ describe('assertOwnsInvoice', () => {
     });
     expect(apiGet).toHaveBeenCalledTimes(2);
   });
+
+  it('stops at the page cap instead of walking an unbounded list', async () => {
+    // A production customer can have thousands of invoices over the search window.
+    // Walking every page took long enough to hit the gateway timeout.
+    apiGet.mockImplementation(async () => ({
+      data: { invoices: [{ invoiceNumber: 'INV-other' }], _meta: { totalPages: 100 } },
+      message: 'success',
+    }));
+
+    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-missing'));
+    expect(apiGet.mock.calls.length).toBeLessThanOrEqual(20);
+  });
 });
 
 describe('assertOwnsParentSetting', () => {
@@ -470,5 +484,61 @@ describe('BFUS ownership', () => {
     bfusUpstream({ 'CN-1': 11 }, { 11: [101] });
 
     await expectForbidden(assertOwnsBfusContracts(bfusSession(['CN-1']), [999]));
+  });
+});
+
+describe('invoice download, guarded by what the session was listed', () => {
+  const ORG = '5566778899';
+
+  const listedSession = (invoices: any[]): any => {
+    const req = privateSession();
+    rememberListedInvoices(req, invoices);
+    return req;
+  };
+
+  it('allows an invoice the session has been shown', () => {
+    const req = listedSession([{ invoiceNumber: 'INV-1', organizationNumber: ORG }]);
+
+    expect(() => assertInvoiceWasListed(req, ORG, 'INV-1')).not.toThrow();
+  });
+
+  it('refuses an invoice the session has never been shown', () => {
+    const req = listedSession([{ invoiceNumber: 'INV-1', organizationNumber: ORG }]);
+
+    expect(() => assertInvoiceWasListed(req, ORG, 'INV-someone-else')).toThrow(
+      expect.objectContaining({ status: 403 }),
+    );
+  });
+
+  it('refuses when the requested issuer is not the one it was listed under', () => {
+    const req = listedSession([{ invoiceNumber: 'INV-1', organizationNumber: ORG }]);
+
+    expect(() => assertInvoiceWasListed(req, '9999999999', 'INV-1')).toThrow(expect.objectContaining({ status: 403 }));
+  });
+
+  it('allows an invoice listed without an issuer, since there is nothing to pin', () => {
+    const req = listedSession([{ invoiceNumber: 'INV-1' }]);
+
+    expect(() => assertInvoiceWasListed(req, ORG, 'INV-1')).not.toThrow();
+  });
+
+  it('makes no API call', () => {
+    const req = listedSession([{ invoiceNumber: 'INV-1', organizationNumber: ORG }]);
+    assertInvoiceWasListed(req, ORG, 'INV-1');
+
+    expect(apiGet).not.toHaveBeenCalled();
+  });
+
+  it('caps what it remembers so a long session cannot grow without bound', () => {
+    const many = Array.from({ length: 600 }, (_, i) => ({
+      invoiceNumber: `INV-${i}`,
+      organizationNumber: ORG,
+    }));
+    const req = listedSession(many);
+
+    expect(Object.keys(req.session.cache.listedInvoices).length).toBe(500);
+    // The most recent survive; the oldest fall out.
+    expect(() => assertInvoiceWasListed(req, ORG, 'INV-599')).not.toThrow();
+    expect(() => assertInvoiceWasListed(req, ORG, 'INV-0')).toThrow();
   });
 });
