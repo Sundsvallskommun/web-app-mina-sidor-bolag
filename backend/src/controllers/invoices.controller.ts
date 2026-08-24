@@ -12,7 +12,7 @@ import { Controller, Get, Param, Req } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
 import InvoicesService, { getInvoicePeriodFrom } from '@/services/invoices.service';
-import { assertOwnsInvoice } from '@/services/ownership.service';
+import { assertInvoiceAccess, rememberListedInvoices } from '@/services/ownership.service';
 
 const emptyInvoice = {
   invoices: [],
@@ -63,6 +63,8 @@ export class InvoicesController {
       limit: Number(limit),
     });
 
+    rememberListedInvoices(req, result.invoices);
+
     return {
       data: {
         invoices: result.invoices,
@@ -102,6 +104,8 @@ export class InvoicesController {
       totalRecords += result.meta?.totalRecords ?? 0;
     }
 
+    rememberListedInvoices(req, allInvoices);
+
     return {
       data: {
         invoices: allInvoices,
@@ -128,7 +132,10 @@ export class InvoicesController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    await assertOwnsInvoice(req, organizationNumber, id);
+    // The listing endpoints already decided ownership; this reuses that decision.
+    // The search the previous check relied on returns 504 in production for a query
+    // filtered on customer number alone, which is all the download can supply.
+    await assertInvoiceAccess(req, organizationNumber, id);
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
     const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);
