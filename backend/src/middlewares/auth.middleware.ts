@@ -12,7 +12,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
         next(new HttpException(401, 'Not Authorized'));
       }
     }
-  } catch (error) {
+  } catch (_error) {
     next(new HttpException(401, 'Failed to authorize'));
   }
 };

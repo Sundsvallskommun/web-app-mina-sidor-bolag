@@ -8,12 +8,12 @@ import {
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
-import dayjs from 'dayjs';
-import InvoicesService from '@/services/invoices.service';
+import InvoicesService, { getInvoicePeriodFrom } from '@/services/invoices.service';
+import { assertInvoiceAccess, rememberListedInvoices } from '@/services/ownership.service';
+import authMiddleware from '@/middlewares/auth.middleware';
 
 const emptyInvoice = {
   invoices: [],
@@ -32,7 +32,7 @@ const pendingStatuses = [
 export class InvoicesController {
   private readonly apiService = new ApiService();
   private readonly apiBase = getApiBase('invoices');
-  private readonly invoiceDateFrom = dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
+  private readonly invoiceDateFrom = getInvoicePeriodFrom();
   private readonly invoicesService = new InvoicesService();
 
   private getCustomerIdentifiers(req: RequestWithUser) {
@@ -46,7 +46,6 @@ export class InvoicesController {
   @Get('/invoices')
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @ResponseSchema(CustomerInvoicesResponse)
-  @UseBefore(authMiddleware)
   async getInvoices(@Req() req: RequestWithUser) {
     const { facilityId, page, limit } = req.query;
 
@@ -65,6 +64,8 @@ export class InvoicesController {
       limit: Number(limit),
     });
 
+    rememberListedInvoices(req, result.invoices);
+
     return {
       data: {
         invoices: result.invoices,
@@ -77,7 +78,6 @@ export class InvoicesController {
   @Get('/invoices/pending')
   @OpenAPI({ summary: 'Return a list of pending invoices for current party' })
   @ResponseSchema(CustomerInvoicesResponse)
-  @UseBefore(authMiddleware)
   async getPendingInvoices(@Req() req: RequestWithUser) {
     const { facilityId, page, limit } = req.query;
 
@@ -104,6 +104,8 @@ export class InvoicesController {
       allInvoices.push(...result.invoices);
       totalRecords += result.meta?.totalRecords ?? 0;
     }
+
+    rememberListedInvoices(req, allInvoices);
 
     return {
       data: {
@@ -143,6 +145,8 @@ export class InvoicesController {
       limit: 25,
     });
 
+    rememberListedInvoices(req, result.invoices);
+
     const invoice = result.invoices.find(i => i.invoiceNumber === invoiceNumber);
     if (!invoice) throw new HttpException(404, 'Invoice not found');
     return { data: invoice, message: 'success' };
@@ -150,7 +154,6 @@ export class InvoicesController {
 
   @Get('/invoicepdf/:organizationNumber/:id')
   @OpenAPI({ summary: 'Return the base64-encoded invoice document (PDF or ZIP)' })
-  @UseBefore(authMiddleware)
   async getInvoicePdf(
     @Req() req: RequestWithUser,
     @Param('organizationNumber') organizationNumber: string,
@@ -159,6 +162,11 @@ export class InvoicesController {
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    // The listing endpoints already decided ownership; this reuses that decision.
+    // The search the previous check relied on returns 504 in production for a query
+    // filtered on customer number alone, which is all the download can supply.
+    await assertInvoiceAccess(req, organizationNumber, id);
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
     const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);

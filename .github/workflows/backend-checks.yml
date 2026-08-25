@@ -1,0 +1,42 @@
+name: Backend Checks
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    name: Lint, type-check and test backend
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+          cache-dependency-path: backend/yarn.lock
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --silent --network-timeout 1000000
+
+      # The Prisma client is imported by code the tests load, and it does not
+      # exist until it has been generated from the schema.
+      - name: Generate Prisma client
+        run: yarn prisma:generate
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Type-check
+        run: yarn type-check
+
+      # Uses the committed .env.test; jest forces NODE_ENV=test.
+      - name: Test
+        run: yarn test

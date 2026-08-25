@@ -4,7 +4,6 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { ApiResponse } from '@/interfaces/service';
 import ApiService from '@/services/api.service';
-import authMiddleware from '@middlewares/auth.middleware';
 import { Body, Controller, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import impersonationMiddleware from '@middlewares/impersonation.middleware';
@@ -19,7 +18,6 @@ import { RepresentingMode } from '@interfaces/representing.interface';
 import { populateRepresentingCache } from '@services/session-cache.service';
 
 @Controller()
-@UseBefore(authMiddleware)
 @UseBefore(impersonationMiddleware)
 export class ImpersonationController {
   private readonly apiService = new ApiService();

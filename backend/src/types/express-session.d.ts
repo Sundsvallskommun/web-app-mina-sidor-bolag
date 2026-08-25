@@ -28,9 +28,10 @@ declare module 'express-session' {
       addresses?: FacilityAddress[];
       facilities?: (InstalledBaseItem & { facilityOwnerPartyId?: string })[];
       delegations?: Delegation[];
+      /** Invoice number -> issuer, for invoices already listed to this session. */
+      listedInvoices?: Record<string, string>;
     };
     signs: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       details: Record<string, any>;
       pending: Record<string, GrpInitiateResponseWithStartTime>;
       completed: Record<string, GrpCollectResponseWithRef>;

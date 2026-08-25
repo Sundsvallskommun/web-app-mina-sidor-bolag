@@ -3,6 +3,18 @@ import ApiService from '@/services/api.service';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
+import dayjs from 'dayjs';
+
+/**
+ * How far back invoices are listed. Shared so the ownership check searches the
+ * same window the list endpoint returns - a narrower window there would reject
+ * downloads of invoices the user can see.
+ */
+export const getInvoicePeriodFrom = (): string => dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
+
+/** Path of the customer invoice list, used for both listing and ownership checks. */
+export const customerInvoicesUrl = (): string =>
+  `${getApiBase('invoices')}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
 
 type FetchParams = {
   customerNumbers: string[];
@@ -23,7 +35,7 @@ export default class InvoicesService {
     const { customerNumbers, organizationNumbers, facilityIds, periodFrom, periodTo, page, limit, invoiceStatus } =
       params;
 
-    const url = `${this.baseUrl}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
+    const url = customerInvoicesUrl();
 
     const res = await this.api.get<CustomerInvoicesResponse>(
       {
