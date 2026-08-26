@@ -2,11 +2,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { HttpException } from '@exceptions/HttpException';
 import { apiURL } from '@utils/util';
 import { logger } from '@utils/logger';
+import { redactPersonNumber } from '@utils/redactPersonNumber';
+import { getSessionMarker } from '@utils/request-context';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import ApiTokenService from './api-token.service';
+import { UserType } from '@interfaces/users.interface';
 import https from 'https';
 
 const agent = new https.Agent({ keepAlive: false });
+
+const toLoggableUrl = (baseURL: string | undefined, url: string | undefined): string =>
+  redactPersonNumber(`${baseURL ?? ''}/${url}`);
 
 export class ApiResponse<T> {
   data: T;
@@ -14,7 +20,49 @@ export class ApiResponse<T> {
   message: string;
 }
 
+export type Sender = { username: string; userType?: UserType };
+
+export const buildSentBy = (user: Sender): string =>
+  `type=${user.userType === 'admin' ? 'adAccount' : 'partyId'}; ${user.username}`;
+
 const apiTokenService = new ApiTokenService();
+
+const MAX_TRIES = 3;
+
+const buildRequestConfig = (config: AxiosRequestConfig, user: Sender, requestId: string): AxiosRequestConfig => ({
+  ...config,
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
+  headers: { ...config.headers, 'X-Sent-By': [buildSentBy(user)], 'X-Request-Id': requestId },
+  params: { ...config.params },
+  url: config.baseURL ? config.url : apiURL(config.url),
+  httpAgent: agent,
+  httpsAgent: agent,
+});
+
+const isClassifiedFailure = (error: unknown): error is AxiosError =>
+  axios.isAxiosError(error) &&
+  (error.response?.status === 404 || error.response?.status === 409 || Boolean(error.response?.data));
+
+const logRequestFailure = (error: AxiosError): void => {
+  logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
+  logger.error(`Error details: ${JSON.stringify(error.response?.data)}`);
+  logger.error(`Error url: ${toLoggableUrl(error.response?.config.baseURL, error.response?.config.url)}`);
+  logger.error(`Error data: ${error.response?.config.data}`);
+  logger.error(`Error method: ${error.response?.config.method}`);
+};
+
+const toHttpException = (error: AxiosError): HttpException => {
+  const status = error.response?.status;
+
+  if (status === 404) return new HttpException(404, 'Not found');
+  if (status === 409) return new HttpException(409, 'Duplicate');
+
+  return new HttpException(status ?? 500, 'API request failed');
+};
+
+const shouldRetry = (config: AxiosRequestConfig, tries: number): boolean =>
+  config.method === 'GET' && tries < MAX_TRIES;
 
 class ApiService {
   private readonly instance: AxiosInstance;
@@ -26,12 +74,12 @@ class ApiService {
           return Promise.resolve(request);
         }
         const token = await apiTokenService.getToken();
+        // NOTE: X-Request-Id is set in `request` below, so that the id is known at the
+        // call site and can be reused when logging the response time for the call.
         const defaultHeaders = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'X-Request-Id': uuidv4(),
         };
-        logger.info(`x-request-id: ${defaultHeaders['X-Request-Id']}`);
         request.headers = { ...defaultHeaders, ...request.headers } as any;
         request.headers['Content-Type'] = request.headers['Content-Type'] ?? defaultHeaders['Content-Type'];
         return Promise.resolve(request);
@@ -72,84 +120,74 @@ class ApiService {
       },
     );
   }
-  private async request<T>(config: AxiosRequestConfig, user: { username: string }): Promise<ApiResponse<T>> {
-    const defaultParams = {};
-    const preparedConfig: AxiosRequestConfig = {
-      ...config,
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-      headers: { ...config.headers, 'X-Sent-By': [`type=adAccount; ${user.username}`] },
-      params: { ...defaultParams, ...config.params },
-      url: config.baseURL ? config.url : apiURL(config.url),
-      httpAgent: agent,
-      httpsAgent: agent,
-    };
+  private async request<T>(config: AxiosRequestConfig, user: Sender): Promise<ApiResponse<T>> {
+    const requestId = uuidv4();
+    const preparedConfig = buildRequestConfig(config, user, requestId);
     let tries = 0;
 
-    const call = async () => {
-      const res = await this.instance(preparedConfig);
-      return { data: res.data, message: 'success' };
+    const logTiming = (startedAt: number, status: number | string) => {
+      const duration = Date.now() - startedAt;
+      const url = preparedConfig.baseURL ? `${preparedConfig.baseURL}/${preparedConfig.url}` : preparedConfig.url;
+      logger.info(
+        `API_TIMING sid=${getSessionMarker()} x-request-id=${requestId} method=${preparedConfig.method} status=${status} duration_ms=${duration} attempt=${tries} url=${redactPersonNumber(url)}`,
+      );
     };
 
-    while (tries < 3) {
+    const call = async () => {
+      const startedAt = Date.now();
+      try {
+        const res = await this.instance(preparedConfig);
+        logTiming(startedAt, res.status);
+        return { data: res.data, message: 'success' };
+      } catch (error) {
+        const status = axios.isAxiosError(error) ? (error.response?.status ?? error.code ?? 'error') : 'error';
+        logTiming(startedAt, status);
+        throw error;
+      }
+    };
+
+    while (tries < MAX_TRIES) {
       try {
         tries += 1;
         return await call();
-      } catch (error: unknown | AxiosError) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data}`);
-          logger.error(`Error method: ${error.response.config.method}`);
-          throw new HttpException(404, 'Not found');
-        } else if (axios.isAxiosError(error) && error.response?.status === 409) {
-          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data}`);
-          logger.error(`Error method: ${error.response.config.method}`);
-          throw new HttpException(409, 'Duplicate');
-        } else if (axios.isAxiosError(error) && (error as AxiosError).response?.data) {
-          logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
-          logger.error(`Error url: ${error.response.config.baseURL ?? ''}/${error.response.config.url}`);
-          logger.error(`Error data: ${error.response.config.data}`);
-          logger.error(`Error method: ${error.response.config.method}`);
-          throw new HttpException(error.response.status ?? 500, 'API request failed');
-        } else {
-          logger.error(`Unknown error: ${error}`);
-          if (preparedConfig.method === 'GET' && tries < 3) {
-            logger.info(`Retrying... (${tries})`);
-            continue;
-          }
+      } catch (error: unknown) {
+        if (isClassifiedFailure(error)) {
+          logRequestFailure(error);
+          throw toHttpException(error);
+        }
+
+        logger.error(`Unknown error: ${error}`);
+
+        if (!shouldRetry(preparedConfig, tries)) {
           throw new HttpException(500, 'Internal server error');
         }
+
+        logger.info(`Retrying... (${tries})`);
       }
     }
   }
 
-  public async get<T>(config: AxiosRequestConfig, user: { username: string }): Promise<ApiResponse<T>> {
-    logger.info(`MAKING GET REQUEST TO URL ${config.baseURL ?? ''}/${config.url}`);
+  public async get<T>(config: AxiosRequestConfig, user: Sender): Promise<ApiResponse<T>> {
+    logger.info(`MAKING GET REQUEST TO URL ${toLoggableUrl(config.baseURL, config.url)}`);
     return this.request<T>({ ...config, method: 'GET' }, user);
   }
 
-  public async post<T, D>(config: AxiosRequestConfig<D>, user: { username: string }): Promise<ApiResponse<T>> {
-    logger.info(`MAKING POST REQUEST TO URL ${config.baseURL ?? ''}/${config.url}`);
+  public async post<T, D>(config: AxiosRequestConfig<D>, user: Sender): Promise<ApiResponse<T>> {
+    logger.info(`MAKING POST REQUEST TO URL ${toLoggableUrl(config.baseURL, config.url)}`);
     return this.request<T>({ ...config, method: 'POST' }, user);
   }
 
-  public async patch<T, D>(config: AxiosRequestConfig<D>, user: { username: string }): Promise<ApiResponse<T>> {
-    logger.info(`MAKING PATCH REQUEST TO URL ${config.baseURL ?? ''}/${config.url}`);
+  public async patch<T, D>(config: AxiosRequestConfig<D>, user: Sender): Promise<ApiResponse<T>> {
+    logger.info(`MAKING PATCH REQUEST TO URL ${toLoggableUrl(config.baseURL, config.url)}`);
     return this.request<T>({ ...config, method: 'PATCH' }, user);
   }
 
-  public async put<T, D>(config: AxiosRequestConfig<D>, user: { username: string }): Promise<ApiResponse<T>> {
-    logger.info(`MAKING PUT REQUEST TO URL ${config.baseURL ?? ''}/${config.url}`);
+  public async put<T, D>(config: AxiosRequestConfig<D>, user: Sender): Promise<ApiResponse<T>> {
+    logger.info(`MAKING PUT REQUEST TO URL ${toLoggableUrl(config.baseURL, config.url)}`);
     return this.request<T>({ ...config, method: 'PUT' }, user);
   }
 
-  public async delete<T>(config: AxiosRequestConfig, user: { username: string }): Promise<ApiResponse<T>> {
+  public async delete<T>(config: AxiosRequestConfig, user: Sender): Promise<ApiResponse<T>> {
     return this.request<T>({ ...config, method: 'DELETE' }, user);
   }
 }

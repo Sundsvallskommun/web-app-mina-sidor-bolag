@@ -1,6 +1,5 @@
 import { Controller, Body, Req, Get, UseBefore, Res, Patch, OnUndefined } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import authMiddleware from '@middlewares/auth.middleware';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
 import prisma from '@utils/prisma';
@@ -22,6 +21,7 @@ import dayjs from 'dayjs';
 import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
 import { logger } from '@/utils/logger';
+import { getSessionMarker } from '@utils/request-context';
 
 interface UserData {
   name: string;
@@ -55,12 +55,11 @@ function relevantType(installation: InstalledBaseItem): boolean {
 
 @Controller()
 export class UserController {
-  private apiService = new ApiService();
-  private installedBaseApiBase = getApiBase('installedbase');
+  private readonly apiService = new ApiService();
+  private readonly installedBaseApiBase = getApiBase('installedbase');
 
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
-  @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name, permissions } = req.user;
     const representing = req.session?.representing ?? undefined;
@@ -153,8 +152,15 @@ export class UserController {
 
       // Fetch complete facility information for delegated facilities
       const delegations = req.session.cache.delegations;
+      // NOTE: One request is made per delegated facility, but the request is fully
+      // determined by the organization number/owner pair. Counting both tells us how
+      // many of these requests are duplicates.
+      const delegatedRequestPairs = new Set<string>();
+      let delegatedFacilityCount = 0;
       delegations.forEach(delegation => {
         delegation.facilities.forEach(facility => {
+          delegatedFacilityCount += 1;
+          delegatedRequestPairs.add(`${facility.businessEngagementOrgId}|${delegation.owner}`);
           try {
             const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
             const installedBaseParams = {
@@ -184,6 +190,9 @@ export class UserController {
           }
         });
       });
+      logger.info(
+        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_pairs=${delegatedRequestPairs.size}`,
+      );
       await Promise.allSettled(delegatedInstalledBasePromises)
         .then(results => {
           delegatedItems = results
@@ -257,7 +266,6 @@ export class UserController {
 
   @Get('/myrelations')
   @OpenAPI({ summary: 'Return current users relations' })
-  @UseBefore(authMiddleware)
   async getUserRelations(@Req() req: RequestWithUser, @Res() response: any): Promise<CustomerRelation[]> {
     const { name } = req.user;
 
@@ -278,7 +286,7 @@ export class UserController {
   @Patch('/settings')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Patch user settings' })
-  @UseBefore(authMiddleware, validationMiddleware(PatchUserSettingsDto, 'body'))
+  @UseBefore(validationMiddleware(PatchUserSettingsDto, 'body'))
   async patchSettings(@Req() req: RequestWithUser, @Body() userData: PatchUserSettingsDto): Promise<void> {
     const { partyId } = req.user;
 

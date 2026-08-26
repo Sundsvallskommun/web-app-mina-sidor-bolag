@@ -58,16 +58,12 @@ export const getPersonEngagements = async (user: User): Promise<PersonEngagement
     };
   } else {
     try {
-      res = await apiService.get<PersonEngagement[]>({ url }, { username: 'unknown' });
+      res = await apiService.get<PersonEngagement[]>({ url }, user);
     } catch (error) {
       logger.error('Could not get engagements', error);
       res = { data: [] };
     }
   }
-  // TEMP LOGGING
-  logger.info(
-    `engagements: pnrLen=${user.personNumber?.length} pnrTail=${user.personNumber?.slice(-5)} count=${res.data?.length ?? 'null'}`,
-  );
 
   // Add engagements from mandates and just pass if error occurs
   try {
@@ -79,9 +75,6 @@ export const getPersonEngagements = async (user: User): Promise<PersonEngagement
   if (!res.data) return [];
 
   const prioritized = prioritizeEngagements(res.data);
-
-  // TEMP LOGGING
-  logger.info(`engagements pre-prioritize: ${res.data.length}, post: ${prioritized.length}`);
 
   return prioritized;
 };

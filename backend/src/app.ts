@@ -35,8 +35,11 @@ import {
   SESSION_MEMORY,
   SWAGGER_ENABLED,
 } from '@config';
+import authMiddleware from '@middlewares/auth.middleware';
 import errorMiddleware from '@middlewares/error.middleware';
+import { enforceGlobalAuth } from '@middlewares/global-auth';
 import { logger, stream } from '@utils/logger';
+import { runWithRequestContext, toSessionMarker } from '@utils/request-context';
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import compression from 'compression';
@@ -174,6 +177,13 @@ class App {
     this.app.use(passport.initialize());
     this.app.use(passport.session());
 
+    // Makes the session marker available to the logging further down the call stack,
+    // so that log lines from concurrent users can be told apart. Registered after the
+    // session middleware, since it needs `req.sessionID`.
+    this.app.use((req, _res, next) => {
+      runWithRequestContext({ sessionMarker: toSessionMarker(req.sessionID) }, next);
+    });
+
     // External customer login flow
     registerSamlFlow(this.app, {
       strategyName: 'saml',
@@ -199,6 +209,11 @@ class App {
   }
 
   private initializeRoutes(controllers) {
+    // Deny by default: every action without an explicit @Public() gets the auth
+    // middleware injected here, so a forgotten @UseBefore cannot open an endpoint.
+    // Must run before useExpressServer builds the router.
+    enforceGlobalAuth({ authMiddleware, controllers, logger });
+
     useExpressServer(this.app, {
       routePrefix: BASE_URL_PREFIX,
       cors: {
