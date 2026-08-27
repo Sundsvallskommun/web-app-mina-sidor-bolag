@@ -49,7 +49,10 @@ const formSchema = yup
     alias: yup.string().nullable().optional(),
     virtual: yup.boolean().optional(),
     phoneCountryCode: yup.string().optional(),
-    phoneNumber: yup.string().test('mobileNumber', 'profile:error.invalidPhone', isValidMobileNumber).optional(),
+    phoneNumber: yup
+      .string()
+      .test('mobileNumber', 'profile:error.invalidPhone', (value) => isValidMobileNumber(value))
+      .optional(),
     phone: yup.string().nullable().optional(),
     notifications: yup
       .object({

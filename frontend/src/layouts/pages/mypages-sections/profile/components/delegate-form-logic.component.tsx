@@ -53,7 +53,10 @@ const formSchema = yup
       alias: yup.string().nullable().required('Namn på kontakt är obligatoriskt'),
       virtual: yup.boolean(),
       phoneCountryCode: yup.string().optional(),
-      phoneNumber: yup.string().test('mobileNumber', 'profile:error.invalidPhone', isValidMobileNumber).optional(),
+      phoneNumber: yup
+        .string()
+        .test('mobileNumber', 'profile:error.invalidPhone', (value) => isValidMobileNumber(value))
+        .optional(),
       phone: yup.string().nullable().optional(),
     }),
     delegate: yup

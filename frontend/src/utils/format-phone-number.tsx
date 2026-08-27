@@ -1,6 +1,6 @@
 export const DEFAULT_PHONE_COUNTRY_CODE = '+46';
 
-const MOBILE_NUMBER_REGEXP = /^(?:\+46|0046|0)?7\d{8}$/;
+const MOBILE_SUBSCRIBER_REGEXP = /^7\d{8}$/;
 
 const SUBSCRIBER_GROUPS_REGEXP = /^(\d{2})(\d{3})(\d{2})(\d{2})$/;
 
@@ -41,8 +41,9 @@ export const toGroupedPhoneNumber = (phoneNumber?: string | null, countryCode: s
   return groups ? `${groups[1]} ${groups[2]} ${groups[3]} ${groups[4]}` : subscriberNumber;
 };
 
-export const isValidMobileNumber = (phoneNumber?: string | null) =>
-  !phoneNumber || MOBILE_NUMBER_REGEXP.test(stripSeparators(phoneNumber));
+/** An empty value is valid, clearing the field is how a stored number is removed */
+export const isValidMobileNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) =>
+  !phoneNumber || MOBILE_SUBSCRIBER_REGEXP.test(toSubscriberPhoneNumber(phoneNumber, countryCode));
 
 export const toDisplayPhoneNumber = (phoneNumber?: string | null, countryCode: string = DEFAULT_PHONE_COUNTRY_CODE) => {
   const dialCode = getDialCode(countryCode);
