@@ -24,7 +24,13 @@ const toSubscriberNumber = (digits: string, dialCode: string) => {
 /** Turns the number from the input into the stored format (e.g "0701234567" -> "+46701234567") */
 export const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
   const dialCode = getDialCode(countryCode);
-  const subscriberNumber = toSubscriberNumber(stripSeparators(phoneNumber), dialCode);
+  const digits = stripSeparators(phoneNumber);
+
+  if (digits.startsWith('+') && !digits.startsWith(`+${dialCode}`)) {
+    return digits;
+  }
+
+  const subscriberNumber = toSubscriberNumber(digits, dialCode);
 
   return subscriberNumber.length ? `+${dialCode}${subscriberNumber}` : '';
 };
