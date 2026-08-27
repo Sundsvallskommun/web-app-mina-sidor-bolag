@@ -4,7 +4,7 @@ const MOBILE_SUBSCRIBER_REGEXP = /^7\d{8}$/;
 
 const SUBSCRIBER_GROUPS_REGEXP = /^(\d{2})(\d{3})(\d{2})(\d{2})$/;
 
-const getDialCode = (countryCode: string) => countryCode.split('+').slice(1).join('');
+const getDialCode = (countryCode: string) => countryCode.replace(/\D/g, '');
 
 const stripSeparators = (phoneNumber: string) => phoneNumber.replace(/[\s-]/g, '');
 
