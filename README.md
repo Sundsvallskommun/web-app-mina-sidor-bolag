@@ -1,4 +1,5 @@
 # Mina sidor Bolag
+Mina sidor för privat- och företagskunder hos kommunala bolag.
 
 ## APIer som används
 
