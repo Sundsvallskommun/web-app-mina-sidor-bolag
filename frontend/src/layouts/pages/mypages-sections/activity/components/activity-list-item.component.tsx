@@ -11,6 +11,7 @@ interface ActivityListItemProps {
 
 export const ActivityListItem = ({ item }: ActivityListItemProps) => {
   const { t } = useTranslation('activity');
+  const displayName = item.name || (item.type === 'impersonation' ? t('activity:item.supportAgent') : '');
 
   const renderDetails = () => {
     switch (item.type) {
@@ -53,7 +54,7 @@ export const ActivityListItem = ({ item }: ActivityListItemProps) => {
     >
       <div className="flex flex-col gap-4 text-dark-secondary">
         <p className="m-0 text-dark-primary">
-          <strong>{item.name}</strong>
+          <strong>{displayName}</strong>
           {item.personNumber ? `, ${item.personNumber}` : ''}
         </p>
         {renderDetails()}

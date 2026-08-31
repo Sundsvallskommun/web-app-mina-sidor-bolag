@@ -16,7 +16,7 @@ import utc from 'dayjs/plugin/utc';
 import { CreateLogEventData } from '@interfaces/event';
 import { RepresentingMode } from '@interfaces/representing.interface';
 import { EXPORT_SOURCE_TYPE } from '@/constants/event-log';
-import { buildActivityFilter } from '@utils/event-log-filter';
+import { buildActivityFilter, sanitizeActivityMetadata } from '@utils/event-log-filter';
 dayjs.extend(utc);
 
 @Controller()
@@ -91,6 +91,9 @@ class EventLogController {
       };
 
       const res = await this.apiService.get<PageEvent>({ url, params }, req.user);
+      for (const event of res.data.content ?? []) {
+        event.metadata = sanitizeActivityMetadata(event.metadata);
+      }
 
       return { data: res.data, message: 'success' };
     } catch (error) {

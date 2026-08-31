@@ -144,9 +144,11 @@ export class ImpersonationController {
       throw new HttpException(400, 'Bad Request');
     }
 
+    const displayName = requestedBy.name !== requestedBy.username ? requestedBy.name : undefined;
+
     const metadata = [
       { key: 'requestedByPartyId', value: requestedBy.partyId },
-      { key: 'requestedByName', value: requestedBy.name },
+      ...(displayName ? [{ key: 'requestedByName', value: displayName }] : []),
       { key: 'toImpersonatePartyId', value: toImpersonatePartyId },
       { key: 'accessReason', value: accessReason },
     ];

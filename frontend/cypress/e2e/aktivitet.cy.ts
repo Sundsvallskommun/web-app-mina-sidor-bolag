@@ -40,12 +40,23 @@ describe('Aktivitet', () => {
   it('renders a kundtjänst (impersonation) event with support reason', () => {
     visitActivity();
 
-    cy.get('[data-cy="activity-badge-impersonation"]').should('contain.text', 'Kundtjänst');
+    cy.get('[data-cy="activity-badge-impersonation"]').first().should('contain.text', 'Kundtjänst');
     cy.get('[data-cy="activity-badge-impersonation"]')
+      .first()
       .closest('[data-cy="activity-list-item"]')
       .should('include.text', 'Maja Andersson')
       .should('include.text', 'Supportanledning')
       .should('include.text', 'I samtal med kunden');
+  });
+
+  it('falls back to a generic label when an event carries no agent name', () => {
+    visitActivity();
+
+    cy.get('[data-cy="activity-badge-impersonation"]')
+      .eq(1)
+      .closest('[data-cy="activity-list-item"]')
+      .should('include.text', 'Kundtjänstmedarbetare')
+      .should('include.text', 'Annan överenskommelse med kunden');
   });
 
   it('renders HAN-port activated and deactivated events', () => {
