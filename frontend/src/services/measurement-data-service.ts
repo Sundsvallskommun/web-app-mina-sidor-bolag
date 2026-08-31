@@ -427,10 +427,8 @@ export const mergeTemperatureDataSets = (
 };
 
 const formatUnit = (unit?: string) => {
-  switch (unit?.toLowerCase()) {
-    case 'm3':
-      return 'm³';
-    default:
-      return unit ?? 'kWh';
+  if (unit?.toLowerCase() === 'm3') {
+    return 'm³';
   }
+  return unit ?? 'kWh';
 };
