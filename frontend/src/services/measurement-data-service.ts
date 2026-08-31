@@ -131,6 +131,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     peakConsumptionValue: calculateHighestValue(data?.aggregateOn, measurementData),
     averageConsumption: calculateAverageConsumption(measurementData),
     peakEffectValue: calculateHighestValue(data?.aggregateOn, peakHourUsage),
+    unit: formatUnit(measurementData[0]?.unit),
   };
 };
 
@@ -422,5 +423,14 @@ export const mergeTemperatureDataSets = (
         },
       ],
     } as MergedStatisticsMeasurementData;
+  }
+};
+
+const formatUnit = (unit?: string) => {
+  switch (unit?.toLowerCase()) {
+    case 'm3':
+      return 'm³';
+    default:
+      return unit ?? 'kWh';
   }
 };

@@ -29,10 +29,12 @@ interface CustomTooltipProps {
   isConsumption: boolean;
   aggregatedOn?: Aggregation;
   isDarkMode?: boolean;
+  unit?: string;
 }
 
 // Helper functions
-const getUnit = (isConsumption: boolean) => (isConsumption ? UNIT_CONSUMPTION : UNIT_TEMPERATURE);
+const getUnit = (isConsumption: boolean, unit?: string) =>
+  isConsumption ? (unit ?? UNIT_CONSUMPTION) : UNIT_TEMPERATURE;
 
 const formatNumber = (value: number) =>
   new Intl.NumberFormat(LOCALE, {
@@ -189,15 +191,16 @@ export default function CustomTooltip({
   isConsumption,
   aggregatedOn,
   isDarkMode,
+  unit,
 }: CustomTooltipProps) {
   if (!active || !payload?.length) {
     return null;
   }
 
-  const unit = getUnit(isConsumption);
+  const toolTipUnit = getUnit(isConsumption, unit);
 
   if (aggregatedOn === Aggregation.QUARTER) {
-    return <QuarterTooltip payload={payload} unit={unit} isDarkMode={isDarkMode ?? false} />;
+    return <QuarterTooltip payload={payload} unit={toolTipUnit} isDarkMode={isDarkMode ?? false} />;
   }
 
   return (
@@ -206,7 +209,7 @@ export default function CustomTooltip({
       label={label}
       aggregatedOn={aggregatedOn}
       payload={payload}
-      unit={unit}
+      unit={toolTipUnit}
       year={year}
     />
   );
