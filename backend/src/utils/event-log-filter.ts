@@ -1,3 +1,4 @@
+import { Metadata } from '@/data-contracts/eventlog/data-contracts';
 import { ACTIVITY_SOURCE_TYPES, ActivityFilter, HAN_SOURCE_TYPE, LOGIN_SOURCE_TYPE } from '@/constants/event-log';
 
 export const getActivitySourceTypes = (sourceTypeFilter: unknown): readonly string[] => {
@@ -34,4 +35,15 @@ export const buildActivityFilter = ({ namespace, sourceTypeFilter, from, to }: A
   }
 
   return parts.join(' and ');
+};
+
+const INTERNAL_METADATA_KEYS = new Set(['requestedByPartyId']);
+
+export const sanitizeActivityMetadata = (metadata: Metadata[] = []): Metadata[] => {
+  const requestedByPartyId = metadata.find(item => item.key === 'requestedByPartyId')?.value;
+
+  return metadata.filter(
+    item =>
+      !INTERNAL_METADATA_KEYS.has(item.key) && !(item.key === 'requestedByName' && item.value === requestedByPartyId),
+  );
 };

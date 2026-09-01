@@ -17,6 +17,7 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
   const email = profile.attributes?.['email'];
   const groups = profile.attributes?.['groups'];
   const displayName = profile.attributes?.['displayName'];
+  const fullName = [profile.firstname, profile.Surname].filter(Boolean).join(' ');
 
   const userPermissions = await getPermissionsByGroups(groups);
 
@@ -29,7 +30,7 @@ export const adminVerify = async (profile: Profile, done: VerifiedCallback) => {
 
   const adminUser: User = {
     partyId: username,
-    name: displayName ?? username,
+    name: displayName || fullName || username,
     givenName: profile.firstname ?? '',
     surname: profile.Surname ?? '',
     username,

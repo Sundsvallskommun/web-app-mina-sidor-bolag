@@ -63,6 +63,10 @@ const IMPERSONATION = event('2026-05-18T09:46:00.000Z', 'Impersonation', [
   { key: 'accessReason', value: 'I samtal med kunden' },
 ]);
 
+const IMPERSONATION_LEGACY_USERNAME = event('2026-05-17T09:46:00.000Z', 'Impersonation', [
+  { key: 'accessReason', value: 'Annan överenskommelse med kunden' },
+]);
+
 const HAN_ACTIVATED = event('2026-04-10T10:00:00.000Z', 'HAN', [
   { key: 'operation', value: 'grant' },
   { key: 'loggedInUserName', value: 'Mirsad Andersson' },
@@ -85,7 +89,7 @@ const LOGIN_PREVIOUS_YEAR = event('2025-12-01T11:00:00.000Z', 'Login', [
 ]);
 
 export const getActivityEvents = (): ApiResponse<PagedEventsResponse> =>
-  paged([LOGIN, IMPERSONATION, HAN_ACTIVATED, HAN_DEACTIVATED, LOGIN_PREVIOUS_YEAR], {
+  paged([LOGIN, IMPERSONATION, IMPERSONATION_LEGACY_USERNAME, HAN_ACTIVATED, HAN_DEACTIVATED, LOGIN_PREVIOUS_YEAR], {
     totalElements: 8,
     totalPages: 2,
     last: false,

@@ -10,6 +10,7 @@
   },
   "item": {
     "company": "Företag",
+    "supportAgent": "Kundtjänstmedarbetare",
     "supportReason": "Supportanledning",
     "address": "Adress",
     "facilityId": "Anläggnings-ID",
