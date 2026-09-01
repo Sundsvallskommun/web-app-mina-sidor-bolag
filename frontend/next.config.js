@@ -41,7 +41,6 @@ module.exports = withBundleAnalyzer({
       '@sk-web-gui/alert',
       '@sk-web-gui/next',
       '@sk-web-gui/countrycode-select',
-      'dayjs',
     ],
   },
   async rewrites() {
