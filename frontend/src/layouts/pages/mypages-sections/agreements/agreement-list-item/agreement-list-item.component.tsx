@@ -3,7 +3,7 @@
 import { Label, Button } from '@sk-web-gui/react';
 import { ChevronRight } from 'lucide-react';
 import { PaddedListIcon } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/padded-list-icon/padded-list-icon.component';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 interface AgreementListItemProps {
@@ -19,10 +19,12 @@ interface AgreementListItemProps {
 export const AgreementListItem = (props: AgreementListItemProps) => {
   const { agreementSlug, category, facilityId, area, description, production, active } = props;
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation(['common', 'agreement']);
 
   const handleClick = () => {
-    router.push(`./avtal/${agreementSlug}`);
+    const query = searchParams.toString();
+    router.push(query ? `./avtal/${agreementSlug}?${query}` : `./avtal/${agreementSlug}`);
   };
 
   return (
