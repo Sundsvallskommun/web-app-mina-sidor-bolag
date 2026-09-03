@@ -25,7 +25,7 @@
   "consumption": {
     "production": "produktion",
     "consumption": "förbrukning",
-    "amount": "{{consumption}} kWh",
+    "amount": "{{consumption}} {{unit}}",
     "temperature": "{{temperature}}°C",
     "electricityProduction": "Elproduktion",
     "total": "Total {{label}}",
@@ -88,7 +88,7 @@
       "detailLevel": "Detaljnivå",
       "from": "Från",
       "to": "Till",
-      "consumption": "Förbrukning {{year}} (kWh)",
+      "consumption": "Förbrukning {{year}} ({{unit}})",
       "temperature": "Utetemperatur (°C)"
     }
   }

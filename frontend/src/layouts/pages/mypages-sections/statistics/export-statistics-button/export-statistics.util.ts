@@ -83,7 +83,10 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
       [
         t('statistics:exportModal.excelHeadings.from'),
         t('statistics:exportModal.excelHeadings.to'),
-        t('statistics:exportModal.excelHeadings.consumption', { year: dayjs(modalData.fromDate).format('YYYY') }),
+        t('statistics:exportModal.excelHeadings.consumption', {
+          year: dayjs(modalData.fromDate).format('YYYY'),
+          unit: facilityData.unit,
+        }),
         ...(modalData.temperatureIncluded ? [t('statistics:exportModal.excelHeadings.temperature')] : []),
       ],
     ];

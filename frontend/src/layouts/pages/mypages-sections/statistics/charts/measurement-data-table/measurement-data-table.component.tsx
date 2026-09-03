@@ -76,6 +76,7 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   const translateConsumptionAmount = (value?: number) => {
     return t('statistics:consumption.amount', {
       consumption: toFixedNumber(value ?? 0, 2),
+      unit: data?.unit,
     });
   };
   const translateTemperatureAmount = (value?: number) => {
