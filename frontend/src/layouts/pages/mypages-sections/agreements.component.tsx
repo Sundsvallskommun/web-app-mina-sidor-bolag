@@ -41,18 +41,21 @@ export default function PagedAgreements() {
 
   const searchParamsString = searchParams.toString();
 
-  useEffect(() => {
-    const searchTerm = term.length > 1 ? term : '';
-    const params = new URLSearchParams(searchParamsString);
-    if (searchTerm) {
-      params.set('filter', searchTerm);
-    } else {
-      params.delete('filter');
-    }
-    const query = params.toString();
-    if (query === searchParamsString) return;
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [term, pathname, router, searchParamsString]);
+  useEffect(
+    function handleRedirectWithFilter() {
+      const searchTerm = term.length > 1 ? term : '';
+      const params = new URLSearchParams(searchParamsString);
+      if (searchTerm) {
+        params.set('filter', searchTerm);
+      } else {
+        params.delete('filter');
+      }
+      const query = params.toString();
+      if (query === searchParamsString) return;
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [term, pathname, router, searchParamsString]
+  );
 
   const data = useMemo<AgreementData | undefined>(() => {
     if (!agreements) return undefined;
