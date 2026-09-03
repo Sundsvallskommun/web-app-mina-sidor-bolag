@@ -2,12 +2,13 @@
 
 import { Pagination, Select, Spinner } from '@sk-web-gui/react';
 import { AgreementListItem } from '@layouts/pages/mypages-sections/agreements/agreement-list-item/agreement-list-item.component';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { getCategoryAsNumber, pagedAgreementsWithMetaHandler } from '@services/agreement-service';
 import { AgreementData, RefinedAgreement } from '@interfaces/agreement';
 import { useTranslation } from 'react-i18next';
 import AgreementsFilter from '@components/agreements-filter/agreements-filter.component';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export default function PagedAgreements() {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -28,8 +29,33 @@ export default function PagedAgreements() {
   const agreements = response?.agreements;
   const pages = response?._meta?.totalPages ?? 1;
 
-  const [term, setTerm] = useState<string>('');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [term, setTerm] = useState<string>(() => {
+    return searchParams.get('filter') || '';
+  });
+
   const { t } = useTranslation(['common', 'agreement']);
+
+  const searchParamsString = searchParams.toString();
+
+  useEffect(
+    function handleRedirectWithFilter() {
+      const searchTerm = term.length > 1 ? term : '';
+      const params = new URLSearchParams(searchParamsString);
+      if (searchTerm) {
+        params.set('filter', searchTerm);
+      } else {
+        params.delete('filter');
+      }
+      const query = params.toString();
+      if (query === searchParamsString) return;
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [term, pathname, router, searchParamsString]
+  );
 
   const data = useMemo<AgreementData | undefined>(() => {
     if (!agreements) return undefined;
