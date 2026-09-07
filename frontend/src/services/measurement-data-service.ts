@@ -279,7 +279,7 @@ export const getFormattedDate = (aggregation?: Aggregation, fromDate?: string) =
 export const translateAggregateOn = (aggregateOn?: Aggregation, t?: TFunction) => {
   switch (aggregateOn) {
     case Aggregation.QUARTER:
-      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvartal';
+      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvart';
     case Aggregation.HOUR:
       return t ? t('statistics:hour').toLocaleLowerCase() : 'timme';
     case Aggregation.DAY:
