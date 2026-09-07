@@ -3,12 +3,10 @@
 import { Breadcrumb, Spinner } from '@sk-web-gui/react';
 import NextLink from 'next/link';
 import { PagesBreadcrumbsLayout } from '@layouts/pages-breadcrumbs-layout.component';
-import { useParams, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useApi } from '@services/api-service';
 import { IInvoice } from '@interfaces/invoice';
 import { CustomerInvoice } from '@data-contracts/backend/data-contracts';
-import { invoiceHandler } from '@services/invoice-service';
 import { User } from '@interfaces/user';
 import { InvoiceLabel } from '@layouts/pages/mypages-sections/invoices/invoice-label/invoice-label.component';
 import { InvoiceDetails } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details.component';
@@ -20,17 +18,25 @@ import {
   groupInvoiceDetails,
 } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details-helpers';
 import { AxiosError } from 'axios';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { ADDRESS_PARAM, invoiceHandler } from '@services/invoice-service';
 
 export const Invoice = () => {
   const { t } = useTranslation(['common', 'invoices']);
   const [pdfIsLoading, setPdfIsLoading] = useState<{ [key: string]: boolean }>({});
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
 
-  const [invoiceNumber] = useParams<{ slug: [string] }>().slug;
+  const params = useParams<{ slug: [string] }>();
+  const [invoiceNumber] = params.slug;
+  const pathname = usePathname();
   const search = useSearchParams();
   const periodFrom = search.get('periodFrom') ?? '';
   const periodTo = search.get('periodTo') ?? '';
   const facilityIds = search.get('facilityId') ?? '';
+
+  const invoicesPath = pathname.split('/').slice(0, -params.slug.length).join('/');
+  const address = search.get(ADDRESS_PARAM);
+  const invoicesHref = address ? `${invoicesPath}?${new URLSearchParams({ [ADDRESS_PARAM]: address })}` : invoicesPath;
 
   const {
     data: invoice,
@@ -58,7 +64,7 @@ export const Invoice = () => {
     return (
       <PagesLayout>
         <h3 className="mb-24">{isNotFound ? t('invoice:notFound', { invoiceNumber }) : t('invoice:loadError')}</h3>
-        <NextLink className="underline" href="./../fakturor">
+        <NextLink className="underline" href={invoicesHref}>
           {t('invoice:goBack')}
         </NextLink>
       </PagesLayout>
@@ -74,8 +80,8 @@ export const Invoice = () => {
       breadcrumbs={
         <Breadcrumb>
           <Breadcrumb.Item>
-            <NextLink href="./../fakturor">
-              <Breadcrumb.Link variant="body" as="span" href={t('agreement:breadcrumbUrl')}>
+            <NextLink href={invoicesHref}>
+              <Breadcrumb.Link variant="body" as="span">
                 {t('invoice:invoices')}
               </Breadcrumb.Link>
             </NextLink>
