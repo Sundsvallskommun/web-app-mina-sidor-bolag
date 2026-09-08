@@ -4,6 +4,7 @@ node_modules
 .DS_Store
 .vscode/launch.json
 .vscode/settings.json
+.idea/
 .claude/
 CLAUDE.md
 .playwright-mcp

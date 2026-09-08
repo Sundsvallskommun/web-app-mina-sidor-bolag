@@ -9,7 +9,7 @@ import {
 } from '@interfaces/measurement-data';
 import dayjs, { Dayjs } from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { toFixedNumber } from '@react-stately/utils';
+import { toFixedNumber } from '@utils/to-fixed-number';
 import { TFunction } from 'i18next';
 import { CORRECTED_USAGE_TYPE } from '@utils/normal-year';
 
