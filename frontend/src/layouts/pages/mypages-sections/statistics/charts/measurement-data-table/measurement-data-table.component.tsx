@@ -10,7 +10,7 @@ import {
 import { translateAggregateOn } from '@services/measurement-data-service';
 import { useFormContext } from 'react-hook-form';
 import dayjs from 'dayjs';
-import { toFixedNumber } from '@react-stately/utils';
+import { toFixedNumber } from '@utils/to-fixed-number';
 import { useTranslation } from 'react-i18next';
 import { isNormalYear } from '@utils/normal-year';
 
