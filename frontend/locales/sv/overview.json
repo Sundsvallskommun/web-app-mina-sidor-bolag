@@ -34,6 +34,8 @@
     }
   },
   "announcements": {
-    "title": "Nyheter"
+    "title": "Nyheter",
+    "readMore": "Läs mer",
+    "error": "Något gick fel - kan inte hämta nyheter"
   }
 }

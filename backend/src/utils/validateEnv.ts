@@ -68,6 +68,9 @@ const validateEnv = () => {
     OPENE_URL: str(),
     ELOMRADEN_API_USER: str(),
     ELOMRADEN_API_KEY: str(),
+    RSS_FEED_URL: str(),
+    RSS_FEED_USERNAME: str(),
+    RSS_FEED_PASSWORD: str(),
   });
 
   validateSecretStrength();

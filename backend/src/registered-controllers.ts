@@ -20,6 +20,7 @@ import { SelfServiceAiController } from '@controllers/self-service-ai.controller
 import { SelfServiceController } from '@controllers/self-service.controller';
 import { SignController } from '@controllers/sign.controller';
 import { UserController } from '@controllers/user.controller';
+import { AnnouncementsController } from './controllers/announcements.controller';
 
 export const registeredControllers = [
   IndexController,
@@ -44,4 +45,5 @@ export const registeredControllers = [
   ImpersonationController,
   DisturbancesController,
   SelfServiceController,
+  AnnouncementsController,
 ];
