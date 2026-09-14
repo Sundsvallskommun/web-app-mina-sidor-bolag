@@ -18,6 +18,9 @@ next-env.d.ts
 # production
 /build
 
+# typescript cache
+*.tsbuildinfo
+
 # misc
 .DS_Store
 *.pem
@@ -38,6 +41,3 @@ yarn-error.log*
 
 # vercel
 .vercel
-.npmrc
-.yarnrc
-

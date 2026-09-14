@@ -85,6 +85,7 @@ export interface StatisticsMeasurementData {
   peakConsumptionValue: { value: number; timestamp: string | undefined };
   averageConsumption: number;
   peakEffectValue: { value: number; timestamp: string | undefined };
+  unit: string;
 }
 
 export interface MergedStatisticsMeasurementData extends Omit<StatisticsMeasurementData, 'measurementData'> {

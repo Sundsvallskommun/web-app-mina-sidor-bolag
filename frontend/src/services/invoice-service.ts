@@ -95,3 +95,5 @@ export const useInvoicesQuery = ({
       enabled: facilityIds.length > 0,
     },
   });
+
+export const ADDRESS_PARAM = 'address';

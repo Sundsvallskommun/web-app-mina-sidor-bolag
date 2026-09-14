@@ -83,10 +83,10 @@ export class SigningInfo {
   completionData: CompletionDataType;
 }
 
-class MandateDefaults
-  implements
-    Pick<MandateDetails, 'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status' | 'whitelisted'>
-{
+class MandateDefaults implements Pick<
+  MandateDetails,
+  'id' | 'created' | 'updated' | 'activeFrom' | 'inactiveAfter' | 'status' | 'whitelisted'
+> {
   @IsString()
   id: string;
   @IsDateString()

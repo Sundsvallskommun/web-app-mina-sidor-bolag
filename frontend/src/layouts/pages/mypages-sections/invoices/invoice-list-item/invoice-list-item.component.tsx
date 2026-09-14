@@ -9,6 +9,8 @@ import NextLink from 'next/link';
 import { InvoiceLabel } from '@layouts/pages/mypages-sections/invoices/invoice-label/invoice-label.component';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
+import { useSearchParams } from 'next/navigation';
+import { ADDRESS_PARAM } from '@services/invoice-service';
 
 interface InvoiceListItemProps {
   invoice: IInvoice;
@@ -17,9 +19,9 @@ interface InvoiceListItemProps {
 }
 
 export const InvoiceListItem = ({ invoice, periodFrom, periodTo }: InvoiceListItemProps) => {
+  const searchParams = useSearchParams();
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { t } = useTranslation();
-  const facilityIds = invoice.facilityIds?.join(',') ?? '';
 
   const getInvoiceAddress = useCallback(
     (facilityIds: string[]): string =>
@@ -27,10 +29,18 @@ export const InvoiceListItem = ({ invoice, periodFrom, periodTo }: InvoiceListIt
     [userData]
   );
 
+  const query = new URLSearchParams({
+    facilityId: invoice.facilityIds?.join(',') ?? '',
+    periodFrom,
+    periodTo,
+  });
+  const address = searchParams.get(ADDRESS_PARAM);
+  if (address) query.set(ADDRESS_PARAM, address);
+
   return (
     invoice && (
       <NextLink
-        href={`./fakturor/${invoice.invoiceNumber}?facilityId=${facilityIds}&periodFrom=${periodFrom}&periodTo=${periodTo}`}
+        href={`./fakturor/${invoice.invoiceNumber}?${query}`}
         className="flex justify-between w-full bg-background-content shadow-50 rounded-2xl pl-24 pr-16 lg:py-12 py-16 hover:bg-background-100 focus:ring"
         data-cy={`invoice-list-item-${invoice.invoiceNumber}`}
       >

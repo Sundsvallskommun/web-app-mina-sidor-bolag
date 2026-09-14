@@ -9,7 +9,7 @@ import {
 } from '@interfaces/measurement-data';
 import dayjs, { Dayjs } from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { toFixedNumber } from '@react-stately/utils';
+import { toFixedNumber } from '@utils/to-fixed-number';
 import { TFunction } from 'i18next';
 import { CORRECTED_USAGE_TYPE } from '@utils/normal-year';
 
@@ -131,6 +131,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     peakConsumptionValue: calculateHighestValue(data?.aggregateOn, measurementData),
     averageConsumption: calculateAverageConsumption(measurementData),
     peakEffectValue: calculateHighestValue(data?.aggregateOn, peakHourUsage),
+    unit: formatUnit(measurementData[0]?.unit),
   };
 };
 
@@ -278,7 +279,7 @@ export const getFormattedDate = (aggregation?: Aggregation, fromDate?: string) =
 export const translateAggregateOn = (aggregateOn?: Aggregation, t?: TFunction) => {
   switch (aggregateOn) {
     case Aggregation.QUARTER:
-      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvartal';
+      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvart';
     case Aggregation.HOUR:
       return t ? t('statistics:hour').toLocaleLowerCase() : 'timme';
     case Aggregation.DAY:
@@ -423,4 +424,11 @@ export const mergeTemperatureDataSets = (
       ],
     } as MergedStatisticsMeasurementData;
   }
+};
+
+const formatUnit = (unit?: string) => {
+  if (unit?.toLowerCase() === 'm3') {
+    return 'm³';
+  }
+  return unit ?? 'kWh';
 };

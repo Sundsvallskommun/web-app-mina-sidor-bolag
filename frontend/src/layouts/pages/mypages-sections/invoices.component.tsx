@@ -2,20 +2,45 @@
 
 import { Button, FormControl, FormLabel, Select, useThemeQueries } from '@sk-web-gui/react';
 import { InvoicesList } from './invoices/invoice-list/invoices-list.component';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useTranslation } from 'react-i18next';
-import { emptyInvoicesList, useInvoicesQuery } from '@services/invoice-service';
+import { ADDRESS_PARAM, emptyInvoicesList, useInvoicesQuery } from '@services/invoice-service';
 import { InvoicesSection } from '@layouts/pages/mypages-sections/invoices/invoices-section/invoices-section.component';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 export default function Invoices() {
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { isMinDesktop } = useThemeQueries();
-  const [facilityIds, setFacilityIds] = useState<string[]>([]);
   const { t } = useTranslation('invoice');
   const [limit, setLimit] = useState<number>(isMinDesktop ? 12 : 6);
   const [pendingLimit, setPendingLimit] = useState<number>(isMinDesktop ? 12 : 6);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const requestedAddress = searchParams.get(ADDRESS_PARAM) ?? '';
+
+  const { selectedAddress, facilityIds } = useMemo(() => {
+    const match = userData?.addresses?.find(({ facilityIds }) => facilityIds.join(',') === requestedAddress);
+    if (match) return { selectedAddress: requestedAddress, facilityIds: match.facilityIds };
+
+    const allIds = [
+      ...new Set(userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? []),
+    ];
+    return { selectedAddress: '', facilityIds: allIds };
+  }, [userData, requestedAddress]);
+
+  const handleOnSelectAddress = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(ADDRESS_PARAM, value);
+    } else {
+      params.delete(ADDRESS_PARAM);
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
 
   const {
     data: onlyPending = emptyInvoicesList,
@@ -31,24 +56,6 @@ export default function Invoices() {
   const canFetch = allInvoices.invoices.length > 0 && allInvoices.invoices.length < allInvoices.totalCount;
   const canFetchPending = onlyPending.invoices.length > 0 && onlyPending.invoices.length < onlyPending.totalCount;
 
-  const handleOnSelectAddress = (value: string) => {
-    if (!value) {
-      const userFacilityIds =
-        userData?.facilities?.filter((f) => typeof f.facilityId !== 'undefined').map((f) => f.facilityId) ?? [];
-      setFacilityIds(userFacilityIds.map((id) => id ?? '') ?? []);
-      return;
-    }
-    const parsedFacilityIds = JSON.parse(value);
-    setFacilityIds(parsedFacilityIds);
-  };
-
-  useEffect(() => {
-    const ids = [
-      ...new Set(userData?.facilities?.map((f) => f.facilityId).filter((id): id is string => id !== undefined) ?? []),
-    ];
-    setFacilityIds(ids);
-  }, [userData]);
-
   return (
     <div className="flex flex-col gap-[4.0rem]">
       <div>
@@ -59,12 +66,18 @@ export default function Invoices() {
       {userData && userData.addresses?.length > 1 && (
         <FormControl className="w-full desktop:w-fit">
           <FormLabel>{t('invoice:byAddress')}</FormLabel>
-          <Select className="w-full" title="address" size="md" onSelectValue={handleOnSelectAddress}>
+          <Select
+            className="w-full"
+            title="address"
+            size="md"
+            value={selectedAddress}
+            onSelectValue={handleOnSelectAddress}
+          >
             <Select.Option key="all" value="">
               {t('invoice:chooseAddress')}
             </Select.Option>
-            {userData.addresses?.map(({ address, facilityIds }, index) => (
-              <Select.Option key={`${index}`} value={JSON.stringify(facilityIds)}>
+            {userData.addresses?.map(({ address, facilityIds }) => (
+              <Select.Option key={address} value={facilityIds.join(',')}>
                 {address}
               </Select.Option>
             ))}
