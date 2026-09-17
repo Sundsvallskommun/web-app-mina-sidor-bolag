@@ -16,10 +16,10 @@ export class AnnouncementsController {
 
     try {
       const res = await axios.get<string>(RSS_FEED_URL!, {
-        auth: {
-          username: RSS_FEED_USERNAME!,
-          password: RSS_FEED_PASSWORD!,
-        },
+        ...(RSS_FEED_USERNAME &&
+          RSS_FEED_PASSWORD && {
+            auth: { username: RSS_FEED_USERNAME, password: RSS_FEED_PASSWORD },
+          }),
         timeout: 5000,
       });
       feed = announcementsRSSfeed(res.data);
