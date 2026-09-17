@@ -36,6 +36,6 @@
   "announcements": {
     "title": "Nyheter",
     "readMore": "Läs mer",
-    "error": "Något gick fel - kan inte hämta nyheter"
+    "error": "Något gick fel när vi försökte hämta nyheter. Vänligen försök igen senare."
   }
 }
