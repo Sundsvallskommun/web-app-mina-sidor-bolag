@@ -671,6 +671,7 @@ export interface Reference {
 export interface SessionStatusResponse {
   status: "PENDING" | "READY" | "FAILED";
   detail?: string;
+  eneoSessionId?: string;
 }
 
 export interface SessionStatusApiResponse {
