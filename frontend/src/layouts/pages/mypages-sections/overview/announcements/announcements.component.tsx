@@ -46,7 +46,7 @@ export const Announcements = () => {
           >
             <div className="shrink-0 sm:w-1/4">
               <Image
-                src={announcement.image ? announcement.image : '/elnat-nytt-faktureringssystem.png'}
+                src={announcement.image ? announcement.image : '/default-feed-image.png'}
                 alt={announcement.imageAlt}
                 className="rounded-t-cards sm:rounded-r-0 sm:rounded-l-cards object-cover object-center w-full h-auto max-h-[38rem] sm:max-h-[48rem] sm:min-h-full"
               />
