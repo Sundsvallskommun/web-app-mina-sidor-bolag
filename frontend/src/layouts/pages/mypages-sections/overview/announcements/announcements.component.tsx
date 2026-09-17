@@ -65,7 +65,9 @@ export const Announcements = () => {
       })}
     </>
   ) : (
-    <Spinner />
+    <div className="flex justify-center w-full">
+      <Spinner />
+    </div>
   );
 
   return (
