@@ -34,10 +34,24 @@ export class SelfServiceAiController {
     const res = await this.apiService.get<SessionStatusResponse>({ url: readyUrl }, req.user);
 
     if (res.data.status === 'READY') {
-      await this.apiService.get<QuestionResponse>(
-        { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
-        req.user,
-      );
+      // The session in Eneo is started by the first question asked via self-service-ai, so ask it once and keep the
+      // id of the Eneo session for /ai/conversations, which talks to Eneo directly.
+      if (!req.session.ai.eneoSessionId) {
+        if (res.data.eneoSessionId) {
+          req.session.ai.eneoSessionId = res.data.eneoSessionId;
+        } else {
+          const primed = await this.apiService.get<QuestionResponse>(
+            { url: sessionUrl, params: { question: 'Här är min info. Svara ej på detta meddelande.' } },
+            req.user,
+          );
+          // Before self-service-ai 2.0 with HYDRAN-2993 the session id and the Eneo session id were the same, so fall
+          // back to sessionId to stay compatible with the older backend. Lets this be deployed before the backend.
+          req.session.ai.eneoSessionId = primed.data?.eneoSessionId ?? primed.data?.sessionId;
+        }
+      }
+      if (!req.session.ai.eneoSessionId) {
+        logger.error('SSAI is READY but no Eneo session id was returned; conversations will not work');
+      }
     } else if (res.data.status === 'PENDING') {
       logger.info(`SSAI is ${res.data.status}, details: ${res.data.detail}`);
     } else {
@@ -57,7 +71,8 @@ export class SelfServiceAiController {
     @Res() response: Response<QuestionResponse | Stream>,
   ): Promise<Response<QuestionResponse> | Stream> {
     const assistant_id = req.session?.ai?.assistantId;
-    const session_id = req.session?.ai?.sessionId;
+    // Eneo knows the session by the id self-service-ai got back from the first question, not by self-service-ai's own id
+    const session_id = req.session?.ai?.eneoSessionId;
 
     if (!assistant_id || !session_id) {
       throw new HttpException(412, 'Not ready');

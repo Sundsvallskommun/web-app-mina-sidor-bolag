@@ -158,6 +158,9 @@ export class QuestionResponse implements IQuestionResponse {
   sessionId?: string;
   @IsString()
   @IsOptional()
+  eneoSessionId?: string;
+  @IsString()
+  @IsOptional()
   question?: string;
   @IsString()
   @IsOptional()
@@ -212,6 +215,9 @@ export class SessionStatusResponse implements ISessionStatusResponse {
   @IsOptional()
   @IsString()
   detail?: string;
+  @IsOptional()
+  @IsString()
+  eneoSessionId?: string;
 }
 
 export class SessionStatusApiResponse implements ApiResponse<SessionStatusResponse> {

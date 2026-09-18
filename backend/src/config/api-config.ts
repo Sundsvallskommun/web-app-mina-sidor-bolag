@@ -54,7 +54,7 @@ export const APIS = [
   },
   {
     name: 'selfserviceai',
-    version: '2.0',
+    version: '2.1',
   },
   {
     name: 'eneo-sundsvall',
