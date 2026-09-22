@@ -6,7 +6,7 @@ interface UsePdfDownloadOptions {
 }
 
 interface UsePdfDownloadReturn {
-  downloadPdf: (base64Data: string, invoiceNumber: string) => void;
+  downloadPdf: (base64Data: string, invoiceNumber: number) => void;
   fallbackUrl: string | null;
   handleFallbackClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
@@ -28,7 +28,7 @@ export const usePdfDownload = ({ onError }: UsePdfDownloadOptions): UsePdfDownlo
   }, [fallbackUrl]);
 
   const downloadPdf = useCallback(
-    (base64Data: string, invoiceNumber: string) => {
+    (base64Data: string, invoiceNumber: number) => {
       if (fallbackUrl) {
         URL.revokeObjectURL(fallbackUrl);
       }

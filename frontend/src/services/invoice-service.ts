@@ -67,7 +67,7 @@ export const invoiceHandler = (data: CustomerInvoice): IInvoice => ({
 export const notPaidInvoices = ['UNPAID', 'SENT', 'PARTIALLY_PAID', 'REMINDER', 'DEBT_COLLECTION'];
 export const paidInvoices = ['PAID', 'PAID_TOO_MUCH'];
 
-export const getInvoicePdf: (organizationNumber: string, invoiceNumber: string) => Promise<InvoicePdfData> = (
+export const getInvoicePdf: (organizationNumber: string, invoiceNumber: number) => Promise<InvoicePdfData> = (
   organizationNumber,
   invoiceNumber
 ) =>

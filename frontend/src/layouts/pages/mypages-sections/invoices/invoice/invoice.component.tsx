@@ -30,8 +30,6 @@ export const Invoice = () => {
   const [invoiceNumber] = params.slug;
   const pathname = usePathname();
   const search = useSearchParams();
-  const periodFrom = search.get('periodFrom') ?? '';
-  const periodTo = search.get('periodTo') ?? '';
   const facilityIds = search.get('facilityId') ?? '';
 
   const invoicesPath = pathname.split('/').slice(0, -params.slug.length).join('/');
@@ -44,8 +42,8 @@ export const Invoice = () => {
     isError,
     error,
   } = useApi<CustomerInvoice, AxiosError, IInvoice>({
-    queryKey: ['invoice', invoiceNumber, periodFrom],
-    url: `/invoice/${invoiceNumber}?facilityId=${facilityIds}&periodFrom=${periodFrom}&periodTo=${periodTo}`,
+    queryKey: ['invoice', invoiceNumber, facilityIds],
+    url: `/invoice/${invoiceNumber}?facilityId=${facilityIds}`,
     method: 'get',
     dataHandler: invoiceHandler,
     queryOptions: { enabled: !!facilityIds },

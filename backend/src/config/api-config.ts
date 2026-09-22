@@ -60,6 +60,10 @@ export const APIS = [
     name: 'eneo-sundsvall',
     version: '2.0',
   },
+  {
+    name: 'datawarehousereader',
+    version: '5.9',
+  },
 ] as const;
 
 type ApiName = (typeof APIS)[number]['name'];

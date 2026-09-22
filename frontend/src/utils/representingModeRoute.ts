@@ -54,7 +54,8 @@ export const getRepresentingMode = (
   if (pathname.match(getRepresentingModeRoute(RepresentingMode.BUSINESS)) !== null) return RepresentingMode.BUSINESS;
   return null;
 };
-export const newRepresentingModePathname = (
-  newMode: RepresentingMode,
-  pathname = window.location.pathname.toString()
-) => `${pathname.replace(myPagesRegex, getRepresentingModeRoute(newMode) || '')}`;
+export const newRepresentingModePathname = (newMode: RepresentingMode, pathname = window.location.pathname) => {
+  const switched = pathname.replace(myPagesRegex, getRepresentingModeRoute(newMode) || '');
+  const [, mode, section] = switched.split('/');
+  return section ? `/${mode}/${section}` : switched;
+};

@@ -101,7 +101,7 @@ describe('Fakturor', () => {
       statusCode: 500,
       body: { message: 'Internal Server Error' },
     }).as('getInvoiceError');
-    cy.visit('/privat/fakturor/1?facilityId=X&periodFrom=2024-01-01&periodTo=2024-01-31');
+    cy.visit('/privat/fakturor/1?facilityId=X');
     cy.wait('@getInvoiceError');
 
     cy.contains('Något gick fel').should('be.visible');
@@ -113,7 +113,7 @@ describe('Fakturor', () => {
       statusCode: 404,
       body: { message: 'Invoice not found' },
     }).as('getInvoiceNotFound');
-    cy.visit('/privat/fakturor/123?facilityId=X&periodFrom=2024-01-01&periodTo=2024-01-31');
+    cy.visit('/privat/fakturor/123?facilityId=X');
     cy.wait('@getInvoiceNotFound');
 
     cy.contains('Kunde inte hitta faktura med fakturanummer 123').should('be.visible');
