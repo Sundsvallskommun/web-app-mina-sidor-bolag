@@ -20,7 +20,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | LegalEntity         |     2.0 |
 | Eventlog            |     2.3 |
 | BFUS                |   1.0.0 |
-| SelfServiceAI       |     2.0 |
+| SelfServiceAI       |     2.1 |
 | Eneo-Sundsvall      |     2.0 |
 | DataWarehouseReader |     5.9 |
 

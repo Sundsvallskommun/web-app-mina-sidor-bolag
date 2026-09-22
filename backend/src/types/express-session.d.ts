@@ -40,6 +40,8 @@ declare module 'express-session' {
     ai?: {
       assistantId?: string;
       sessionId?: string;
+      /** The session in Eneo, started by the first question via self-service-ai. Used for /ai/conversations. */
+      eneoSessionId?: string;
     };
   }
 }
