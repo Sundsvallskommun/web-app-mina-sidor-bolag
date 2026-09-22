@@ -5,23 +5,24 @@ Mina sidor för privat- och företagskunder hos kommunala bolag.
 
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa.
 
-| API               | Version |
-| ----------------- |--------:|
-| ContactSettings   |     2.0 |
-| Citizen           |     3.0 |
-| Disturbances      |     5.0 |
-| Invoices          |     9.5 |
-| SimulatorServer   |     2.0 |
-| Customer          |     4.0 |
-| Installedbase     |     3.2 |
-| Agreement         |     4.1 |
-| MeasurementData   |     3.3 |
-| MyRepresentatives |     4.4 |
-| LegalEntity       |     2.0 |
-| Eventlog          |     2.3 |
-| BFUS              |   1.0.0 |
-| SelfServiceAI     |     2.1 |
-| Eneo-Sundsvall    |     2.0 |
+| API                 | Version |
+|---------------------|--------:|
+| ContactSettings     |     2.0 |
+| Citizen             |     3.0 |
+| Disturbances        |     5.0 |
+| Invoices            |     9.5 |
+| SimulatorServer     |     2.0 |
+| Customer            |     4.0 |
+| Installedbase       |     3.2 |
+| Agreement           |     4.1 |
+| MeasurementData     |     3.3 |
+| MyRepresentatives   |     4.4 |
+| LegalEntity         |     2.0 |
+| Eventlog            |     2.3 |
+| BFUS                |   1.0.0 |
+| SelfServiceAI       |     2.1 |
+| Eneo-Sundsvall      |     2.0 |
+| DataWarehouseReader |     5.9 |
 
 Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 

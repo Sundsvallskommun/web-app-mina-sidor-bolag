@@ -4,7 +4,7 @@ import {
   CustomerInvoice,
   CustomerInvoiceInvoiceStatusEnum,
   CustomerInvoicesResponse,
-} from '@/responses/invoices.response';
+} from '@/responses/datawarehousereader.response';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
@@ -31,7 +31,7 @@ const pendingStatuses = [
 @Controller()
 export class InvoicesController {
   private readonly apiService = new ApiService();
-  private readonly apiBase = getApiBase('invoices');
+  private readonly invoicesApiBase = getApiBase('invoices');
   private readonly invoiceDateFrom = getInvoicePeriodFrom();
   private readonly invoicesService = new InvoicesService();
 
@@ -126,28 +126,25 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Returns invoice' })
   @ResponseSchema(CustomerInvoice)
   @UseBefore(authMiddleware)
-  async getInvoice(@Req() req: RequestWithUser, @Param('invoiceNumber') invoiceNumber: string) {
-    const { facilityId, periodFrom, periodTo } = req.query;
-
-    if (!facilityId) {
-      return { data: { ...emptyInvoice }, message: 'Empty response' };
-    }
+  async getInvoice(@Req() req: RequestWithUser, @Param('invoiceNumber') invoiceNumber: number) {
+    const { facilityId } = req.query;
+    if (!facilityId) throw new HttpException(400, 'facilityId is required');
 
     const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
 
     const result = await this.invoicesService.fetchInvoices(req, {
-      customerNumbers: customerNumbers,
-      organizationNumbers: organizationNumbers,
+      customerNumbers,
+      organizationNumbers,
       facilityIds: facilityId as string[],
-      periodFrom: periodFrom ? periodFrom.toString() : this.invoiceDateFrom,
-      periodTo: periodTo ? periodTo.toString() : undefined,
+      periodFrom: this.invoiceDateFrom,
+      invoiceNumbers: [invoiceNumber],
       page: 1,
-      limit: 25,
+      limit: 1,
     });
 
     rememberListedInvoices(req, result.invoices);
 
-    const invoice = result.invoices.find(i => i.invoiceNumber === invoiceNumber);
+    const [invoice] = result.invoices;
     if (!invoice) throw new HttpException(404, 'Invoice not found');
     return { data: invoice, message: 'success' };
   }
@@ -168,7 +165,7 @@ export class InvoicesController {
     // filtered on customer number alone, which is all the download can supply.
     await assertInvoiceAccess(req, organizationNumber, id);
 
-    const url = `${this.apiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
+    const url = `${this.invoicesApiBase}/${MUNICIPALITY_ID}/COMMERCIAL/${organizationNumber}/${id}/pdf/download`;
     const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);
     const base64String = Buffer.from(res.data).toString('base64');
     return { data: base64String, message: 'success' };

@@ -9,14 +9,7 @@ export const InvoicesList: React.FC<{
   return (
     <div ref={ref} className="flex flex-col gap-16">
       {data.invoices.map((invoice) => {
-        return (
-          <InvoiceListItem
-            key={invoice.invoiceId}
-            invoice={invoice}
-            periodFrom={invoice.periodFrom!}
-            periodTo={invoice.periodTo!}
-          />
-        );
+        return <InvoiceListItem key={invoice.invoiceId} invoice={invoice} />;
       })}
     </div>
   );

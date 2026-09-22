@@ -14,11 +14,9 @@ import { ADDRESS_PARAM } from '@services/invoice-service';
 
 interface InvoiceListItemProps {
   invoice: IInvoice;
-  periodFrom: string;
-  periodTo: string;
 }
 
-export const InvoiceListItem = ({ invoice, periodFrom, periodTo }: InvoiceListItemProps) => {
+export const InvoiceListItem = ({ invoice }: InvoiceListItemProps) => {
   const searchParams = useSearchParams();
   const { data: userData } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { t } = useTranslation();
@@ -31,8 +29,6 @@ export const InvoiceListItem = ({ invoice, periodFrom, periodTo }: InvoiceListIt
 
   const query = new URLSearchParams({
     facilityId: invoice.facilityIds?.join(',') ?? '',
-    periodFrom,
-    periodTo,
   });
   const address = searchParams.get(ADDRESS_PARAM);
   if (address) query.set(ADDRESS_PARAM, address);

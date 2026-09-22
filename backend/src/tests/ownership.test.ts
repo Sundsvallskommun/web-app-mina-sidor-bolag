@@ -309,18 +309,23 @@ describe('assertOwnsInvoice', () => {
 
   it('allows an invoice that appears in our own list', async () => {
     upstream([
-      { match: 'customers/invoices', data: { invoices: [{ invoiceNumber: 'INV-1' }], _meta: { totalPages: 1 } } },
+      { match: 'invoices/customers', data: { invoices: [{ invoiceNumber: 1001 }], _meta: { totalPages: 1 } } },
     ]);
-    await expect(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-1')).resolves.toMatchObject({
-      invoiceNumber: 'INV-1',
+    await expect(assertOwnsInvoice(sessionWithRelations(), ORG, '1001')).resolves.toMatchObject({
+      invoiceNumber: 1001,
     });
   });
 
   it('refuses an invoice that is not ours (F8)', async () => {
+    upstream([{ match: 'invoices/customers', data: { invoices: [], _meta: { totalPages: 0 } } }]);
+    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), ORG, '2002'));
+  });
+
+  it('refuses when the platform answers with a different invoice than the one asked for', async () => {
     upstream([
-      { match: 'customers/invoices', data: { invoices: [{ invoiceNumber: 'INV-1' }], _meta: { totalPages: 1 } } },
+      { match: 'invoices/customers', data: { invoices: [{ invoiceNumber: 1001 }], _meta: { totalPages: 1 } } },
     ]);
-    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-victim'));
+    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), ORG, '2002'));
   });
 
   // Delegated billing (uppdragsfakturering): Sundsvall Elnat has handed invoicing
@@ -331,73 +336,55 @@ describe('assertOwnsInvoice', () => {
     const BILLER = '1122334455';
     upstream([
       {
-        match: 'customers/invoices',
-        data: { invoices: [{ invoiceNumber: 'INV-1', organizationNumber: BILLER }], _meta: { totalPages: 1 } },
+        match: 'invoices/customers',
+        data: { invoices: [{ invoiceNumber: 1001, organizationNumber: BILLER }], _meta: { totalPages: 1 } },
       },
     ]);
-    await expect(assertOwnsInvoice(sessionWithRelations(), BILLER, 'INV-1')).resolves.toMatchObject({
-      invoiceNumber: 'INV-1',
+    await expect(assertOwnsInvoice(sessionWithRelations(), BILLER, '1001')).resolves.toMatchObject({
+      invoiceNumber: 1001,
     });
   });
 
   it('refuses when the requested issuer is not the one on the invoice', async () => {
     upstream([
       {
-        match: 'customers/invoices',
-        data: { invoices: [{ invoiceNumber: 'INV-1', organizationNumber: ORG }], _meta: { totalPages: 1 } },
+        match: 'invoices/customers',
+        data: { invoices: [{ invoiceNumber: 1001, organizationNumber: ORG }], _meta: { totalPages: 1 } },
       },
     ]);
-    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), '9999999999', 'INV-1'));
+    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), '9999999999', '1001'));
   });
 
   it('falls back to invoice-number ownership when the issuer field is absent', async () => {
     upstream([
-      { match: 'customers/invoices', data: { invoices: [{ invoiceNumber: 'INV-1' }], _meta: { totalPages: 1 } } },
+      { match: 'invoices/customers', data: { invoices: [{ invoiceNumber: 1001 }], _meta: { totalPages: 1 } } },
     ]);
-    await expect(assertOwnsInvoice(sessionWithRelations(), '9999999999', 'INV-1')).resolves.toMatchObject({
-      invoiceNumber: 'INV-1',
+    await expect(assertOwnsInvoice(sessionWithRelations(), '9999999999', '1001')).resolves.toMatchObject({
+      invoiceNumber: 1001,
     });
   });
 
   it('refuses when no customer relations are cached', async () => {
-    await expect(assertOwnsInvoice(privateSession(), ORG, 'INV-1')).rejects.toThrow(/MISSING_CUSTOMER_CONTEXT/);
+    await expect(assertOwnsInvoice(privateSession(), ORG, '1001')).rejects.toThrow(/MISSING_CUSTOMER_CONTEXT/);
   });
 
-  it('scopes the search to our customer numbers, never the requested invoice', async () => {
+  it('rejects an invoice number that is not numeric without asking the platform', async () => {
+    await expect(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-1')).rejects.toMatchObject({ status: 400 });
+    expect(apiGet).not.toHaveBeenCalled();
+  });
+
+  it('asks for exactly that invoice among our customer numbers, in one request', async () => {
     upstream([
-      { match: 'customers/invoices', data: { invoices: [{ invoiceNumber: 'INV-1' }], _meta: { totalPages: 1 } } },
+      { match: 'invoices/customers', data: { invoices: [{ invoiceNumber: 1001 }], _meta: { totalPages: 1 } } },
     ]);
-    await assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-1');
+    await assertOwnsInvoice(sessionWithRelations(), ORG, '1001');
+    expect(apiGet).toHaveBeenCalledTimes(1);
     expect(apiGet).toHaveBeenCalledWith(
-      expect.objectContaining({ params: expect.objectContaining({ customerNumbers: 'cust-1' }) }),
+      expect.objectContaining({
+        params: expect.objectContaining({ customerNumbers: 'cust-1', invoiceNumbers: [1001] }),
+      }),
       expect.anything(),
     );
-  });
-
-  it('walks past the first page before giving up', async () => {
-    apiGet.mockImplementation(async ({ params }: any) => ({
-      data:
-        params.page === 1
-          ? { invoices: [{ invoiceNumber: 'INV-old' }], _meta: { totalPages: 2 } }
-          : { invoices: [{ invoiceNumber: 'INV-late' }], _meta: { totalPages: 2 } },
-      message: 'success',
-    }));
-    await expect(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-late')).resolves.toMatchObject({
-      invoiceNumber: 'INV-late',
-    });
-    expect(apiGet).toHaveBeenCalledTimes(2);
-  });
-
-  it('stops at the page cap instead of walking an unbounded list', async () => {
-    // A production customer can have thousands of invoices over the search window.
-    // Walking every page took long enough to hit the gateway timeout.
-    apiGet.mockImplementation(async () => ({
-      data: { invoices: [{ invoiceNumber: 'INV-other' }], _meta: { totalPages: 100 } },
-      message: 'success',
-    }));
-
-    await expectForbidden(assertOwnsInvoice(sessionWithRelations(), ORG, 'INV-missing'));
-    expect(apiGet.mock.calls.length).toBeLessThanOrEqual(20);
   });
 });
 
@@ -528,21 +515,21 @@ describe('invoice download, guarded by what the session was listed', () => {
     req.session.cache.relations = { customerNumber: ['cust-1'], customerRelations: [] };
     upstream([
       {
-        match: 'customers/invoices',
-        data: { invoices: [{ invoiceNumber: 'INV-clobbered', organizationNumber: ORG }], _meta: { totalPages: 1 } },
+        match: 'invoices/customers',
+        data: { invoices: [{ invoiceNumber: 3003, organizationNumber: ORG }], _meta: { totalPages: 1 } },
       },
     ]);
 
-    await expect(assertInvoiceAccess(req, ORG, 'INV-clobbered')).resolves.toBeUndefined();
+    await expect(assertInvoiceAccess(req, ORG, '3003')).resolves.toBeUndefined();
     expect(apiGet).toHaveBeenCalled();
   });
 
   it('refuses an invoice that is in neither the session nor the search', async () => {
     const req = listedSession([{ invoiceNumber: 'INV-1', organizationNumber: ORG }]);
     req.session.cache.relations = { customerNumber: ['cust-1'], customerRelations: [] };
-    upstream([{ match: 'customers/invoices', data: { invoices: [], _meta: { totalPages: 1 } } }]);
+    upstream([{ match: 'invoices/customers', data: { invoices: [], _meta: { totalPages: 0 } } }]);
 
-    await expectForbidden(assertInvoiceAccess(req, ORG, 'INV-someone-else'));
+    await expectForbidden(assertInvoiceAccess(req, ORG, '4004'));
   });
 
   it('caps what it remembers so a long session cannot grow without bound', () => {

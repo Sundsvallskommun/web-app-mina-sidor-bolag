@@ -4,14 +4,14 @@ import { ContactSetting, Delegate } from '@/data-contracts/contactsettings/data-
 import { Delegation } from '@/data-contracts/installedbase/data-contracts';
 import { BFUSCustomerResponse, BFUSEligablePartyResponse } from '@/interfaces/bfus.interface';
 import { MandateDetails, Mandates } from '@/data-contracts/myrepresentatives/data-contracts';
-import { CustomerInvoice, CustomerInvoicesResponse } from '@/responses/invoices.response';
+import { CustomerInvoice, CustomerInvoiceResponse } from '@/data-contracts/datawarehousereader/data-contracts';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { RepresentingBusinessEntity, RepresentingMode } from '@interfaces/representing.interface';
 import { getRepresentingPartyId } from '@utils/getRepresentingPartyId';
 import { logger } from '@utils/logger';
 import ApiService from './api.service';
-import { customerInvoicesUrl, getInvoicePeriodFrom } from './invoices.service';
+import { dwrCustomerInvoicesUrl, getInvoicePeriodFrom } from './invoices.service';
 import { sessionCacheService } from './session-cache.service';
 
 /**
@@ -303,51 +303,6 @@ export function assertOwnsFacility(req: RequestWithUser, facilityId: string): vo
   }
 }
 
-/** How many invoice pages to request at once while searching. */
-const INVOICE_SEARCH_CONCURRENCY = 5;
-
-const fetchInvoicePage = async (
-  req: RequestWithUser,
-  customerNumbers: string[],
-  facilityIds: string[],
-  page: number,
-  invoiceNumber: string,
-  actingPartyId: string,
-) =>
-  resolveOrDeny(
-    () =>
-      api.get<CustomerInvoicesResponse>(
-        {
-          url: customerInvoicesUrl(),
-          // Customer number is what ties the result to the caller. No issuer
-          // filter: under delegated billing the issuer is a company the customer
-          // has no relation with, so filtering on ours would hide those invoices.
-          params: {
-            customerNumbers: customerNumbers.toString(),
-            ...(facilityIds.length ? { facilityIds } : {}),
-            periodFrom: getInvoicePeriodFrom(),
-            page,
-            limit: SEARCH_PAGE_SIZE,
-            sortDirection: 'DESC',
-          },
-        },
-        req.user,
-      ),
-    'invoice',
-    invoiceNumber,
-    actingPartyId,
-  );
-
-/**
- * The invoice number cannot be derived from the session, so this searches the
- * caller's own list for it.
- *
- * The list is paged and can run to thousands of invoices over the search window,
- * so pages are requested in batches rather than one at a time - walking them in
- * sequence took long enough to hit the gateway timeout before the PDF was ever
- * fetched. Each batch is scanned in page order, so the result does not depend on
- * which request finishes first.
- */
 export async function assertOwnsInvoice(
   req: RequestWithUser,
   organizationNumber: string,
@@ -355,7 +310,7 @@ export async function assertOwnsInvoice(
 ): Promise<CustomerInvoice> {
   const actingPartyId = getActingPartyId(req);
 
-  if (!invoiceNumber || !organizationNumber) {
+  if (!invoiceNumber || !organizationNumber || !/^\d+$/.test(invoiceNumber)) {
     throw new HttpException(400, 'Bad Request');
   }
 
@@ -366,35 +321,42 @@ export async function assertOwnsInvoice(
     throw new HttpException(403, 'MISSING_CUSTOMER_CONTEXT');
   }
 
-  const accept = (match: CustomerInvoice): CustomerInvoice => {
-    // Pin the requested issuer to the one on this invoice, not to our own
-    // relations: under delegated billing another company issues it legitimately.
-    if (match.organizationNumber && match.organizationNumber !== organizationNumber) {
-      deny('invoice issuer', organizationNumber, actingPartyId);
-    }
-    return match;
-  };
-
   const facilityIds = Array.from(getAccessibleFacilityIds(req));
-  const first = await fetchInvoicePage(req, customerNumbers, facilityIds, 1, invoiceNumber, actingPartyId);
-  const firstMatch = (first?.data?.invoices ?? []).find(invoice => invoice.invoiceNumber === invoiceNumber);
-  if (firstMatch) return accept(firstMatch);
+  const res = await resolveOrDeny(
+    () =>
+      api.get<CustomerInvoiceResponse>(
+        {
+          url: dwrCustomerInvoicesUrl(),
+          // Customer number is what ties the result to the caller. No issuer
+          // filter: under delegated billing the issuer is a company the customer
+          // has no relation with, so filtering on ours would hide those invoices.
+          params: {
+            customerNumbers: customerNumbers.toString(),
+            ...(facilityIds.length ? { facilityIds } : {}),
+            invoiceNumbers: [Number(invoiceNumber)],
+            periodFrom: getInvoicePeriodFrom(),
+            page: 1,
+            limit: 1,
+            sortDirection: 'DESC',
+          },
+        },
+        req.user,
+      ),
+    'invoice',
+    invoiceNumber,
+    actingPartyId,
+  );
 
-  const lastPage = Math.min(first?.data?._meta?.totalPages ?? 1, MAX_SEARCH_PAGES);
-
-  for (let page = 2; page <= lastPage; page += INVOICE_SEARCH_CONCURRENCY) {
-    const batch = [];
-    for (let offset = 0; offset < INVOICE_SEARCH_CONCURRENCY && page + offset <= lastPage; offset++) {
-      batch.push(fetchInvoicePage(req, customerNumbers, facilityIds, page + offset, invoiceNumber, actingPartyId));
-    }
-
-    for (const res of await Promise.all(batch)) {
-      const match = (res?.data?.invoices ?? []).find(invoice => invoice.invoiceNumber === invoiceNumber);
-      if (match) return accept(match);
-    }
+  const match = (res?.data?.invoices ?? []).find(invoice => String(invoice.invoiceNumber) === invoiceNumber);
+  if (!match) {
+    deny('invoice', invoiceNumber, actingPartyId);
   }
 
-  deny('invoice', invoiceNumber, actingPartyId);
+  if (match.organizationNumber && match.organizationNumber !== organizationNumber) {
+    deny('invoice issuer', organizationNumber, actingPartyId);
+  }
+
+  return match;
 }
 
 /**
@@ -527,7 +489,10 @@ const MAX_LISTED_INVOICES = 500;
  * decision. Recording it here lets the download reuse that decision instead of
  * repeating the search.
  */
-export const rememberListedInvoices = (req: RequestWithUser, invoices: CustomerInvoice[]): void => {
+
+type ListedInvoice = Pick<CustomerInvoice, 'invoiceNumber' | 'organizationNumber'>;
+
+export const rememberListedInvoices = (req: RequestWithUser, invoices: ListedInvoice[]): void => {
   if (!req.session) return;
 
   req.session.cache = req.session.cache ?? {};
@@ -550,10 +515,9 @@ export const rememberListedInvoices = (req: RequestWithUser, invoices: CustomerI
 /**
  * Guards the invoice document by what this session has already been shown.
  *
- * The ownership search this replaces asked the platform to find the invoice among
- * the caller's own, which needs a query filtered on customer number alone - one the
- * invoice API cannot answer in production. The download is always reached from a
- * listed invoice, so the listing is where the decision can be made cheaply.
+ * The download is always reached from a listed invoice, so the listing is where
+ * the decision can be made cheaply. Only when the session has no record does it
+ * fall back to asking DataWarehouseReader for that one invoice.
  */
 export const assertInvoiceAccess = async (
   req: RequestWithUser,

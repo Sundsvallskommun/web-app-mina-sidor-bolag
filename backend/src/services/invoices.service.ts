@@ -1,52 +1,64 @@
-import { CustomerInvoicesResponse, CustomerInvoiceInvoiceStatusEnum } from '@/responses/invoices.response';
+import { CustomerInvoiceInvoiceStatusEnum } from '@/responses/datawarehousereader.response';
 import ApiService from '@/services/api.service';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { MUNICIPALITY_ID } from '@/config';
 import { getApiBase } from '@/config/api-config';
+import { DwrCustomerInvoicesResponse, fromDwrInvoice, toDwrInvoiceStatus } from '@utils/invoice-dwr-mappers';
 import dayjs from 'dayjs';
 
 /**
- * How far back invoices are listed. Shared so the ownership check searches the
+ * How far back invoices are listed. Shared so the ownership check looks in the
  * same window the list endpoint returns - a narrower window there would reject
  * downloads of invoices the user can see.
  */
 export const getInvoicePeriodFrom = (): string => dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
 
-/** Path of the customer invoice list, used for both listing and ownership checks. */
-export const customerInvoicesUrl = (): string =>
-  `${getApiBase('invoices')}/${MUNICIPALITY_ID}/COMMERCIAL/customers/invoices`;
+/**
+ * DataWarehouseReader customer invoice list. Everything about invoices goes
+ * through it - listing, the detail view and the download's ownership check.
+ * Only the PDF document itself is fetched from the Invoices API.
+ */
+export const dwrCustomerInvoicesUrl = (): string =>
+  `${getApiBase('datawarehousereader')}/${MUNICIPALITY_ID}/invoices/customers`;
 
 type FetchParams = {
   customerNumbers: string[];
   organizationNumbers: string[];
   facilityIds: string[];
   periodFrom: string;
-  periodTo?: string;
   page: number;
   limit: number;
   invoiceStatus?: CustomerInvoiceInvoiceStatusEnum;
+  invoiceNumbers?: number[];
 };
 
 export default class InvoicesService {
   private readonly api = new ApiService();
-  private readonly baseUrl = getApiBase('invoices');
 
   async fetchInvoices(req: RequestWithUser, params: FetchParams) {
-    const { customerNumbers, organizationNumbers, facilityIds, periodFrom, periodTo, page, limit, invoiceStatus } =
-      params;
+    const {
+      customerNumbers,
+      organizationNumbers,
+      facilityIds,
+      periodFrom,
+      page,
+      limit,
+      invoiceStatus,
+      invoiceNumbers,
+    } = params;
 
-    const url = customerInvoicesUrl();
+    const url = dwrCustomerInvoicesUrl();
 
-    const res = await this.api.get<CustomerInvoicesResponse>(
+    const res = await this.api.get<DwrCustomerInvoicesResponse>(
       {
         url,
         params: {
           customerNumbers: customerNumbers.toString(),
           facilityIds: facilityIds,
           organizationNumber: organizationNumbers.toString(),
-          periodFrom: periodFrom,
-          periodTo: periodTo,
-          status: invoiceStatus,
+          periodFrom,
+          status: toDwrInvoiceStatus(invoiceStatus),
+          invoiceNumbers,
           page,
           limit,
           sortDirection: 'DESC',
@@ -56,7 +68,7 @@ export default class InvoicesService {
     );
 
     return {
-      invoices: res.data?.invoices ?? [],
+      invoices: (res.data?.invoices ?? []).map(fromDwrInvoice),
       meta: res.data?._meta,
     };
   }

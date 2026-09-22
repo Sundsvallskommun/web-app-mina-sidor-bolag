@@ -10,71 +10,146 @@
  * ---------------------------------------------------------------
  */
 
-export interface PersonEngagement {
-  organizationNumber: string | null;
-  name: string | null;
-  isAuthorizedSignatory?: boolean | null;
-  isSoleTrader?: boolean | null;
+export interface MetaData {
+  page?: number;
+  limit?: number;
+  count?: number;
+  totalRecords?: number;
+  totalPages?: number;
+  sortBy?: string[];
+  sortDirection?: "ASC" | "DESC";
 }
 
-export interface PersonEngagementsApiResponse {
-  data: PersonEngagement[];
+export interface InvoiceDetail {
+  invoiceNumber?: number;
+  amount?: number;
+  amountVatExcluded?: number;
+  vat?: number;
+  vatRate?: number;
+  quantity?: number;
+  unit?: string;
+  unitPrice?: number;
+  unitPriceVatExcluded?: number;
+  invoiceUnitPrice?: number;
+  invoiceUnitPriceVatExcluded?: number;
+  invoiceUnitPriceCurrency?: string;
+  invoiceUnitPriceUnit?: string;
+  periodFrom?: string;
+  periodTo?: string;
+  description?: string;
+  productCode?: number;
+  productName?: string;
+  organizationNumber?: string;
+  administration?: string;
+  facilityId?: string;
+}
+
+export interface CustomerInvoice {
+  customerNumber?: string;
+  customerType?: "Enterprise" | "Private";
+  facilityIds?: string[];
+  invoiceNumber?: number;
+  invoiceId?: number;
+  jointInvoiceId?: number;
+  invoiceDate?: string;
+  invoiceName?: string;
+  invoiceType?:
+    | "INVOICE"
+    | "CREDIT_INVOICE"
+    | "START_INVOICE"
+    | "FINAL_INVOICE"
+    | "DIRECT_DEBIT"
+    | "SELF_INVOICE"
+    | "REMINDER"
+    | "CONSOLIDATED_INVOICE"
+    | "INTERNAL_INVOICE"
+    | "OFFSET_INVOICE"
+    | "UNKNOWN";
+  invoiceDescription?: string;
+  invoiceStatus?:
+    | "PAID"
+    | "SENT"
+    | "PARTIALLY_PAID"
+    | "DEBT_COLLECTION"
+    | "PAID_TOO_MUCH"
+    | "REMINDER"
+    | "VOID"
+    | "CREDITED"
+    | "WRITTEN_OFF"
+    | "UNKNOWN";
+  ocrNumber?: number;
+  dueDate?: string;
+  periodFrom?: string;
+  periodTo?: string;
+  totalAmount?: number;
+  amountVatIncluded?: number;
+  amountVatExcluded?: number;
+  vatEligibleAmount?: number;
+  rounding?: number;
+  organizationGroup?: string;
+  organizationNumber?: string;
+  administration?: string;
+  street?: string;
+  postCode?: string;
+  city?: string;
+  careOf?: string;
+  invoiceReference?: string;
+  pdfAvailable?: boolean;
+  details?: InvoiceDetail[];
+}
+
+export interface CustomerInvoicesResponse {
+  invoices?: CustomerInvoice[];
+  _meta?: MetaData;
+}
+
+export interface BFUSApiResponse {
+  message: string;
+  data: any;
+}
+
+export interface BFUSConsentsApiResponse {
+  message: string;
+  data: any;
+}
+
+export interface BFUSNewConsentApiResponse {
+  message: string;
+  data: boolean;
+}
+
+export interface ConsentHeaderDto {
+  ExternalId: string;
+  Operation: "grant" | "deny" | "revoke";
+}
+
+export interface ConsentRequestDto {
+  EligablePartyId: string;
+  ContractIdList?: number[];
+  CustomerId?: number;
+}
+
+export interface UpdateConsentDto {
+  PermissionRequest: any;
+}
+
+export interface Citizen {
+  personId: string;
+  givenname: string;
+  lastname: string;
+}
+
+export interface CitizenApiResponse {
+  data: Citizen;
   message: string;
 }
 
-export interface LegalEntityAddress {
-  addressArea: string | null;
-  adressNumber: string | null;
-  city: string | null;
-  postalCode: string | null;
-  municipality: string | null;
-  county: string | null;
-}
-
-export interface BusinessInformation {
-  address: LegalEntityAddress;
-}
-
-export interface BusinessInformationApiResponse {
-  data: BusinessInformation;
-  message: string;
-}
-
-export interface CreateReadNotificationsDto {
-  caseId: string;
-}
-
-export interface ContactSettingChannel {
-  contactMethod: string;
-  destination: string;
-  disabled?: boolean;
-  alias: string;
-}
-
-export interface Meta {
-  page: number;
-  limit: number;
-  count: number;
-  totalRecords: number;
-  totalPages: number;
-  sortBy: string[];
-  sortDirection: "ASC" | "DESC";
-}
-
-export interface ContactSetting {
-  id: string;
-  partyId: string;
-  contactChannels: ContactSettingChannel[];
-  created: string;
-  modified: string;
-  virtual: boolean;
-  alias: string;
-  municipalityId: string;
-}
-
-export interface UpdateContactSettingsDto {
-  id: string;
-  contactChannels: ContactSettingChannel[];
+export interface CitizenLookupDto {
+  /**
+   * @minLength 12
+   * @maxLength 12
+   */
+  personnumber: string;
 }
 
 export interface ClientContactSettingNotifications {
@@ -133,131 +208,134 @@ export interface Rule {
   attributeValue: string;
 }
 
-export interface RepresentingPrivateEntity {
-  name: string;
-  personNumber?: string;
-  information?: Information;
+export interface Affected {
+  partyId: string;
+  reference: string;
+  facilityId?: string;
+  coordinates?: string;
 }
 
-export interface RepresentingBusinessEntity {
-  organizationName: string;
-  organizationNumber: string;
-  isAuthorizedSignatory?: boolean;
-  information: Information;
-  whitelisted?: boolean;
+export interface Disturbance {
+  id: string;
+  municipalityId?: string;
+  category:
+    | "COMMUNICATION"
+    | "DISTRICT_COOLING"
+    | "DISTRICT_HEATING"
+    | "ELECTRICITY"
+    | "ELECTRICITY_TRADE"
+    | "WASTE_MANAGEMENT"
+    | "WATER";
+  status: "OPEN" | "CLOSED" | "PLANNED";
+  title: string;
+  description?: string;
+  plannedStartDate?: string;
+  plannedStopDate?: string;
+  created: string;
+  updated?: string;
+  affecteds?: Affected[];
 }
 
-export interface Information {
-  address: ClientContactSettingAddress;
-}
-
-export interface RepresentingEntity {
-  BUSINESS?: RepresentingBusinessEntity;
-  PRIVATE?: RepresentingPrivateEntity;
-  mode: "PRIVATE" | "BUSINESS" | "ADMIN" | 0 | 1 | 2;
-}
-
-export interface ClientRepresentingApiResponse {
-  data: RepresentingEntity;
+export interface DisturbanceApiResponse {
+  data: Disturbance[];
   message: string;
 }
 
-export interface RepresentsDto {
-  organizationNumber?: string;
-  personNumber?: string;
-  mode?: "PRIVATE" | "BUSINESS" | "ADMIN" | 0 | 1 | 2;
+export interface EventMetaData {
+  key: string;
+  value: string;
 }
 
-export interface PatchUserSettingsDto {
-  feedbackLifespan: "untilRemoved" | "oneMonth" | "twoWeeks";
+export interface EventResponse {
+  logKey?: string;
+  type:
+    | "CREATE"
+    | "READ"
+    | "UPDATE"
+    | "DELETE"
+    | "ACCESS"
+    | "EXECUTE"
+    | "CANCEL"
+    | "DROP";
+  municipalityId?: string;
+  message?: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  expires?: string | null;
+  owner: string;
+  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
+  created?: string;
+  historyReference?: string | null;
+  sourceType?: string | null;
+  metadata: EventMetaData;
 }
 
-export interface MetaData {
-  page?: number;
-  limit?: number;
-  count?: number;
-  totalRecords?: number;
+export interface SortObject {
+  unsorted?: boolean;
+  empty?: boolean;
+  sorted?: boolean;
+}
+
+export interface PageableObject {
+  unpaged?: boolean;
+  offset?: number;
+  sort: SortObject;
+  paged?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface PagedEventsResponse {
   totalPages?: number;
+  totalElements?: number;
+  size?: number;
+  content: any;
+  number?: number;
+  sort: SortObject;
+  first?: boolean;
+  last?: boolean;
+  numberOfElements?: number;
+  pageable: PageableObject;
+  empty?: boolean;
 }
 
-export interface InvoiceDetail {
-  amount?: number;
-  amountVatExcluded?: number;
-  vat?: number;
-  vatRate?: number;
-  quantity?: number;
-  unit?: string;
-  unitPrice?: number;
-  description?: string;
-  productCode?: string;
-  productName?: string;
-  fromDate?: string;
-  toDate?: string;
-  facilityId?: string;
-  administration?: string;
+export interface PersonEngagement {
+  organizationNumber: string | null;
+  name: string | null;
+  isAuthorizedSignatory?: boolean | null;
+  isSoleTrader?: boolean | null;
 }
 
-export interface InvoiceDetailsResponse {
-  details: InvoiceDetail[];
+export interface PersonEngagementsApiResponse {
+  data: PersonEngagement[];
+  message: string;
 }
 
-export interface CustomerInvoice {
-  customerNumber?: string;
-  customerType?: "ENTERPRISE" | "PRIVATE";
-  facilityIds?: string[];
-  invoiceNumber?: string;
-  invoiceId?: number;
-  jointInvoiceId?: number;
-  invoiceDate?: string;
-  invoiceName?: string;
-  invoiceType?:
-    | "INVOICE"
-    | "CREDIT_INVOICE"
-    | "START_INVOICE"
-    | "FINAL_INVOICE"
-    | "DIRECT_DEBIT"
-    | "SELF_INVOICE"
-    | "REMINDER"
-    | "CONSOLIDATED_INVOICE"
-    | "INTERNAL_INVOICE"
-    | "OFFSET_INVOICE"
-    | "UNKNOWN";
-  invoiceDescription?: string;
-  invoiceStatus?:
-    | "PAID"
-    | "SENT"
-    | "PARTIALLY_PAID"
-    | "DEBT_COLLECTION"
-    | "PAID_TOO_MUCH"
-    | "REMINDER"
-    | "VOID"
-    | "CREDITED"
-    | "WRITTEN_OFF"
-    | "UNKNOWN";
-  ocrNumber?: string;
-  dueDate?: string;
-  periodFrom?: string;
-  periodTo?: string;
-  totalAmount?: number;
-  amountVatIncluded?: number;
-  amountVatExcluded?: number;
-  vatEligibleAmount?: number;
-  rounding?: number;
-  organizationGroup?: string;
-  organizationNumber?: string;
-  administration?: string;
-  street?: string;
-  postCode?: string;
-  city?: string;
-  careOf?: string;
-  invoiceReference?: string;
-  pdfAvailable?: boolean;
-  details: InvoiceDetail[];
+export interface LegalEntityAddress {
+  addressArea: string | null;
+  adressNumber: string | null;
+  city: string | null;
+  postalCode: string | null;
+  municipality: string | null;
+  county: string | null;
 }
 
-export interface CustomerInvoicesResponse {
-  invoices?: CustomerInvoice[];
-  _meta?: MetaData;
+export interface BusinessInformation {
+  address: LegalEntityAddress;
+}
+
+export interface BusinessInformationApiResponse {
+  data: BusinessInformation;
+  message: string;
+}
+
+export interface Meta {
+  page: number;
+  limit: number;
+  count: number;
+  totalRecords: number;
+  totalPages: number;
+  sortBy: string[];
+  sortDirection: "ASC" | "DESC";
 }
 
 export interface Grantor {
@@ -405,173 +483,66 @@ export interface CreateMandateDto {
   transactionId: string;
 }
 
-export interface SignDto {
-  visible: string;
-  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
-  details?: object;
+export interface CreateReadNotificationsDto {
+  caseId: string;
 }
 
-export interface SignMandateDto {
-  visible: string;
-  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
-  mandate: SignMandateDetails;
+export interface ContactSettingChannel {
+  contactMethod: string;
+  destination: string;
+  disabled?: boolean;
+  alias: string;
 }
 
-export interface Sign {
-  transactionId: string;
-  autoStartToken: string;
-  qrCode?: string;
+export interface ContactSetting {
+  id: string;
+  partyId: string;
+  contactChannels: ContactSettingChannel[];
+  created: string;
+  modified: string;
+  virtual: boolean;
+  alias: string;
+  municipalityId: string;
 }
 
-export interface SubjectIdentifier {
-  value: string;
-  type: "TIN" | "EMAIL";
+export interface UpdateContactSettingsDto {
+  id: string;
+  contactChannels: ContactSettingChannel[];
 }
 
-export interface User {
-  subjectIdentifier: SubjectIdentifier;
-  displayName?: string;
-  givenName: string;
-  sn: string;
-  tin: string;
-  ipAddress: string;
+export interface RepresentingPrivateEntity {
+  name: string;
+  personNumber?: string;
+  information?: Information;
 }
 
-export interface Status {
-  status: "COMPLETE" | "FAILED" | "CANCELLED" | "PENDING";
-  substatus: string | null;
+export interface RepresentingBusinessEntity {
+  organizationName: string;
+  organizationNumber: string;
+  isAuthorizedSignatory?: boolean;
+  information: Information;
+  whitelisted?: boolean;
+}
+
+export interface Information {
+  address: ClientContactSettingAddress;
+}
+
+export interface RepresentingEntity {
+  BUSINESS?: RepresentingBusinessEntity;
+  PRIVATE?: RepresentingPrivateEntity;
+  mode: "PRIVATE" | "BUSINESS" | "ADMIN" | 0 | 1 | 2;
+}
+
+export interface ClientRepresentingApiResponse {
+  data: RepresentingEntity;
   message: string;
 }
 
-export interface ValidationInfo {
-  signature: string;
-  signatureFormat: "xmldsig" | "pkcs7" | "jws";
-  ocspResponse?: string;
-}
-
-export interface SignCollect {
-  progressStatus: Status;
-  attributes?: object;
-  userInfo?: User;
-  validationInfo?: ValidationInfo;
-  transactionId: string;
-  qrCode?: string;
-}
-
-export interface SignApiResponse {
-  data: Sign;
-  message: string;
-}
-
-export interface SignCollectApiResponse {
-  data: SignCollect;
-  message: string;
-}
-
-export interface Citizen {
-  personId: string;
-  givenname: string;
-  lastname: string;
-}
-
-export interface CitizenApiResponse {
-  data: Citizen;
-  message: string;
-}
-
-export interface CitizenLookupDto {
-  /**
-   * @minLength 12
-   * @maxLength 12
-   */
-  personnumber: string;
-}
-
-export interface EventMetaData {
-  key: string;
-  value: string;
-}
-
-export interface EventResponse {
-  logKey?: string;
-  type:
-    | "CREATE"
-    | "READ"
-    | "UPDATE"
-    | "DELETE"
-    | "ACCESS"
-    | "EXECUTE"
-    | "CANCEL"
-    | "DROP";
-  municipalityId?: string;
-  message?: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  expires?: string | null;
-  owner: string;
-  /** @pattern \d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d.\d+Z? */
-  created?: string;
-  historyReference?: string | null;
-  sourceType?: string | null;
-  metadata: EventMetaData;
-}
-
-export interface SortObject {
-  unsorted?: boolean;
-  empty?: boolean;
-  sorted?: boolean;
-}
-
-export interface PageableObject {
-  unpaged?: boolean;
-  offset?: number;
-  sort: SortObject;
-  paged?: boolean;
-  pageNumber?: number;
-  pageSize?: number;
-}
-
-export interface PagedEventsResponse {
-  totalPages?: number;
-  totalElements?: number;
-  size?: number;
-  content: any;
-  number?: number;
-  sort: SortObject;
-  first?: boolean;
-  last?: boolean;
-  numberOfElements?: number;
-  pageable: PageableObject;
-  empty?: boolean;
-}
-
-export interface BFUSApiResponse {
-  message: string;
-  data: any;
-}
-
-export interface BFUSEligablePartyApiResponse {
-  message: string;
-  data: any;
-}
-
-export interface BFUSNewPermissionApiResponse {
-  message: string;
-  data: boolean;
-}
-
-export interface ConsentHeaderDto {
-  ExternalId: string;
-  Operation: "grant" | "deny" | "revoke";
-}
-
-export interface ConsentRequestDto {
-  EligablePartyId: string;
-  ContractIdList?: number[];
-  CustomerId?: number;
-}
-
-export interface UpdateConsentDto {
-  PermissionRequest: any;
+export interface RepresentsDto {
+  organizationNumber?: string;
+  personNumber?: string;
+  mode?: "PRIVATE" | "BUSINESS" | "ADMIN" | 0 | 1 | 2;
 }
 
 export interface ModelId {
@@ -679,35 +650,69 @@ export interface SessionStatusApiResponse {
   message: string;
 }
 
-export interface Affected {
-  partyId: string;
-  reference: string;
-  facilityId?: string;
-  coordinates?: string;
+export interface SignDto {
+  visible: string;
+  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
+  details?: object;
 }
 
-export interface Disturbance {
-  id: string;
-  municipalityId?: string;
-  category:
-    | "COMMUNICATION"
-    | "DISTRICT_COOLING"
-    | "DISTRICT_HEATING"
-    | "ELECTRICITY"
-    | "ELECTRICITY_TRADE"
-    | "WASTE_MANAGEMENT"
-    | "WATER";
-  status: "OPEN" | "CLOSED" | "PLANNED";
-  title: string;
-  description?: string;
-  plannedStartDate?: string;
-  plannedStopDate?: string;
-  created: string;
-  updated?: string;
-  affecteds?: Affected[];
+export interface SignMandateDto {
+  visible: string;
+  format: "PLAIN_TEXT" | "MARKDOWN" | "HTML";
+  mandate: SignMandateDetails;
 }
 
-export interface DisturbanceApiResponse {
-  data: Disturbance[];
+export interface Sign {
+  transactionId: string;
+  autoStartToken: string;
+  qrCode?: string;
+}
+
+export interface SubjectIdentifier {
+  value: string;
+  type: "TIN" | "EMAIL";
+}
+
+export interface User {
+  subjectIdentifier: SubjectIdentifier;
+  displayName?: string;
+  givenName: string;
+  sn: string;
+  tin: string;
+  ipAddress: string;
+}
+
+export interface Status {
+  status: "COMPLETE" | "FAILED" | "CANCELLED" | "PENDING";
+  substatus: string | null;
   message: string;
+}
+
+export interface ValidationInfo {
+  signature: string;
+  signatureFormat: "xmldsig" | "pkcs7" | "jws";
+  ocspResponse?: string;
+}
+
+export interface SignCollect {
+  progressStatus: Status;
+  attributes?: object;
+  userInfo?: User;
+  validationInfo?: ValidationInfo;
+  transactionId: string;
+  qrCode?: string;
+}
+
+export interface SignApiResponse {
+  data: Sign;
+  message: string;
+}
+
+export interface SignCollectApiResponse {
+  data: SignCollect;
+  message: string;
+}
+
+export interface PatchUserSettingsDto {
+  feedbackLifespan: "untilRemoved" | "oneMonth" | "twoWeeks";
 }
