@@ -14,6 +14,7 @@ import { DownloadPdfButton } from '@layouts/pages/mypages-sections/invoices/get-
 import React, { useState } from 'react';
 import { PagesLayout } from '@layouts/pages-layout.component';
 import {
+  formatAmount,
   getInvoiceAddress,
   groupInvoiceDetails,
 } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details-helpers';
@@ -109,7 +110,7 @@ export const Invoice = () => {
         <div className="flex lg:flex-row flex-col lg:gap-0 gap-8 justify-between mt-24 pr-40">
           <div>
             <p className="font-bold">{t('invoice:toPay')}</p>
-            <p> {t('invoice:amount', { amount: invoice.totalAmount })}</p>
+            <p>{t('invoice:amount', { amount: formatAmount(invoice.totalAmount) })}</p>
           </div>
           <div className="pr-24">
             <p className="font-bold">{t('invoice:address')}</p>
@@ -132,14 +133,14 @@ export const Invoice = () => {
         {groupedDetails && <InvoiceDetails groupedDetails={groupedDetails} />}
 
         <div className="text-dark-secondary my-40 lg:text-right text-left">
-          <p>{t('invoice:amountVatExcluded', { amountVatExcluded: invoice.amountVatExcluded })}</p>
+          <p>{t('invoice:amountVatExcluded', { amountVatExcluded: formatAmount(invoice.amountVatExcluded) })}</p>
           <p>
             {t('invoice:vat', {
-              vat: ((invoice.amountVatIncluded ?? 0) - (invoice.amountVatExcluded ?? 0)).toFixed(2),
+              vat: formatAmount((invoice.amountVatIncluded ?? 0) - (invoice.amountVatExcluded ?? 0)),
             })}
           </p>
-          <p>{t('invoice:rounding', { rounding: invoice.rounding })}</p>
-          <p className="font-bold">{t('invoice:totalAmount', { totalAmount: invoice.totalAmount })}</p>
+          <p>{t('invoice:rounding', { rounding: formatAmount(invoice.rounding) })}</p>
+          <p className="font-bold">{t('invoice:totalAmount', { totalAmount: formatAmount(invoice.totalAmount) })}</p>
         </div>
 
         <div className="mt-24">

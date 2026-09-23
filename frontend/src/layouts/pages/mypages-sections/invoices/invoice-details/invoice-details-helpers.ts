@@ -2,37 +2,40 @@ import { InvoiceDetail } from '@data-contracts/backend/data-contracts';
 import { GroupedDetails } from '@interfaces/invoice';
 import { User } from '@interfaces/user';
 
+const LOCALE = 'sv-SE';
+
+export const kr = new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'SEK' });
+const amountFormatter = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const unitPriceFormatter = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 4 });
+const quantityFormatter = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2, useGrouping: false });
+const energyQuantityFormatter = new Intl.NumberFormat(LOCALE, {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+  useGrouping: false,
+});
+
+export const formatAmount = (value?: number | null): string => amountFormatter.format(value ?? 0);
+
 export const formatQuantity = (item: InvoiceDetail): string => {
   if (item.quantity == null) return '';
   switch (item.unit) {
     case 'kWh':
     case 'MWh':
-      return `${item.quantity.toFixed(2)} ${item.unit}`;
+      return `${energyQuantityFormatter.format(item.quantity)} ${item.unit}`;
     case 'MON':
     case 'Y':
       return '1 månad';
     default:
-      return String(item.quantity);
+      return [quantityFormatter.format(item.quantity), item.unit].filter(Boolean).join(' ');
   }
 };
 
-export const formatUnitPrice = (item: InvoiceDetail): string => {
-  if (item.unitPrice == null) return '';
-  switch (item.unit) {
-    case 'kWh':
-      return `${item.unitPrice} öre/kWh`;
-    case 'MWh':
-      return `${item.unitPrice} kr/MWh`;
-    case 'MON':
-      return `${item.unitPrice} kr/månad`;
-    case 'Y':
-      return `${item.unitPrice} kr/år`;
-    default:
-      return `${item.unitPrice} kr`;
-  }
+export const formatUnitPrice = (item: InvoiceDetail, vatExcluded = false): string => {
+  const price = vatExcluded ? item.invoiceUnitPriceVatExcluded : item.invoiceUnitPrice;
+  if (price == null) return '';
+  const suffix = [item.invoiceUnitPriceCurrency, item.invoiceUnitPriceUnit].filter(Boolean).join('/');
+  return [unitPriceFormatter.format(price), suffix].filter(Boolean).join(' ');
 };
-
-export const kr = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' });
 
 export const groupInvoiceDetails = (
   details: InvoiceDetail[],
