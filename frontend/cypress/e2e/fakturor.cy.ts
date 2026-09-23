@@ -3,6 +3,9 @@ import { RepresentingMode } from '@interfaces/app';
 import { getInvoices, getPendingInvoices } from '../fixtures/getInvoices';
 import { CustomerInvoice } from '@data-contracts/backend/data-contracts';
 
+const formatAmount = (value?: number) =>
+  new Intl.NumberFormat('sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value ?? 0);
+
 describe('Fakturor', () => {
   beforeEach(() => {
     cy.viewport('macbook-16');
@@ -32,7 +35,7 @@ describe('Fakturor', () => {
     cy.get(`[data-cy='invoice-list-item-1']`)
       .first()
       .within(() => {
-        cy.get('[data-cy="amount"]').should('include.text', invoice.totalAmount);
+        cy.get('[data-cy="amount"]').should('have.text', `${formatAmount(invoice.totalAmount)} kr`);
         cy.get('[data-cy="street"]').should('include.text', invoice.street);
         cy.get('[data-cy="invoice-status-label"]').should('have.text', 'Obetald');
       });

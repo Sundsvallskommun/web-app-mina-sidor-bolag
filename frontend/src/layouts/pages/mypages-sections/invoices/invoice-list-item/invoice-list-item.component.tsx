@@ -11,6 +11,7 @@ import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
 import { useSearchParams } from 'next/navigation';
 import { ADDRESS_PARAM } from '@services/invoice-service';
+import { formatAmount } from '@layouts/pages/mypages-sections/invoices/invoice-details/invoice-details-helpers';
 
 interface InvoiceListItemProps {
   invoice: IInvoice;
@@ -46,7 +47,7 @@ export const InvoiceListItem = ({ invoice }: InvoiceListItemProps) => {
               <p>{invoice.invoiceDescription}</p>
               <InvoiceLabel invoiceStatus={invoice.invoiceStatus} />
             </div>
-            <p data-cy="amount">{t('invoice:amount', { amount: invoice.totalAmount })}</p>
+            <p data-cy="amount">{t('invoice:amount', { amount: formatAmount(invoice.totalAmount) })}</p>
           </div>
           <div className="flex md:flex-row flex-col justify-between text-dark-secondary">
             <p data-cy="street">{!!invoice.facilityIds?.length && getInvoiceAddress(invoice.facilityIds)}</p>

@@ -47,13 +47,8 @@ export const InvoiceDetails = ({ groupedDetails }: { groupedDetails: GroupedDeta
                       <Table.Column>
                         {t('invoice:periodFromAndTo', { from: item.periodFrom, to: item.periodTo })}
                       </Table.Column>
-                      <Table.Column>
-                        {item.quantity} {item.unit}
-                      </Table.Column>
-                      <Table.Column>
-                        {isRepresentingBusiness ? item.invoiceUnitPriceVatExcluded : item.invoiceUnitPrice}{' '}
-                        {item.invoiceUnitPriceCurrency}/{item.invoiceUnitPriceUnit}
-                      </Table.Column>
+                      <Table.Column>{formatQuantity(item)}</Table.Column>
+                      <Table.Column>{formatUnitPrice(item, isRepresentingBusiness)}</Table.Column>
                       <Table.Column>{kr.format(lineAmount(item))}</Table.Column>
                     </Table.Row>
                   ))}
@@ -101,7 +96,7 @@ export const InvoiceDetails = ({ groupedDetails }: { groupedDetails: GroupedDeta
                       </div>
                       <div className="flex justify-between">
                         <p className="font-bold">{t('invoice:cost')}</p>
-                        <p>{formatUnitPrice(item)}</p>
+                        <p>{formatUnitPrice(item, isRepresentingBusiness)}</p>
                       </div>
                       <div className="flex justify-between">
                         <p className="font-bold">{t('invoice:inTotal')}</p>
