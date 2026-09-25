@@ -16,7 +16,7 @@ export const DelegateFilter = (props: {
 }) => {
   const { getValues, setValue } = useFormContext();
   const { t } = useTranslation(['notifications', 'category']);
-  const { data: user } = useApi<User>({ url: '/me', method: 'get' });
+  const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const { data: agreements } = useApi({
     url: `/paged/agreements`,
     method: 'get',
