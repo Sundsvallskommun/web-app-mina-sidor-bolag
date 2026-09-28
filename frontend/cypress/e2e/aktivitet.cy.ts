@@ -90,11 +90,11 @@ describe('Aktivitet', () => {
     cy.wait('@getActivity').its('request.query.sourceTypeFilter').should('eq', 'login');
   });
 
-  it('filters by HAN-port', () => {
+  it('filters by Kundtjänst', () => {
     visitActivity();
 
-    cy.get('[data-cy="activity-filter-han"]').click();
-    cy.wait('@getActivity').its('request.query.sourceTypeFilter').should('eq', 'han');
+    cy.get('[data-cy="activity-filter-impersonation"]').click();
+    cy.wait('@getActivity').its('request.query.sourceTypeFilter').should('eq', 'impersonation');
   });
 
   it('sends the selected period as from/to', () => {
