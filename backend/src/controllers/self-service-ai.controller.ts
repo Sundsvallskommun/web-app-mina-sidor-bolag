@@ -3,8 +3,10 @@ import { getApiBase } from '@/config/api-config';
 import { QuestionResponse, SessionStatusResponse } from '@/data-contracts/selfserviceai/data-contracts';
 import { ConversationRequest } from '@/dtos/conversation.dto';
 import ApiService from '@/services/api.service';
+import { ensureAISession } from '@/services/selfserviceai.service';
 import { logger } from '@/utils/logger';
 import { HttpException } from '@exceptions/HttpException';
+import { RequestWithUser } from '@interfaces/auth.interface';
 import { ResponseData } from '@interfaces/service';
 import { Request, Response } from 'express';
 import Stream from 'node:stream';
@@ -24,7 +26,8 @@ export class SelfServiceAiController {
   })
   @ResponseSchema(SessionStatusApiResponse)
   async isReady(@Req() req: Request): Promise<ResponseData<SessionStatusResponse>> {
-    const id = req.session?.ai?.sessionId;
+    const ai = await ensureAISession(req as RequestWithUser);
+    const id = ai?.sessionId;
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }

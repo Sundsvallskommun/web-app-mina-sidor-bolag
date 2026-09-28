@@ -1,7 +1,7 @@
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { ClientRepresentingApiResponse } from '@/responses/representing.response';
 import { getBusinessInformation } from '@services/legal-entity.service';
-import { deleteAISession, startAISession } from '@/services/selfserviceai.service';
+import { deleteAISession } from '@/services/selfserviceai.service';
 import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
 import { logger } from '@/utils/logger';
 import { RepresentsDto } from '@dtos/represents.dto';
@@ -175,12 +175,6 @@ export class RepresentingController {
       );
 
       clearRelations();
-    }
-
-    try {
-      await startAISession(req);
-    } catch (error) {
-      logger.error('Error starting new AI session', error);
     }
 
     return res.send({ data: this.getRepresentingToSend(newRepresenting), message: 'success' });
