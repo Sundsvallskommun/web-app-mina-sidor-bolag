@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 const LOOKBACK_MONTHS = 36;
 
-const ACTIVITY_TYPE_FILTERS = ['all', 'login', 'han'] as const;
+const ACTIVITY_TYPE_FILTERS = ['all', 'login', 'impersonation'] as const;
 export type ActivityTypeFilter = (typeof ACTIVITY_TYPE_FILTERS)[number];
 
 export interface ActivityFilterValue {
