@@ -1,13 +1,18 @@
 import { Metadata } from '@/data-contracts/eventlog/data-contracts';
-import { ACTIVITY_SOURCE_TYPES, ActivityFilter, HAN_SOURCE_TYPE, LOGIN_SOURCE_TYPE } from '@/constants/event-log';
+import {
+  ACTIVITY_SOURCE_TYPES,
+  ActivityFilter,
+  IMPERSONATION_SOURCE_TYPE,
+  LOGIN_SOURCE_TYPE,
+} from '@/constants/event-log';
 
 export const getActivitySourceTypes = (sourceTypeFilter: unknown): readonly string[] => {
   const value = typeof sourceTypeFilter === 'string' ? sourceTypeFilter.toLowerCase() : '';
   switch (value) {
     case ActivityFilter.LOGIN:
       return [LOGIN_SOURCE_TYPE];
-    case ActivityFilter.HAN:
-      return [HAN_SOURCE_TYPE];
+    case ActivityFilter.IMPERSONATION:
+      return [IMPERSONATION_SOURCE_TYPE];
     case ActivityFilter.ALL:
     default:
       return ACTIVITY_SOURCE_TYPES;
