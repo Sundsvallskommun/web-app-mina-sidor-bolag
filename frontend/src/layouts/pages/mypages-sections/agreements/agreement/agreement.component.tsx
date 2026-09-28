@@ -11,10 +11,9 @@ import { useEffect, useState } from 'react';
 import { User } from '@interfaces/user';
 import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/agreement/facility-information/facility-information.component';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
-import { useRouter } from 'next/navigation';
 
 export const AgreementComponent = () => {
   const params = useParams<{ slug: [string, string] }>();
