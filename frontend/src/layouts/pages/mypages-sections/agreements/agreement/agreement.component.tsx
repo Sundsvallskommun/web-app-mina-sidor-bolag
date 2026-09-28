@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import { User } from '@interfaces/user';
 import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/agreement/facility-information/facility-information.component';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import Link from 'next/link';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
@@ -119,16 +118,15 @@ export const AgreementComponent = () => {
                         </div>
                       </div>
                       {a.production ? null : (
-                        <Button
-                          className="md:w-1/4 md:p-0 mt-40 md:mt-0 w-full"
-                          rightIcon={<ArrowRight />}
-                          variant="secondary"
+                        <NextLink
+                          href={t('agreement:item.statisticsUrl', { facilityId: a.facilityId })}
+                          className="block md:w-1/4 mt-40 md:mt-0 w-full"
                           data-cy="agreement-to-statistics-button"
                         >
-                          <Link href={t('agreement:item.statisticsUrl', { facilityId: a.facilityId })}>
+                          <Button as="span" className="w-full md:p-0" rightIcon={<ArrowRight />} variant="secondary">
                             {t('agreement:item.showStatistics')}
-                          </Link>
-                        </Button>
+                          </Button>
+                        </NextLink>
                       )}
                     </div>
 
