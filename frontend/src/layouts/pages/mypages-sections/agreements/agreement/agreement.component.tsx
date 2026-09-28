@@ -11,10 +11,10 @@ import { useEffect, useState } from 'react';
 import { User } from '@interfaces/user';
 import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/agreement/facility-information/facility-information.component';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import Link from 'next/link';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
+import { useRouter } from 'next/navigation';
 
 export const AgreementComponent = () => {
   const params = useParams<{ slug: [string, string] }>();
@@ -23,6 +23,7 @@ export const AgreementComponent = () => {
   const [facility, setFacility] = useState<InstalledBaseItem>();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const agreementsPath = pathname.split('/').slice(0, -params.slug.length).join('/');
   const query = searchParams.toString();
@@ -124,10 +125,9 @@ export const AgreementComponent = () => {
                           rightIcon={<ArrowRight />}
                           variant="secondary"
                           data-cy="agreement-to-statistics-button"
+                          onClick={() => router.push(t('agreement:item.statisticsUrl', { facilityId: a.facilityId }))}
                         >
-                          <Link href={t('agreement:item.statisticsUrl', { facilityId: a.facilityId })}>
-                            {t('agreement:item.showStatistics')}
-                          </Link>
+                          {t('agreement:item.showStatistics')}
                         </Button>
                       )}
                     </div>
