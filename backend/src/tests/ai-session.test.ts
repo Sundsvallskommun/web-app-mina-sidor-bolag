@@ -22,7 +22,7 @@ jest.mock('@/services/api.service', () => ({
   },
 }));
 
-import { deleteAISession, ensureAISession } from '@/services/selfserviceai.service';
+import { deleteAISession, ensureAISession, restartAISession } from '@/services/selfserviceai.service';
 
 const RELATIONS = { customerNumber: ['1'], customerRelations: [{ organizationNumber: '5565027223' }] };
 
@@ -107,6 +107,20 @@ describe('ensureAISession', () => {
 
     await expect(deleteAISession(req)).resolves.toBe(true);
     await expect(ensureAISession(request(id))).resolves.toEqual({ sessionId: 'new' });
+    expect(apiPost).toHaveBeenCalledTimes(2);
+  });
+
+  it('replaces an expired session on restart, and later requests get the new one', async () => {
+    const id = sessionId();
+    apiPost
+      .mockResolvedValueOnce({ data: { sessionId: 'expired' } })
+      .mockResolvedValueOnce({ data: { sessionId: 'fresh' } });
+    const req = request(id);
+    await ensureAISession(req);
+
+    await expect(restartAISession(req)).resolves.toEqual({ sessionId: 'fresh' });
+    expect(req.session.ai).toEqual({ sessionId: 'fresh' });
+    await expect(ensureAISession(request(id))).resolves.toEqual({ sessionId: 'fresh' });
     expect(apiPost).toHaveBeenCalledTimes(2);
   });
 

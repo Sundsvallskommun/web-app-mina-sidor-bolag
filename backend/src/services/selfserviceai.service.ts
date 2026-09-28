@@ -46,6 +46,12 @@ export const ensureAISession = async (req: RequestWithUser): Promise<SessionResp
   return ai;
 };
 
+export const restartAISession = async (req: RequestWithUser): Promise<SessionResponse | undefined> => {
+  aiSessions.delete(req.sessionID);
+  delete req.session.ai;
+  return ensureAISession(req);
+};
+
 export const startAISession = async (req: RequestWithUser) => {
   const representing = req.session?.representing ?? undefined;
   const partyId = representing ? getRepresentingPartyId(representing) : undefined;

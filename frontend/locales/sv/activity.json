@@ -6,7 +6,7 @@
   "error": "Det gick inte att hämta aktiviteten. Försök igen senare.",
   "card": {
     "title": "Aktivitet",
-    "description": "Se inloggningar och HAN-portändringar på ditt konto."
+    "description": "Se inloggningar och kundtjänstaktivitet på ditt konto."
   },
   "item": {
     "company": "Företag",
@@ -28,7 +28,7 @@
     "show": "Visa",
     "all": "Allt",
     "login": "Inloggningar",
-    "han": "HAN-port (mätaranslutning)",
+    "impersonation": "Kundtjänst",
     "period": "Period",
     "from": "Från",
     "to": "Till",

@@ -8,5 +8,5 @@ export const ACTIVITY_SOURCE_TYPES = [LOGIN_SOURCE_TYPE, IMPERSONATION_SOURCE_TY
 export enum ActivityFilter {
   ALL = 'all',
   LOGIN = 'login',
-  HAN = 'han',
+  IMPERSONATION = 'impersonation',
 }
