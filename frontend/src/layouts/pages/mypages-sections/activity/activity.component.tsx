@@ -12,6 +12,8 @@ import { Timeline, TimelineYear } from '@components/timeline/timeline.component'
 import { ActivityFilter, ActivityFilterValue, DEFAULT_ACTIVITY_FILTER } from './components/activity-filter.component';
 import { ActivityListItem } from './components/activity-list-item.component';
 import { ActivityYearPagination } from './components/activity-year-pagination.component';
+import { useAppContext } from '@contexts/app.context';
+import { getRepresentingModeRoute } from '@utils/representingModeRoute';
 
 const LOOKBACK_MONTHS = 36;
 
@@ -34,6 +36,8 @@ const toTimelineYears = (years: ActivityYearGroup[]): TimelineYear[] =>
 export const ActivityComponent = () => {
   const { t } = useTranslation(['activity', 'profile']);
   const { isMinSm } = useThemeQueries();
+  const { representingMode } = useAppContext();
+  const myPagesRoute = getRepresentingModeRoute(representingMode);
 
   const [filter, setFilter] = useState<ActivityFilterValue>(DEFAULT_ACTIVITY_FILTER);
   const [page, setPage] = useState(0);
@@ -114,7 +118,7 @@ export const ActivityComponent = () => {
       breadcrumbs={
         <Breadcrumb>
           <Breadcrumb.Item>
-            <NextLink href="profil">
+            <NextLink href={`${myPagesRoute}/profil`}>
               <Breadcrumb.Link variant="body" as="span">
                 {t('profile:title')}
               </Breadcrumb.Link>
