@@ -134,11 +134,7 @@ export const Invoice = () => {
 
         <div className="text-dark-secondary my-40 lg:text-right text-left">
           <p>{t('invoice:amountVatExcluded', { amountVatExcluded: formatAmount(invoice.amountVatExcluded) })}</p>
-          <p>
-            {t('invoice:vat', {
-              vat: formatAmount((invoice.amountVatIncluded ?? 0) - (invoice.amountVatExcluded ?? 0)),
-            })}
-          </p>
+          <p>{t('invoice:vat', { vat: formatAmount(invoice.vat) })}</p>
           <p>{t('invoice:rounding', { rounding: formatAmount(invoice.rounding) })}</p>
           <p className="font-bold">{t('invoice:totalAmount', { totalAmount: formatAmount(invoice.totalAmount) })}</p>
         </div>
