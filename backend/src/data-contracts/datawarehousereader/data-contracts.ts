@@ -67,8 +67,8 @@ export interface ConstraintViolationProblem {
   title?: string;
   /** @format uri */
   instance?: string;
-  causeAsProblem?: ThrowableProblem;
   detail?: string;
+  causeAsProblem?: ThrowableProblem;
 }
 
 export interface ThrowableProblem {
@@ -351,6 +351,8 @@ export interface CustomerInvoice {
   amountVatExcluded?: number;
   /** Amount eligible for VAT */
   vatEligibleAmount?: number;
+  /** VAT amount */
+  vat?: number;
   /** Rounding */
   rounding?: number;
   /** Organization group */

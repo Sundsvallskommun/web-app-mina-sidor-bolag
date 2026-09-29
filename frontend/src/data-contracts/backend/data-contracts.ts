@@ -82,6 +82,7 @@ export interface CustomerInvoice {
   periodFrom?: string;
   periodTo?: string;
   totalAmount?: number;
+  vat?: number;
   amountVatIncluded?: number;
   amountVatExcluded?: number;
   vatEligibleAmount?: number;
@@ -621,6 +622,7 @@ export interface Tools {
 
 export interface QuestionResponse {
   sessionId?: string;
+  eneoSessionId?: string;
   question?: string;
   answer?: string;
   files: File;

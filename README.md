@@ -22,7 +22,7 @@ Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumer
 | BFUS                |   1.0.0 |
 | SelfServiceAI       |     2.1 |
 | Eneo-Sundsvall      |     2.0 |
-| DataWarehouseReader |     5.9 |
+| DataWarehouseReader |    5.10 |
 
 Appen använder dessutom CGI GRP för att signera med BankID. Se [https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API](https://cgiverify.atlassian.net/wiki/spaces/oversikt/pages/2818051/API)
 

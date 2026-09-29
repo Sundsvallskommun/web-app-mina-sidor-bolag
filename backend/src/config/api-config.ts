@@ -62,7 +62,7 @@ export const APIS = [
   },
   {
     name: 'datawarehousereader',
-    version: '5.9',
+    version: '5.10',
   },
 ] as const;
 
