@@ -94,6 +94,7 @@ export const getPendingInvoices: () => ApiResponse<CustomerInvoicesResponse> = (
         rounding: -0.14,
         street: 'Storgatan 1',
         totalAmount: 1250,
+        vat: 250,
         vatEligibleAmount: 1000,
       },
       {
@@ -155,6 +156,7 @@ export const getPendingInvoices: () => ApiResponse<CustomerInvoicesResponse> = (
         rounding: -0.03,
         street: 'Storgatan 1',
         totalAmount: 4591,
+        vat: 917.93,
         vatEligibleAmount: 3671.71,
       },
     ],

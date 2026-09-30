@@ -179,6 +179,9 @@ export class CustomerInvoice implements Omit<ICustomerInvoice, 'invoiceType' | '
   totalAmount?: number;
   @IsOptional()
   @IsNumber()
+  vat?: number;
+  @IsOptional()
+  @IsNumber()
   amountVatIncluded?: number;
   @IsOptional()
   @IsNumber()

@@ -18,7 +18,6 @@ import {
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId, hasRepresentingContext } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
-import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
 import { logger } from '@/utils/logger';
 import { getSessionMarker } from '@utils/request-context';
@@ -51,6 +50,16 @@ function facilityActiveLastThreeYears(installation: InstalledBaseItem): boolean 
 function relevantType(installation: InstalledBaseItem): boolean {
   const relevantTypes: string[] = ['El', 'Elhandel', 'Elproduktion', 'Fjärrvärme', 'Fjärrkyla'];
   return relevantTypes.includes(installation.type);
+}
+
+function itemsDelegatedBy(delegation: Delegation, installedBaseRes: InstalledBaseResponse): InstalledBaseItem[] {
+  const customer = installedBaseRes.installedBaseCustomers[0];
+  const delegatedFacilityIds = new Set(delegation.facilities.map(f => f.id));
+
+  return customer.items
+    .filter(facilityActiveLastThreeYears)
+    .filter(i => delegatedFacilityIds.has(i.facilityId))
+    .map(item => ({ ...item, isDelegated: true, facilityOwnerPartyId: customer.partyId }));
 }
 
 @Controller()
@@ -94,12 +103,6 @@ export class UserController {
 
     if (hasRepresentingContext(req)) {
       await sessionCacheService.cacheRelations(req);
-
-      if (!req.session?.ai?.sessionId) {
-        await startAISession(req).catch(err => {
-          logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
-        });
-      }
     }
 
     if (
@@ -152,46 +155,35 @@ export class UserController {
 
       // Fetch complete facility information for delegated facilities
       const delegations = req.session.cache.delegations;
-      // NOTE: One request is made per delegated facility, but the request is fully
-      // determined by the organization number/owner pair. Counting both tells us how
-      // many of these requests are duplicates.
-      const delegatedRequestPairs = new Set<string>();
+      const installedBaseByPair = new Map<string, Promise<InstalledBaseResponse>>();
       let delegatedFacilityCount = 0;
       delegations.forEach(delegation => {
+        const pairsInDelegation = new Set<string>();
         delegation.facilities.forEach(facility => {
           delegatedFacilityCount += 1;
-          delegatedRequestPairs.add(`${facility.businessEngagementOrgId}|${delegation.owner}`);
-          try {
+          const pair = `${facility.businessEngagementOrgId}|${delegation.owner}`;
+          if (!installedBaseByPair.has(pair)) {
             const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
             const installedBaseParams = {
               partyId: delegation.owner,
             };
-            const thisPromise = this.apiService
-              .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
-              .then(res => {
-                const installedBaseRes: InstalledBaseResponse = res.data;
-                const customer = installedBaseRes.installedBaseCustomers[0];
-
-                return customer.items
-                  .filter(facilityActiveLastThreeYears)
-                  .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
-                  .map(item => {
-                    return { ...item, isDelegated: true, facilityOwnerPartyId: customer.partyId };
-                  });
-              });
-            delegatedInstalledBasePromises.push(thisPromise);
-          } catch (error) {
-            // Handle 404 as empty
-            if (error.status === 404) {
-              delegatedInstalledBasePromises.push(Promise.resolve([]));
-            } else {
-              throw new HttpException(500, 'Could not fetch installedbases');
-            }
+            installedBaseByPair.set(
+              pair,
+              this.apiService
+                .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
+                .then(res => res.data),
+            );
           }
+          pairsInDelegation.add(pair);
+        });
+        pairsInDelegation.forEach(pair => {
+          delegatedInstalledBasePromises.push(
+            installedBaseByPair.get(pair).then(installedBaseRes => itemsDelegatedBy(delegation, installedBaseRes)),
+          );
         });
       });
       logger.info(
-        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_pairs=${delegatedRequestPairs.size}`,
+        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_pairs=${installedBaseByPair.size}`,
       );
       await Promise.allSettled(delegatedInstalledBasePromises)
         .then(results => {

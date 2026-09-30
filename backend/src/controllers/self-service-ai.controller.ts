@@ -4,7 +4,7 @@ import { QuestionResponse, SessionStatusResponse } from '@/data-contracts/selfse
 import { ConversationRequest } from '@/dtos/conversation.dto';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import { startAISession } from '@/services/selfserviceai.service';
+import { ensureAISession, restartAISession } from '@/services/selfserviceai.service';
 import { logger } from '@/utils/logger';
 import { HttpException } from '@exceptions/HttpException';
 import { ResponseData } from '@interfaces/service';
@@ -34,7 +34,8 @@ export class SelfServiceAiController {
   })
   @ResponseSchema(SessionStatusApiResponse)
   async isReady(@Req() req: Request): Promise<ResponseData<SessionStatusResponse>> {
-    const id = req.session?.ai?.sessionId;
+    const ai = await ensureAISession(req as RequestWithUser);
+    const id = ai?.sessionId;
     if (!id) {
       throw new HttpException(400, 'Bad Request');
     }
@@ -159,9 +160,7 @@ export class SelfServiceAiController {
    */
   private async restartSession(req: Request): Promise<string | undefined> {
     logger.info(`Eneo no longer has session ${req.session.ai?.eneoSessionId}; starting a new session`);
-    delete req.session.ai;
-
-    const created = await startAISession(req as RequestWithUser);
+    const created = await restartAISession(req as RequestWithUser);
     if (!created?.sessionId) {
       return undefined;
     }
