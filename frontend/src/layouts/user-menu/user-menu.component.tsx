@@ -7,12 +7,14 @@ import { capitalize } from 'lodash';
 import { RepresentingMode } from '@interfaces/app';
 import { titleCase } from '@utils/title-caser';
 import { useAppContext } from '@contexts/app.context';
+import { getRepresentingModeRoute } from '@utils/representingModeRoute';
 
 export const UserMenu = () => {
   const { t } = useTranslation('common');
 
   const router = useRouter();
   const { representingMode, representingName: representingLabel } = useAppContext();
+  const myPagesRoute = getRepresentingModeRoute(representingMode);
 
   return (
     <div className="flex" data-cy="user-menu">
@@ -42,7 +44,7 @@ export const UserMenu = () => {
                 <Button
                   className="!justify-between"
                   onClick={() => {
-                    router.push('profil');
+                    router.push(`${myPagesRoute}/profil`);
                   }}
                   data-cy="user-menu-profile-button"
                 >
@@ -54,11 +56,11 @@ export const UserMenu = () => {
                 <Button
                   className="!justify-between"
                   onClick={() => {
-                    router.push('medgivanden');
+                    router.push(`${myPagesRoute}/medgivanden`);
                   }}
-                  data-cy="user-menu-eligibility-button"
+                  data-cy="user-menu-consents-button"
                 >
-                  {capitalize(t('common:eligibility'))}
+                  {capitalize(t('common:consents'))}
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
@@ -67,7 +69,7 @@ export const UserMenu = () => {
                   <Button
                     className="!justify-between"
                     onClick={() => {
-                      router.push('driftinformation');
+                      router.push(`${myPagesRoute}/driftinformation`);
                     }}
                     data-cy="user-menu-disturbances-button"
                   >

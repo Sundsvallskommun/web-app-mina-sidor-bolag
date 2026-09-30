@@ -23,7 +23,9 @@
   "addPersonNumber": "Ange personnummer på den person du vill ge behörighet (ååååmmddxxxx).",
   "error": {
     "save": "Det gick inte att spara uppgifterna.",
-    "requiredOption": "Minst ett alternativ måste väljas."
+    "requiredOption": "Minst ett alternativ måste väljas.",
+    "invalidPhone": "Fyll i ett giltigt mobilnummer",
+    "invalidEmail": "E-postadress har fel format"
   },
   "success": {
     "save": "Uppgifterna sparades."

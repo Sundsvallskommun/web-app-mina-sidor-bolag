@@ -11,8 +11,7 @@ import { useEffect, useState } from 'react';
 import { User } from '@interfaces/user';
 import { FacilityInformation } from '@layouts/pages/mypages-sections/agreements/agreement/facility-information/facility-information.component';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
 
@@ -21,6 +20,12 @@ export const AgreementComponent = () => {
   const [category, facilityId] = params.slug;
   const { t } = useTranslation(['common', 'agreement']);
   const [facility, setFacility] = useState<InstalledBaseItem>();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const agreementsPath = pathname.split('/').slice(0, -params.slug.length).join('/');
+  const query = searchParams.toString();
+  const agreementsHref = query ? `${agreementsPath}?${query}` : agreementsPath;
 
   const { data: agreement } = useApi({
     url: `/agreement/${getCategoryAsString(category)}/${facilityId}`,
@@ -76,9 +81,9 @@ export const AgreementComponent = () => {
         agreement ? (
           <Breadcrumb>
             <Breadcrumb.Item>
-              <NextLink href="../">
-                <Breadcrumb.Link variant="body" as="span" href={t('agreement:breadcrumbUrl')}>
-                  {agreement && capitalize(t('common:agreement'))}
+              <NextLink href={agreementsHref}>
+                <Breadcrumb.Link variant="body" as="span">
+                  {capitalize(t('common:agreement'))}
                 </Breadcrumb.Link>
               </NextLink>
             </Breadcrumb.Item>
@@ -113,16 +118,15 @@ export const AgreementComponent = () => {
                         </div>
                       </div>
                       {a.production ? null : (
-                        <Button
-                          className="md:w-1/4 md:p-0 mt-40 md:mt-0 w-full"
-                          rightIcon={<ArrowRight />}
-                          variant="secondary"
+                        <NextLink
+                          href={t('agreement:item.statisticsUrl', { facilityId: a.facilityId })}
+                          className="block md:w-1/4 mt-40 md:mt-0 w-full"
                           data-cy="agreement-to-statistics-button"
                         >
-                          <Link href={t('agreement:item.statisticsUrl', { facilityId: a.facilityId })}>
+                          <Button as="span" className="w-full md:p-0" rightIcon={<ArrowRight />} variant="secondary">
                             {t('agreement:item.showStatistics')}
-                          </Link>
-                        </Button>
+                          </Button>
+                        </NextLink>
                       )}
                     </div>
 

@@ -1,15 +1,15 @@
 import { PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { ClientRepresentingApiResponse } from '@/responses/representing.response';
 import { getBusinessInformation } from '@services/legal-entity.service';
-import { deleteAISession, startAISession } from '@/services/selfserviceai.service';
+import { deleteAISession } from '@/services/selfserviceai.service';
 import { getRepresentingPartyId } from '@/utils/getRepresentingPartyId';
 import { logger } from '@/utils/logger';
 import { RepresentsDto } from '@dtos/represents.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
-import authMiddleware from '@middlewares/auth.middleware';
 import { validationMiddleware } from '@middlewares/validation.middleware';
 import getDelegatedFacilities from '@services/delegation.service';
+import { writeLoginEvent } from '@services/login-event.service';
 import { Response } from 'express';
 import { Body, Controller, Get, Post, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
@@ -88,7 +88,6 @@ export class RepresentingController {
   @Get('/representing')
   @OpenAPI({ summary: 'Return which entity a logged in user represents' })
   @ResponseSchema(ClientRepresentingApiResponse)
-  @UseBefore(authMiddleware)
   async getRepresenting(
     @Req() req: RequestWithUser,
     @Res() res: Response<ClientRepresentingApiResponse>,
@@ -117,7 +116,6 @@ export class RepresentingController {
   @UseBefore(validationMiddleware(RepresentsDto, 'body'))
   @ResponseSchema(ClientRepresentingApiResponse)
   @OpenAPI({ summary: 'Sets which entity a logged in user represents' })
-  @UseBefore(authMiddleware)
   async postRepresenting(
     @Body() selectedRepresenting: RepresentsDto,
     @Req() req: RequestWithUser,
@@ -164,6 +162,8 @@ export class RepresentingController {
 
     req.session.representing = newRepresenting;
 
+    await writeLoginEvent(newRepresenting, req.user);
+
     const clearRelations = () => (req.session.cache.relations = null);
 
     if (getRepresentingPartyId(newRepresenting)) {
@@ -175,12 +175,6 @@ export class RepresentingController {
       );
 
       clearRelations();
-    }
-
-    try {
-      await startAISession(req);
-    } catch (error) {
-      logger.error('Error starting new AI session', error);
     }
 
     return res.send({ data: this.getRepresentingToSend(newRepresenting), message: 'success' });

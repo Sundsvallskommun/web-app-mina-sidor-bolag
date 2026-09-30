@@ -54,19 +54,15 @@ export const APIS = [
   },
   {
     name: 'selfserviceai',
-    version: '2.0',
+    version: '2.1',
   },
   {
     name: 'eneo-sundsvall',
     version: '2.0',
   },
   {
-    name: 'activedirectory',
-    version: '2.0',
-  },
-  {
-    name: 'employee',
-    version: '2.0',
+    name: 'datawarehousereader',
+    version: '5.10',
   },
 ] as const;
 

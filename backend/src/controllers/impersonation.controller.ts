@@ -4,7 +4,6 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { ApiResponse } from '@/interfaces/service';
 import ApiService from '@/services/api.service';
-import authMiddleware from '@middlewares/auth.middleware';
 import { Body, Controller, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import impersonationMiddleware from '@middlewares/impersonation.middleware';
@@ -19,7 +18,6 @@ import { RepresentingMode } from '@interfaces/representing.interface';
 import { populateRepresentingCache } from '@services/session-cache.service';
 
 @Controller()
-@UseBefore(authMiddleware)
 @UseBefore(impersonationMiddleware)
 export class ImpersonationController {
   private readonly apiService = new ApiService();
@@ -146,9 +144,11 @@ export class ImpersonationController {
       throw new HttpException(400, 'Bad Request');
     }
 
+    const displayName = requestedBy.name !== requestedBy.username ? requestedBy.name : undefined;
+
     const metadata = [
       { key: 'requestedByPartyId', value: requestedBy.partyId },
-      { key: 'requestedByName', value: requestedBy.name },
+      ...(displayName ? [{ key: 'requestedByName', value: displayName }] : []),
       { key: 'toImpersonatePartyId', value: toImpersonatePartyId },
       { key: 'accessReason', value: accessReason },
     ];

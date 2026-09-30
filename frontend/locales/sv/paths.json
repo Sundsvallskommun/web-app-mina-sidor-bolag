@@ -43,6 +43,10 @@
     "title": "Profil",
     "description": "Profil"
   },
+  "aktivitet": {
+    "title": "Aktivitet",
+    "description": "Aktivitet"
+  },
   "sjalvservice": {
     "title": "Självservice",
     "description": "Självservice"

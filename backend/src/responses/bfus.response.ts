@@ -1,4 +1,4 @@
-import { BFUSEligablePartyPart } from '@/interfaces/bfus.interface';
+import { BFUSConsent } from '@/interfaces/bfus.interface';
 import { IsString, ValidateNested } from 'class-validator';
 
 export class BFUSApiResponse {
@@ -8,14 +8,14 @@ export class BFUSApiResponse {
   data: { customerIds: number[] };
 }
 
-export class BFUSEligablePartyApiResponse {
+export class BFUSConsentsApiResponse {
   @IsString()
   message: string;
   @ValidateNested()
-  data: { eligablePartyParts: BFUSEligablePartyPart[] };
+  data: { consents: BFUSConsent[] };
 }
 
-export class BFUSNewPermissionApiResponse {
+export class BFUSNewConsentApiResponse {
   @IsString()
   message: string;
   @ValidateNested()

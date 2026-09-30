@@ -3,6 +3,7 @@ import axios from 'axios';
 import { CLIENT_KEY, CLIENT_SECRET } from '@config';
 import { HttpException } from '@/exceptions/HttpException';
 import { logger } from '@utils/logger';
+import { getSessionMarker } from '@utils/request-context';
 import { API_BASE_URL } from '@config';
 
 export interface Token {
@@ -35,9 +36,19 @@ class ApiTokenService {
 
   public async fetchToken(): Promise<string> {
     const authString = Buffer.from(`${CLIENT_KEY}:${CLIENT_SECRET}`, 'utf-8').toString('base64');
+    const startedAt = Date.now();
+
+    // NOTE: The token is fetched from the request interceptor in ApiService, so this
+    // time is also part of the API_TIMING duration of the call that triggered it.
+    let hasLoggedTiming = false;
+    const logTiming = (status: number | string) => {
+      if (hasLoggedTiming) return;
+      hasLoggedTiming = true;
+      logger.info(`TOKEN_TIMING sid=${getSessionMarker()} status=${status} duration_ms=${Date.now() - startedAt}`);
+    };
 
     try {
-      const { data } = await axios({
+      const response = await axios({
         timeout: 30000, // NOTE: milliseconds
         method: 'POST',
         headers: {
@@ -49,13 +60,15 @@ class ApiTokenService {
         }),
         url: `${API_BASE_URL}/token`,
       });
-      const token = data as Token;
+      logTiming(response.status);
+      const token = response.data as Token;
 
       if (!token) throw new HttpException(502, 'Bad Gateway');
       this.setToken(token);
 
       return this.getToken();
     } catch (error) {
+      logTiming(axios.isAxiosError(error) ? (error.response?.status ?? error.code ?? 'error') : 'error');
       logger.error(`Failed to fetch JWT access token: ${JSON.stringify(error)}`);
       throw new HttpException(502, 'Bad Gateway');
     }

@@ -1,6 +1,5 @@
 import { Controller, Body, Req, Get, UseBefore, Res, Patch, OnUndefined } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import authMiddleware from '@middlewares/auth.middleware';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
 import prisma from '@utils/prisma';
@@ -19,9 +18,9 @@ import {
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId, hasRepresentingContext } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
-import { startAISession } from '@/services/selfserviceai.service';
 import { sessionCacheService } from '@/services/session-cache.service';
 import { logger } from '@/utils/logger';
+import { getSessionMarker } from '@utils/request-context';
 
 interface UserData {
   name: string;
@@ -53,14 +52,23 @@ function relevantType(installation: InstalledBaseItem): boolean {
   return relevantTypes.includes(installation.type);
 }
 
+function itemsDelegatedBy(delegation: Delegation, installedBaseRes: InstalledBaseResponse): InstalledBaseItem[] {
+  const customer = installedBaseRes.installedBaseCustomers[0];
+  const delegatedFacilityIds = new Set(delegation.facilities.map(f => f.id));
+
+  return customer.items
+    .filter(facilityActiveLastThreeYears)
+    .filter(i => delegatedFacilityIds.has(i.facilityId))
+    .map(item => ({ ...item, isDelegated: true, facilityOwnerPartyId: customer.partyId }));
+}
+
 @Controller()
 export class UserController {
-  private apiService = new ApiService();
-  private installedBaseApiBase = getApiBase('installedbase');
+  private readonly apiService = new ApiService();
+  private readonly installedBaseApiBase = getApiBase('installedbase');
 
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
-  @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
     const { name, permissions } = req.user;
     const representing = req.session?.representing ?? undefined;
@@ -95,12 +103,6 @@ export class UserController {
 
     if (hasRepresentingContext(req)) {
       await sessionCacheService.cacheRelations(req);
-
-      if (!req.session?.ai?.sessionId) {
-        await startAISession(req).catch(err => {
-          logger.error('startAISession failed, continuing without AI session:', err?.message ?? err);
-        });
-      }
     }
 
     if (
@@ -153,37 +155,36 @@ export class UserController {
 
       // Fetch complete facility information for delegated facilities
       const delegations = req.session.cache.delegations;
+      const installedBaseByPair = new Map<string, Promise<InstalledBaseResponse>>();
+      let delegatedFacilityCount = 0;
       delegations.forEach(delegation => {
+        const pairsInDelegation = new Set<string>();
         delegation.facilities.forEach(facility => {
-          try {
+          delegatedFacilityCount += 1;
+          const pair = `${facility.businessEngagementOrgId}|${delegation.owner}`;
+          if (!installedBaseByPair.has(pair)) {
             const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
             const installedBaseParams = {
               partyId: delegation.owner,
             };
-            const thisPromise = this.apiService
-              .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
-              .then(res => {
-                const installedBaseRes: InstalledBaseResponse = res.data;
-                const customer = installedBaseRes.installedBaseCustomers[0];
-
-                return customer.items
-                  .filter(facilityActiveLastThreeYears)
-                  .filter(i => delegation.facilities.map(f => f.id).includes(i.facilityId))
-                  .map(item => {
-                    return { ...item, isDelegated: true, facilityOwnerPartyId: customer.partyId };
-                  });
-              });
-            delegatedInstalledBasePromises.push(thisPromise);
-          } catch (error) {
-            // Handle 404 as empty
-            if (error.status === 404) {
-              delegatedInstalledBasePromises.push(Promise.resolve([]));
-            } else {
-              throw new HttpException(500, 'Could not fetch installedbases');
-            }
+            installedBaseByPair.set(
+              pair,
+              this.apiService
+                .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
+                .then(res => res.data),
+            );
           }
+          pairsInDelegation.add(pair);
+        });
+        pairsInDelegation.forEach(pair => {
+          delegatedInstalledBasePromises.push(
+            installedBaseByPair.get(pair).then(installedBaseRes => itemsDelegatedBy(delegation, installedBaseRes)),
+          );
         });
       });
+      logger.info(
+        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_pairs=${installedBaseByPair.size}`,
+      );
       await Promise.allSettled(delegatedInstalledBasePromises)
         .then(results => {
           delegatedItems = results
@@ -257,7 +258,6 @@ export class UserController {
 
   @Get('/myrelations')
   @OpenAPI({ summary: 'Return current users relations' })
-  @UseBefore(authMiddleware)
   async getUserRelations(@Req() req: RequestWithUser, @Res() response: any): Promise<CustomerRelation[]> {
     const { name } = req.user;
 
@@ -278,7 +278,7 @@ export class UserController {
   @Patch('/settings')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Patch user settings' })
-  @UseBefore(authMiddleware, validationMiddleware(PatchUserSettingsDto, 'body'))
+  @UseBefore(validationMiddleware(PatchUserSettingsDto, 'body'))
   async patchSettings(@Req() req: RequestWithUser, @Body() userData: PatchUserSettingsDto): Promise<void> {
     const { partyId } = req.user;
 

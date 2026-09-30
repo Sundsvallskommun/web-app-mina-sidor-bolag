@@ -6,12 +6,13 @@ import { Divider } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import { Mandates } from './components/mandates/mandates.component';
 import { ProfileAccordion } from './components/profile-accordion.component';
+import { ProfileLinkCard } from './components/profile-link-card.component';
 import { ContactDetails } from './profile-contact-details.component';
 import { ContactSettings } from './profile-contact-settings.component';
 import { DelegatedContactDetails } from './profile-delegate-details.component';
 
 export const Profile = () => {
-  const { t } = useTranslation('profile');
+  const { t } = useTranslation(['profile', 'activity']);
   const { isRepresentingModeBusiness, isRepresentingModePrivate } = useAppContext();
   return (
     <div className="flex flex-col gap-24">
@@ -47,6 +48,13 @@ export const Profile = () => {
       )}
 
       {isRepresentingModeBusiness && <Mandates />}
+
+      <ProfileLinkCard
+        data-cy="activity-link"
+        title={t('activity:card.title')}
+        subTitle={t('activity:card.description')}
+        href="aktivitet"
+      />
     </div>
   );
 };

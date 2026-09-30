@@ -3,7 +3,11 @@ import { getApiBase } from '@/config/api-config';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import authMiddleware from '@/middlewares/auth.middleware';
+import {
+  identityLookupLimiter,
+  logIdentityLookup,
+  requireMandateAdministrator,
+} from '@/middlewares/identity-lookup.middleware';
 import { CitizenApiResponse } from '@/responses/citizen.response';
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
@@ -26,7 +30,7 @@ export class CitizenController {
 
   @Post('/citizen')
   @OpenAPI({ summary: 'Return a citizen' })
-  @UseBefore(authMiddleware)
+  @UseBefore(requireMandateAdministrator, identityLookupLimiter)
   @ResponseSchema(CitizenApiResponse)
   async getCitizen(
     @Req() req: RequestWithUser,
@@ -34,6 +38,9 @@ export class CitizenController {
     @Res() res: Response<CitizenApiResponse>,
   ): Promise<Response<CitizenApiResponse>> {
     const { user } = req;
+
+    logIdentityLookup(req, body.personnumber);
+
     const guidUrl = `${this.baseUrl}/${body.personnumber}/guid`;
     try {
       const guid = await this.apiService.get<string>({ url: guidUrl }, user);

@@ -1,4 +1,4 @@
-import { PermissionStatusCategory } from '@/utils/bfus-permission-status-code-helpers';
+import { ConsentStatusCategory } from '@utils/bfus-consent-status-code-helpers';
 
 export interface BFUSCustomerResponse {
   Header: BFUSCustomerHeader;
@@ -73,7 +73,7 @@ export interface BFUSCustomer {
 
 export interface BFUSEligablePartyResponse {
   Header: BFUSEligablePartyHeader;
-  Content: BFUSEligablePartyContent;
+  Content: BFUSConsents;
 }
 
 export interface BFUSEligablePartyHeader {
@@ -84,11 +84,11 @@ export interface BFUSEligablePartyHeader {
   InParameters: string[];
 }
 
-export interface BFUSEligablePartyContent {
-  EligablePartyParts: BFUSEligablePartyPart[];
+export interface BFUSConsents {
+  EligablePartyParts: BFUSConsent[];
 }
 
-export interface BFUSEligablePartyPart {
+export interface BFUSConsent {
   EnergyServiceParty: string;
   LastDayToApprove: string;
   ContractReference: string;
@@ -110,17 +110,17 @@ export interface BFUSEligablePartyPart {
   StatusCode: BFUSStatusCode;
   IsProduction: boolean;
   ObjectVersion: number;
-  StatusCategory: PermissionStatusCategory;
+  StatusCategory: ConsentStatusCategory;
 }
 
-export interface BFUSEligablePartyPermissionResponse {
+export interface BFUSConsentResponse {
   EligablePartyId: string;
   Action: string;
   PermissionRequestExecuted: boolean;
 }
 
-export interface BFUSEligablePartyPermissionApiResponse {
-  Content: BFUSEligablePartyPermissionResponse;
+export interface BFUSConsentApiResponse {
+  Content: BFUSConsentResponse;
   Header: {
     ErrorInformation: { ErrorMessage: string; ErrorCode: string; ObjectVersion: number; ModelStateErrors: null } | null;
     ObjectVersion: number;
@@ -130,7 +130,7 @@ export interface BFUSEligablePartyPermissionApiResponse {
   };
 }
 
-export interface BFUSHasNewPermissionResponse {
+export interface BFUSHasNewConsentsResponse {
   Header: {
     ErrorInformation: string | null;
     ObjectVersion: number;
@@ -139,11 +139,11 @@ export interface BFUSHasNewPermissionResponse {
     InParameters: string | null;
   };
   Content: {
-    NewPermissions: NewPermissionsResponseObject;
+    NewPermissions: NewConsentsResponseObject;
   };
 }
 
-export interface NewPermissionsResponseObject {
+export interface NewConsentsResponseObject {
   HasPermissions: boolean;
   ObjectVersion: number;
 }

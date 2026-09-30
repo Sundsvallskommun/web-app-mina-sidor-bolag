@@ -88,9 +88,12 @@ export const DelegateItem = ({
         </FormBox>
         <FormBox name="contactSetting.phone" header={t('profile:phone')} isEdit>
           <div className="mb-40">
-            {formState.errors?.contactSetting?.['phoneNumber'] && (
-              <p className="text-small text-error">{formState.errors?.contactSetting?.['phoneNumber']?.message}</p>
-            )}
+            {(formState.touchedFields?.contactSetting?.phoneNumber || formState.isSubmitted) &&
+              formState.errors?.contactSetting?.['phoneNumber'] && (
+                <p className="text-small text-error">
+                  {t(formState.errors?.contactSetting?.['phoneNumber']?.message as string)}
+                </p>
+              )}
           </div>
         </FormBox>
 

@@ -8,6 +8,7 @@ const namespaces = [
   'ai',
   'about',
   'accessibility',
+  'activity',
   'agreement',
   'category',
   'common',
@@ -24,7 +25,7 @@ const namespaces = [
   'statistics',
   'bankid',
   'event',
-  'eligibility',
+  'consent',
   'impersonation',
   'disturbances',
 ];

@@ -4,16 +4,16 @@ import { AppWrapper } from '@contexts/app.context';
 import { ConfirmationDialogContextProvider, GuiProvider, extendTheme, toRGB } from '@sk-web-gui/react';
 import { MatomoWrapper } from '@utils/matomo-wrapper';
 import dayjs from 'dayjs';
-import 'dayjs/locale/se';
+import 'dayjs/locale/sv';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import utc from 'dayjs/plugin/utc';
 import '../../../tailwind.scss';
 import { LoginGuard } from './login-guard';
 
 dayjs.extend(utc);
-dayjs.locale('se');
+dayjs.locale('sv');
 dayjs.extend(updateLocale);
-dayjs.updateLocale('se', {
+dayjs.updateLocale('sv', {
   months: [
     'Januari',
     'Februari',

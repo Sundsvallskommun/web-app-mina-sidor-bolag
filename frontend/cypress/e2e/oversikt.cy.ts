@@ -2,22 +2,18 @@ import { getMe } from '../fixtures/getMe';
 import { getPendingInvoices } from '../fixtures/getInvoices';
 import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
-import { getBfusPartyPermissions } from 'cypress/fixtures/getBfusPartyPermissions';
+import { getBFUSConsents } from '../fixtures/getBFUSConsents';
 import { getOverviewDisturbances } from '../fixtures/getDisturbances';
 
 describe('Översikt', () => {
   beforeEach(() => {
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.intercept(
-      'GET',
-      '**/api/bfus/eligable-party-permissions?customerIds=12345678',
-      getBfusPartyPermissions(RepresentingMode.PRIVATE)
-    ).as('getPartyPermissions');
-    cy.intercept(
-      'GET',
-      '**/api/bfus/new-permissions?customerIds=12345678',
-      getBfusPartyPermissions(RepresentingMode.PRIVATE)
-    ).as('getNewPermissions');
+    cy.intercept('GET', '**/api/bfus/consents?customerIds=12345678', getBFUSConsents(RepresentingMode.PRIVATE)).as(
+      'getPartyPermissions'
+    );
+    cy.intercept('GET', '**/api/bfus/consents/new?customerIds=12345678', getBFUSConsents(RepresentingMode.PRIVATE)).as(
+      'getNewPermissions'
+    );
 
     cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
     cy.intercept('GET', '**/api/disturbances?status=*', getOverviewDisturbances()).as('getOverviewDisturbances');
@@ -37,7 +33,7 @@ describe('Översikt', () => {
     cy.get('[data-cy="todo-invoices-item"]').should('exist').contains('Att göra');
     cy.get('[data-cy="todo-list-item-subtitle"]')
       .should('exist')
-      .should('include.text', `Du har ${getPendingInvoices().data._meta.totalRecords} fakturor att betala.`);
+      .should('include.text', `Du har ${getPendingInvoices().data._meta?.totalRecords} fakturor att betala.`);
 
     // Disturbances
     cy.get('[data-cy="overview-disturbances"]').should('exist').contains('Driftinformation');

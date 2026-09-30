@@ -22,7 +22,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
   const { data: relations } = useApi<CustomerRelation[]>({ url: '/myrelations', method: 'get' });
   const customerEngagements = useMemo(() => relations?.map((r) => r.organizationNumber ?? '') ?? [], [relations]);
 
-  const { data: user } = useApi<User>({ url: '/me', method: 'get' });
+  const { data: user } = useApi<User>({ url: '/me', method: 'get', queryKey: ['user'] });
   const ownsFacilities = useMemo(() => user?.facilities?.some((f) => !f.isDelegated) ?? [], [user?.facilities]);
 
   interface ConsentCookie {

@@ -63,7 +63,7 @@ export const useBannerMenuItems = () => {
       className="w-full flex items-center justify-center"
       href={`${myPagesRoute}/medgivanden`}
     >
-      {capitalize(t('common:eligibility'))}
+      {capitalize(t('common:consents'))}
     </NextLink>,
     ...(process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES === 'true'
       ? [

@@ -182,6 +182,8 @@ export interface Model {
 export interface QuestionResponse {
   /** The id of the session to be used when interacting with the assistant */
   sessionId?: string;
+  /** The id of the session in Eneo, to be used when interacting with Eneo directly */
+  eneoSessionId?: string;
   /** The question to ask */
   question?: string;
   /** Answer to asked question */
@@ -232,6 +234,8 @@ export interface SessionStatusResponse {
   status?: SessionStatusResponseStatusEnum;
   /** Additional detail about the session status */
   detail?: string;
+  /** The id of the session in Eneo, to be used when interacting with Eneo directly. Null until the first question has been asked, as that is what starts the session in Eneo */
+  eneoSessionId?: string;
 }
 
 /** The status of the session */

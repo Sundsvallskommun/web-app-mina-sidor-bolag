@@ -12,10 +12,10 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { GrpCollectResponseWithRef, GrpStatus } from '@/interfaces/grp.interface';
 import { MandatePopulated, SignMandateCache } from '@/interfaces/mandates.interface';
-import authMiddleware from '@/middlewares/auth.middleware';
 import mandateMiddleware from '@/middlewares/mandate.middleware';
 import { MandateApiResponse, MandatesApiResponse, PopulatedMandatesApiResponse } from '@/responses/mandates.response';
 import ApiService, { ApiResponse } from '@/services/api.service';
+import { assertIsMandateGrantor } from '@/services/ownership.service';
 import { handleSignCache } from '@/utils/handleSignCache';
 import { logger } from '@/utils/logger';
 import { Response } from 'express';
@@ -23,7 +23,6 @@ import { Body, Controller, Delete, Get, Param, Post, QueryParams, Req, Res, UseB
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 
 @Controller()
-@UseBefore(authMiddleware)
 export class MandateController {
   private readonly apiService = new ApiService();
   private readonly apiBase = `${getApiBase('myrepresentatives')}/${MUNICIPALITY_ID}/${NAMESPACE}`;
@@ -194,6 +193,8 @@ export class MandateController {
     @Param('id') id: string,
     @Res() res: Response<ApiResponse<null>>,
   ): Promise<Response<ApiResponse<null>>> {
+    await assertIsMandateGrantor(req, id);
+
     const url = `${this.apiBase}/mandates/${id}`;
 
     try {

@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -8,6 +9,12 @@
  * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
  * ---------------------------------------------------------------
  */
+
+/** The sort order direction */
+export enum Direction {
+  ASC = "ASC",
+  DESC = "DESC",
+}
 
 export interface Problem {
   /** @format uri */
@@ -29,8 +36,8 @@ export interface ConstraintViolationProblem {
   title?: string;
   /** @format uri */
   instance?: string;
-  detail?: string;
   causeAsProblem?: ThrowableProblem;
+  detail?: string;
 }
 
 export interface ThrowableProblem {
@@ -172,7 +179,7 @@ export interface PdfInvoice {
    * Base64-encoded contents of file
    * @format byte
    */
-  file?: string;
+  file?: Blob;
 }
 
 /** Invoice-detail */
@@ -191,6 +198,16 @@ export interface InvoiceDetail {
   unit?: string;
   /** Unit-price */
   unitPrice?: number;
+  /** Unit-price excluding VAT */
+  unitPriceVatExcluded?: number;
+  /** Unit-price as presented on the invoice, in the currency and unit given by invoiceUnitPriceCurrency and invoiceUnitPriceUnit */
+  invoiceUnitPrice?: number;
+  /** Unit-price excluding VAT as presented on the invoice, in the currency and unit given by invoiceUnitPriceCurrency and invoiceUnitPriceUnit */
+  invoiceUnitPriceVatExcluded?: number;
+  /** Currency that the invoice unit-prices are expressed in */
+  invoiceUnitPriceCurrency?: string;
+  /** Unit that the invoice unit-prices are expressed per */
+  invoiceUnitPriceUnit?: string;
   /** Description of detail */
   description?: string;
   /** Product code */
@@ -215,12 +232,6 @@ export interface InvoiceDetail {
 
 export interface InvoiceDetailsResponse {
   details?: InvoiceDetail[];
-}
-
-/** The sort order direction */
-export enum Direction {
-  ASC = 'ASC',
-  DESC = 'DESC',
 }
 
 /** Customer invoice model */
@@ -313,101 +324,101 @@ export interface CustomerInvoicesResponse {
 
 /** Status of invoice */
 export enum InvoiceInvoiceStatusEnum {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
+  PAID = "PAID",
+  SENT = "SENT",
+  PARTIALLY_PAID = "PARTIALLY_PAID",
+  DEBT_COLLECTION = "DEBT_COLLECTION",
+  PAID_TOO_MUCH = "PAID_TOO_MUCH",
+  REMINDER = "REMINDER",
+  VOID = "VOID",
+  CREDITED = "CREDITED",
+  WRITTEN_OFF = "WRITTEN_OFF",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Type of invoice */
 export enum InvoiceInvoiceTypeEnum {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
+  INVOICE = "INVOICE",
+  CREDIT_INVOICE = "CREDIT_INVOICE",
+  START_INVOICE = "START_INVOICE",
+  FINAL_INVOICE = "FINAL_INVOICE",
+  DIRECT_DEBIT = "DIRECT_DEBIT",
+  SELF_INVOICE = "SELF_INVOICE",
+  REMINDER = "REMINDER",
+  CONSOLIDATED_INVOICE = "CONSOLIDATED_INVOICE",
+  INTERNAL_INVOICE = "INTERNAL_INVOICE",
+  OFFSET_INVOICE = "OFFSET_INVOICE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Invoice origin (invoices originates from either commercial or public activities) */
 export enum InvoiceInvoiceOriginEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** Customer type */
 export enum CustomerInvoiceCustomerTypeEnum {
-  ENTERPRISE = 'ENTERPRISE',
-  PRIVATE = 'PRIVATE',
+  ENTERPRISE = "ENTERPRISE",
+  PRIVATE = "PRIVATE",
 }
 
 /** Type of invoice */
 export enum CustomerInvoiceInvoiceTypeEnum {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
+  INVOICE = "INVOICE",
+  CREDIT_INVOICE = "CREDIT_INVOICE",
+  START_INVOICE = "START_INVOICE",
+  FINAL_INVOICE = "FINAL_INVOICE",
+  DIRECT_DEBIT = "DIRECT_DEBIT",
+  SELF_INVOICE = "SELF_INVOICE",
+  REMINDER = "REMINDER",
+  CONSOLIDATED_INVOICE = "CONSOLIDATED_INVOICE",
+  INTERNAL_INVOICE = "INTERNAL_INVOICE",
+  OFFSET_INVOICE = "OFFSET_INVOICE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Status of invoice */
 export enum CustomerInvoiceInvoiceStatusEnum {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
+  PAID = "PAID",
+  SENT = "SENT",
+  PARTIALLY_PAID = "PARTIALLY_PAID",
+  DEBT_COLLECTION = "DEBT_COLLECTION",
+  PAID_TOO_MUCH = "PAID_TOO_MUCH",
+  REMINDER = "REMINDER",
+  VOID = "VOID",
+  CREDITED = "CREDITED",
+  WRITTEN_OFF = "WRITTEN_OFF",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Invoice type */
 export enum GetInvoicesParamsInvoiceTypeEnum {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
+  INVOICE = "INVOICE",
+  CREDIT_INVOICE = "CREDIT_INVOICE",
+  START_INVOICE = "START_INVOICE",
+  FINAL_INVOICE = "FINAL_INVOICE",
+  DIRECT_DEBIT = "DIRECT_DEBIT",
+  SELF_INVOICE = "SELF_INVOICE",
+  REMINDER = "REMINDER",
+  CONSOLIDATED_INVOICE = "CONSOLIDATED_INVOICE",
+  INTERNAL_INVOICE = "INTERNAL_INVOICE",
+  OFFSET_INVOICE = "OFFSET_INVOICE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Invoice status */
 export enum GetInvoicesParamsInvoiceStatusEnum {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
+  PAID = "PAID",
+  SENT = "SENT",
+  PARTIALLY_PAID = "PARTIALLY_PAID",
+  DEBT_COLLECTION = "DEBT_COLLECTION",
+  PAID_TOO_MUCH = "PAID_TOO_MUCH",
+  REMINDER = "REMINDER",
+  VOID = "VOID",
+  CREDITED = "CREDITED",
+  WRITTEN_OFF = "WRITTEN_OFF",
+  UNKNOWN = "UNKNOWN",
 }
 
 /**
@@ -415,29 +426,29 @@ export enum GetInvoicesParamsInvoiceStatusEnum {
  * @example "COMMERCIAL"
  */
 export enum GetInvoicesParamsInvoiceOriginEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** @example "COMMERCIAL" */
 export enum GetInvoicesParamsEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** InvoiceType filter parameter */
 export enum GetPdfInvoiceParamsInvoiceTypeEnum {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
+  INVOICE = "INVOICE",
+  CREDIT_INVOICE = "CREDIT_INVOICE",
+  START_INVOICE = "START_INVOICE",
+  FINAL_INVOICE = "FINAL_INVOICE",
+  DIRECT_DEBIT = "DIRECT_DEBIT",
+  SELF_INVOICE = "SELF_INVOICE",
+  REMINDER = "REMINDER",
+  CONSOLIDATED_INVOICE = "CONSOLIDATED_INVOICE",
+  INTERNAL_INVOICE = "INTERNAL_INVOICE",
+  OFFSET_INVOICE = "OFFSET_INVOICE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /**
@@ -445,29 +456,29 @@ export enum GetPdfInvoiceParamsInvoiceTypeEnum {
  * @example "COMMERCIAL"
  */
 export enum GetPdfInvoiceParamsInvoiceOriginEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** @example "COMMERCIAL" */
 export enum GetPdfInvoiceParamsEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** InvoiceType filter parameter */
 export enum DownloadInvoicePdfParamsInvoiceTypeEnum {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
+  INVOICE = "INVOICE",
+  CREDIT_INVOICE = "CREDIT_INVOICE",
+  START_INVOICE = "START_INVOICE",
+  FINAL_INVOICE = "FINAL_INVOICE",
+  DIRECT_DEBIT = "DIRECT_DEBIT",
+  SELF_INVOICE = "SELF_INVOICE",
+  REMINDER = "REMINDER",
+  CONSOLIDATED_INVOICE = "CONSOLIDATED_INVOICE",
+  INTERNAL_INVOICE = "INTERNAL_INVOICE",
+  OFFSET_INVOICE = "OFFSET_INVOICE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /**
@@ -475,55 +486,55 @@ export enum DownloadInvoicePdfParamsInvoiceTypeEnum {
  * @example "COMMERCIAL"
  */
 export enum DownloadInvoicePdfParamsInvoiceOriginEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** @example "COMMERCIAL" */
 export enum DownloadInvoicePdfParamsEnum {
-  COMMERCIAL = 'COMMERCIAL',
-  PUBLIC_ADMINISTRATION = 'PUBLIC_ADMINISTRATION',
+  COMMERCIAL = "COMMERCIAL",
+  PUBLIC_ADMINISTRATION = "PUBLIC_ADMINISTRATION",
 }
 
 /** Invoice type */
 export enum GetPublicAdministrationInvoicesParamsInvoiceTypeEnum {
-  INVOICE = 'INVOICE',
-  CREDIT_INVOICE = 'CREDIT_INVOICE',
-  START_INVOICE = 'START_INVOICE',
-  FINAL_INVOICE = 'FINAL_INVOICE',
-  DIRECT_DEBIT = 'DIRECT_DEBIT',
-  SELF_INVOICE = 'SELF_INVOICE',
-  REMINDER = 'REMINDER',
-  CONSOLIDATED_INVOICE = 'CONSOLIDATED_INVOICE',
-  INTERNAL_INVOICE = 'INTERNAL_INVOICE',
-  OFFSET_INVOICE = 'OFFSET_INVOICE',
-  UNKNOWN = 'UNKNOWN',
+  INVOICE = "INVOICE",
+  CREDIT_INVOICE = "CREDIT_INVOICE",
+  START_INVOICE = "START_INVOICE",
+  FINAL_INVOICE = "FINAL_INVOICE",
+  DIRECT_DEBIT = "DIRECT_DEBIT",
+  SELF_INVOICE = "SELF_INVOICE",
+  REMINDER = "REMINDER",
+  CONSOLIDATED_INVOICE = "CONSOLIDATED_INVOICE",
+  INTERNAL_INVOICE = "INTERNAL_INVOICE",
+  OFFSET_INVOICE = "OFFSET_INVOICE",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Invoice status */
 export enum GetPublicAdministrationInvoicesParamsInvoiceStatusEnum {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
+  PAID = "PAID",
+  SENT = "SENT",
+  PARTIALLY_PAID = "PARTIALLY_PAID",
+  DEBT_COLLECTION = "DEBT_COLLECTION",
+  PAID_TOO_MUCH = "PAID_TOO_MUCH",
+  REMINDER = "REMINDER",
+  VOID = "VOID",
+  CREDITED = "CREDITED",
+  WRITTEN_OFF = "WRITTEN_OFF",
+  UNKNOWN = "UNKNOWN",
 }
 
 /** Invoice status filter */
 export enum GetInvoicesForCustomerParamsStatusEnum {
-  PAID = 'PAID',
-  SENT = 'SENT',
-  PARTIALLY_PAID = 'PARTIALLY_PAID',
-  DEBT_COLLECTION = 'DEBT_COLLECTION',
-  PAID_TOO_MUCH = 'PAID_TOO_MUCH',
-  REMINDER = 'REMINDER',
-  VOID = 'VOID',
-  CREDITED = 'CREDITED',
-  WRITTEN_OFF = 'WRITTEN_OFF',
-  UNKNOWN = 'UNKNOWN',
+  PAID = "PAID",
+  SENT = "SENT",
+  PARTIALLY_PAID = "PARTIALLY_PAID",
+  DEBT_COLLECTION = "DEBT_COLLECTION",
+  PAID_TOO_MUCH = "PAID_TOO_MUCH",
+  REMINDER = "REMINDER",
+  VOID = "VOID",
+  CREDITED = "CREDITED",
+  WRITTEN_OFF = "WRITTEN_OFF",
+  UNKNOWN = "UNKNOWN",
 }

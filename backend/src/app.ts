@@ -4,6 +4,7 @@ import ApiService from '@/services/api.service';
 import {
   BASE_URL_PREFIX,
   CREDENTIALS,
+  ENVIRONMENT,
   LOG_FORMAT,
   NODE_ENV,
   ORIGIN,
@@ -34,8 +35,11 @@ import {
   SESSION_MEMORY,
   SWAGGER_ENABLED,
 } from '@config';
+import authMiddleware from '@middlewares/auth.middleware';
 import errorMiddleware from '@middlewares/error.middleware';
+import { enforceGlobalAuth } from '@middlewares/global-auth';
 import { logger, stream } from '@utils/logger';
+import { runWithRequestContext, toSessionMarker } from '@utils/request-context';
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import compression from 'compression';
@@ -61,10 +65,10 @@ import { deleteAISession } from '@services/selfserviceai.service';
 import { additionalConverters } from '@utils/custom-validation-classes';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
-const sessionTTL = 4 * 24 * 60 * 60;
+const sessionTTL = 12 * 60 * 60;
 // NOTE: memory uses ms while file uses seconds
 const sessionStore = new SessionStoreCreate(
-  SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
+  SESSION_MEMORY ? { ttl: sessionTTL * 1000, checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
 );
 const apiService = new ApiService();
 
@@ -160,13 +164,25 @@ class App {
         saveUninitialized: false,
         store: sessionStore,
         cookie: {
+          httpOnly: true,
           sameSite: 'lax',
+          secure: this.env === 'production' && ENVIRONMENT !== 'LOCAL',
+          // No maxAge → session cookie: dropped on browser close (matters on shared/public devices).
+          // Idle sessions are logged out client-side via a full SAML logout; the server-side store TTL
+          // (sessionTTL, refreshed per request) is the idle backstop.
         },
       }),
     );
 
     this.app.use(passport.initialize());
     this.app.use(passport.session());
+
+    // Makes the session marker available to the logging further down the call stack,
+    // so that log lines from concurrent users can be told apart. Registered after the
+    // session middleware, since it needs `req.sessionID`.
+    this.app.use((req, _res, next) => {
+      runWithRequestContext({ sessionMarker: toSessionMarker(req.sessionID) }, next);
+    });
 
     // External customer login flow
     registerSamlFlow(this.app, {
@@ -193,6 +209,11 @@ class App {
   }
 
   private initializeRoutes(controllers) {
+    // Deny by default: every action without an explicit @Public() gets the auth
+    // middleware injected here, so a forgotten @UseBefore cannot open an endpoint.
+    // Must run before useExpressServer builds the router.
+    enforceGlobalAuth({ authMiddleware, controllers, logger });
+
     useExpressServer(this.app, {
       routePrefix: BASE_URL_PREFIX,
       cors: {

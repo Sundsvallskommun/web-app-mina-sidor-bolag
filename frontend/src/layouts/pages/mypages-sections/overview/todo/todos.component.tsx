@@ -6,7 +6,7 @@ import { useApi } from '@services/api-service';
 import { Spinner } from '@sk-web-gui/react';
 import { TodoListItem } from './todo-list-item.component';
 import { useTranslation } from 'react-i18next';
-import { useGetCustomerId } from '@services/permissions-service';
+import { useGetCustomerId } from '@services/consent-service';
 
 export const Todos = () => {
   const { t } = useTranslation('overview');
@@ -31,9 +31,9 @@ export const Todos = () => {
 
   const { data: customerIds, isFetched: customerIdsFetched } = useGetCustomerId(userData);
 
-  const { data: hasNewPermissions } = useApi({
-    url: '/bfus/new-permissions',
-    queryKey: ['new-permissions'],
+  const { data: hasNewConsents } = useApi({
+    url: '/bfus/consents/new',
+    queryKey: ['new-consents'],
     method: 'get',
     axiosParameters: {
       params: {
@@ -53,7 +53,7 @@ export const Todos = () => {
         <div className="w-full flex justify-center p-md">
           <Spinner aria-label={t('overview:todo.fetching')} />
         </div>
-      ) : invoices?.invoices?.length || hasNewPermissions ? (
+      ) : invoices?.invoices?.length || hasNewConsents ? (
         <div className="w-full justify-stretch gap-24">
           {invoices?.invoices?.length ? (
             <TodoListItem
@@ -65,13 +65,13 @@ export const Todos = () => {
             />
           ) : null}
 
-          {hasNewPermissions ? (
+          {hasNewConsents ? (
             <TodoListItem
-              type="eligibility"
-              title={t('overview:todo.eligibility.description')}
-              subTitle={t('overview:todo.eligibility.current')}
+              type="consent"
+              title={t('overview:todo.consent.description')}
+              subTitle={t('overview:todo.consent.current')}
               linkPath="medgivanden"
-              linkText={t('overview:todo.eligibility.show')}
+              linkText={t('overview:todo.consent.show')}
             />
           ) : null}
         </div>

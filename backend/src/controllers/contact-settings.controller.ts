@@ -8,8 +8,8 @@ import {
   getContactSettingChannels,
   makeClientContactSetting,
 } from '@/services/contact-setting.service';
+import { assertOwnsContactSetting, assertOwnsParentSetting } from '@/services/ownership.service';
 import { apiURL } from '@/utils/util';
-import authMiddleware from '@middlewares/auth.middleware';
 import _ from 'lodash';
 import {
   Body,
@@ -50,7 +50,6 @@ export class ContactSettingsController {
   @Get('/contactsettings')
   @OpenAPI({ summary: 'Return a list of contact settings' })
   @ResponseSchema(ClientContactSetting)
-  @UseBefore(authMiddleware)
   async getContactSettings(
     @Req() req: RequestWithUser,
     @QueryParam('limit', { required: false }) limit?: number,
@@ -122,12 +121,15 @@ export class ContactSettingsController {
   @Post('/contactsettings')
   @HttpCode(201)
   @OpenAPI({ summary: 'Create contact settings for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
+  @UseBefore(validationMiddleware(ClientContactSetting, 'body'))
   async newContactSettings(
     @Req() req: RequestWithUser,
     @Body() userData: ClientContactSetting,
   ): Promise<ResponseData<ClientContactSetting>> {
     const representing = req.session?.representing ?? undefined;
+
+    await assertOwnsParentSetting(req, userData.createdById);
+
     const newContactSettings: NewContactSettings = {
       alias: userData.alias ?? 'default',
       virtual: userData.virtual ?? false,
@@ -157,7 +159,7 @@ export class ContactSettingsController {
   @Patch('/contactsettings')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Update contact settings for current logged in user' })
-  @UseBefore(authMiddleware, validationMiddleware(ClientContactSetting, 'body'))
+  @UseBefore(validationMiddleware(ClientContactSetting, 'body'))
   async editContactSettings(
     @Req() req: RequestWithUser,
     @Body() userData: ClientContactSetting,
@@ -165,6 +167,9 @@ export class ContactSettingsController {
     if (!userData.id) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsContactSetting(req, userData.id);
+
     try {
       const editedContactSettings: UpdateContactSettings = {
         alias: userData.alias,
@@ -190,7 +195,6 @@ export class ContactSettingsController {
   @Delete('/contactsettings/:contactSettingId')
   @OnUndefined(204)
   @OpenAPI({ summary: 'Delete contact setting for current logged in user' })
-  @UseBefore(authMiddleware)
   async _deleteContactSetting(
     @Req() req: RequestWithUser,
     @Param('contactSettingId') contactSettingId: string,
@@ -198,6 +202,9 @@ export class ContactSettingsController {
     if (!contactSettingId) {
       throw new HttpException(400, 'Bad Request');
     }
+
+    await assertOwnsContactSetting(req, contactSettingId);
+
     try {
       const deletionOk = await deleteContactSetting(contactSettingId, req);
       if (!deletionOk) {

@@ -9,7 +9,7 @@ import {
 } from '@interfaces/measurement-data';
 import dayjs, { Dayjs } from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
-import { toFixedNumber } from '@react-stately/utils';
+import { toFixedNumber } from '@utils/to-fixed-number';
 import { TFunction } from 'i18next';
 import { CORRECTED_USAGE_TYPE } from '@utils/normal-year';
 
@@ -20,8 +20,13 @@ export const handleMeasurementDataByMonthResponse = (
   const currentMonth = date.startOf('month');
   const previousMonth = date.subtract(1, 'year').startOf('month');
 
-  const energySeries = data.measurementSeries?.find((m) => m.measurementType?.toLowerCase() === 'energy');
-  const points = energySeries?.measurementPoints ?? [];
+  const usageSeries =
+    data.measurementSeries?.find((m) => {
+      const type = m.measurementType?.toLowerCase();
+      return type === 'energy' || (data.category === 'DISTRICT_COOLING' && type === 'flow');
+    }) ?? {};
+
+  const points = usageSeries?.measurementPoints ?? [];
 
   const valueForMonth = (month: Dayjs): number => {
     const point = points.find((p) => dayjs(p.timestamp).isSame(month, 'month'));
@@ -86,7 +91,9 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
   const measurementData =
     data?.measurementSeries?.filter(
-      (measurement) => measurement.unit === 'kWh' && measurement.measurementType !== CORRECTED_USAGE_TYPE
+      (measurement) =>
+        (measurement.unit === 'kWh' && measurement.measurementType !== CORRECTED_USAGE_TYPE) ||
+        (data.category === 'DISTRICT_COOLING' && measurement.measurementType?.toLowerCase() === 'flow')
     ) ?? [];
   measurementData.forEach(filterPointsToRange);
   measurementData.forEach(addTimestamps);
@@ -124,6 +131,7 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
     peakConsumptionValue: calculateHighestValue(data?.aggregateOn, measurementData),
     averageConsumption: calculateAverageConsumption(measurementData),
     peakEffectValue: calculateHighestValue(data?.aggregateOn, peakHourUsage),
+    unit: formatUnit(measurementData[0]?.unit),
   };
 };
 
@@ -271,7 +279,7 @@ export const getFormattedDate = (aggregation?: Aggregation, fromDate?: string) =
 export const translateAggregateOn = (aggregateOn?: Aggregation, t?: TFunction) => {
   switch (aggregateOn) {
     case Aggregation.QUARTER:
-      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvartal';
+      return t ? t('statistics:quarter').toLocaleLowerCase() : 'kvart';
     case Aggregation.HOUR:
       return t ? t('statistics:hour').toLocaleLowerCase() : 'timme';
     case Aggregation.DAY:
@@ -416,4 +424,11 @@ export const mergeTemperatureDataSets = (
       ],
     } as MergedStatisticsMeasurementData;
   }
+};
+
+const formatUnit = (unit?: string) => {
+  if (unit?.toLowerCase() === 'm3') {
+    return 'm³';
+  }
+  return unit ?? 'kWh';
 };

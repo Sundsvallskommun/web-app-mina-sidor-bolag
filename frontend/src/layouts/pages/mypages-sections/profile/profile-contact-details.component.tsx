@@ -10,6 +10,7 @@ import ContactSettingsFormLogic from './components/contact-settings-form-logic.c
 import { Trans, useTranslation } from 'react-i18next';
 import { NextLink } from '@sk-web-gui/next';
 import { ClientContactSetting, ClientContactSettingAddress } from '@data-contracts/backend/data-contracts';
+import { toDisplayPhoneNumber } from '@utils/format-phone-number';
 
 const EmptyField = (text: string) => {
   return <span className="italic">{text}</span>;
@@ -113,7 +114,11 @@ export const ContactDetails = () => {
               </div>
             ) : (
               <>
-                <div data-cy="form-box-phone">{contactsettings?.phone ?? EmptyField(t('profile:noPhone'))}</div>
+                <div data-cy="form-box-phone">
+                  {contactsettings?.phone
+                    ? toDisplayPhoneNumber(contactsettings.phone)
+                    : EmptyField(t('profile:noPhone'))}
+                </div>
                 <Button
                   size="md"
                   variant="secondary"

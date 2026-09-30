@@ -31,7 +31,7 @@ describe('Profil och inställningar', () => {
 
     cy.get('[data-cy="form-box-name"]').should('exist').should('have.text', getContactSettings(0).data.name);
     cy.get('[data-cy="form-box-email"]').should('exist').should('have.text', getContactSettings(0).data.email);
-    cy.get('[data-cy="form-box-phone"]').should('exist').should('have.text', getContactSettings(0).data.phone);
+    cy.get('[data-cy="form-box-phone"]').should('exist').should('have.text', '+46 70-174 06 05');
   });
 
   it('can edit email and phone number', () => {
@@ -58,7 +58,7 @@ describe('Profil och inställningar', () => {
     cy.get('input').should('exist').clear().type('abc');
     cy.get('.sk-form-error-message').should('exist').contains('Fyll i ett giltigt mobilnummer');
     cy.get('[data-cy="cancel-edit-phone-button"]').should('exist').click();
-    cy.get('[data-cy="form-box-phone"]').should('exist').should('have.text', getContactSettings(0).data.phone);
+    cy.get('[data-cy="form-box-phone"]').should('exist').should('have.text', '+46 70-174 06 05');
     cy.get('[data-cy="edit-phone-button"]').should('exist').click();
     cy.get('input').should('exist').clear().type('701740635');
     cy.get('[data-cy="save-phone-button"]').should('exist').click();

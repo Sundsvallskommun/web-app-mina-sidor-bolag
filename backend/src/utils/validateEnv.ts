@@ -11,6 +11,23 @@ const emails = makeValidator(emailString => {
   return emailString;
 });
 
+const EXAMPLE_SECRET = '{{INSERT_RANDOM_STRING}}';
+const RECOMMENDED_SECRET_LENGTH = 32;
+
+function validateSecretStrength(): void {
+  if (process.env.NODE_ENV !== 'production') {
+    return;
+  }
+  const secret = (process.env.SECRET_KEY ?? '').trim();
+  if (secret === '' || secret === EXAMPLE_SECRET) {
+    console.error('\nInsecure SECRET_KEY: it is empty or the shipped placeholder value; set a strong unique secret.\n');
+    process.exit(1);
+  }
+  if (secret.length < RECOMMENDED_SECRET_LENGTH) {
+    console.warn(`⚠️  SECRET_KEY is shorter than the recommended ${RECOMMENDED_SECRET_LENGTH} characters.`);
+  }
+}
+
 // NOTE: Make sure we got these in ENV
 const validateEnv = () => {
   cleanEnv(process.env, {
@@ -32,12 +49,31 @@ const validateEnv = () => {
     SAML_LOGOUT_CALLBACK_URL: str(),
     SAML_LOGOUT_REDIRECT: str(),
     SAML_SUCCESS_REDIRECT: str(),
+    SAML_ADMIN_CALLBACK_URL: url(),
+    SAML_ADMIN_FAILURE_REDIRECT: url(),
+    SAML_ADMIN_ENTRY_SSO: url(),
+    SAML_ADMIN_ISSUER: str(),
+    SAML_ADMIN_IDP_PUBLIC_CERT: str(),
+    SAML_ADMIN_PRIVATE_KEY: str(),
+    SAML_ADMIN_PUBLIC_KEY: str(),
+    SAML_ADMIN_LOGOUT_URL: str(),
+    SAML_ADMIN_LOGOUT_CALLBACK_URL: str(),
+    SAML_ADMIN_LOGOUT_REDIRECT: str(),
+    SAML_ADMIN_SUCCESS_REDIRECT: str(),
     ENEO_API_KEY: str(),
     FEEDBACK_EMAIL: emails(),
     ADMIN_GROUP: str(),
     NAMESPACE: str(),
     WHITELISTED_ORGS: str(),
+    OPENE_URL: str(),
+    ELOMRADEN_API_USER: str(),
+    ELOMRADEN_API_KEY: str(),
+    RSS_FEED_URL: str(),
+    RSS_FEED_USERNAME: str({ default: '' }),
+    RSS_FEED_PASSWORD: str({ default: '' }),
   });
+
+  validateSecretStrength();
 };
 
 export default validateEnv;
