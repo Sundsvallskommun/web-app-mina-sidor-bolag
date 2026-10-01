@@ -1,4 +1,4 @@
-import { utils, writeFile } from 'xlsx';
+import writeXlsxFile, { Column, Sheet, getSheetData } from 'write-excel-file/browser';
 import dayjs, { OpUnitType } from 'dayjs';
 import { MeasurementPoints, StatisticsMeasurementData, Aggregation, Data } from '@interfaces/measurement-data';
 import { statisticsMeasurementDataHandler, translateAggregateOn } from '@services/measurement-data-service';
@@ -17,6 +17,23 @@ export const aggregationByPeriod: Partial<Record<DatePeriod, string>> = {
 export interface ExportStatisticsOptions {
   modalData: ExportModalData;
   t: TFunction;
+}
+
+interface ExportInformation {
+  facilityId: string;
+  facilityAddress: string;
+  category: string;
+  exportTimestamp: string;
+  fromDate: string;
+  toDate: string;
+  aggregation: string;
+}
+
+interface ExportDataRow {
+  fromDate: string;
+  toDate: string;
+  consumption: number | undefined;
+  temperature: number | undefined;
 }
 
 export const buildLogInformation = (modalData: ExportModalData): CreateLogEventData[] => {
@@ -41,7 +58,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   const toDateEndOf: OpUnitType = toDateEndOfByAggregation[aggregation] ?? 'date';
   const toDateParam = dayjs(modalData.toDate).endOf(toDateEndOf).format();
   const excelMaxSheetName = 31;
-  const workbook = utils.book_new();
+  const sheets: Sheet<File | Blob | ArrayBuffer>[] = [];
 
   const params = new URLSearchParams();
   params.append('category', modalData.category);
@@ -68,66 +85,67 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
       dataForFacility(facility.facilityId)
     );
 
-    const exportInformationHeadings = [
-      [
-        t('statistics:exportModal.excelHeadings.facilityId'),
-        t('statistics:exportModal.excelHeadings.address'),
-        t('statistics:exportModal.excelHeadings.category'),
-        t('statistics:exportModal.excelHeadings.exportTimestamp'),
-        t('statistics:exportModal.excelHeadings.startDate'),
-        t('statistics:exportModal.excelHeadings.endDate'),
-        t('statistics:exportModal.excelHeadings.detailLevel'),
-      ],
+    const exportInformationColumns: Column<ExportInformation>[] = [
+      { header: t('statistics:exportModal.excelHeadings.facilityId'), cell: (row) => row.facilityId },
+      { header: t('statistics:exportModal.excelHeadings.address'), cell: (row) => row.facilityAddress },
+      { header: t('statistics:exportModal.excelHeadings.category'), cell: (row) => row.category },
+      { header: t('statistics:exportModal.excelHeadings.exportTimestamp'), cell: (row) => row.exportTimestamp },
+      { header: t('statistics:exportModal.excelHeadings.startDate'), cell: (row) => row.fromDate },
+      { header: t('statistics:exportModal.excelHeadings.endDate'), cell: (row) => row.toDate },
+      { header: t('statistics:exportModal.excelHeadings.detailLevel'), cell: (row) => row.aggregation },
     ];
-    const exportDataHeadings = [
-      [
-        t('statistics:exportModal.excelHeadings.from'),
-        t('statistics:exportModal.excelHeadings.to'),
-        t('statistics:exportModal.excelHeadings.consumption', {
+    const exportDataColumns: Column<ExportDataRow>[] = [
+      { header: t('statistics:exportModal.excelHeadings.from'), cell: (row) => row.fromDate },
+      { header: t('statistics:exportModal.excelHeadings.to'), cell: (row) => row.toDate },
+      {
+        header: t('statistics:exportModal.excelHeadings.consumption', {
           year: dayjs(modalData.fromDate).format('YYYY'),
           unit: facilityData.unit,
         }),
-        ...(modalData.temperatureIncluded ? [t('statistics:exportModal.excelHeadings.temperature')] : []),
-      ],
+        cell: (row) => row.consumption,
+      },
+      ...(modalData.temperatureIncluded
+        ? [
+            {
+              header: t('statistics:exportModal.excelHeadings.temperature'),
+              cell: (row: ExportDataRow) => row.temperature,
+            },
+          ]
+        : []),
     ];
 
-    const exportInformation = [
-      {
-        facilityId: facility.facilityId,
-        facilityAddress: facility.address,
-        category: t(`statistics:exportModal.category.${modalData.category}`),
-        exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
-        fromDate: modalData.fromDate,
-        toDate: modalData.toDate,
-        aggregation: translateAggregateOn(aggregation, t).toUpperCase(),
-      },
-    ];
+    const exportInformation: ExportInformation = {
+      facilityId: facility.facilityId,
+      facilityAddress: facility.address,
+      category: t(`statistics:exportModal.category.${modalData.category}`),
+      exportTimestamp: dayjs().format('YYYY-MM-DD HH:mm'),
+      fromDate: modalData.fromDate,
+      toDate: modalData.toDate,
+      aggregation: translateAggregateOn(aggregation, t).toUpperCase(),
+    };
 
     const temperatureLookup = new Map<string, number | undefined>(
       (facilityData?.temperatureData?.[0]?.measurementPoints ?? []).map((tp) => [tp.timestamp ?? '', tp.value])
     );
 
-    const withTemperature = (timestamp: string) =>
-      modalData.temperatureIncluded ? { temperature: temperatureLookup.get(timestamp) } : {};
-
-    const mapQuarterRows = (measurement: MeasurementPoints) =>
+    const mapQuarterRows = (measurement: MeasurementPoints): ExportDataRow[] =>
       (measurement.values ?? []).map((quarterValue, index) => {
         const from = dayjs(measurement.timestamp).add(index * 15, 'minute');
         return {
           fromDate: from.format('YYYY-MM-DD HH:mm'),
           toDate: from.add(14, 'minute').format('YYYY-MM-DD HH:mm'),
           consumption: quarterValue,
-          ...withTemperature(measurement.timestamp ?? ''),
+          temperature: temperatureLookup.get(measurement.timestamp ?? ''),
         };
       });
 
-    const mapMeasurementRow = (measurement: MeasurementPoints) => ({
+    const mapMeasurementRow = (measurement: MeasurementPoints): ExportDataRow => ({
       fromDate: dayjs(measurement.timestamp).format('YYYY-MM-DD HH:mm'),
       toDate: dayjs(measurement.timestamp)
         .endOf(aggregation.toLowerCase() as OpUnitType)
         .format('YYYY-MM-DD HH:mm'),
       consumption: measurement.value,
-      ...withTemperature(measurement.timestamp ?? ''),
+      temperature: temperatureLookup.get(measurement.timestamp ?? ''),
     });
 
     const measurementPoints = facilityData?.measurementData?.[0]?.measurementPoints ?? [];
@@ -137,20 +155,21 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
         : [mapMeasurementRow(measurement)]
     );
 
-    const workSheet = utils.json_to_sheet([]);
-    utils.sheet_add_aoa(workSheet, exportInformationHeadings);
-    utils.sheet_add_json(workSheet, exportInformation, { origin: 'A2', skipHeader: true });
-    utils.sheet_add_aoa(workSheet, exportDataHeadings, { origin: 'A5' });
-    utils.sheet_add_json(workSheet, exportData, { origin: 'A6', skipHeader: true });
-
-    const sheetName = facility.facilityId.slice(0, excelMaxSheetName);
-    utils.book_append_sheet(workbook, workSheet, sheetName);
+    sheets.push({
+      sheet: facility.facilityId.slice(0, excelMaxSheetName),
+      data: [
+        ...getSheetData([exportInformation], exportInformationColumns),
+        [],
+        [],
+        ...getSheetData(exportData, exportDataColumns),
+      ],
+    });
   }
 
-  if (workbook.SheetNames.length > 0) {
+  if (sheets.length > 0) {
     const categoryLabel = t('statistics:exportModal.category.' + modalData.category);
     const filename = 'Export-' + categoryLabel + '-' + dayjs().format('YYYY-MM-DD') + '.xlsx';
-    writeFile(workbook, filename);
+    await writeXlsxFile(sheets).toFile(filename);
     return true;
   }
 
