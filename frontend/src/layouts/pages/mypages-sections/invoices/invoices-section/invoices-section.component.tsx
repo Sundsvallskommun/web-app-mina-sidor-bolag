@@ -8,13 +8,21 @@ type InvoicesSectionProps = {
   isFetching: boolean;
   isError: boolean;
   emptyDataCy?: string;
+  emptyText?: string;
   children: React.ReactNode;
 };
 
-export const InvoicesSection = ({ data, isFetching, isError, emptyDataCy, children }: InvoicesSectionProps) => {
+export const InvoicesSection = ({
+  data,
+  isFetching,
+  isError,
+  emptyDataCy,
+  emptyText,
+  children,
+}: InvoicesSectionProps) => {
   const { t } = useTranslation('invoice');
   if (data.invoices.length > 0) return <>{children}</>;
   if (isFetching) return <Spinner className="mx-auto" />;
   if (isError) return <p>{t('invoice:loadError')}</p>;
-  return <p data-cy={emptyDataCy}>{t('invoice:noData')}</p>;
+  return <p data-cy={emptyDataCy}>{emptyText ?? t('invoice:noData')}</p>;
 };
