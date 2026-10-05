@@ -11,7 +11,7 @@ import ApiService from '@/services/api.service';
 import { Controller, Get, Param, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
-import InvoicesService, { getInvoicePeriodFrom } from '@/services/invoices.service';
+import InvoicesService, { getInvoicePeriodFrom, getInvoiceYearPeriod } from '@/services/invoices.service';
 import { assertInvoiceAccess, rememberListedInvoices } from '@/services/ownership.service';
 import authMiddleware from '@/middlewares/auth.middleware';
 
@@ -47,10 +47,15 @@ export class InvoicesController {
   @OpenAPI({ summary: 'Return a list of invoices for current party' })
   @ResponseSchema(CustomerInvoicesResponse)
   async getInvoices(@Req() req: RequestWithUser) {
-    const { facilityId, page, limit } = req.query;
+    const { facilityId, page, limit, year } = req.query;
 
     if (!facilityId) {
       return { data: { ...emptyInvoice }, message: 'Empty response' };
+    }
+
+    const yearPeriod = year === undefined ? undefined : getInvoiceYearPeriod(Number(year));
+    if (year !== undefined && !yearPeriod) {
+      throw new HttpException(400, 'year must be a calendar year within the listed range');
     }
 
     const { organizationNumbers, customerNumbers } = this.getCustomerIdentifiers(req);
@@ -59,7 +64,8 @@ export class InvoicesController {
       customerNumbers: customerNumbers,
       organizationNumbers: organizationNumbers,
       facilityIds: facilityId as string[],
-      periodFrom: this.invoiceDateFrom,
+      periodFrom: yearPeriod?.periodFrom ?? this.invoiceDateFrom,
+      periodTo: yearPeriod?.periodTo,
       page: Number(page),
       limit: Number(limit),
     });

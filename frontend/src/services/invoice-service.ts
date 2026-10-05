@@ -76,24 +76,53 @@ export const getInvoicePdf: (organizationNumber: string, invoiceNumber: number) 
     .then((res) => ({ data: res.data.data }))
     .catch((e) => ({ data: '', error: e.response?.status ?? 'UNKNOWN ERROR' }) as InvoicePdfData);
 
+export const ADDRESS_PARAM = 'address';
+export const YEAR_PARAM = 'year';
+export const INVOICE_YEARS_BACK = 4;
+
+export const getInvoiceYearOptions = (now: Date = new Date()): string[] =>
+  Array.from({ length: INVOICE_YEARS_BACK + 1 }, (_, i) => (now.getFullYear() - i).toString());
+
+export const getInvoiceYear = (invoice: Pick<IInvoice, 'periodTo' | 'invoiceDate'>): string =>
+  (invoice.periodTo ?? invoice.invoiceDate ?? '').slice(0, 4);
+
+export interface InvoiceYearGroup {
+  year: string;
+  invoices: IInvoice[];
+}
+
+export const groupInvoicesByYear = (invoices: IInvoice[]): InvoiceYearGroup[] => {
+  const byYear = new Map<string, IInvoice[]>();
+  invoices.forEach((invoice) => {
+    const year = getInvoiceYear(invoice);
+    byYear.set(year, [...(byYear.get(year) ?? []), invoice]);
+  });
+  return Array.from(byYear, ([year, invoices]) => ({ year, invoices })).sort((a, b) => b.year.localeCompare(a.year));
+};
+
 export const useInvoicesQuery = ({
   pending,
   limit,
   facilityIds,
+  year = '',
 }: {
   pending: boolean;
   limit: number;
   facilityIds: string[];
-}) =>
-  useApi<CustomerInvoicesResponse, Error, InvoicesData>({
-    queryKey: [pending ? 'pendingInvoices' : 'allInvoices', limit.toString(), facilityIds.toString()],
-    url: `/invoices${pending ? '/pending' : ''}?page=1&limit=${limit}&facilityId=${facilityIds.toString()}`,
+  year?: string;
+}) => {
+  const listKey = [pending ? 'pendingInvoices' : 'allInvoices', facilityIds.toString(), year];
+  const yearQuery = year ? `&${YEAR_PARAM}=${year}` : '';
+
+  return useApi<CustomerInvoicesResponse, Error, InvoicesData>({
+    queryKey: [...listKey, limit.toString()],
+    url: `/invoices${pending ? '/pending' : ''}?page=1&limit=${limit}&facilityId=${facilityIds.toString()}${yearQuery}`,
     method: 'get',
     dataHandler: invoicesHandler,
     queryOptions: {
-      placeholderData: (prev) => prev,
+      placeholderData: (prev, prevQuery) =>
+        listKey.every((part, i) => prevQuery?.queryKey[i] === part) ? prev : undefined,
       enabled: facilityIds.length > 0,
     },
   });
-
-export const ADDRESS_PARAM = 'address';
+};
