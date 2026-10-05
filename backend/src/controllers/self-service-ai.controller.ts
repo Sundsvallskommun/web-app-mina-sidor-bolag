@@ -4,7 +4,7 @@ import { QuestionResponse, SessionStatusResponse } from '@/data-contracts/selfse
 import { ConversationRequest } from '@/dtos/conversation.dto';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import { ensureAISession, restartAISession } from '@/services/selfserviceai.service';
+import { ensureAISession, ensureEneoSessionId, restartAISession } from '@/services/selfserviceai.service';
 import { logger } from '@/utils/logger';
 import { HttpException } from '@exceptions/HttpException';
 import { ResponseData } from '@interfaces/service';
@@ -135,23 +135,26 @@ export class SelfServiceAiController {
    * kept in the browser session for /ai/conversations, which talks to Eneo directly.
    */
   private async resolveEneoSessionId(req: Request, status: SessionStatusResponse): Promise<string | undefined> {
-    if (!req.session.ai.eneoSessionId) {
-      if (status.eneoSessionId) {
-        req.session.ai.eneoSessionId = status.eneoSessionId;
-      } else {
-        const primed = await this.apiService.get<QuestionResponse>(
-          { url: this.sessionUrl(req.session.ai.sessionId), params: { question: PRIMING_QUESTION } },
-          req.user,
-        );
-        // Before self-service-ai 2.1 the session id and the Eneo session id were the same, so fall back to sessionId to
-        // stay compatible with the older backend.
-        req.session.ai.eneoSessionId = primed.data?.eneoSessionId ?? primed.data?.sessionId;
-      }
+    if (!req.session.ai.eneoSessionId && status.eneoSessionId) {
+      req.session.ai.eneoSessionId = status.eneoSessionId;
     }
-    if (!req.session.ai.eneoSessionId) {
+    const eneoSessionId = await ensureEneoSessionId(req as RequestWithUser, aiSessionId =>
+      this.primeEneoSession(req, aiSessionId),
+    );
+    if (!eneoSessionId) {
       logger.error('SSAI is READY but no Eneo session id was returned; conversations will not work');
     }
-    return req.session.ai.eneoSessionId;
+    return eneoSessionId;
+  }
+
+  private async primeEneoSession(req: Request, aiSessionId: string): Promise<string | undefined> {
+    const primed = await this.apiService.get<QuestionResponse>(
+      { url: this.sessionUrl(aiSessionId), params: { question: PRIMING_QUESTION } },
+      req.user,
+    );
+    // Before self-service-ai 2.1 the session id and the Eneo session id were the same, so fall back to sessionId to
+    // stay compatible with the older backend.
+    return primed.data?.eneoSessionId ?? primed.data?.sessionId;
   }
 
   /**
