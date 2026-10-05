@@ -2,14 +2,14 @@ import { User } from '@interfaces/user';
 import { useApi } from '@services/api-service';
 import { AICornerModule, useAssistantStore } from '@sk-web-gui/ai';
 import { useThemeQueries } from '@sk-web-gui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CornerAssistantState } from './components/corner-assistant-state.component';
 import { RepresentingEntity, SessionStatusResponse } from '@data-contracts/backend/data-contracts';
 import { useAppContext } from '@contexts/app.context';
 import { useTranslation } from 'react-i18next';
 
 export const CornerAssistant: React.FC = () => {
-  const [checking, setChecking] = useState(false);
+  const checking = useRef(false);
   const interval = useRef<NodeJS.Timeout>(null);
   const { data: userData } = useApi<User>({
     method: 'get',
@@ -57,21 +57,23 @@ export const CornerAssistant: React.FC = () => {
       id: 'selfserviceai',
       avatar: '/ai/avatar.png',
     });
-    setChecking(true);
-    checkIsReady().finally(() => setChecking(false));
-
-    interval.current = setInterval(async () => {
-      if (!checking) {
-        setChecking(true);
+    const check = async () => {
+      if (checking.current) return;
+      checking.current = true;
+      try {
         await checkIsReady();
-        setChecking(false);
+      } finally {
+        checking.current = false;
       }
-    }, 5000);
+    };
+    void check();
+    interval.current = setInterval(check, 5000);
 
     return () => {
       if (interval.current) {
         clearInterval(interval.current);
       }
+      checking.current = false;
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

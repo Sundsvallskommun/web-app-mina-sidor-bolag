@@ -22,7 +22,12 @@ jest.mock('@/services/api.service', () => ({
   },
 }));
 
-import { deleteAISession, ensureAISession, restartAISession } from '@/services/selfserviceai.service';
+import {
+  deleteAISession,
+  ensureAISession,
+  ensureEneoSessionId,
+  restartAISession,
+} from '@/services/selfserviceai.service';
 
 const RELATIONS = { customerNumber: ['1'], customerRelations: [{ organizationNumber: '5565027223' }] };
 
@@ -151,5 +156,89 @@ describe('ensureAISession', () => {
     await expect(ensureAISession(request(id))).rejects.toBeDefined();
     await expect(ensureAISession(request(id))).resolves.toEqual({ sessionId: 'later' });
     expect(apiPost).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('ensureEneoSessionId', () => {
+  let aiCounter = 0;
+  const aiSession = (eneoSessionId?: string) => ({
+    ai: { sessionId: `ai${++aiCounter}`, assistantId: 'a', eneoSessionId },
+  });
+
+  it('returns the stored Eneo session id without priming', async () => {
+    const prime = jest.fn();
+
+    await expect(ensureEneoSessionId(request(sessionId(), aiSession('eneo')), prime)).resolves.toBe('eneo');
+    expect(prime).not.toHaveBeenCalled();
+  });
+
+  it('primes once for concurrent requests and gives the id to all of them', async () => {
+    let release: (id: string) => void;
+    const prime = jest.fn(() => new Promise<string>(resolve => (release = resolve)));
+    const ai = aiSession();
+    const first = request(sessionId(), { ai: { ...ai.ai } });
+    const second = request(first.sessionID, { ai: { ...ai.ai } });
+
+    const results = Promise.all([ensureEneoSessionId(first, prime), ensureEneoSessionId(second, prime)]);
+    release('eneo');
+
+    await expect(results).resolves.toEqual(['eneo', 'eneo']);
+    expect(prime).toHaveBeenCalledTimes(1);
+    expect(prime).toHaveBeenCalledWith(ai.ai.sessionId);
+    expect(first.session.ai.eneoSessionId).toBe('eneo');
+    expect(second.session.ai.eneoSessionId).toBe('eneo');
+  });
+
+  it('restores an Eneo session id that another request has dropped from the store', async () => {
+    const prime = jest.fn().mockResolvedValueOnce('eneo');
+    const ai = aiSession();
+    await ensureEneoSessionId(request(sessionId(), { ai: { ...ai.ai } }), prime);
+
+    const later = request(sessionId(), { ai: { ...ai.ai } });
+    await expect(ensureEneoSessionId(later, prime)).resolves.toBe('eneo');
+    expect(prime).toHaveBeenCalledTimes(1);
+    expect(later.session.ai.eneoSessionId).toBe('eneo');
+  });
+
+  it('primes again after a failed attempt', async () => {
+    const prime = jest.fn().mockRejectedValueOnce(new Error('timeout')).mockResolvedValueOnce('eneo');
+    const ai = aiSession();
+
+    await expect(ensureEneoSessionId(request(sessionId(), { ai: { ...ai.ai } }), prime)).rejects.toBeDefined();
+    await expect(ensureEneoSessionId(request(sessionId(), { ai: { ...ai.ai } }), prime)).resolves.toBe('eneo');
+    expect(prime).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns undefined when there is no AI session', async () => {
+    const prime = jest.fn();
+
+    await expect(ensureEneoSessionId(request(sessionId()), prime)).resolves.toBeUndefined();
+    expect(prime).not.toHaveBeenCalled();
+  });
+
+  it('forgets the Eneo session id when the AI session is deleted', async () => {
+    const prime = jest.fn().mockResolvedValueOnce('first').mockResolvedValueOnce('second');
+    apiDelete.mockResolvedValueOnce({});
+    const ai = aiSession();
+    const req = request(sessionId(), { ai: { ...ai.ai } });
+    await ensureEneoSessionId(req, prime);
+
+    await deleteAISession(req);
+
+    await expect(ensureEneoSessionId(request(sessionId(), { ai: { ...ai.ai } }), prime)).resolves.toBe('second');
+    expect(prime).toHaveBeenCalledTimes(2);
+  });
+
+  it('primes the new AI session after a restart', async () => {
+    const prime = jest.fn().mockResolvedValueOnce('old-eneo').mockResolvedValueOnce('new-eneo');
+    apiPost.mockResolvedValueOnce({ data: { sessionId: 'restarted', assistantId: 'a' } });
+    const req = request(sessionId(), aiSession());
+    await ensureEneoSessionId(req, prime);
+
+    await restartAISession(req);
+
+    await expect(ensureEneoSessionId(req, prime)).resolves.toBe('new-eneo');
+    expect(prime).toHaveBeenLastCalledWith('restarted');
+    expect(req.session.ai.eneoSessionId).toBe('new-eneo');
   });
 });
