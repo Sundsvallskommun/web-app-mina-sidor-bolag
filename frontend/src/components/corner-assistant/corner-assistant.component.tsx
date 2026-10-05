@@ -66,7 +66,7 @@ export const CornerAssistant: React.FC = () => {
         checking.current = false;
       }
     };
-    check();
+    void check();
     interval.current = setInterval(check, 5000);
 
     return () => {
