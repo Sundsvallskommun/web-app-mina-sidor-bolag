@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, Button, Checkbox, NavigationBar, RadioButton } from '@sk-web-gui/react';
+import { Accordion, Button, Checkbox, NavigationBar, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +20,7 @@ export interface StatisticsFilterMobileProps {
 
 export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { watch, setValue } = useFormContext<StatisticsForm>();
+  const { watch, setValue, register } = useFormContext<StatisticsForm>();
   const compareYearValue = watch('year');
   const mode = watch('mode');
   const facilityType = watch('facilityType');
@@ -54,18 +54,11 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
         {availableFacilityTypes.length > 1 && (
           <StatisticsFilterAccordionItem label={t('statistics:agreementType')} subtitle={facilityType ?? ''}>
             <div className="flex flex-col gap-12">
-              {availableFacilityTypes.map((type) => (
-                <RadioButton
-                  key={type}
-                  value={type}
-                  name="facilityTypeMobile"
-                  checked={facilityType === type}
-                  onChange={() => setValue('facilityType', type)}
-                  data-cy={`facility-type-mobile-${type}`}
-                >
-                  {type}
-                </RadioButton>
-              ))}
+              <Select data-cy={`facility-type-mobile-${facilityType}`} {...register('facilityType')}>
+                {availableFacilityTypes.map((type) => (
+                  <Select.Option key={type}>{type}</Select.Option>
+                ))}
+              </Select>
             </div>
           </StatisticsFilterAccordionItem>
         )}
