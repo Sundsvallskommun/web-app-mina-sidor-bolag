@@ -49,13 +49,14 @@ export default function Charts({
 }: ChartsProps) {
   const { watch, setValue } = useFormContext();
   const { facilityIds, toDate, fromDate, year, category } = watch();
+  const facilityType: string | undefined = watch('facilityType');
   const normalYearComparison = isNormalYear(year);
   const [onlyTrade, setOnlyTrade] = useState(false);
   const [isHourQuarter, setIsHourQuarter] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
   const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
   const [showEventLog, setShowEventLog] = useState<boolean>(false);
-  const { t } = useTranslation('event');
+  const { t } = useTranslation(['event', 'statistics']);
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -195,8 +196,20 @@ export default function Charts({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measurementData, previousMeasurementData, normalYearComparison]);
 
+  const formattedDate = (mergedMeasurementData ?? measurementData)?.formattedDate;
+  const comparisonYear = year && !normalYearComparison && !isFetchingMeasurementData ? ` och ${year}` : '';
+  const period = formattedDate ? `${formattedDate}${comparisonYear}` : '';
+  const periodAndAddress = [period, selectedAddresses.join(', ')].filter(Boolean).join(', ');
+
   return (
-    <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
+    <div className="sm:bg-background-content sm:rounded-cards sm:shadow-50 mt-24 sm:py-40 sm:px-20 lg:px-32">
+      <h2 className="text-h4-md sm:hidden">
+        {t('statistics:overview.titleWithType', { facilityType: facilityType?.toLowerCase() ?? '' })}
+      </h2>
+      <h2 className="text-h4-lg hidden sm:block">{t('statistics:overview.title')}</h2>
+
+      <p className="sm:hidden first-letter:uppercase">{periodAndAddress}</p>
+
       <div className="sm:block hidden">
         <StatisticsFilter
           closeHandler={() => {}}

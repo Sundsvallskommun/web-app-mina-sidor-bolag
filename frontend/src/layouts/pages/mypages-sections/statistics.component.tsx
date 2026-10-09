@@ -64,7 +64,7 @@ export default function Statistics() {
   return (
     <div>
       <FormProvider {...context}>
-        <h1 className="mb-64">{t('statistics:title')}</h1>
+        <h1 className="mb-44 sm:mb-56 text-h1-sm sm:text-h1-lg">{t('statistics:title')}</h1>
 
         <Tabs color="tertiary" size="lg" underline={false} data-cy="statistics-tabs">
           <Tabs.Item>
