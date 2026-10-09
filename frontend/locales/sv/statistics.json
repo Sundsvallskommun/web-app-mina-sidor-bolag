@@ -1,6 +1,13 @@
 {
   "title": "Din statistik",
   "filter": "Filter",
+  "tabs": {
+    "overview": "Översikt"
+  },
+  "overview": {
+    "title": "Översikt",
+    "titleWithType": "Översikt {{facilityType}}"
+  },
   "agreementType": "Typ av anläggning",
   "toFilter": "Filtrera",
   "showBy": "Visa statistik per",
