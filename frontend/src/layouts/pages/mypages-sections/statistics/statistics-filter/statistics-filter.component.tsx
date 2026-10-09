@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, RadioButton } from '@sk-web-gui/react';
+import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, Select } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
@@ -24,10 +24,10 @@ export interface StatisticsFilterProps {
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
   const { closeHandler, allAgreements } = props;
-  const { watch, setValue } = useFormContext<StatisticsForm>();
+  const { watch, setValue, register } = useFormContext<StatisticsForm>();
   const mode = watch('mode');
-  const facilityType = watch('facilityType');
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
+  const facilityType = watch('facilityType');
 
   const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
 
@@ -46,18 +46,11 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             <div className="flex flex-col gap-12 w-full lg:w-auto">
               <FormLabel className="text-label-large">{t('statistics:agreementType')}</FormLabel>
               <div className="flex flex-row items-center gap-16">
-                {availableFacilityTypes.map((type) => (
-                  <RadioButton
-                    key={type}
-                    value={type}
-                    name="facilityType"
-                    checked={facilityType === type}
-                    onChange={() => setValue('facilityType', type)}
-                    data-cy={`facility-type-${type}`}
-                  >
-                    {type}
-                  </RadioButton>
-                ))}
+                <Select data-cy={`facility-type-${facilityType}`} {...register('facilityType')}>
+                  {availableFacilityTypes.map((type) => (
+                    <Select.Option key={type}>{type}</Select.Option>
+                  ))}
+                </Select>
               </div>
             </div>
           </div>
