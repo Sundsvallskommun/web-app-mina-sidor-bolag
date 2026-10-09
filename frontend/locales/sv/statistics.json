@@ -1,6 +1,10 @@
 {
   "title": "Din statistik",
   "filter": "Filter",
+  "tabs": {
+    "overview": "Översikt",
+    "effektToppar": "Effekttoppar"
+  },
   "agreementType": "Typ av anläggning",
   "toFilter": "Filtrera",
   "showBy": "Visa statistik per",

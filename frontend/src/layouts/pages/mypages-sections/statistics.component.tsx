@@ -1,16 +1,15 @@
 'use client';
 
 import { FormProvider, useForm } from 'react-hook-form';
-import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
 import { StatisticsFilterMobile } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter-mobile.component';
 import { StatisticsFilterMode } from '@layouts/pages/mypages-sections/statistics/statistics-filter/use-statistics-filter';
 import { FacilityType } from '@utils/facility';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { Button, Icon, Modal, Spinner } from '@sk-web-gui/react';
+import { Button, Icon, Modal, Spinner, Tabs } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import { ListFilter } from 'lucide-react';
 import { usePagedAgreements } from '@utils/use-paged-agreements.hook';
@@ -62,30 +61,40 @@ export default function Statistics() {
     setIsOpen(false);
   };
 
-  const statisticsFilter = (
-    <StatisticsFilter closeHandler={closeHandler} allAgreements={{ isDone, currentPage, totalPages }} />
-  );
-
   return (
     <div>
       <FormProvider {...context}>
-        <div className="md:flex md:justify-between">
-          <h1 className="mb-64">{t('statistics:title')}</h1>
-          <Button size="md" className="sm:hidden" onClick={openHandler} leftIcon={<Icon icon={<ListFilter />} />}>
-            {t('statistics:filter')}
-          </Button>
-        </div>
+        <h1 className="mb-64">{t('statistics:title')}</h1>
 
-        <form>
-          {isFetching ? (
-            <Spinner className="mx-auto" />
-          ) : (
-            <>
-              <div className="sm:block hidden">{statisticsFilter}</div>
-              <Charts allAgreements={allAgreements} isAllAgreementsDone={isDone} />
-            </>
-          )}
-        </form>
+        <Tabs color="tertiary" size="lg" underline={false} data-cy="statistics-tabs">
+          <Tabs.Item>
+            <Tabs.Button>{t('statistics:tabs.overview')}</Tabs.Button>
+            <Tabs.Content>
+              <Button
+                size="md"
+                variant="secondary"
+                className="sm:hidden w-full mt-24"
+                onClick={openHandler}
+                leftIcon={<Icon icon={<ListFilter />} />}
+              >
+                {t('statistics:filter')}
+              </Button>
+
+              <form>
+                {isFetching ? (
+                  <Spinner className="mx-auto" />
+                ) : (
+                  <Charts
+                    allAgreements={allAgreements}
+                    isAllAgreementsDone={isDone}
+                    allAgreementsCurrentPage={currentPage}
+                    allAgreementsTotalPages={totalPages}
+                  />
+                )}
+              </form>
+            </Tabs.Content>
+          </Tabs.Item>
+        </Tabs>
 
         <Modal
           className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95vh]"

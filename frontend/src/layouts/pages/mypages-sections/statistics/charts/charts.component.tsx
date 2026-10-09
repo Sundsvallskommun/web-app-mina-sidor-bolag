@@ -22,10 +22,13 @@ import { OnlyTrade } from '../../overview/consumption/only-trade.component';
 import { EventLog } from '@layouts/pages/mypages-sections/statistics/event-log/event-log.component';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
 
 export interface ChartsProps {
   readonly allAgreements: AgreementData;
   readonly isAllAgreementsDone: boolean;
+  readonly allAgreementsCurrentPage: number;
+  readonly allAgreementsTotalPages: number;
 }
 
 const formatRequestBoundary = (date: dayjs.Dayjs, edge: 'start' | 'end', utcBoundaries: boolean): string => {
@@ -38,7 +41,12 @@ const formatRequestBoundary = (date: dayjs.Dayjs, edge: 'start' | 'end', utcBoun
   return bounded.format();
 };
 
-export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
+export default function Charts({
+  allAgreements,
+  isAllAgreementsDone,
+  allAgreementsCurrentPage,
+  allAgreementsTotalPages,
+}: ChartsProps) {
   const { watch, setValue } = useFormContext();
   const { facilityIds, toDate, fromDate, year, category } = watch();
   const normalYearComparison = isNormalYear(year);
@@ -188,16 +196,27 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
   }, [measurementData, previousMeasurementData, normalYearComparison]);
 
   return (
-    <div>
+    <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
+      <div className="sm:block hidden">
+        <StatisticsFilter
+          closeHandler={() => {}}
+          allAgreements={{
+            isDone: isAllAgreementsDone,
+            currentPage: allAgreementsCurrentPage,
+            totalPages: allAgreementsTotalPages,
+          }}
+        />
+      </div>
+
       {onlyTrade && facilityIds?.length === 1 && user?.facilities?.some((f) => f.facilityId === facilityIds[0]) ? (
-        <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20 flex justify-center items-center">
+        <div className="flex justify-center items-center">
           <OnlyTrade
             key={`handel-facility-${facilityIds[0]}`}
             facility={user?.facilities?.find((f) => f.facilityId === facilityIds[0])}
           />
         </div>
       ) : (
-        <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
+        <>
           <Consumption
             data={mergedMeasurementData ?? measurementData}
             addresses={selectedAddresses}
@@ -237,7 +256,7 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
           </div>
 
           {showEventLog && <EventLog />}
-        </div>
+        </>
       )}
     </div>
   );
