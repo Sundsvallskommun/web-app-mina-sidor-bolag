@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { ChangeEvent } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-export const StatisticsFilterDay: React.FC = () => {
+export const StatisticsFilterDay: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
   const { setValue, watch } = useFormContext<StatisticsForm>();
   const { selectedYear, selectedMonth, selectedDay } = watch();
 
@@ -24,8 +24,9 @@ export const StatisticsFilterDay: React.FC = () => {
 
   return (
     <div className={cx(`w-full lg:pt-0`)}>
-      <FormLabel className="text-label-large">Dag</FormLabel>
+      <FormLabel className="text-label-medium sm:text-label-small">Dag</FormLabel>
       <DatePicker
+        size={size}
         className="w-full mt-8"
         type="date"
         value={date}
