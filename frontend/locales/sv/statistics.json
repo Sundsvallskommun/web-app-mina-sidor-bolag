@@ -8,7 +8,7 @@
     "title": "Översikt",
     "titleWithType": "Översikt {{facilityType}}"
   },
-  "agreementType": "Typ av anläggning",
+  "agreementType": "Avtalstyp",
   "toFilter": "Filtrera",
   "showBy": "Visa statistik per",
   "exportBy": "Exportera statistik per",

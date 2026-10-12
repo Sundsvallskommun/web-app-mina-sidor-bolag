@@ -28,6 +28,8 @@ describe('Statistik', () => {
     cy.get('h1').should('exist').should('contain.text', 'Din statistik');
   };
 
+  const facilityTypeSelect = () => cy.get('[data-cy="statistics-filter"] select[data-cy^="facility-type-"]');
+
   const emptyStatisticsDataIntercept = () => {
     cy.intercept('GET', `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`, {
       fixture: null,
@@ -106,7 +108,9 @@ describe('Statistik', () => {
       getStatisticsData(fromDate, toDate, Category.DISTRICT_HEATING, Aggregation.HOUR)
     ).as('getDistrictHeatingData');
 
-    cy.get('[data-cy="facility-type-Fjärrvärme"]').should('exist').click({ force: true });
+    facilityTypeSelect().should('have.value', 'Elförbrukning').select('Fjärrvärme');
+    facilityTypeSelect().should('have.value', 'Fjärrvärme');
+    cy.wait('@getDistrictHeatingData');
 
     cy.get('[data-cy="facility-select"]').should('exist');
   });
@@ -198,7 +202,7 @@ describe('Statistik', () => {
     ).as('getDistrictHeatingYearData');
 
     // Normalår is only offered for district heating in the year view
-    cy.get('[data-cy="facility-type-Fjärrvärme"]').should('exist').click({ force: true });
+    facilityTypeSelect().select('Fjärrvärme');
     cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
 
     cy.get('[data-cy="compare-year-select"]').should('exist').select('normalYear');
@@ -226,7 +230,7 @@ describe('Statistik', () => {
     );
 
     // Stay on electricity (explicit, so the test does not rely on the default selection)
-    cy.get('[data-cy="facility-type-Elförbrukning"]').should('exist').click({ force: true });
+    facilityTypeSelect().select('Elförbrukning');
     cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
     cy.get('[data-cy="compare-year-select"] option[value="normalYear"]').should('not.exist');
   });
@@ -278,7 +282,7 @@ describe('Statistik', () => {
         Aggregation.HOUR
       )
     );
-    cy.get('[data-cy="facility-type-Fjärrvärme"]').click({ force: true });
+    facilityTypeSelect().select('Fjärrvärme');
 
     cy.get('[data-cy="export-statistics-button"]').should('not.be.disabled').click();
     cy.get('[data-cy="export-facilities-accordion-header"]').click();
