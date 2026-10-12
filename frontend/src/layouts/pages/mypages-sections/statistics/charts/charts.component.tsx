@@ -22,10 +22,13 @@ import { OnlyTrade } from '../../overview/consumption/only-trade.component';
 import { EventLog } from '@layouts/pages/mypages-sections/statistics/event-log/event-log.component';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { StatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.component';
 
 export interface ChartsProps {
   readonly allAgreements: AgreementData;
   readonly isAllAgreementsDone: boolean;
+  readonly allAgreementsCurrentPage: number;
+  readonly allAgreementsTotalPages: number;
 }
 
 const formatRequestBoundary = (date: dayjs.Dayjs, edge: 'start' | 'end', utcBoundaries: boolean): string => {
@@ -38,16 +41,22 @@ const formatRequestBoundary = (date: dayjs.Dayjs, edge: 'start' | 'end', utcBoun
   return bounded.format();
 };
 
-export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsProps) {
+export default function Charts({
+  allAgreements,
+  isAllAgreementsDone,
+  allAgreementsCurrentPage,
+  allAgreementsTotalPages,
+}: ChartsProps) {
   const { watch, setValue } = useFormContext();
   const { facilityIds, toDate, fromDate, year, category } = watch();
+  const facilityType: string | undefined = watch('facilityType');
   const normalYearComparison = isNormalYear(year);
   const [onlyTrade, setOnlyTrade] = useState(false);
   const [isHourQuarter, setIsHourQuarter] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
   const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
   const [showEventLog, setShowEventLog] = useState<boolean>(false);
-  const { t } = useTranslation('event');
+  const { t } = useTranslation(['event', 'statistics']);
 
   const { data: user } = useApi<User>({
     method: 'get',
@@ -187,17 +196,40 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measurementData, previousMeasurementData, normalYearComparison]);
 
+  const formattedDate = (mergedMeasurementData ?? measurementData)?.formattedDate;
+  const comparisonYear = year && !normalYearComparison && !isFetchingMeasurementData ? ` och ${year}` : '';
+  const period = formattedDate ? `${formattedDate}${comparisonYear}` : '';
+  const periodAndAddress = [period, selectedAddresses.join(', ')].filter(Boolean).join(', ');
+
   return (
-    <div>
+    <div className="sm:bg-background-content sm:rounded-cards sm:shadow-50 mt-24 sm:py-40 sm:px-20 lg:px-32">
+      <h2 className="text-h4-md sm:hidden">
+        {t('statistics:overview.titleWithType', { facilityType: facilityType?.toLowerCase() ?? '' })}
+      </h2>
+      <h2 className="text-h4-lg hidden sm:block">{t('statistics:overview.title')}</h2>
+
+      <p className="sm:hidden first-letter:uppercase">{periodAndAddress}</p>
+
+      <div className="sm:block hidden">
+        <StatisticsFilter
+          closeHandler={() => {}}
+          allAgreements={{
+            isDone: isAllAgreementsDone,
+            currentPage: allAgreementsCurrentPage,
+            totalPages: allAgreementsTotalPages,
+          }}
+        />
+      </div>
+
       {onlyTrade && facilityIds?.length === 1 && user?.facilities?.some((f) => f.facilityId === facilityIds[0]) ? (
-        <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20 flex justify-center items-center">
+        <div className="flex justify-center items-center">
           <OnlyTrade
             key={`handel-facility-${facilityIds[0]}`}
             facility={user?.facilities?.find((f) => f.facilityId === facilityIds[0])}
           />
         </div>
       ) : (
-        <div className="bg-background-content rounded-cards shadow-50 mt-24 py-40 lg:px-32 px-20">
+        <>
           <Consumption
             data={mergedMeasurementData ?? measurementData}
             addresses={selectedAddresses}
@@ -237,7 +269,7 @@ export default function Charts({ allAgreements, isAllAgreementsDone }: ChartsPro
           </div>
 
           {showEventLog && <EventLog />}
-        </div>
+        </>
       )}
     </div>
   );
