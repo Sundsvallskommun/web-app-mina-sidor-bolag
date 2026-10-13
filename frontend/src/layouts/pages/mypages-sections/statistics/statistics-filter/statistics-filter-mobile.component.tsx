@@ -55,8 +55,8 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
       <Accordion>
         {availableFacilityTypes.length > 1 && (
           <StatisticsFilterAccordionItem label={t('statistics:agreementType')} subtitle={facilityType ?? ''}>
-            <div className="flex flex-col gap-12">
-              <Select data-cy={`facility-type-mobile-${facilityType}`} {...register('facilityType')}>
+            <div className="flex flex-col gap-12 pl-6">
+              <Select className="w-full" data-cy={`facility-type-mobile-${facilityType}`} {...register('facilityType')}>
                 {availableFacilityTypes.map((type) => (
                   <Select.Option key={type}>{type}</Select.Option>
                 ))}
@@ -69,29 +69,31 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
           label={t('common:address')}
           subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
         >
-          <Combobox
-            multiple
-            value={facilities.checked}
-            onChange={(e) => facilities.setSelected(e.target.value as string[])}
-            data-cy="facility-select-mobile"
-          >
-            <Combobox.Input />
-            <Combobox.List>
-              {addresses.groups.map((group) => (
-                <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>
-                  {group.facilities.map((facilityId) => (
-                    <Combobox.Option key={facilityId} value={facilityId}>
-                      {facilityId}
-                    </Combobox.Option>
-                  ))}
-                </Combobox.Optgroup>
-              ))}
-            </Combobox.List>
-          </Combobox>
+          <div className="flex flex-col gap-12 pl-6">
+            <Combobox
+              multiple
+              value={facilities.checked}
+              onChange={(e) => facilities.setSelected(e.target.value as string[])}
+              data-cy="facility-select-mobile"
+            >
+              <Combobox.Input />
+              <Combobox.List>
+                {addresses.groups.map((group) => (
+                  <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>
+                    {group.facilities.map((facilityId) => (
+                      <Combobox.Option key={facilityId} value={facilityId}>
+                        {facilityId}
+                      </Combobox.Option>
+                    ))}
+                  </Combobox.Optgroup>
+                ))}
+              </Combobox.List>
+            </Combobox>
+          </div>
         </StatisticsFilterAccordionItem>
 
         <StatisticsFilterAccordionItem label={t('statistics:showBy')} subtitle={periodSubtitle}>
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-16 pl-6">
             <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle-mobile">
               {modeOptions.map((item) => (
                 <NavigationBar.Item key={item.value} className="w-full !p-0 !m-0">
@@ -115,14 +117,16 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         {!isHourQuarter && (
           <StatisticsFilterAccordionItem label={t('statistics:compareYear')} subtitle={compareYearSubtitle}>
-            <CompareYearSelect
-              fromDate={fromDate}
-              mode={mode}
-              isDistrictHeating={isDistrictHeating}
-              isAggregating={facilities.checked.length > 1}
-              className="w-full"
-              dataCy="compare-year-select-mobile"
-            />
+            <div className="pl-6">
+              <CompareYearSelect
+                fromDate={fromDate}
+                mode={mode}
+                isDistrictHeating={isDistrictHeating}
+                isAggregating={facilities.checked.length > 1}
+                className="w-full"
+                dataCy="compare-year-select-mobile"
+              />
+            </div>
           </StatisticsFilterAccordionItem>
         )}
       </Accordion>

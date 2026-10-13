@@ -45,7 +45,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <section className="lg:flex gap-48 lg:pt-0 justify-stretch">
                 <div className="flex flex-col lg:flex-row justify-between items-start w-full lg:pt-0">
                   <div className="flex flex-col gap-12 w-full lg:w-auto">
-                    <FormLabel className="text-label-large">{t('statistics:agreementType')}</FormLabel>
+                    <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
                     <div className="flex flex-row items-center gap-16">
                       <Select size="sm" data-cy={`facility-type-${facilityType}`} {...register('facilityType')}>
                         {availableFacilityTypes.map((type) => (
@@ -58,7 +58,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </section>
             )}
             <div className="flex flex-col justify-start flex-1 gap-8">
-              <FormLabel className="text-label-large">{t('common:address')}</FormLabel>
+              <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
               <div>
                 <Combobox
                   size="sm"
@@ -98,7 +98,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
           <div className="flex flex-col md:flex-row md:items-end gap-16">
             <div className="lg:pt-0 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">
               <div className="flex flex-col gap-8 w-full lg:pt-0">
-                <FormLabel className="text-label-large">{t('statistics:showBy')}</FormLabel>
+                <FormLabel className="text-label-small">{t('statistics:showBy')}</FormLabel>
                 <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle">
                   {modeOptions.map((item) => (
                     <NavigationBar.Item key={item.value} className="lg:w-auto w-full !p-0 !m-0">
@@ -119,19 +119,20 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </div>
             </div>
             <div className="lg:flex-[0_0_auto] w-full lg:w-auto">
-              {mode === 'year' && <StatisticsFilterYear />}
-              {mode === 'month' && <StatisticsFilterMonth />}
-              {mode === 'day' && <StatisticsFilterDay />}
+              {mode === 'year' && <StatisticsFilterYear size="sm" />}
+              {mode === 'month' && <StatisticsFilterMonth size="sm" />}
+              {mode === 'day' && <StatisticsFilterDay size="sm" />}
             </div>
 
             {!isHourQuarter && (
               <div className="w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
-                <FormLabel className="text-label-large">{t('statistics:compareYear')}</FormLabel>
+                <FormLabel className="text-label-small">{t('statistics:compareYear')}</FormLabel>
                 <CompareYearSelect
                   fromDate={fromDate}
                   mode={mode}
                   isDistrictHeating={isDistrictHeating}
                   isAggregating={facilities.checked.length > 1}
+                  size="sm"
                   className="w-full mt-8"
                   dataCy="compare-year-select"
                 />

@@ -20,7 +20,7 @@ export const CheckboxDropdown = ({ label, children, 'data-cy': dataCy }: Checkbo
     <div ref={ref} className="relative w-full" data-cy={dataCy}>
       <button
         type="button"
-        className="flex items-center justify-between w-full rounded-button border-1 border-input-field-outline bg-input-field-surface px-12 py-8 text-dark-primary text-base cursor-pointer h-40"
+        className="flex items-center justify-between w-full rounded-button-sm border-1 border-input-field-outline bg-input-field-surface px-12 py-4 text-dark-primary text-small cursor-pointer h-32"
         onClick={() => setOpen((prev) => !prev)}
       >
         <span className="truncate text-left">{label}</span>

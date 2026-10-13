@@ -7,7 +7,7 @@ import { ChangeEvent, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { generateSelectableYears } from '../generateDateLists';
 
-export const StatisticsFilterYear: React.FC = () => {
+export const StatisticsFilterYear: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
   const selectableYears = useMemo(() => {
     return generateSelectableYears(dayjs().format('YYYY-MM-DD'));
   }, []);
@@ -24,8 +24,15 @@ export const StatisticsFilterYear: React.FC = () => {
 
   return (
     <div className={cx(`w-full lg:pt-0`)}>
-      <FormLabel className="text-label-large">År</FormLabel>
-      <Select value={date} name="year" className="w-full mt-8" onChange={handleChange} data-cy="year-select">
+      <FormLabel className="text-label-medium sm:text-label-small">År</FormLabel>
+      <Select
+        size={size}
+        value={date}
+        name="year"
+        className="w-full mt-8"
+        onChange={handleChange}
+        data-cy="year-select"
+      >
         {selectableYears.map((dateString) => (
           <Select.Option key={`selectedYear-${dateString}`} value={dateString}>
             {dayjs(dateString).format('YYYY')}
