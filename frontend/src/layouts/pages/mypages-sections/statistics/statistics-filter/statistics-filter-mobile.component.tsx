@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, Button, Checkbox, NavigationBar, Select } from '@sk-web-gui/react';
+import { Accordion, Button, Combobox, NavigationBar, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +34,8 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
     { value: 'day', label: t('statistics:day') },
   ];
 
+  const totalFacilities = addresses.groups.reduce((sum, group) => sum + group.facilities.length, 0);
+
   const periodSubtitle = (() => {
     if (!fromDate) return '';
     const d = dayjs(fromDate);
@@ -65,60 +67,27 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         <StatisticsFilterAccordionItem
           label={t('common:address')}
-          subtitle={t('statistics:selection', { count: addresses.selected.length, total: addresses.groups.length })}
+          subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
         >
-          <div className="flex flex-col gap-4">
-            <Checkbox
-              className="py-8 px-2"
-              checked={!addresses.noneChecked}
-              indeterminate={!addresses.allChecked && !addresses.noneChecked}
-              onChange={addresses.toggleAll}
-              data-cy="address-select-all-mobile"
-            >
-              {t('statistics:selectAll')}
-            </Checkbox>
-            <div className="pl-16 flex flex-col gap-4 max-h-[22vh] overflow-y-auto">
+          <Combobox
+            multiple
+            value={facilities.checked}
+            onChange={(e) => facilities.setSelected(e.target.value as string[])}
+            data-cy="facility-select-mobile"
+          >
+            <Combobox.Input />
+            <Combobox.List>
               {addresses.groups.map((group) => (
-                <Checkbox
-                  className="py-8 px-2"
-                  key={group.address}
-                  checked={addresses.isChecked('addresses', group.address)}
-                  onChange={() => addresses.toggle('addresses', group.address)}
-                >
-                  {group.address || t('common:unknownAddress')}
-                </Checkbox>
+                <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>
+                  {group.facilities.map((facilityId) => (
+                    <Combobox.Option key={facilityId} value={facilityId}>
+                      {facilityId}
+                    </Combobox.Option>
+                  ))}
+                </Combobox.Optgroup>
               ))}
-            </div>
-          </div>
-        </StatisticsFilterAccordionItem>
-
-        <StatisticsFilterAccordionItem
-          label={t('statistics:facilities')}
-          subtitle={t('statistics:selection', { count: facilities.checked.length, total: facilities.list.length })}
-        >
-          <div className="flex flex-col gap-4">
-            <Checkbox
-              className="py-8 px-2"
-              checked={!facilities.noneChecked}
-              indeterminate={!facilities.allChecked && !facilities.noneChecked}
-              onChange={facilities.toggleAll}
-              data-cy="facility-select-all-mobile"
-            >
-              {t('statistics:selectAll')}
-            </Checkbox>
-            <div className="pl-16 flex flex-col gap-4 max-h-[22vh] overflow-y-auto">
-              {facilities.list.map((facilityId) => (
-                <Checkbox
-                  className="py-8 px-2"
-                  key={facilityId}
-                  checked={facilities.isChecked('facilities', facilityId)}
-                  onChange={() => facilities.toggle('facilities', facilityId)}
-                >
-                  {facilityId}
-                </Checkbox>
-              ))}
-            </div>
-          </div>
+            </Combobox.List>
+          </Combobox>
         </StatisticsFilterAccordionItem>
 
         <StatisticsFilterAccordionItem label={t('statistics:showBy')} subtitle={periodSubtitle}>
