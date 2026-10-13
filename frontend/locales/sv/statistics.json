@@ -9,6 +9,7 @@
     "titleWithType": "Översikt {{facilityType}}"
   },
   "agreementType": "Avtalstyp",
+  "chooseAddress": "Välj adress",
   "toFilter": "Filtrera",
   "showBy": "Visa statistik per",
   "exportBy": "Exportera statistik per",

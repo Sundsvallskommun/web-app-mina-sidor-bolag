@@ -66,9 +66,11 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   value={facilities.checked}
                   onChange={(e) => facilities.setSelected(e.target.value as string[])}
                   data-cy="facility-select"
+                  placeholder={t('statistics:chooseAddress')}
+                  searchPlaceholder={t('statistics:chooseAddress')}
                 >
                   <Combobox.Input />
-                  <Combobox.List>
+                  <Combobox.List key={addresses.optionsKey}>
                     {addresses.groups.map((group) => (
                       <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>
                         {group.facilities.map((facilityId) => (

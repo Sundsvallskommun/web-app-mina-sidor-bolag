@@ -73,6 +73,11 @@ export const useStatisticsFilter = () => {
     return Array.from(groupMap.entries()).map(([address, facilities]) => ({ address, facilities }));
   }, [facilitiesByType]);
 
+  const optionsKey = useMemo(
+    () => facilitiesGroupedByAddress.map((g) => `${g.address}:${g.facilities.join(',')}`).join('|'),
+    [facilitiesGroupedByAddress]
+  );
+
   const facilityList = useMemo(() => {
     return facilitiesGroupedByAddress.filter((g) => checkedAddresses.includes(g.address)).flatMap((g) => g.facilities);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,6 +204,7 @@ export const useStatisticsFilter = () => {
     addresses: {
       groups: facilitiesGroupedByAddress,
       selected: checkedAddresses,
+      optionsKey,
     },
     facilities: {
       list: facilityList,
