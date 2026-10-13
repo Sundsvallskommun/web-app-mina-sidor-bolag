@@ -53,8 +53,8 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
       <Accordion>
         {availableFacilityTypes.length > 1 && (
           <StatisticsFilterAccordionItem label={t('statistics:agreementType')} subtitle={facilityType ?? ''}>
-            <div className="flex flex-col gap-12">
-              <Select data-cy={`facility-type-mobile-${facilityType}`} {...register('facilityType')}>
+            <div className="flex flex-col gap-12 pl-6">
+              <Select className="w-full" data-cy={`facility-type-mobile-${facilityType}`} {...register('facilityType')}>
                 {availableFacilityTypes.map((type) => (
                   <Select.Option key={type}>{type}</Select.Option>
                 ))}
@@ -67,7 +67,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
           label={t('common:address')}
           subtitle={t('statistics:selection', { count: addresses.selected.length, total: addresses.groups.length })}
         >
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 pl-6">
             <Checkbox
               className="py-8 px-2"
               checked={!addresses.noneChecked}
@@ -96,7 +96,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
           label={t('statistics:facilities')}
           subtitle={t('statistics:selection', { count: facilities.checked.length, total: facilities.list.length })}
         >
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 pl-6">
             <Checkbox
               className="py-8 px-2"
               checked={!facilities.noneChecked}
@@ -122,7 +122,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
         </StatisticsFilterAccordionItem>
 
         <StatisticsFilterAccordionItem label={t('statistics:showBy')} subtitle={periodSubtitle}>
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-16 pl-6">
             <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle-mobile">
               {modeOptions.map((item) => (
                 <NavigationBar.Item key={item.value} className="w-full !p-0 !m-0">
@@ -146,14 +146,16 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         {!isHourQuarter && (
           <StatisticsFilterAccordionItem label={t('statistics:compareYear')} subtitle={compareYearSubtitle}>
-            <CompareYearSelect
-              fromDate={fromDate}
-              mode={mode}
-              isDistrictHeating={isDistrictHeating}
-              isAggregating={facilities.checked.length > 1}
-              className="w-full"
-              dataCy="compare-year-select-mobile"
-            />
+            <div className="pl-6">
+              <CompareYearSelect
+                fromDate={fromDate}
+                mode={mode}
+                isDistrictHeating={isDistrictHeating}
+                isAggregating={facilities.checked.length > 1}
+                className="w-full"
+                dataCy="compare-year-select-mobile"
+              />
+            </div>
           </StatisticsFilterAccordionItem>
         )}
       </Accordion>
