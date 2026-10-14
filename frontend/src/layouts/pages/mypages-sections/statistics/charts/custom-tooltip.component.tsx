@@ -12,6 +12,8 @@ const UNIT_TEMPERATURE = 'ºC';
 const PAYLOAD_NAMES = {
   CURRENT: 'value',
   PREVIOUS: 'previousValue',
+  TEMPERATURE: 'temperature',
+  PREVIOUS_TEMPERATURE: 'previousTemperature',
 } as const;
 
 type PayloadItem = {
@@ -161,6 +163,11 @@ const StandardTooltip: React.FC<StandardTooltipProps> = ({ fromDate, label, aggr
 
   const currentValueItem = payload.find((p) => p.name === PAYLOAD_NAMES.CURRENT);
   const previousValueItem = payload.find((p) => p.name === PAYLOAD_NAMES.PREVIOUS);
+  const temperatureItem = payload.find((p) => p.name === PAYLOAD_NAMES.TEMPERATURE);
+  const previousTemperatureItem = payload.find((p) => p.name === PAYLOAD_NAMES.PREVIOUS_TEMPERATURE);
+
+  const temperatureTitle = t('statistics:temperature.title');
+  const currentTemperatureLabel = previousTemperatureItem ? `${temperatureTitle} ${currentLabel}` : temperatureTitle;
 
   return (
     <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
@@ -175,6 +182,21 @@ const StandardTooltip: React.FC<StandardTooltipProps> = ({ fromDate, label, aggr
       {comparisonLabel && previousValueItem && (
         <p>
           <strong>{comparisonLabel}:</strong> {formatNumber(previousValueItem.payload.previousValue ?? 0)} {unit}
+        </p>
+      )}
+
+      {temperatureItem?.value !== undefined && (
+        <p>
+          <strong>{currentTemperatureLabel}:</strong> {formatNumber(temperatureItem.value)} {UNIT_TEMPERATURE}
+        </p>
+      )}
+
+      {previousTemperatureItem?.value !== undefined && (
+        <p>
+          <strong>
+            {temperatureTitle} {comparisonLabel}:
+          </strong>{' '}
+          {formatNumber(previousTemperatureItem.value)} {UNIT_TEMPERATURE}
         </p>
       )}
     </div>
