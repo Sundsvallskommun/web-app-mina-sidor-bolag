@@ -90,7 +90,13 @@ export interface StatisticsMeasurementData {
 
 export interface MergedStatisticsMeasurementData extends Omit<StatisticsMeasurementData, 'measurementData'> {
   measurementData: MergedMeasurementSeries[];
+  previousTemperatureData?: MeasurementSerie[];
 }
+
+export type TemperatureMeasurementPoints = (MeasurementPoints | MergedMeasurementPoints) & {
+  temperature?: number;
+  previousTemperature?: number;
+};
 
 export interface MergedMeasurementPoints {
   value: number | undefined;

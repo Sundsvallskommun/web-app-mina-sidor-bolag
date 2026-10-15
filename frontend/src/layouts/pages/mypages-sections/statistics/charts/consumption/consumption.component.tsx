@@ -1,10 +1,11 @@
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import { ConsumptionChart } from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-chart/consumption-chart.component';
+import { canShowTemperature } from '@services/measurement-data-service';
 import { YearsLegend } from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-chart/years-legend.component';
 import ConsumptionInformation from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-information.component';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
-import { Spinner } from '@sk-web-gui/react';
-import { useEffect, useState } from 'react';
+import { Checkbox, Spinner } from '@sk-web-gui/react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ChartStyleSelector } from '../chart-style-selector.component';
@@ -29,17 +30,88 @@ export interface ElectricityConsumptionProps {
   updateIsHourQuarter?: (isHourQuarter: boolean) => void;
 }
 
+interface ConsumptionControlsProps {
+  showTimeInterval: boolean;
+  timeInterval: EnumTimeInterval;
+  onTimeIntervalChange: (timeInterval: EnumTimeInterval) => void;
+  viewMode: EnumViewMode;
+  onViewModeChange: (viewMode: EnumViewMode) => void;
+  yearsLegend: ReactNode;
+}
+
+function ConsumptionControls(props: Readonly<ConsumptionControlsProps>) {
+  const { showTimeInterval, timeInterval, onTimeIntervalChange, viewMode, onViewModeChange, yearsLegend } = props;
+
+  return (
+    <div className="flex flex-col gap-40 md:gap-24 mb-32">
+      <div className="flex flex-col-reverse gap-40 md:flex-row md:gap-0 md:justify-between md:items-center">
+        {showTimeInterval ? (
+          <TimeIntervalSelector
+            current={timeInterval === EnumTimeInterval.hour ? 0 : 1}
+            onChangeCurrent={(current) =>
+              onTimeIntervalChange(current === 0 ? EnumTimeInterval.hour : EnumTimeInterval.quarter)
+            }
+          />
+        ) : (
+          yearsLegend
+        )}
+        <div className="md:ml-auto">
+          <ChartStyleSelector
+            current={viewMode === EnumViewMode.graph ? 0 : 1}
+            onChangeCurrent={(current) => onViewModeChange(current === 0 ? EnumViewMode.graph : EnumViewMode.table)}
+          />
+        </div>
+      </div>
+      {showTimeInterval && yearsLegend}
+    </div>
+  );
+}
+
+interface ConsumptionGraphProps {
+  data: StatisticsMeasurementData | MergedStatisticsMeasurementData;
+  showTemperature: boolean;
+  onShowTemperatureChange: (showTemperature: boolean) => void;
+}
+
+function ConsumptionGraph(props: Readonly<ConsumptionGraphProps>) {
+  const { data, showTemperature, onShowTemperatureChange } = props;
+  const { t } = useTranslation('statistics');
+
+  return (
+    <div className="flex flex-col gap-24">
+      <ConsumptionChart data={data} showTemperature={showTemperature} />
+      {canShowTemperature(data) && (
+        <Checkbox
+          checked={showTemperature}
+          onChange={(e) => onShowTemperatureChange(e.target.checked)}
+          data-cy="show-temperature-checkbox"
+        >
+          {t('statistics:temperature.show')}
+        </Checkbox>
+      )}
+    </div>
+  );
+}
+
 export default function Consumption(props: ElectricityConsumptionProps) {
   const { setValue, getValues, watch } = useFormContext();
   const { data, addresses, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
   const [viewMode, setViewMode] = useState<EnumViewMode>(EnumViewMode.graph);
   const [timeInterval, setTimeInterval] = useState<EnumTimeInterval>(EnumTimeInterval.hour);
+  const [showTemperature, setShowTemperature] = useState(false);
   const { t } = useTranslation('statistics');
 
   const showTimeInterval =
     dayjs(getValues().toDate).diff(getValues().fromDate, 'days') < 2 && data?.category === 'ELECTRICITY';
 
   const isHourQuarter = watch('isHourQuarter');
+
+  const showYearsLegend = !!getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter;
+  const yearsLegend = showYearsLegend && (
+    <div className="content-center">
+      <YearsLegend data={data} showTemperature={showTemperature && canShowTemperature(data)} />
+    </div>
+  );
 
   useEffect(() => {
     const expected = isHourQuarter ? EnumTimeInterval.quarter : EnumTimeInterval.hour;
@@ -50,10 +122,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
   }, [isHourQuarter]);
 
   useEffect(() => {
-    if (updateIsHourQuarter) {
-      updateIsHourQuarter(timeInterval === EnumTimeInterval.quarter);
-    }
-
+    updateIsHourQuarter?.(timeInterval === EnumTimeInterval.quarter);
     setValue('isHourQuarter', timeInterval === EnumTimeInterval.quarter);
   }, [timeInterval, updateIsHourQuarter, setValue]);
 
@@ -72,34 +141,23 @@ export default function Consumption(props: ElectricityConsumptionProps) {
         <div className="flex flex-col gap-56">
           <ConsumptionInformation data={data} />
 
-          <div className="flex flex-col-reverse gap-40 md:flex-row md:gap-0 mb-32 md:justify-between">
-            {getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter && (
-              <div className="content-center">
-                <YearsLegend data={data} />
-              </div>
-            )}
-            {showTimeInterval && (
-              <TimeIntervalSelector
-                current={timeInterval === EnumTimeInterval.hour ? 0 : 1}
-                onChangeCurrent={(current) =>
-                  current === 0 ? setTimeInterval(EnumTimeInterval.hour) : setTimeInterval(EnumTimeInterval.quarter)
-                }
-              />
-            )}
-            <div className="md:ml-auto">
-              <ChartStyleSelector
-                current={viewMode === EnumViewMode.graph ? 0 : 1}
-                onChangeCurrent={(current) =>
-                  current === 0 ? setViewMode(EnumViewMode.graph) : setViewMode(EnumViewMode.table)
-                }
-              />
-            </div>
-          </div>
+          <ConsumptionControls
+            showTimeInterval={showTimeInterval}
+            timeInterval={timeInterval}
+            onTimeIntervalChange={setTimeInterval}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            yearsLegend={yearsLegend}
+          />
 
           {viewMode === EnumViewMode.graph ? (
-            <ConsumptionChart data={data} />
+            <ConsumptionGraph
+              data={data}
+              showTemperature={showTemperature}
+              onShowTemperatureChange={setShowTemperature}
+            />
           ) : (
-            <MeasurementDataTable data={data} isConsumption={true} />
+            <MeasurementDataTable data={data} />
           )}
         </div>
       ) : (

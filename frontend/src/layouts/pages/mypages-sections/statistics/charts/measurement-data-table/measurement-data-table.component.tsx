@@ -2,35 +2,36 @@ import React, { useMemo } from 'react';
 import { Table } from '@sk-web-gui/react';
 import {
   Aggregation,
-  MeasurementPoints,
   MergedMeasurementPoints,
   MergedStatisticsMeasurementData,
   StatisticsMeasurementData,
+  TemperatureMeasurementPoints,
 } from '@interfaces/measurement-data';
-import { translateAggregateOn } from '@services/measurement-data-service';
+import {
+  addTemperatureToMeasurementPoints,
+  canShowTemperature,
+  findTemperature,
+  translateAggregateOn,
+} from '@services/measurement-data-service';
 import { useFormContext } from 'react-hook-form';
 import dayjs from 'dayjs';
 import { toFixedNumber } from '@utils/to-fixed-number';
 import { useTranslation } from 'react-i18next';
 import { isNormalYear } from '@utils/normal-year';
 
-enum MeasurementType {
-  CONSUMPTION = 'consumption',
-  TEMPERATURE = 'temperature',
-}
-
 export interface MeasurementDataTableProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
-  isConsumption: boolean;
 }
 
 export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
-  const { data, isConsumption } = props;
+  const { data } = props;
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
 
   const year = getValues().year;
-  const showComparisonColumn = !!year && (isConsumption || !isNormalYear(year));
+  const showComparisonColumn = !!year;
+  const showTemperature = canShowTemperature(data);
+  const showPreviousTemperature = showTemperature && showComparisonColumn && !isNormalYear(year);
 
   const formatDate = (timestamp: string) => {
     switch (data?.aggregatedOn) {
@@ -47,22 +48,21 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   };
 
   const measurementPoints = useMemo(() => {
-    const points: MeasurementPoints[] | undefined = isConsumption
-      ? data?.measurementData?.[0]?.measurementPoints
-      : data?.temperatureData?.[0]?.measurementPoints;
+    if (!data) {
+      return undefined;
+    }
+    const points = addTemperatureToMeasurementPoints(data);
 
-    if (data?.aggregatedOn === Aggregation.QUARTER && points?.[0]?.values?.length) {
-      const quarterPoints: MeasurementPoints[] | MergedMeasurementPoints[] = points.flatMap((point) => {
+    if (data.aggregatedOn === Aggregation.QUARTER && points?.[0]?.values?.length) {
+      const quarterPoints: TemperatureMeasurementPoints[] = points.flatMap((point) => {
         if (point.values) {
-          return point.values.map(
-            (value, index) =>
-              ({
-                value,
-                timestamp: dayjs(point.timestamp)
-                  .add(index * 15, 'minute')
-                  .toISOString(),
-              }) as MeasurementPoints | MergedMeasurementPoints
-          );
+          return point.values.map((value, index) => {
+            const timestamp = dayjs(point.timestamp)
+              .add(index * 15, 'minute')
+              .toISOString();
+            const temperature = findTemperature(data.temperatureData, timestamp, 'MM-DD HH:mm') ?? point.temperature;
+            return { value, timestamp, temperature } as TemperatureMeasurementPoints;
+          });
         }
         return [];
       });
@@ -71,7 +71,7 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
     }
 
     return points;
-  }, [data, isConsumption]);
+  }, [data]);
 
   const translateConsumptionAmount = (value?: number) => {
     return t('statistics:consumption.amount', {
@@ -80,10 +80,16 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
     });
   };
   const translateTemperatureAmount = (value?: number) => {
+    if (value === undefined) {
+      return '–';
+    }
     return t('statistics:consumption.temperature', {
-      temperature: toFixedNumber(value ?? 0, 2),
+      temperature: toFixedNumber(value, 2),
     });
   };
+
+  const currentYear = dayjs(measurementPoints?.[0]?.timestamp ?? '').format('YYYY');
+  const temperatureTitle = t('statistics:temperature.title');
 
   const generateTableHeader = () => {
     return (
@@ -91,39 +97,37 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
         <Table.HeaderColumn className="capitalize bg-background-200">
           {translateAggregateOn(data?.aggregatedOn, t)}
         </Table.HeaderColumn>
-        <Table.HeaderColumn className="bg-background-200">
-          {dayjs(measurementPoints?.[0]?.timestamp ?? '').format('YYYY')}
-        </Table.HeaderColumn>
+        <Table.HeaderColumn className="bg-background-200">{currentYear}</Table.HeaderColumn>
         {showComparisonColumn && (
           <Table.HeaderColumn className="bg-background-200">
             {isNormalYear(year) ? t('statistics:consumption.correctedConsumption') : year}
           </Table.HeaderColumn>
         )}
+        {showTemperature && (
+          <Table.HeaderColumn className="bg-background-200">
+            {showPreviousTemperature ? currentYear : temperatureTitle}
+          </Table.HeaderColumn>
+        )}
+        {showPreviousTemperature && <Table.HeaderColumn className="bg-background-200">{year}</Table.HeaderColumn>}
       </Table.Header>
     );
   };
 
-  const generateTableRow = (
-    measurementType: MeasurementType,
-    measurement: MeasurementPoints | MergedMeasurementPoints,
-    index: number
-  ) => {
+  const generateTableRow = (measurement: TemperatureMeasurementPoints, index: number) => {
     return (
       <Table.Row key={`${measurement.timestamp}-${measurement.value}-${index}`}>
         <Table.Column>
           <p className="font-bold">{formatDate(measurement.timestamp ?? '')} </p>
         </Table.Column>
-        <Table.Column>
-          {measurementType === MeasurementType.CONSUMPTION
-            ? translateConsumptionAmount(measurement.value)
-            : translateTemperatureAmount(measurement.value)}
-        </Table.Column>
+        <Table.Column>{translateConsumptionAmount(measurement.value)}</Table.Column>
         {showComparisonColumn && (
           <Table.Column>
-            {measurementType === MeasurementType.CONSUMPTION
-              ? translateConsumptionAmount((measurement as MergedMeasurementPoints).previousValue)
-              : translateTemperatureAmount((measurement as MergedMeasurementPoints).previousValue)}
+            {translateConsumptionAmount((measurement as MergedMeasurementPoints).previousValue)}
           </Table.Column>
+        )}
+        {showTemperature && <Table.Column>{translateTemperatureAmount(measurement.temperature)}</Table.Column>}
+        {showPreviousTemperature && (
+          <Table.Column>{translateTemperatureAmount(measurement.previousTemperature)}</Table.Column>
         )}
       </Table.Row>
     );
@@ -132,15 +136,7 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   return (
     <Table background>
       {generateTableHeader()}
-      <Table.Body>
-        {measurementPoints?.map((measurement, index) =>
-          generateTableRow(
-            isConsumption ? MeasurementType.CONSUMPTION : MeasurementType.TEMPERATURE,
-            measurement,
-            index
-          )
-        )}
-      </Table.Body>
+      <Table.Body>{measurementPoints?.map((measurement, index) => generateTableRow(measurement, index))}</Table.Body>
     </Table>
   );
 };

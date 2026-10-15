@@ -45,7 +45,9 @@
     "timeInterval": "Tidsintervall"
   },
   "temperature": {
-    "title": "Utetemperatur"
+    "title": "Utetemperatur",
+    "show": "Visa utetemperatur",
+    "unit": "°C"
   },
   "export": "Exportera statistik",
   "onlyTrade": {

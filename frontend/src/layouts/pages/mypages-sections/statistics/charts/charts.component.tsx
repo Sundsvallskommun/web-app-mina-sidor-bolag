@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Consumption from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption.component';
 import { Button, Divider, Icon } from '@sk-web-gui/react';
-import OutdoorTemperature from '@layouts/pages/mypages-sections/statistics/charts/outdoor-temperature/outdoor-temperature.component';
 import { useFormContext } from 'react-hook-form';
 import {
   getAddressesFromFacilities,
   getAreaFromFacility,
   mergeCorrectedUsageDataSets,
   mergeMeasurementDataSets,
-  mergeTemperatureDataSets,
   statisticsMeasurementDataHandler,
 } from '@services/measurement-data-service';
 import { isNormalYear } from '@utils/normal-year';
@@ -54,7 +52,6 @@ export default function Charts({
   const [onlyTrade, setOnlyTrade] = useState(false);
   const [isHourQuarter, setIsHourQuarter] = useState(false);
   const [mergedMeasurementData, setMergedMeasurementData] = useState<MergedStatisticsMeasurementData>();
-  const [mergedTemperatureData, setMergedTemperatureData] = useState<MergedStatisticsMeasurementData>();
   const [showEventLog, setShowEventLog] = useState<boolean>(false);
   const { t } = useTranslation(['event', 'statistics']);
 
@@ -185,13 +182,10 @@ export default function Charts({
   useEffect(() => {
     if (measurementData && normalYearComparison) {
       setMergedMeasurementData(mergeCorrectedUsageDataSets(measurementData, fromDate));
-      setMergedTemperatureData(undefined);
     } else if (measurementData && previousMeasurementData) {
       setMergedMeasurementData(mergeMeasurementDataSets(measurementData, previousMeasurementData, fromDate));
-      setMergedTemperatureData(mergeTemperatureDataSets(measurementData, previousMeasurementData, fromDate));
     } else {
       setMergedMeasurementData(undefined);
-      setMergedTemperatureData(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measurementData, previousMeasurementData, normalYearComparison]);
@@ -237,17 +231,6 @@ export default function Charts({
             isPreviousFetching={isPreviousFetching}
             updateIsHourQuarter={setIsHourQuarter}
           />
-
-          {measurementData?.temperatureData?.length ? (
-            <>
-              <Divider className="my-64" />
-              <OutdoorTemperature
-                data={mergedTemperatureData ?? measurementData}
-                isFetching={isFetchingMeasurementData}
-                isPreviousFetching={isPreviousFetching}
-              />
-            </>
-          ) : null}
 
           <Divider className="my-64" />
 
