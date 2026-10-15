@@ -95,6 +95,7 @@ const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => {
           <Bar
             key={`bar-${b}`}
             dataKey={`values[${idx}]`}
+            barSize={14}
             stackId="a"
             shape={(props) =>
               barShape({
@@ -181,7 +182,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             bottom: 4,
           }}
           barCategoryGap={5}
-          barSize={10}
+          barSize={14}
         >
           <XAxis
             interval="preserveStartEnd"
