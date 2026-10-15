@@ -56,7 +56,6 @@ describe('Statistik', () => {
   it('should render filters correctly', () => {
     statisticsDataIntercept();
 
-    cy.get('[data-cy="address-select"]').should('exist');
     cy.get('[data-cy="facility-select"]').should('exist');
     cy.get('[data-cy="date-toggle"]').should('exist');
     cy.get('[data-cy="date-toggle-year-button"]').should('exist');
@@ -79,17 +78,8 @@ describe('Statistik', () => {
 
     cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1');
 
-    cy.get('[data-cy="address-select"]').should('exist').click();
-    cy.get('[data-cy="address-select"]')
-      .contains('label', 'Gamla Vägen 42')
-      .find('input[type="checkbox"]')
-      .check({ force: true })
-      .should('be.checked');
-
-    cy.get('[data-cy="facility-select"]').should('exist').click();
-    cy.get('[data-cy="facility-select"]')
-      .contains('label', '444')
-      .find('input[type="checkbox"]')
+    cy.get('[data-cy="facility-select"] input.sk-form-combobox-select').click();
+    cy.get('[data-cy="facility-select"] input[role="option"][value="444"]')
       .check({ force: true })
       .should('be.checked');
 

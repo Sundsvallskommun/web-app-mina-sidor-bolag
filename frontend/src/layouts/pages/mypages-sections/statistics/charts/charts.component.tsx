@@ -206,7 +206,7 @@ export default function Charts({
       <h2 className="text-h4-md sm:hidden">
         {t('statistics:overview.titleWithType', { facilityType: facilityType?.toLowerCase() ?? '' })}
       </h2>
-      <h2 className="text-h4-lg hidden sm:block">{t('statistics:overview.title')}</h2>
+      <h2 className="text-h4-lg hidden sm:block mb-32">{t('statistics:overview.title')}</h2>
 
       <p className="sm:hidden first-letter:uppercase">{periodAndAddress}</p>
 
