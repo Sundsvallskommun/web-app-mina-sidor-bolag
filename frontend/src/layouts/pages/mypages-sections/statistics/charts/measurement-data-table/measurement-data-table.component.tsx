@@ -10,6 +10,7 @@ import {
 import {
   addTemperatureToMeasurementPoints,
   canShowTemperature,
+  findTemperature,
   translateAggregateOn,
 } from '@services/measurement-data-service';
 import { useFormContext } from 'react-hook-form';
@@ -55,15 +56,13 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
     if (data.aggregatedOn === Aggregation.QUARTER && points?.[0]?.values?.length) {
       const quarterPoints: TemperatureMeasurementPoints[] = points.flatMap((point) => {
         if (point.values) {
-          return point.values.map(
-            (value, index) =>
-              ({
-                value,
-                timestamp: dayjs(point.timestamp)
-                  .add(index * 15, 'minute')
-                  .toISOString(),
-              }) as TemperatureMeasurementPoints
-          );
+          return point.values.map((value, index) => {
+            const timestamp = dayjs(point.timestamp)
+              .add(index * 15, 'minute')
+              .toISOString();
+            const temperature = findTemperature(data.temperatureData, timestamp, 'MM-DD HH:mm') ?? point.temperature;
+            return { value, timestamp, temperature } as TemperatureMeasurementPoints;
+          });
         }
         return [];
       });

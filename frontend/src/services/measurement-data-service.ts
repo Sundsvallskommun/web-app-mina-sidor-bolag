@@ -388,6 +388,7 @@ export const mergeCorrectedUsageDataSets = (
   );
 
 const temperatureMatchFormat: Partial<Record<Aggregation, string>> = {
+  [Aggregation.QUARTER]: 'MM-DD HH',
   [Aggregation.HOUR]: 'MM-DD HH',
   [Aggregation.DAY]: 'MM-DD',
   [Aggregation.MONTH]: 'MM',
@@ -398,6 +399,14 @@ export const canShowTemperature = (data: StatisticsMeasurementData | MergedStati
   !!temperatureMatchFormat[data.aggregatedOn] &&
   !!data.temperatureData?.[0]?.measurementPoints?.length;
 
+export const findTemperature = (
+  series: MeasurementSerie[] | undefined,
+  timestamp: string | undefined,
+  format: string
+) =>
+  series?.[0]?.measurementPoints?.find((t) => dayjs(t.timestamp).format(format) === dayjs(timestamp).format(format))
+    ?.value;
+
 export const addTemperatureToMeasurementPoints = (
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData
 ): TemperatureMeasurementPoints[] => {
@@ -407,15 +416,12 @@ export const addTemperatureToMeasurementPoints = (
     return points;
   }
 
-  const findTemperature = (series: MeasurementSerie[] | undefined, timestamp?: string) =>
-    series?.[0]?.measurementPoints?.find((t) => dayjs(t.timestamp).format(format) === dayjs(timestamp).format(format))
-      ?.value;
   const previousTemperatureData = 'previousTemperatureData' in data ? data.previousTemperatureData : undefined;
 
   return points.map((point) => ({
     ...point,
-    temperature: findTemperature(data.temperatureData, point.timestamp),
-    previousTemperature: findTemperature(previousTemperatureData, point.timestamp),
+    temperature: findTemperature(data.temperatureData, point.timestamp, format),
+    previousTemperature: findTemperature(previousTemperatureData, point.timestamp, format),
   }));
 };
 

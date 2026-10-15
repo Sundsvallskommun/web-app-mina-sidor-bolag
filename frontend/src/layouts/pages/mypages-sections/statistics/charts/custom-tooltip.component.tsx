@@ -8,7 +8,7 @@ import { makeMask } from './mask.component';
 
 const LOCALE = 'se';
 const UNIT_CONSUMPTION = 'kWh';
-const UNIT_TEMPERATURE = 'ºC';
+const UNIT_TEMPERATURE = '°C';
 const PAYLOAD_NAMES = {
   CURRENT: 'value',
   PREVIOUS: 'previousValue',
@@ -76,6 +76,9 @@ interface QuarterTooltipProps {
   isDarkMode: boolean;
 }
 
+const isTemperatureItem = (item: PayloadItem) =>
+  item.name === PAYLOAD_NAMES.TEMPERATURE || item.name === PAYLOAD_NAMES.PREVIOUS_TEMPERATURE;
+
 const legendTeckShape = (props: { index: number; isDarkMode: boolean; maskId?: string }) => {
   const stroked = true;
   const width = 14;
@@ -110,37 +113,50 @@ const legendTeckShape = (props: { index: number; isDarkMode: boolean; maskId?: s
 };
 
 const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit, isDarkMode }) => {
-  const items = payload.map((item, index) => {
-    const fromMin = dayjs(item.payload.timestamp)
-      .add(index * 15, 'minute')
-      .format('HH:mm');
-    const toMin = dayjs(item.payload.timestamp)
-      .add((index + 1) * 15, 'minute')
-      .format('HH:mm');
-    return (
-      <div key={'quarter-tooltip-item-' + index} className="flex flex-row items-center">
-        <div className="h-18 m-0 flex items-center flex-row">
-          {legendTeckShape({
-            index,
-            isDarkMode: isDarkMode ?? false,
-            maskId: index === 1 ? 'tool-mask' : undefined,
-          })}
+  const { t } = useTranslation('statistics');
+  const temperatureItem = payload.find((p) => p.name === PAYLOAD_NAMES.TEMPERATURE);
+
+  const items = payload
+    .filter((item) => !isTemperatureItem(item))
+    .map((item, index) => {
+      const fromMin = dayjs(item.payload.timestamp)
+        .add(index * 15, 'minute')
+        .format('HH:mm');
+      const toMin = dayjs(item.payload.timestamp)
+        .add((index + 1) * 15, 'minute')
+        .format('HH:mm');
+      return (
+        <div key={'quarter-tooltip-item-' + index} className="flex flex-row items-center">
+          <div className="h-18 m-0 flex items-center flex-row">
+            {legendTeckShape({
+              index,
+              isDarkMode: isDarkMode ?? false,
+              maskId: index === 1 ? 'tool-mask' : undefined,
+            })}
+          </div>
+          <div className="h-18 ml-4 flex items-center">
+            {fromMin} – {toMin}
+            <b className={'ml-12'}>
+              {formatNumber(item.value)} {unit}
+            </b>
+          </div>
         </div>
-        <div className="h-18 ml-4 flex items-center">
-          {fromMin} – {toMin}
-          <b className={'ml-12'}>
-            {formatNumber(item.value)} {unit}
-          </b>
-        </div>
-      </div>
-    );
-  });
+      );
+    });
 
   const reversedItems = [...items].reverse();
 
   return (
     <div className="flex flex-col gap-8 justify-evenly shadow-100 rounded-8 p-8 bg-background-content">
       {reversedItems}
+      {temperatureItem?.value !== undefined && (
+        <div className="h-18 flex items-center">
+          {t('statistics:temperature.title')}
+          <b className={'ml-12'}>
+            {formatNumber(temperatureItem.value)} {UNIT_TEMPERATURE}
+          </b>
+        </div>
+      )}
     </div>
   );
 };

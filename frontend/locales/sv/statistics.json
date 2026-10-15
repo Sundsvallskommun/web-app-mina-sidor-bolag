@@ -46,7 +46,8 @@
   },
   "temperature": {
     "title": "Utetemperatur",
-    "show": "Visa utetemperatur"
+    "show": "Visa utetemperatur",
+    "unit": "°C"
   },
   "export": "Exportera statistik",
   "onlyTrade": {

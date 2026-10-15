@@ -9,8 +9,8 @@ export const chartColors = {
   },
   singleBar: {
     light: {
-      fill: '#DFCDD3',
-      stroke: '#704251',
+      fill: '#A06A7C',
+      stroke: '#A06A7C',
     },
     dark: {
       fill: '#A06A7C',
@@ -28,17 +28,17 @@ export const chartColors = {
     borderDark: '#1F1F25',
   },
   temperature: {
-    light: '#DB6900',
-    dark: '#FFD3A8',
+    light: '#242424',
+    dark: '#FAFAFA',
   },
   previousValue: {
     light: {
-      fill: '#704251',
-      stroke: '#704251',
+      fill: '#B5C1E3',
+      stroke: '#B5C1E3',
     },
     dark: {
-      fill: '#2F2E2E',
-      stroke: '#FAE9E7',
+      fill: '#FFD3A8',
+      stroke: '#FFD3A8',
     },
   },
 } as const;

@@ -4,12 +4,12 @@ import { Bar, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, B
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
-import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 import { chartColors } from '@utils/chart-colors.const';
 import { addTemperatureToMeasurementPoints, canShowTemperature } from '@services/measurement-data-service';
 import { isNormalYear } from '@utils/normal-year';
 import { makeMask } from '../../mask.component';
+import { useTranslation } from 'react-i18next';
 
 export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
@@ -145,6 +145,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 480px)');
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
+  const { t } = useTranslation();
   const { data, showTemperature = false } = props;
 
   if (!data?.measurementData) {
@@ -163,7 +164,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
       </span>
       {temperatureVisible && (
         <span className="absolute bottom-[100%] right-0 hidden sm:block">
-          <strong>°C</strong>
+          <strong>{t('statistics:temperature.unit')}</strong>
         </span>
       )}
       <ResponsiveContainer width="100%" height="100%">
@@ -180,7 +181,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             bottom: 4,
           }}
           barCategoryGap={5}
-          barSize={14}
+          barSize={10}
         >
           <XAxis
             interval="preserveStartEnd"
