@@ -39,7 +39,7 @@ interface ConsumptionControlsProps {
   yearsLegend: ReactNode;
 }
 
-function ConsumptionControls(props: ConsumptionControlsProps) {
+function ConsumptionControls(props: Readonly<ConsumptionControlsProps>) {
   const { showTimeInterval, timeInterval, onTimeIntervalChange, viewMode, onViewModeChange, yearsLegend } = props;
 
   return (
@@ -73,7 +73,7 @@ interface ConsumptionGraphProps {
   onShowTemperatureChange: (showTemperature: boolean) => void;
 }
 
-function ConsumptionGraph(props: ConsumptionGraphProps) {
+function ConsumptionGraph(props: Readonly<ConsumptionGraphProps>) {
   const { data, showTemperature, onShowTemperatureChange } = props;
   const { t } = useTranslation('statistics');
 
