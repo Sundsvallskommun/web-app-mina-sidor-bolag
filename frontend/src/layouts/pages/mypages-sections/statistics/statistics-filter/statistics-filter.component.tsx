@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Combobox, FormLabel, NavigationBar, ProgressBar, Select } from '@sk-web-gui/react';
+import { Button, FormLabel, NavigationBar, ProgressBar, Select } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
@@ -8,6 +8,7 @@ import { StatisticsFilterYear } from './components/statistics-filter-year.compon
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { useTranslation } from 'react-i18next';
 import { CompareYearSelect } from './components/compare-year-select.component';
+import { FacilityCombobox } from './components/facility-combobox.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
 
@@ -60,28 +61,14 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             <div className="flex flex-col justify-start flex-1 gap-8">
               <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
               <div>
-                <Combobox
-                  size="sm"
-                  multiple
+                <FacilityCombobox
+                  groups={addresses.groups}
+                  optionsKey={addresses.optionsKey}
                   value={facilities.checked}
-                  onChange={(e) => facilities.setSelected(e.target.value as string[])}
-                  data-cy="facility-select"
-                  placeholder={t('statistics:chooseAddress')}
-                  searchPlaceholder={t('statistics:chooseAddress')}
-                >
-                  <Combobox.Input />
-                  <Combobox.List key={addresses.optionsKey}>
-                    {addresses.groups.map((group) => (
-                      <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>
-                        {group.facilities.map((facilityId) => (
-                          <Combobox.Option key={facilityId} value={facilityId}>
-                            {facilityId}
-                          </Combobox.Option>
-                        ))}
-                      </Combobox.Optgroup>
-                    ))}
-                  </Combobox.List>
-                </Combobox>
+                  onChange={facilities.setSelected}
+                  size="sm"
+                  dataCy="facility-select"
+                />
               </div>
               {!allAgreements.isDone && (
                 <div className="flex gap-8 mt-8">

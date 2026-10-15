@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, Button, Combobox, NavigationBar, Select } from '@sk-web-gui/react';
+import { Accordion, Button, NavigationBar, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { StatisticsFilterDay } from './components/statistics-filter-day.componen
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { CompareYearSelect } from './components/compare-year-select.component';
+import { FacilityCombobox } from './components/facility-combobox.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
 import { isNormalYear } from '@utils/normal-year';
@@ -70,27 +71,14 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
           subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
         >
           <div className="flex flex-col gap-12 pl-6">
-            <Combobox
-              multiple
+            <FacilityCombobox
+              groups={addresses.groups}
+              optionsKey={addresses.optionsKey}
               value={facilities.checked}
-              onChange={(e) => facilities.setSelected(e.target.value as string[])}
-              data-cy="facility-select-mobile"
-              placeholder={t('statistics:chooseAddress')}
-              searchPlaceholder={t('statistics:chooseAddress')}
-            >
-              <Combobox.Input className="w-full" />
-              <Combobox.List key={addresses.optionsKey}>
-                {addresses.groups.map((group) => (
-                  <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>
-                    {group.facilities.map((facilityId) => (
-                      <Combobox.Option key={facilityId} value={facilityId}>
-                        {facilityId}
-                      </Combobox.Option>
-                    ))}
-                  </Combobox.Optgroup>
-                ))}
-              </Combobox.List>
-            </Combobox>
+              onChange={facilities.setSelected}
+              inputClassName="w-full"
+              dataCy="facility-select-mobile"
+            />
           </div>
         </StatisticsFilterAccordionItem>
 
