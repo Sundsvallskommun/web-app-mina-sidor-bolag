@@ -394,10 +394,13 @@ const temperatureMatchFormat: Partial<Record<Aggregation, string>> = {
   [Aggregation.MONTH]: 'MM',
 };
 
+const hasTemperaturePoints = (series: MeasurementSerie[] | undefined) => !!series?.[0]?.measurementPoints?.length;
+
 export const canShowTemperature = (data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined) =>
   !!data?.aggregatedOn &&
   !!temperatureMatchFormat[data.aggregatedOn] &&
-  !!data.temperatureData?.[0]?.measurementPoints?.length;
+  (hasTemperaturePoints(data.temperatureData) ||
+    ('previousTemperatureData' in data && hasTemperaturePoints(data.previousTemperatureData)));
 
 export const findTemperature = (
   series: MeasurementSerie[] | undefined,

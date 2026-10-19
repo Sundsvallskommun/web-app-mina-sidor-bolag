@@ -182,7 +182,6 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             bottom: 4,
           }}
           barCategoryGap={5}
-          barSize={14}
         >
           <XAxis
             interval="preserveStartEnd"
