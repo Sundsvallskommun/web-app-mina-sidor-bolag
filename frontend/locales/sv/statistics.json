@@ -46,6 +46,7 @@
   },
   "temperature": {
     "title": "Utetemperatur",
+    "titleWithYear": "Utetemperatur {{year}}",
     "show": "Visa utetemperatur",
     "unit": "°C"
   },

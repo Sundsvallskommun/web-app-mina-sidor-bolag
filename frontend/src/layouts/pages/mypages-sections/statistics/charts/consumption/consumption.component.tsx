@@ -67,19 +67,24 @@ function ConsumptionControls(props: Readonly<ConsumptionControlsProps>) {
   );
 }
 
-interface ConsumptionGraphProps {
+interface ConsumptionViewProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData;
+  viewMode: EnumViewMode;
   showTemperature: boolean;
   onShowTemperatureChange: (showTemperature: boolean) => void;
 }
 
-function ConsumptionGraph(props: Readonly<ConsumptionGraphProps>) {
-  const { data, showTemperature, onShowTemperatureChange } = props;
+function ConsumptionView(props: Readonly<ConsumptionViewProps>) {
+  const { data, viewMode, showTemperature, onShowTemperatureChange } = props;
   const { t } = useTranslation('statistics');
 
   return (
     <div className="flex flex-col gap-24">
-      <ConsumptionChart data={data} showTemperature={showTemperature} />
+      {viewMode === EnumViewMode.graph ? (
+        <ConsumptionChart data={data} showTemperature={showTemperature} />
+      ) : (
+        <MeasurementDataTable data={data} showTemperature={showTemperature} />
+      )}
       {canShowTemperature(data) && (
         <Checkbox
           checked={showTemperature}
@@ -150,15 +155,12 @@ export default function Consumption(props: ElectricityConsumptionProps) {
             yearsLegend={yearsLegend}
           />
 
-          {viewMode === EnumViewMode.graph ? (
-            <ConsumptionGraph
-              data={data}
-              showTemperature={showTemperature}
-              onShowTemperatureChange={setShowTemperature}
-            />
-          ) : (
-            <MeasurementDataTable data={data} />
-          )}
+          <ConsumptionView
+            data={data}
+            viewMode={viewMode}
+            showTemperature={showTemperature}
+            onShowTemperatureChange={setShowTemperature}
+          />
         </div>
       ) : (
         <div data-cy="empty-response-container" className="w-full text-center my-56">

@@ -21,16 +21,17 @@ import { isNormalYear } from '@utils/normal-year';
 
 export interface MeasurementDataTableProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
+  showTemperature?: boolean;
 }
 
 export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
-  const { data } = props;
+  const { data, showTemperature: showTemperatureProp = false } = props;
   const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
 
   const year = getValues().year;
   const showComparisonColumn = !!year;
-  const showTemperature = canShowTemperature(data);
+  const showTemperature = showTemperatureProp && canShowTemperature(data);
   const showPreviousTemperature = showTemperature && showComparisonColumn && !isNormalYear(year);
 
   const formatDate = (timestamp: string) => {
@@ -89,7 +90,8 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   };
 
   const currentYear = dayjs(measurementPoints?.[0]?.timestamp ?? '').format('YYYY');
-  const temperatureTitle = t('statistics:temperature.title');
+  const temperatureTitle = (temperatureYear: string) =>
+    t('statistics:temperature.titleWithYear', { year: temperatureYear });
 
   const generateTableHeader = () => {
     return (
@@ -104,11 +106,11 @@ export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
           </Table.HeaderColumn>
         )}
         {showTemperature && (
-          <Table.HeaderColumn className="bg-background-200">
-            {showPreviousTemperature ? currentYear : temperatureTitle}
-          </Table.HeaderColumn>
+          <Table.HeaderColumn className="bg-background-200">{temperatureTitle(currentYear)}</Table.HeaderColumn>
         )}
-        {showPreviousTemperature && <Table.HeaderColumn className="bg-background-200">{year}</Table.HeaderColumn>}
+        {showPreviousTemperature && (
+          <Table.HeaderColumn className="bg-background-200">{temperatureTitle(year)}</Table.HeaderColumn>
+        )}
       </Table.Header>
     );
   };
