@@ -6,6 +6,7 @@ import {
   MergedMeasurementPoints,
   MergedStatisticsMeasurementData,
   StatisticsMeasurementData,
+  TemperatureMeasurementPoints,
 } from '@interfaces/measurement-data';
 import dayjs, { Dayjs } from 'dayjs';
 import { InstalledBaseItem } from '@data-contracts/installedbase/data-contracts';
@@ -371,6 +372,7 @@ export const mergeMeasurementDataSets = (
           measurementPoints,
         },
       ],
+      previousTemperatureData: previous.temperatureData,
     };
   }
 };
@@ -379,51 +381,51 @@ export const mergeCorrectedUsageDataSets = (
   current: StatisticsMeasurementData,
   fromDate: string
 ): MergedStatisticsMeasurementData | undefined =>
-  mergeMeasurementDataSets(current, { ...current, measurementData: current.correctedUsageData }, fromDate);
+  mergeMeasurementDataSets(
+    current,
+    { ...current, measurementData: current.correctedUsageData, temperatureData: undefined },
+    fromDate
+  );
 
-export const mergeTemperatureDataSets = (
-  current: StatisticsMeasurementData,
-  previous: StatisticsMeasurementData,
-  fromDate: string
-) => {
-  const aggregation = current.aggregatedOn;
-  if (!fromDate || !aggregation) {
-    return;
+const temperatureMatchFormat: Partial<Record<Aggregation, string>> = {
+  [Aggregation.QUARTER]: 'MM-DD HH',
+  [Aggregation.HOUR]: 'MM-DD HH',
+  [Aggregation.DAY]: 'MM-DD',
+  [Aggregation.MONTH]: 'MM',
+};
+
+const hasTemperaturePoints = (series: MeasurementSerie[] | undefined) => !!series?.[0]?.measurementPoints?.length;
+
+export const canShowTemperature = (data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined) =>
+  !!data?.aggregatedOn &&
+  !!temperatureMatchFormat[data.aggregatedOn] &&
+  (hasTemperaturePoints(data.temperatureData) ||
+    ('previousTemperatureData' in data && hasTemperaturePoints(data.previousTemperatureData)));
+
+export const findTemperature = (
+  series: MeasurementSerie[] | undefined,
+  timestamp: string | undefined,
+  format: string
+) =>
+  series?.[0]?.measurementPoints?.find((t) => dayjs(t.timestamp).format(format) === dayjs(timestamp).format(format))
+    ?.value;
+
+export const addTemperatureToMeasurementPoints = (
+  data: StatisticsMeasurementData | MergedStatisticsMeasurementData
+): TemperatureMeasurementPoints[] => {
+  const points = data.measurementData?.[0]?.measurementPoints ?? [];
+  const format = data.aggregatedOn && temperatureMatchFormat[data.aggregatedOn];
+  if (!format) {
+    return points;
   }
 
-  const array = Array.from(new Array(getDataLength(aggregation, fromDate)));
+  const previousTemperatureData = 'previousTemperatureData' in data ? data.previousTemperatureData : undefined;
 
-  const measurementPoints: MergedMeasurementPoints[] = array.map((_, index) => {
-    const currentDate = getCurrentDate(index, fromDate, aggregation);
-    const format = getDateFindFormat(aggregation);
-
-    const currentMeasurement = current.temperatureData?.[0]?.measurementPoints?.find(
-      (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
-    );
-    const previousMeasurement = previous.temperatureData?.[0]?.measurementPoints?.find(
-      (point) => dayjs(point.timestamp).format(format) === dayjs(currentDate).format(format)
-    );
-    const { value, ...rest } = currentMeasurement || {};
-    return {
-      ...rest,
-      timestamp: currentDate,
-      chartTimestamp: (index + 1).toString(),
-      value: value,
-      previousValue: previousMeasurement?.value,
-    };
-  });
-
-  if (current && measurementPoints?.length > 0) {
-    return {
-      ...current,
-      temperatureData: [
-        {
-          ...current.temperatureData?.[0],
-          measurementPoints,
-        },
-      ],
-    } as MergedStatisticsMeasurementData;
-  }
+  return points.map((point) => ({
+    ...point,
+    temperature: findTemperature(data.temperatureData, point.timestamp, format),
+    previousTemperature: findTemperature(previousTemperatureData, point.timestamp, format),
+  }));
 };
 
 const formatUnit = (unit?: string) => {
