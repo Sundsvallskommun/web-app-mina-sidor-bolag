@@ -58,7 +58,8 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   return (
     <div className="lg:w-auto w-full">
       <Button
-        size="lg"
+        size="md"
+        variant="secondary"
         rightIcon={<Download />}
         disabled={isFetching || !data?.measurementData?.length}
         onClick={() => setShowModal(true)}
