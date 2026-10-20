@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Consumption from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption.component';
-import { Button, Divider, Icon } from '@sk-web-gui/react';
+import { Button, Icon } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import {
   getAddressesFromFacilities,
@@ -194,36 +194,38 @@ export default function Charts({
   const comparisonYear = year && !normalYearComparison && !isFetchingMeasurementData ? ` och ${year}` : '';
   const period = formattedDate ? `${formattedDate}${comparisonYear}` : '';
   const periodAndAddress = [period, selectedAddresses.join(', ')].filter(Boolean).join(', ');
+  const isOnlyTradeFacility =
+    onlyTrade && facilityIds?.length === 1 && user?.facilities?.some((f) => f.facilityId === facilityIds[0]);
 
   return (
-    <div className="sm:bg-background-content sm:rounded-cards sm:shadow-50 mt-24 sm:py-40 sm:px-20 lg:px-32">
-      <h2 className="text-h4-md sm:hidden">
-        {t('statistics:overview.titleWithType', { facilityType: facilityType?.toLowerCase() ?? '' })}
-      </h2>
-      <h2 className="text-h4-lg hidden sm:block">{t('statistics:overview.title')}</h2>
+    <>
+      <div className="sm:bg-background-content sm:rounded-cards sm:shadow-50 mt-24 sm:py-40 sm:px-20 lg:px-32">
+        <h2 className="text-h4-md sm:hidden">
+          {t('statistics:overview.titleWithType', { facilityType: facilityType?.toLowerCase() ?? '' })}
+        </h2>
+        <h2 className="text-h4-lg hidden sm:block">{t('statistics:overview.title')}</h2>
 
-      <p className="sm:hidden first-letter:uppercase">{periodAndAddress}</p>
+        <p className="sm:hidden first-letter:uppercase">{periodAndAddress}</p>
 
-      <div className="sm:block hidden">
-        <StatisticsFilter
-          closeHandler={() => {}}
-          allAgreements={{
-            isDone: isAllAgreementsDone,
-            currentPage: allAgreementsCurrentPage,
-            totalPages: allAgreementsTotalPages,
-          }}
-        />
-      </div>
-
-      {onlyTrade && facilityIds?.length === 1 && user?.facilities?.some((f) => f.facilityId === facilityIds[0]) ? (
-        <div className="flex justify-center items-center">
-          <OnlyTrade
-            key={`handel-facility-${facilityIds[0]}`}
-            facility={user?.facilities?.find((f) => f.facilityId === facilityIds[0])}
+        <div className="sm:block hidden">
+          <StatisticsFilter
+            closeHandler={() => {}}
+            allAgreements={{
+              isDone: isAllAgreementsDone,
+              currentPage: allAgreementsCurrentPage,
+              totalPages: allAgreementsTotalPages,
+            }}
           />
         </div>
-      ) : (
-        <>
+
+        {isOnlyTradeFacility ? (
+          <div className="flex justify-center items-center">
+            <OnlyTrade
+              key={`handel-facility-${facilityIds[0]}`}
+              facility={user?.facilities?.find((f) => f.facilityId === facilityIds[0])}
+            />
+          </div>
+        ) : (
           <Consumption
             data={mergedMeasurementData ?? measurementData}
             addresses={selectedAddresses}
@@ -231,29 +233,30 @@ export default function Charts({
             isPreviousFetching={isPreviousFetching}
             updateIsHourQuarter={setIsHourQuarter}
           />
+        )}
+      </div>
 
-          <Divider className="my-64" />
-
-          <div className="mt-40 flex lg:justify-between items-start lg:flex-row flex-col-reverse lg:gap-0 gap-24">
-            <Button
-              showBackground={false}
-              variant="tertiary"
-              rightIcon={showEventLog ? <Icon icon={<ChevronUp />} /> : <Icon icon={<ChevronDown />} />}
-              onClick={() => (showEventLog ? setShowEventLog(false) : setShowEventLog(true))}
-              size="lg"
-              data-cy="event-log-toggle"
-            >
-              {showEventLog ? t('event:hideExports') : t('event:showExports')}
-            </Button>
+      {!isOnlyTradeFacility && (
+        <>
+          <div className="mt-40 flex items-start lg:flex-row flex-col gap-24">
             <ExportStatisticsButton
               data={mergedMeasurementData ?? measurementData}
               isFetching={isFetchingMeasurementData}
             />
+            <Button
+              variant="ghost"
+              rightIcon={showEventLog ? <Icon icon={<ChevronUp />} /> : <Icon icon={<ChevronDown />} />}
+              onClick={() => (showEventLog ? setShowEventLog(false) : setShowEventLog(true))}
+              size="md"
+              data-cy="event-log-toggle"
+            >
+              {showEventLog ? t('event:hideExports') : t('event:showExports')}
+            </Button>
           </div>
 
           {showEventLog && <EventLog />}
         </>
       )}
-    </div>
+    </>
   );
 }
