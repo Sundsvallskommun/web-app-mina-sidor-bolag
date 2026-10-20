@@ -8,7 +8,6 @@ export interface FacilityComboboxProps {
   optionsKey: string;
   value: string[];
   onChange: (facilityIds: string[]) => void;
-  inputClassName?: string;
   dataCy?: string;
   size?: 'sm' | 'md';
 }
@@ -18,7 +17,6 @@ export const FacilityCombobox = ({
   optionsKey,
   value,
   onChange,
-  inputClassName,
   dataCy,
   size = 'md',
 }: Readonly<FacilityComboboxProps>) => {
@@ -26,6 +24,7 @@ export const FacilityCombobox = ({
 
   return (
     <Combobox
+      className="w-full"
       size={size}
       multiple
       value={value}
@@ -34,7 +33,7 @@ export const FacilityCombobox = ({
       placeholder={t('statistics:chooseAddress')}
       searchPlaceholder={t('statistics:chooseAddress')}
     >
-      <Combobox.Input className={inputClassName} />
+      <Combobox.Input className="w-full" />
       <Combobox.List key={optionsKey}>
         {groups.map((group) => (
           <Combobox.Optgroup key={group.address} label={group.address || t('common:unknownAddress')}>

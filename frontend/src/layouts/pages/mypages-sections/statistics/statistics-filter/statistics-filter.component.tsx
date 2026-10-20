@@ -40,25 +40,24 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
       <section className="lg:flex lg:justify-between block gap-auto">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-48">
-          <div className="flex flex-col md:flex-row md:items-center flex-1 gap-16">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-48 lg:gap-16">
+          <div className="flex flex-col md:flex-row md:items-start flex-1 gap-16">
             {availableFacilityTypes.length > 1 && (
-              <section className="lg:flex gap-48 lg:pt-0 justify-stretch">
-                <div className="flex flex-col lg:flex-row justify-between items-start w-full lg:pt-0">
-                  <div className="flex flex-col gap-12 w-full lg:w-auto">
-                    <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
-                    <div className="flex flex-row items-center gap-16">
-                      <Select size="sm" data-cy={`facility-type-${facilityType}`} {...register('facilityType')}>
-                        {availableFacilityTypes.map((type) => (
-                          <Select.Option key={type}>{type}</Select.Option>
-                        ))}
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              <div className="flex flex-col gap-8 md:flex-1 lg:flex-none">
+                <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
+                <Select
+                  size="sm"
+                  className="w-full"
+                  data-cy={`facility-type-${facilityType}`}
+                  {...register('facilityType')}
+                >
+                  {availableFacilityTypes.map((type) => (
+                    <Select.Option key={type}>{type}</Select.Option>
+                  ))}
+                </Select>
+              </div>
             )}
-            <div className="flex flex-col justify-start flex-1 gap-8">
+            <div className="flex flex-col justify-start md:flex-1 gap-8">
               <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
               <div>
                 <FacilityCombobox

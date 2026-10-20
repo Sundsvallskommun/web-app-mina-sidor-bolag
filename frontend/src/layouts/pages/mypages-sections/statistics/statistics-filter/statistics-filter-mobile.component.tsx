@@ -76,7 +76,6 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
               optionsKey={addresses.optionsKey}
               value={facilities.checked}
               onChange={facilities.setSelected}
-              inputClassName="w-full"
               dataCy="facility-select-mobile"
             />
           </div>
