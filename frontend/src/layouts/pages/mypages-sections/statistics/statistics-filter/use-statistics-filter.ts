@@ -203,11 +203,9 @@ export const useStatisticsFilter = () => {
     fromDate,
     addresses: {
       groups: facilitiesGroupedByAddress,
-      selected: checkedAddresses,
       optionsKey,
     },
     facilities: {
-      list: facilityList,
       checked: checkedFacilityIds,
       setSelected: setSelectedFacilities,
     },

@@ -11,9 +11,9 @@ import { CompareYearSelect } from './components/compare-year-select.component';
 import { FacilityCombobox } from './components/facility-combobox.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
+import { FacilityType } from '@utils/facility';
 
 export interface StatisticsFilterProps {
-  closeHandler: () => void;
   allAgreements: {
     isDone: boolean;
     currentPage: number;
@@ -23,8 +23,8 @@ export interface StatisticsFilterProps {
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { closeHandler, allAgreements } = props;
-  const { watch, setValue, register } = useFormContext<StatisticsForm>();
+  const { allAgreements } = props;
+  const { watch, setValue } = useFormContext<StatisticsForm>();
   const mode = watch('mode');
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
   const facilityType = watch('facilityType');
@@ -49,7 +49,8 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   size="sm"
                   className="w-full"
                   data-cy={`facility-type-${facilityType}`}
-                  {...register('facilityType')}
+                  value={facilityType ?? ''}
+                  onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
                 >
                   {availableFacilityTypes.map((type) => (
                     <Select.Option key={type}>{type}</Select.Option>
@@ -127,10 +128,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </div>
             )}
           </div>
-
-          <Button onClick={closeHandler} className="sm:hidden block w-full lg:w-auto lg:flex-[0_0_auto] mt-48">
-            {t('statistics:use')}
-          </Button>
         </div>
       </section>
     </div>

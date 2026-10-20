@@ -212,7 +212,6 @@ export default function Charts({
 
       <div className="sm:block hidden">
         <StatisticsFilter
-          closeHandler={() => {}}
           allAgreements={{
             isDone: isAllAgreementsDone,
             currentPage: allAgreementsCurrentPage,

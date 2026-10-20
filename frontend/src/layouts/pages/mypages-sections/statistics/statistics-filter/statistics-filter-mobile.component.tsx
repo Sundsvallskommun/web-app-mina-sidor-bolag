@@ -14,6 +14,7 @@ import { FacilityCombobox } from './components/facility-combobox.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
 import { isNormalYear } from '@utils/normal-year';
+import { FacilityType } from '@utils/facility';
 
 export interface StatisticsFilterMobileProps {
   closeHandler: () => void;
@@ -21,7 +22,7 @@ export interface StatisticsFilterMobileProps {
 
 export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { watch, setValue, register } = useFormContext<StatisticsForm>();
+  const { watch, setValue } = useFormContext<StatisticsForm>();
   const compareYearValue = watch('year');
   const mode = watch('mode');
   const facilityType = watch('facilityType');
@@ -57,7 +58,12 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
         {availableFacilityTypes.length > 1 && (
           <StatisticsFilterAccordionItem label={t('statistics:agreementType')} subtitle={facilityType ?? ''}>
             <div className="flex flex-col gap-12 pl-6">
-              <Select className="w-full" data-cy={`facility-type-mobile-${facilityType}`} {...register('facilityType')}>
+              <Select
+                className="w-full"
+                data-cy={`facility-type-mobile-${facilityType}`}
+                value={facilityType ?? ''}
+                onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
+              >
                 {availableFacilityTypes.map((type) => (
                   <Select.Option key={type}>{type}</Select.Option>
                 ))}
