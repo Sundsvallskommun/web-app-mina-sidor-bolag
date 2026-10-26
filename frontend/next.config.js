@@ -48,4 +48,10 @@ module.exports = withBundleAnalyzer({
   async rewrites() {
     return [{ source: '/napi/:path*', destination: '/api/:path*' }];
   },
+  async redirects() {
+    return [
+      { source: '/:locale(sv)?/privat', destination: '/privat/oversikt', permanent: false },
+      { source: '/:locale(sv)?/foretag', destination: '/foretag/oversikt', permanent: false },
+    ];
+  },
 });
