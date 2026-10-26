@@ -9,6 +9,7 @@
     "titleWithType": "Översikt {{facilityType}}"
   },
   "agreementType": "Avtalstyp",
+  "chooseAddress": "Välj adress",
   "toFilter": "Filtrera",
   "showBy": "Visa statistik per",
   "exportBy": "Exportera statistik per",
@@ -23,7 +24,6 @@
   "compareYearNone": "Inget",
   "selectAll": "Markera alla",
   "selection": "{{count}} av {{total}} valda",
-  "facilities": "Anläggningar",
   "use": "Använd",
   "chart": "Graf",
   "table": "Tabell",

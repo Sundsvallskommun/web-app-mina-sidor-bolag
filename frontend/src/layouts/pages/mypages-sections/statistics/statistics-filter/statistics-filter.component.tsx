@@ -1,19 +1,19 @@
 'use client';
 
-import { Button, Checkbox, FormLabel, NavigationBar, ProgressBar, Select } from '@sk-web-gui/react';
+import { Button, FormLabel, NavigationBar, ProgressBar, Select } from '@sk-web-gui/react';
 import { useFormContext } from 'react-hook-form';
 import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { useTranslation } from 'react-i18next';
-import { CheckboxDropdown } from './components/checkbox-dropdown.component';
 import { CompareYearSelect } from './components/compare-year-select.component';
+import { FacilityCombobox } from './components/facility-combobox.component';
 import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
+import { FacilityType } from '@utils/facility';
 
 export interface StatisticsFilterProps {
-  closeHandler: () => void;
   allAgreements: {
     isDone: boolean;
     currentPage: number;
@@ -23,8 +23,8 @@ export interface StatisticsFilterProps {
 
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { closeHandler, allAgreements } = props;
-  const { watch, setValue, register } = useFormContext<StatisticsForm>();
+  const { allAgreements } = props;
+  const { watch, setValue } = useFormContext<StatisticsForm>();
   const mode = watch('mode');
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
   const facilityType = watch('facilityType');
@@ -39,61 +39,36 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
 
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
-      {/* Row 1: Avtalstyp + show by toggle */}
-      {availableFacilityTypes.length > 1 && (
-        <section className="lg:flex gap-48 lg:pt-0 justify-stretch">
-          <div className="flex flex-col lg:flex-row justify-between items-start w-full lg:pt-0">
-            <div className="flex flex-col gap-12 w-full lg:w-auto">
-              <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
-              <div className="flex flex-row items-center gap-16">
-                <Select size="sm" data-cy={`facility-type-${facilityType}`} {...register('facilityType')}>
+      <section className="lg:flex lg:justify-between block gap-auto">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-48 lg:gap-16">
+          <div className="flex flex-col md:flex-row md:items-start flex-1 gap-16">
+            {availableFacilityTypes.length > 1 && (
+              <div className="flex flex-col gap-8 md:flex-1 lg:flex-none">
+                <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
+                <Select
+                  size="sm"
+                  className="w-full"
+                  data-cy={`facility-type-${facilityType}`}
+                  value={facilityType ?? ''}
+                  onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
+                >
                   {availableFacilityTypes.map((type) => (
                     <Select.Option key={type}>{type}</Select.Option>
                   ))}
                 </Select>
               </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Row 2: Address, Facilities, Date picker, Compare year */}
-      <section className="lg:flex lg:justify-between block gap-auto">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-48">
-          <div className="flex flex-col md:flex-row md:items-center flex-1 gap-16">
-            {/* Address dropdown with checkboxes */}
-            <div className="flex flex-col justify-start flex-1 gap-8">
+            )}
+            <div className="flex flex-col justify-start md:flex-1 gap-8">
               <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
               <div>
-                <CheckboxDropdown
-                  label={t('statistics:selection', {
-                    count: addresses.selected.length,
-                    total: addresses.groups.length,
-                  })}
-                  data-cy="address-select"
-                >
-                  <Checkbox
-                    className="py-8 pr-2"
-                    checked={!addresses.noneChecked}
-                    indeterminate={!addresses.allChecked && !addresses.noneChecked}
-                    onChange={addresses.toggleAll}
-                    data-cy="address-select-all"
-                  >
-                    {t('statistics:selectAll')}
-                  </Checkbox>
-                  <div className="pl-16 flex flex-col gap-4">
-                    {addresses.groups.map((group) => (
-                      <Checkbox
-                        className="py-8 pr-2"
-                        key={group.address}
-                        checked={addresses.isChecked('addresses', group.address)}
-                        onChange={() => addresses.toggle('addresses', group.address)}
-                      >
-                        {group.address || t('common:unknownAddress')}
-                      </Checkbox>
-                    ))}
-                  </div>
-                </CheckboxDropdown>
+                <FacilityCombobox
+                  groups={addresses.groups}
+                  optionsKey={addresses.optionsKey}
+                  value={facilities.checked}
+                  onChange={facilities.setSelected}
+                  size="sm"
+                  dataCy="facility-select"
+                />
               </div>
               {!allAgreements.isDone && (
                 <div className="flex gap-8 mt-8">
@@ -106,39 +81,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   />
                 </div>
               )}
-            </div>
-
-            {/* Facility dropdown with checkboxes */}
-            <div className="flex flex-col gap-8 flex-1">
-              <FormLabel className="text-label-small">{t('statistics:facilities')}</FormLabel>
-              <div>
-                <CheckboxDropdown
-                  label={t('statistics:selection', { count: facilities.checked.length, total: facilities.list.length })}
-                  data-cy="facility-select"
-                >
-                  <Checkbox
-                    className="py-8 pr-2"
-                    checked={!facilities.noneChecked}
-                    indeterminate={!facilities.allChecked && !facilities.noneChecked}
-                    onChange={facilities.toggleAll}
-                    data-cy="facility-select-all"
-                  >
-                    {t('statistics:selectAll')}
-                  </Checkbox>
-                  <div className="pl-16 flex flex-col gap-4">
-                    {facilities.list.map((facilityId) => (
-                      <Checkbox
-                        className="py-8 pr-2"
-                        key={facilityId}
-                        checked={facilities.isChecked('facilities', facilityId)}
-                        onChange={() => facilities.toggle('facilities', facilityId)}
-                      >
-                        {facilityId}
-                      </Checkbox>
-                    ))}
-                  </div>
-                </CheckboxDropdown>
-              </div>
             </div>
           </div>
 
@@ -186,10 +128,6 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               </div>
             )}
           </div>
-
-          <Button onClick={closeHandler} className="sm:hidden block w-full lg:w-auto lg:flex-[0_0_auto] mt-48">
-            {t('statistics:use')}
-          </Button>
         </div>
       </section>
     </div>
