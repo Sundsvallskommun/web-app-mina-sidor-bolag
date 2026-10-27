@@ -30,32 +30,33 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
   const facilityType = watch('facilityType');
 
-  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
+  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities, hasOneFacility } =
+    useStatisticsFilter();
 
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
       <section className="lg:flex lg:justify-between block gap-auto">
         <div className="flex flex-col lg:flex-row justify-between lg:items-end w-full lg:pt-0 pt-24 pb-24 gap-24">
-          <div className="flex flex-col md:flex-row md:items-start flex-1 gap-24">
-            {availableFacilityTypes.length > 1 && (
-              <div className="flex flex-col gap-8 md:flex-1 lg:flex-none">
-                <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
-                <Select
-                  size="sm"
-                  className="w-full"
-                  data-cy={`facility-type-${facilityType}`}
-                  value={facilityType ?? ''}
-                  onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
-                >
-                  {availableFacilityTypes.map((type) => (
-                    <Select.Option key={type}>{type}</Select.Option>
-                  ))}
-                </Select>
-              </div>
-            )}
-            <div className="flex flex-col justify-start md:flex-1 gap-8">
-              <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
-              <div>
+          {!hasOneFacility && (
+            <div className="flex flex-col md:flex-row md:items-start flex-1 gap-24">
+              {availableFacilityTypes.length > 1 && (
+                <div className="flex flex-col gap-8 md:flex-1 lg:flex-none">
+                  <FormLabel className="text-label-small">{t('statistics:agreementType')}</FormLabel>
+                  <Select
+                    size="sm"
+                    className="w-full"
+                    data-cy={`facility-type-${facilityType}`}
+                    value={facilityType ?? ''}
+                    onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
+                  >
+                    {availableFacilityTypes.map((type) => (
+                      <Select.Option key={type}>{type}</Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+              <div className="flex flex-col justify-start md:flex-1 gap-8">
+                <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
                 <FacilityCombobox
                   groups={addresses.groups}
                   optionsKey={addresses.optionsKey}
@@ -64,20 +65,20 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   size="sm"
                   dataCy="facility-select"
                 />
+                {!allAgreements.isDone && (
+                  <div className="flex gap-8 mt-8">
+                    <ProgressBar
+                      current={allAgreements.currentPage}
+                      steps={allAgreements.totalPages}
+                      size="md"
+                      color="vattjom"
+                      className="w-full"
+                    />
+                  </div>
+                )}
               </div>
-              {!allAgreements.isDone && (
-                <div className="flex gap-8 mt-8">
-                  <ProgressBar
-                    current={allAgreements.currentPage}
-                    steps={allAgreements.totalPages}
-                    size="md"
-                    color="vattjom"
-                    className="w-full"
-                  />
-                </div>
-              )}
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col md:flex-row md:items-end gap-24">
             <div className="lg:pt-0 lg:justify-end justify-center lg:flex-[0_0_auto] w-full lg:w-auto">

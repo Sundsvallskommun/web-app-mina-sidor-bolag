@@ -197,6 +197,8 @@ export const useStatisticsFilter = () => {
     }
   }, [mode, selectedDay, selectedMonth, selectedYear, setValue]);
 
+  const hasOneFacility = (user?.facilities?.length ?? 0) === 1;
+
   return {
     availableFacilityTypes,
     isHourQuarter,
@@ -209,5 +211,6 @@ export const useStatisticsFilter = () => {
       checked: checkedFacilityIds,
       setSelected: setSelectedFacilities,
     },
+    hasOneFacility,
   };
 };
