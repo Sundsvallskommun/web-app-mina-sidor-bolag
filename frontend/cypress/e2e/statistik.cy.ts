@@ -79,7 +79,8 @@ describe('Statistik', () => {
     cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1');
 
     cy.get('[data-cy="facility-select"] input.sk-form-combobox-select').click();
-    cy.get('[data-cy="facility-select"] input[role="option"][value="444"]').check({ force: true }).should('be.checked');
+    cy.contains('[data-cy="facility-select"] .sk-form-combobox-list-option', '444').click();
+    cy.get('[data-cy="facility-select"] input[role="option"][value="444"]').should('be.checked');
 
     cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1, Gamla Vägen 42');
   });
