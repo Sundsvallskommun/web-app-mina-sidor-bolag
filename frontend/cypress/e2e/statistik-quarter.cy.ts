@@ -49,7 +49,7 @@ describe('Statistik - QUARTER Aggregation', () => {
     cy.get('[data-cy="statistics-filter"] select[data-cy^="facility-type-"]').select('Elförbrukning');
 
     // Switch to day view
-    cy.get('[data-cy="date-toggle-day-button"]').click();
+    cy.get('[data-cy="statistics-filter"] select[data-cy="date-toggle"]').select('day');
 
     cy.wait('@hourData');
 

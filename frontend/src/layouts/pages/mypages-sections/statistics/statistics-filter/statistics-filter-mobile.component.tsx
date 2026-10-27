@@ -1,6 +1,6 @@
 'use client';
 
-import { Accordion, Button, NavigationBar, Select } from '@sk-web-gui/react';
+import { Accordion, Button, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,8 @@ import { StatisticsFilterMonth } from './components/statistics-filter-month.comp
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { CompareYearSelect } from './components/compare-year-select.component';
 import { FacilityCombobox } from './components/facility-combobox.component';
-import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
+import { ModeSelect } from './components/mode-select.component';
+import { useStatisticsFilter } from './use-statistics-filter';
 import { Category } from '@interfaces/measurement-data';
 import { isNormalYear } from '@utils/normal-year';
 import { FacilityType } from '@utils/facility';
@@ -29,12 +30,6 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
 
   const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
-
-  const modeOptions: { value: StatisticsFilterMode; label: string }[] = [
-    { value: 'year', label: t('statistics:year') },
-    { value: 'month', label: t('statistics:month') },
-    { value: 'day', label: t('statistics:day') },
-  ];
 
   const totalFacilities = addresses.groups.reduce((sum, group) => sum + group.facilities.length, 0);
 
@@ -89,21 +84,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         <StatisticsFilterAccordionItem label={t('statistics:showBy')} subtitle={periodSubtitle}>
           <div className="flex flex-col gap-16 pl-6">
-            <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle-mobile">
-              {modeOptions.map((item) => (
-                <NavigationBar.Item key={item.value} className="w-full !p-0 !m-0">
-                  <Button
-                    className="w-full !h-[12px] !py-0"
-                    size="sm"
-                    inverted={mode === item.value}
-                    onClick={() => setValue('mode', item.value)}
-                    data-cy={`date-toggle-mobile-${item.value}-button`}
-                  >
-                    {item.label}
-                  </Button>
-                </NavigationBar.Item>
-              ))}
-            </NavigationBar>
+            <ModeSelect dataCy="date-toggle-mobile" />
             {mode === 'year' && <StatisticsFilterYear />}
             {mode === 'month' && <StatisticsFilterMonth />}
             {mode === 'day' && <StatisticsFilterDay />}

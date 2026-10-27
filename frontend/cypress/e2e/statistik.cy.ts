@@ -29,6 +29,7 @@ describe('Statistik', () => {
   };
 
   const facilityTypeSelect = () => cy.get('[data-cy="statistics-filter"] select[data-cy^="facility-type-"]');
+  const modeSelect = () => cy.get('[data-cy="statistics-filter"] select[data-cy="date-toggle"]');
 
   const emptyStatisticsDataIntercept = () => {
     cy.intercept('GET', `**/api/measurementdata?category=ELECTRICITY&facilityIds=*&fromDate=*&toDate=*&aggregateOn=*`, {
@@ -57,10 +58,9 @@ describe('Statistik', () => {
     statisticsDataIntercept();
 
     cy.get('[data-cy="facility-select"]').should('exist');
-    cy.get('[data-cy="date-toggle"]').should('exist');
-    cy.get('[data-cy="date-toggle-year-button"]').should('exist');
-    cy.get('[data-cy="date-toggle-month-button"]').should('exist');
-    cy.get('[data-cy="date-toggle-day-button"]').should('exist');
+    modeSelect().find('option[value="year"]').should('exist');
+    modeSelect().find('option[value="month"]').should('exist');
+    modeSelect().find('option[value="day"]').should('exist');
     cy.get('[data-cy="compare-year-select"]').should('exist');
   });
 
@@ -79,9 +79,8 @@ describe('Statistik', () => {
     cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1');
 
     cy.get('[data-cy="facility-select"] input.sk-form-combobox-select').click();
-    cy.get('[data-cy="facility-select"] input[role="option"][value="444"]')
-      .check({ force: true })
-      .should('be.checked');
+    cy.contains('[data-cy="facility-select"] .sk-form-combobox-list-option', '444').click();
+    cy.get('[data-cy="facility-select"] input[role="option"][value="444"]').should('be.checked');
 
     cy.get('[data-cy="address"]').should('have.text', 'Storgatan 1, Gamla Vägen 42');
   });
@@ -123,24 +122,23 @@ describe('Statistik', () => {
       getStatisticsData(fromDate, toDate, Category.ELECTRICITY, Aggregation.MONTH)
     ).as('getStatisticsData');
 
-    cy.get('[data-cy="date-toggle"]').should('exist');
-
-    cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
-    cy.get('[data-cy="date-toggle-day-button"]').should('exist').click();
+    modeSelect().select('year');
+    modeSelect().should('have.value', 'year');
+    modeSelect().select('day');
+    modeSelect().should('have.value', 'day');
   });
-
 
   it('clamps day when switching from a 31-day month to a shorter month', () => {
     statisticsDataIntercept();
 
-    cy.get('[data-cy="date-toggle-day-button"]').should('exist').click();
+    modeSelect().select('day');
     cy.get('[data-cy="day-select"]').clear().type('2024-03-31').blur();
     cy.get('[data-cy="day-select"]').should('have.value', '2024-03-31');
 
-    cy.get('[data-cy="date-toggle-month-button"]').should('exist').click();
+    modeSelect().select('month');
     cy.get('[data-cy="month-select"]').select('2024-04-01');
 
-    cy.get('[data-cy="date-toggle-day-button"]').should('exist').click();
+    modeSelect().select('day');
     cy.get('[data-cy="day-select"]').should('have.value', '2024-04-30');
   });
 
@@ -193,7 +191,7 @@ describe('Statistik', () => {
 
     // Normalår is only offered for district heating in the year view
     facilityTypeSelect().select('Fjärrvärme');
-    cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
+    modeSelect().select('year');
 
     cy.get('[data-cy="compare-year-select"]').should('exist').select('normalYear');
     cy.get('[data-cy="compare-year-select"]').should('have.value', 'normalYear');
@@ -221,7 +219,7 @@ describe('Statistik', () => {
 
     // Stay on electricity (explicit, so the test does not rely on the default selection)
     facilityTypeSelect().select('Elförbrukning');
-    cy.get('[data-cy="date-toggle-year-button"]').should('exist').click();
+    modeSelect().select('year');
     cy.get('[data-cy="compare-year-select"] option[value="normalYear"]').should('not.exist');
   });
 
