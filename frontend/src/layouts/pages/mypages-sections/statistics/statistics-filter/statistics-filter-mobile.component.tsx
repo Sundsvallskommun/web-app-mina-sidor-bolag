@@ -29,7 +29,8 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   const facilityType = watch('facilityType');
   const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
 
-  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
+  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities, hasOneFacility } =
+    useStatisticsFilter();
 
   const totalFacilities = addresses.groups.reduce((sum, group) => sum + group.facilities.length, 0);
 
@@ -67,20 +68,22 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
           </StatisticsFilterAccordionItem>
         )}
 
-        <StatisticsFilterAccordionItem
-          label={t('common:address')}
-          subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
-        >
-          <div className="flex flex-col gap-12 pl-6">
-            <FacilityCombobox
-              groups={addresses.groups}
-              optionsKey={addresses.optionsKey}
-              value={facilities.checked}
-              onChange={facilities.setSelected}
-              dataCy="facility-select-mobile"
-            />
-          </div>
-        </StatisticsFilterAccordionItem>
+        {!hasOneFacility && (
+          <StatisticsFilterAccordionItem
+            label={t('common:address')}
+            subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
+          >
+            <div className="flex flex-col gap-12 pl-6">
+              <FacilityCombobox
+                groups={addresses.groups}
+                optionsKey={addresses.optionsKey}
+                value={facilities.checked}
+                onChange={facilities.setSelected}
+                dataCy="facility-select-mobile"
+              />
+            </div>
+          </StatisticsFilterAccordionItem>
+        )}
 
         <StatisticsFilterAccordionItem label={t('statistics:showBy')} subtitle={periodSubtitle}>
           <div className="flex flex-col gap-16 pl-6">
