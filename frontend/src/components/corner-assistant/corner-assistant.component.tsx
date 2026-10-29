@@ -52,7 +52,6 @@ export const CornerAssistant: React.FC = () => {
     setInfo({
       name: t('ai:info.name'),
       shortName: t('ai:info.shortName'),
-      title: t('ai:info.title'),
       description: t('ai:info.description'),
       id: 'selfserviceai',
       avatar: '/ai/avatar.png',
@@ -93,6 +92,9 @@ export const CornerAssistant: React.FC = () => {
       showNewSession={false}
       showFeedback={false}
       showSessionHistory={false}
+      title={t('ai:header_title')}
+      questionsTitle={t('ai:questions_title')}
+      questions={[t('ai:questions.invoice'), t('ai:questions.consumption'), t('ai:questions.moving')]}
     />
   ) : (
     <CornerAssistantState isMobile={isMaxLargeDevice} isPending={isPending} />
