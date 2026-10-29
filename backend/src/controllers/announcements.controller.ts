@@ -39,7 +39,7 @@ export class AnnouncementsController {
       title: item.title,
       text: item.description,
       urlTitle: 'readMore',
-      url: item.link,
+      url: item.overrideLink ? item.overrideLink : item.link,
       image: item.imageUrl ?? '',
       groups: parseGroups(item.category),
     }));
