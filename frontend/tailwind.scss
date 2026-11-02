@@ -157,6 +157,11 @@ body {
           }
         }
       }
+
+      .sk-ai-feed-entry-container {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
     }
   }
 }
