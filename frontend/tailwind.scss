@@ -122,6 +122,42 @@ body {
     &-cookie-consent-btn-wrapper .sk-btn-primary:hover {
       background-color: var(--sk-colors-primary-surface-hover);
     }
+
+    // AI-assistenten Milo: burgundy header (also the docked bar you click to open) and pink preset-question bubbles.
+    &-ai-corner-module {
+      .sk-ai-corner-module-header {
+        background-color: #600724;
+        color: var(--sk-colors-light-primary);
+
+        // Dark mode swaps to pink with burgundy text, like the charts do.
+        .dark & {
+          background-color: #fae9e7;
+          color: #600724;
+
+          .white-spinner > svg {
+            stroke: #600724;
+          }
+        }
+      }
+
+      .sk-ai-corner-module-feed-questions .sk-ai-bubble {
+        background-color: #fae9e7;
+        color: #600724;
+
+        // The tail is drawn with a box-shadow in --tw-shadow-color, set on the tail element itself.
+        .sk-ai-bubble-tail {
+          --tw-shadow-color: #fae9e7;
+        }
+
+        &:hover {
+          background-color: #f3d6d2;
+
+          .sk-ai-bubble-tail {
+            --tw-shadow-color: #f3d6d2;
+          }
+        }
+      }
+    }
   }
 }
 
