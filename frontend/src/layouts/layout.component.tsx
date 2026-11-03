@@ -132,6 +132,27 @@ export function Layout({ title, children }: { title: string; children: React.Rea
                     }}
                   />
                 </Footer.ListItem>
+
+                {customerEngagements.includes('5564786647') && (
+                  <Footer.ListItem>
+                    <Trans
+                      i18nKey="organization:5564786647.terms"
+                      components={{
+                        Link: <NextLink href={t('organization:5564786647.termsUrl')} variant="tertiary" external />,
+                      }}
+                    />
+                  </Footer.ListItem>
+                )}
+                {customerEngagements.includes('5565027223') && (
+                  <Footer.ListItem>
+                    <Trans
+                      i18nKey="organization:5565027223.terms"
+                      components={{
+                        Link: <NextLink href={t('organization:5565027223.termsUrl')} variant="tertiary" external />,
+                      }}
+                    />
+                  </Footer.ListItem>
+                )}
               </Footer.List>
               <Footer.List>
                 <Footer.ListItem className="text-label-medium">{t('layout:aboutContent')}</Footer.ListItem>

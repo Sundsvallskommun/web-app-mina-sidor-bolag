@@ -10,7 +10,9 @@
     "aboutUrl": "https://sundsvallenergi.se/om-oss",
     "personalData": "<Link href=\"https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy\">Personuppgifter Sundsvall Energi</Link>",
     "personalDataUrl": "https://sundsvallenergi.se/om-oss/detta-ar-vi/anvandarupplevelse/integritetspolicy",
-    "logo_alt": "Sundsvall energis logotyp"
+    "logo_alt": "Sundsvall energis logotyp",
+    "terms": "<Link href=\"https://sundsvallenergi.se/system/avtalsvillkor\">Avtalsvillkor Sundsvall Energi</Link>",
+    "termsUrl": "https://sundsvallenergi.se/system/avtalsvillkor"
   },
   "5565027223": {
     "name": "Sundsvall Elnät",
@@ -23,6 +25,8 @@
     "aboutUrl": "https://sundsvallelnat.se/om-oss/det-har-gor-vi",
     "personalData": "<Link href=\"https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter\">Personuppgifter Sundsvall Elnät</Link>",
     "personalDataUrl": "https://sundsvallelnat.se/om-oss/hantering-av-dina-personuppgifter",
-    "logo_alt": "Sundsvall elnäts logotyp"
+    "logo_alt": "Sundsvall elnäts logotyp",
+    "terms": "<Link href=\"https://sundsvallelnat.se/min-anslutning/priser-och-avtalsvillkor/allmanna-avtalsvillkor\">Avtalsvillkor Sundsvall Elnät</Link>",
+    "termsUrl": "https://sundsvallelnat.se/min-anslutning/priser-och-avtalsvillkor/allmanna-avtalsvillkor"
   }
 }
