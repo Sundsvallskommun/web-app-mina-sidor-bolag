@@ -55,7 +55,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   </Select>
                 </div>
               )}
-              <div className="flex flex-col justify-start md:flex-1 gap-8">
+              <div className="relative flex flex-col justify-start md:flex-1 gap-8">
                 <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
                 <FacilityCombobox
                   groups={addresses.groups}
@@ -66,7 +66,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   dataCy="facility-select"
                 />
                 {!allAgreements.isDone && (
-                  <div className="flex gap-8 mt-8">
+                  <div className="absolute top-full inset-x-0 flex gap-8 mt-8">
                     <ProgressBar
                       current={allAgreements.currentPage}
                       steps={allAgreements.totalPages}
