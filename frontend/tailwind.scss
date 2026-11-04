@@ -162,6 +162,24 @@ body {
         min-width: 0;
         overflow-wrap: anywhere;
       }
+
+      .sk-ai-markdown {
+        min-width: 0;
+
+        table {
+          display: block;
+          max-width: 100%;
+          overflow-x: auto;
+          border-collapse: collapse;
+        }
+
+        th,
+        td {
+          @apply border-1 border-divider px-8 py-4 text-left align-top;
+          overflow-wrap: normal;
+          min-width: 8rem;
+        }
+      }
     }
   }
 }
