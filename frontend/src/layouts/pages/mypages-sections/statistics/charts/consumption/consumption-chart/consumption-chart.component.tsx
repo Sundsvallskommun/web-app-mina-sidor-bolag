@@ -1,17 +1,33 @@
 'use client';
 
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, BarShapeProps } from 'recharts';
+import {
+  Bar,
+  ComposedChart,
+  DefaultZIndexes,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ZIndexLayer,
+  BarShapeProps,
+} from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import { useFormContext } from 'react-hook-form';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
-import React from 'react';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 import { chartColors } from '@utils/chart-colors.const';
+import { addTemperatureToMeasurementPoints, canShowTemperature } from '@services/measurement-data-service';
+import { isNormalYear } from '@utils/normal-year';
 import { makeMask } from '../../mask.component';
+import { useTranslation } from 'react-i18next';
 
 export interface ConsumptionChartProps {
   data: StatisticsMeasurementData | MergedStatisticsMeasurementData | undefined;
+  showTemperature?: boolean;
 }
+
+const TEMPERATURE_AXIS_ID = 'temperature';
 
 const calculateYAxisDomain = (dataMax: number) => {
   if (dataMax > 0 && dataMax < 10) {
@@ -137,28 +153,68 @@ const BarSeries = ({ aggregatedOn, isDarkMode, showPreviousYear }: BarSeriesProp
   </>
 );
 
+interface BarCursorProps {
+  dataLength: number;
+  points?: { x: number; y: number }[];
+  top?: number;
+  width?: number;
+  height?: number;
+}
+
+const BarCursor = ({ dataLength, points, top = 0, width = 0, height = 0 }: BarCursorProps) => {
+  if (!points?.length || !dataLength) {
+    return null;
+  }
+  const bandSize = width / dataLength;
+  return (
+    <ZIndexLayer zIndex={DefaultZIndexes.cursorRectangle}>
+      <rect
+        className="recharts-tooltip-cursor"
+        x={points[0].x - bandSize / 2}
+        y={top + 0.5}
+        width={bandSize}
+        height={height - 1}
+        fill="#ccc"
+        pointerEvents="none"
+      />
+    </ZIndexLayer>
+  );
+};
+
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 480px)');
   const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
-  const { data } = props;
+  const { t } = useTranslation();
+  const { data, showTemperature = false } = props;
 
   if (!data?.measurementData) {
     return null;
   }
 
   const showPreviousYear = Boolean(getValues().year);
+  const temperatureVisible = showTemperature && canShowTemperature(data);
+  const previousTemperatureVisible = temperatureVisible && showPreviousYear && !isNormalYear(getValues().year);
+  const temperatureColor = isDarkMode ? chartColors.temperature.dark : chartColors.temperature.light;
+  const chartData = temperatureVisible
+    ? addTemperatureToMeasurementPoints(data)
+    : data.measurementData[0]?.measurementPoints;
 
   return (
-    <div className="relative" style={{ maxWidth: 1000, height: 500 }} data-cy="consumption-chart">
+    <div className="relative" style={{ maxWidth: 1000, height: 300 }} data-cy="consumption-chart">
       <span className="absolute bottom-[100%] left-0 hidden sm:block">
         <strong>{data.unit}</strong>
       </span>
+      {temperatureVisible && (
+        <span className="absolute bottom-[100%] right-0 hidden sm:block">
+          <strong>{t('statistics:temperature.unit')}</strong>
+        </span>
+      )}
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
+        <ComposedChart
           width={1000}
           height={500}
-          data={data.measurementData[0]?.measurementPoints}
+          data={chartData}
           margin={{
             top: 0,
             right: 0,
@@ -185,6 +241,7 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             />
           )}
           <Tooltip
+            cursor={<BarCursor dataLength={chartData?.length ?? 0} />}
             content={
               <CustomTooltip
                 fromDate={getValues().fromDate}
@@ -200,7 +257,42 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             }
           />
           <BarSeries aggregatedOn={data?.aggregatedOn} isDarkMode={isDarkMode} showPreviousYear={showPreviousYear} />
-        </BarChart>
+          {temperatureVisible && (
+            <>
+              <YAxis
+                yAxisId={TEMPERATURE_AXIS_ID}
+                orientation="right"
+                hide={!isLargeDevice}
+                width={40}
+                domain={['auto', 'auto']}
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: isDarkMode ? chartColors.yAxis.dark : chartColors.yAxis.light }}
+              />
+              <Line
+                yAxisId={TEMPERATURE_AXIS_ID}
+                type="monotone"
+                dataKey="temperature"
+                stroke={temperatureColor}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
+              {previousTemperatureVisible && (
+                <Line
+                  yAxisId={TEMPERATURE_AXIS_ID}
+                  type="monotone"
+                  dataKey="previousTemperature"
+                  stroke={temperatureColor}
+                  strokeDasharray="5 5"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls
+                />
+              )}
+            </>
+          )}
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

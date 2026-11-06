@@ -9,12 +9,12 @@ export const chartColors = {
   },
   singleBar: {
     light: {
-      fill: '#600724',
-      stroke: '#600724',
+      fill: '#A06A7C',
+      stroke: '#A06A7C',
     },
     dark: {
-      fill: '#FAE9E7',
-      stroke: '#FAE9E7',
+      fill: '#A06A7C',
+      stroke: '#A06A7C',
     },
   },
   stackBar: {
@@ -27,14 +27,18 @@ export const chartColors = {
     borderLight: '#FFFFFF',
     borderDark: '#1F1F25',
   },
+  temperature: {
+    light: '#242424',
+    dark: '#FAFAFA',
+  },
   previousValue: {
     light: {
-      fill: '#DFCDD3',
-      stroke: '#FAE9E7',
+      fill: '#B5C1E3',
+      stroke: '#B5C1E3',
     },
     dark: {
-      fill: '#2F2E2E',
-      stroke: '#FAE9E7',
+      fill: '#FFD3A8',
+      stroke: '#FFD3A8',
     },
   },
 } as const;

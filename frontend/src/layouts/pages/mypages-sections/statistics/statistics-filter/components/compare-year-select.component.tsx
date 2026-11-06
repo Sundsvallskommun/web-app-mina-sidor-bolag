@@ -16,6 +16,7 @@ export interface CompareYearSelectProps {
   isAggregating: boolean;
   className?: string;
   dataCy?: string;
+  size?: 'sm' | 'md';
 }
 
 export const CompareYearSelect = ({
@@ -25,12 +26,13 @@ export const CompareYearSelect = ({
   isAggregating,
   className,
   dataCy,
+  size = 'md',
 }: CompareYearSelectProps) => {
   const { t } = useTranslation(['statistics']);
   const { register } = useFormContext<StatisticsForm>();
 
   return (
-    <Select {...register('year')} className={className} data-cy={dataCy}>
+    <Select {...register('year')} size={size} className={className} data-cy={dataCy}>
       <Select.Option key={0} value="">
         {t('statistics:chooseYear')}
       </Select.Option>

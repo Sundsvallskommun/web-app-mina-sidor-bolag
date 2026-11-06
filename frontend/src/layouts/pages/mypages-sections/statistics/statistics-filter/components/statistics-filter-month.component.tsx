@@ -7,7 +7,7 @@ import { ChangeEvent, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { generateSelectableMonths } from '../generateDateLists';
 
-export const StatisticsFilterMonth: React.FC = () => {
+export const StatisticsFilterMonth: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
   const selectableMonths = useMemo(() => {
     return generateSelectableMonths(dayjs().format('YYYY-MM-DD'));
   }, []);
@@ -27,9 +27,16 @@ export const StatisticsFilterMonth: React.FC = () => {
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0`)}>
-      <FormLabel className="text-label-large">Månad</FormLabel>
-      <Select className="w-full mt-8" value={date} name="month" onChange={handleChange} data-cy="month-select">
+    <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
+      <FormLabel className="text-label-medium sm:text-label-small">Månad</FormLabel>
+      <Select
+        size={size}
+        className="w-full"
+        value={date}
+        name="month"
+        onChange={handleChange}
+        data-cy="month-select"
+      >
         {selectableMonths.map((dateObj) => (
           <Select.Option key={dateObj.value} value={dateObj.value}>
             {dateObj.label}
