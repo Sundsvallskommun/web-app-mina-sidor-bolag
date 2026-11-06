@@ -9,7 +9,8 @@
     "titleWithType": "Översikt {{facilityType}}"
   },
   "agreementType": "Avtalstyp",
-  "chooseAddress": "Välj adress",
+  "facility": "Anläggning",
+  "chooseFacility": "Välj anläggning",
   "toFilter": "Filtrera",
   "showBy": "Tidsupplösning",
   "exportBy": "Exportera statistik per",
@@ -22,7 +23,7 @@
   "chooseYear": "Välj år",
   "normalYear": "Normalår",
   "compareYearNone": "Inget",
-  "selectAll": "Markera alla",
+  "selectAll": "Alla anläggningar",
   "selection": "{{count}} av {{total}} valda",
   "use": "Använd",
   "chart": "Graf",
