@@ -23,11 +23,11 @@ export const StatisticsFilterDay: React.FC<{ size?: 'sm' | 'md' }> = ({ size = '
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0`)}>
+    <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
       <FormLabel className="text-label-medium sm:text-label-small">Dag</FormLabel>
       <DatePicker
         size={size}
-        className="w-full mt-8"
+        className="w-full"
         type="date"
         value={date}
         min={dayjs().startOf('year').subtract(3, 'year').format('YYYY-MM-DD')}

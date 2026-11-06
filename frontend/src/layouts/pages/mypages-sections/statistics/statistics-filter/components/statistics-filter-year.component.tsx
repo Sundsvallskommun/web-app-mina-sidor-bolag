@@ -23,13 +23,13 @@ export const StatisticsFilterYear: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0`)}>
+    <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
       <FormLabel className="text-label-medium sm:text-label-small">År</FormLabel>
       <Select
         size={size}
         value={date}
         name="year"
-        className="w-full mt-8"
+        className="w-full"
         onChange={handleChange}
         data-cy="year-select"
       >

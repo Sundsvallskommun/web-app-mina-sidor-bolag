@@ -94,7 +94,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             </div>
 
             {!isHourQuarter && (
-              <div className="w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
+              <div className="flex flex-col gap-8 w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
                 <FormLabel className="text-label-small">{t('statistics:compareYear')}</FormLabel>
                 <CompareYearSelect
                   fromDate={fromDate}
@@ -102,7 +102,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                   isDistrictHeating={isDistrictHeating}
                   isAggregating={facilities.checked.length > 1}
                   size="sm"
-                  className="w-full mt-8"
+                  className="w-full"
                   dataCy="compare-year-select"
                 />
               </div>
