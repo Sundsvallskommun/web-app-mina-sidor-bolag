@@ -27,11 +27,11 @@ export const StatisticsFilterMonth: React.FC<{ size?: 'sm' | 'md' }> = ({ size =
   };
 
   return (
-    <div className={cx(`w-full lg:pt-0`)}>
+    <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
       <FormLabel className="text-label-medium sm:text-label-small">Månad</FormLabel>
       <Select
         size={size}
-        className="w-full mt-8"
+        className="w-full"
         value={date}
         name="month"
         onChange={handleChange}

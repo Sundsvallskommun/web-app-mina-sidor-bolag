@@ -169,6 +169,12 @@ export const useStatisticsFilter = () => {
   }, [category, mode, year, checkedFacilityIds.length, setValue]);
 
   useEffect(() => {
+    if (year && !isNormalYear(year) && fromDate && !dayjs(year).isBefore(dayjs(fromDate).startOf('year'))) {
+      setValue('year', '');
+    }
+  }, [year, fromDate, setValue]);
+
+  useEffect(() => {
     const today = dayjs();
     const yesterday = today.subtract(1, 'day');
     const y = selectedYear ?? yesterday.format('YYYY');
