@@ -46,8 +46,8 @@ export const FacilityCombobox = ({
       value={allSelected ? [SELECT_ALL, ...value] : value}
       onChange={(e) => handleChange(e.target.value as string[])}
       data-cy={dataCy}
-      placeholder={t('statistics:chooseAddress')}
-      searchPlaceholder={t('statistics:chooseAddress')}
+      placeholder={t('statistics:chooseFacility')}
+      searchPlaceholder={t('statistics:chooseFacility')}
     >
       <Combobox.Input className="w-full" />
       <Combobox.List key={optionsKey}>

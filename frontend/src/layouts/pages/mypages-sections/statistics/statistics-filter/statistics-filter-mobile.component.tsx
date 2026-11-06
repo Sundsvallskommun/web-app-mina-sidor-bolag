@@ -70,7 +70,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         {!hasOneFacility && (
           <StatisticsFilterAccordionItem
-            label={t('common:address')}
+            label={t('statistics:facility')}
             subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
           >
             <div className="flex flex-col gap-12 pl-6">

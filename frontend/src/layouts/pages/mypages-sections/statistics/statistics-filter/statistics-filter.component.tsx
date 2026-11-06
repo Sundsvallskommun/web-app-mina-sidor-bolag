@@ -56,7 +56,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                 </div>
               )}
               <div className="relative flex flex-col justify-start md:flex-1 gap-8">
-                <FormLabel className="text-label-small">{t('common:address')}</FormLabel>
+                <FormLabel className="text-label-small">{t('statistics:facility')}</FormLabel>
                 <FacilityCombobox
                   groups={addresses.groups}
                   optionsKey={addresses.optionsKey}

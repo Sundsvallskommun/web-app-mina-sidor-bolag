@@ -9,7 +9,8 @@
     "titleWithType": "Översikt {{facilityType}}"
   },
   "agreementType": "Avtalstyp",
-  "chooseAddress": "Välj adress",
+  "facility": "Anläggning",
+  "chooseFacility": "Välj anläggning",
   "toFilter": "Filtrera",
   "showBy": "Tidsupplösning",
   "exportBy": "Exportera statistik per",
