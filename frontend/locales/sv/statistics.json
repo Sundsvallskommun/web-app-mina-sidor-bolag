@@ -1,9 +1,18 @@
 {
   "title": "Din statistik",
   "filter": "Filter",
-  "agreementType": "Typ av anläggning",
+  "tabs": {
+    "overview": "Översikt"
+  },
+  "overview": {
+    "title": "Översikt",
+    "titleWithType": "Översikt {{facilityType}}"
+  },
+  "agreementType": "Avtalstyp",
+  "facility": "Anläggning",
+  "chooseFacility": "Välj anläggning",
   "toFilter": "Filtrera",
-  "showBy": "Visa statistik per",
+  "showBy": "Tidsupplösning",
   "exportBy": "Exportera statistik per",
   "year": "År",
   "month": "Månad",
@@ -14,9 +23,8 @@
   "chooseYear": "Välj år",
   "normalYear": "Normalår",
   "compareYearNone": "Inget",
-  "selectAll": "Markera alla",
+  "selectAll": "Alla anläggningar",
   "selection": "{{count}} av {{total}} valda",
-  "facilities": "Anläggningar",
   "use": "Använd",
   "chart": "Graf",
   "table": "Tabell",
@@ -38,7 +46,10 @@
     "timeInterval": "Tidsintervall"
   },
   "temperature": {
-    "title": "Utetemperatur"
+    "title": "Utetemperatur",
+    "titleWithYear": "Utetemperatur {{year}}",
+    "show": "Visa utetemperatur",
+    "unit": "°C"
   },
   "export": "Exportera statistik",
   "onlyTrade": {

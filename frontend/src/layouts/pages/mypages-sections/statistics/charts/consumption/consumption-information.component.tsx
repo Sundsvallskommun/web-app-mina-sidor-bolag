@@ -12,6 +12,32 @@ export interface ConsumptionInformationProps {
   data: StatisticsMeasurementData | undefined;
 }
 
+interface InformationCardProps {
+  icon: React.JSX.Element;
+  label: string;
+  value: string;
+  description?: string;
+  descriptionClassName?: string;
+  dataCy?: string;
+}
+
+function InformationCard(props: Readonly<InformationCardProps>) {
+  const { icon, label, value, description, descriptionClassName = '', dataCy } = props;
+
+  return (
+    <div className="flex-1 p-16 rounded-8 bg-background-color-mixin-1">
+      <div className="flex items-center gap-8 pb-12">
+        <Icon icon={icon} size={22} />
+        <p className="text-small text-secondary">{label}</p>
+      </div>
+      <h4 className="text-h4-sm" data-cy={dataCy}>
+        {value}
+      </h4>
+      <p className={`text-small ${descriptionClassName}`}>{description}</p>
+    </div>
+  );
+}
+
 export default function ConsumptionInformation(props: Readonly<ConsumptionInformationProps>) {
   const { data } = props;
   const { getValues } = useFormContext();
@@ -19,111 +45,74 @@ export default function ConsumptionInformation(props: Readonly<ConsumptionInform
 
   if (data && isNormalYear(getValues().year)) {
     return (
-      <div className="lg:flex block pt-56">
-        <div className="flex-1 border-divider lg:pr-40 lg:border-b-0 border-b-1 lg:py-0 py-16">
-          <div className="flex items-center pb-12">
-            <Icon icon={<BarChart />} size={22} />
-            <p className="text-secondary pl-8">
-              {t('statistics:consumption.total', { label: t('statistics:consumption.consumption') })}
-            </p>
-          </div>
-          <h4 data-cy="total-consumption-value">
-            {t('statistics:consumption.amount', { consumption: data.totalConsumption, unit: data.unit })}
-          </h4>
-          <p className="capitalize">{data.formattedDate}</p>
-        </div>
+      <div className="flex flex-col lg:flex-row gap-24 pt-56">
+        <InformationCard
+          icon={<BarChart />}
+          label={t('statistics:consumption.total', { label: t('statistics:consumption.consumption') })}
+          value={t('statistics:consumption.amount', { consumption: data.totalConsumption, unit: data.unit })}
+          description={data.formattedDate}
+          descriptionClassName="capitalize"
+          dataCy="total-consumption-value"
+        />
 
-        <div className="flex-1 border-divider lg:border-l-1 lg:border-b-0 border-l-0 lg:pl-40 lg:py-0 py-16">
-          <div className="flex items-center pb-12">
-            <Icon icon={<BarChart />} size={22} />
-            <p className="text-secondary pl-8">{t('statistics:consumption.correctedConsumption')}</p>
-          </div>
-          <h4 data-cy="corrected-consumption-value">
-            {t('statistics:consumption.amount', {
-              consumption: calculateTotalConsumption(data.correctedUsageData),
-              unit: data.unit,
-            })}
-          </h4>
-          <p className="capitalize">{data.formattedDate}</p>
-        </div>
+        <InformationCard
+          icon={<BarChart />}
+          label={t('statistics:consumption.correctedConsumption')}
+          value={t('statistics:consumption.amount', {
+            consumption: calculateTotalConsumption(data.correctedUsageData),
+            unit: data.unit,
+          })}
+          description={data.formattedDate}
+          descriptionClassName="capitalize"
+          dataCy="corrected-consumption-value"
+        />
       </div>
     );
   }
 
+  const label =
+    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
+      ? t('statistics:consumption.production')
+      : t('statistics:consumption.consumption');
+
   return (
     data && (
-      <div className="lg:flex lg:justify-between block pt-56">
-        <div className="border-divider lg:pr-48 lg:border-b-0 border-b-1 lg:py-0 py-16">
-          <div className="flex items-center pb-12">
-            <Icon icon={<BarChart />} size={22} />
-            <p className="text-secondary pl-8">
-              {t('statistics:consumption.total', {
-                label:
-                  getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
-                    ? t('statistics:consumption.production')
-                    : t('statistics:consumption.consumption'),
-              })}
-            </p>
-          </div>
-          <h4 data-cy="total-consumption-value">
-            {t('statistics:consumption.amount', { consumption: data.totalConsumption, unit: data.unit })}
-          </h4>
-          <p className="capitalize">{data.formattedDate}</p>
-        </div>
+      <div className="flex flex-col lg:flex-row gap-24 pt-56">
+        <InformationCard
+          icon={<BarChart />}
+          label={t('statistics:consumption.total', { label })}
+          value={t('statistics:consumption.amount', { consumption: data.totalConsumption, unit: data.unit })}
+          description={data.formattedDate}
+          descriptionClassName="capitalize"
+          dataCy="total-consumption-value"
+        />
 
-        <div className="flex lg:pr-48 pr-0 border-divider lg:border-l-1 lg:border-b-0 border-l-0 border-b-1 lg:py-0 py-16">
-          <div className="lg:pl-48 pl-0">
-            <div className="flex items-center pb-12">
-              <Icon icon={<TrendingUp />} size={22} />
-              <p className="text-secondary pl-8">
-                {t('statistics:consumption.highest', {
-                  label:
-                    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
-                      ? t('statistics:consumption.production')
-                      : t('statistics:consumption.consumption'),
-                })}
-              </p>
-            </div>
-            <h4 data-cy="highest-consumption-value">
-              {t('statistics:consumption.amount', { consumption: data.peakConsumptionValue.value, unit: data.unit })}
-            </h4>
-            <p>{data.peakConsumptionValue.timestamp}</p>
-          </div>
-        </div>
+        <InformationCard
+          icon={<TrendingUp />}
+          label={t('statistics:consumption.highest', { label })}
+          value={t('statistics:consumption.amount', { consumption: data.peakConsumptionValue.value, unit: data.unit })}
+          description={data.peakConsumptionValue.timestamp}
+          dataCy="highest-consumption-value"
+        />
 
-        <div className="flex lg:pr-48 border-divider lg:border-l-1 lg:border-b-0 border-l-0 border-b-1 lg:py-0 py-16">
-          <div className="lg:pl-48 pl-0">
-            <div className="flex items-center pb-12">
-              <Icon icon={<ChartNoAxesCombined />} size={22} />
-              <p className="text-secondary pl-8">
-                {t('statistics:consumption.average', {
-                  label:
-                    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
-                      ? t('statistics:consumption.production')
-                      : t('statistics:consumption.consumption'),
-                })}
-              </p>
-            </div>
-            <h4 data-cy="average-consumption-value">
-              {t('statistics:consumption.amount', { consumption: data.averageConsumption, unit: data.unit })}
-            </h4>
-            <p>per {translateAggregateOn(data.aggregatedOn, t)}</p>
-          </div>
-        </div>
+        <InformationCard
+          icon={<ChartNoAxesCombined />}
+          label={t('statistics:consumption.average', { label })}
+          value={t('statistics:consumption.amount', { consumption: data.averageConsumption, unit: data.unit })}
+          description={`per ${translateAggregateOn(data.aggregatedOn, t)}`}
+          dataCy="average-consumption-value"
+        />
 
         {data.peakHourUsage?.length && data.peakEffectValue?.value ? (
-          <div className="flex lg:pr-32 border-divider lg:border-l-1 lg:border-b-0 border-l-0 border-b-1 lg:py-0 py-16">
-            <div className="lg:pl-48 pl-0">
-              <div className="flex items-center pb-12">
-                <Icon icon={<Zap />} size={22} />
-                <p className="text-secondary pl-8">{t('statistics:consumption.peakEffect')}</p>
-              </div>
-              <h4>
-                {t('statistics:consumption.peakEffectAmount', { amount: data.peakEffectValue.value, unit: data.unit })}
-              </h4>
-              <p>{data.peakEffectValue.timestamp}</p>
-            </div>
-          </div>
+          <InformationCard
+            icon={<Zap />}
+            label={t('statistics:consumption.peakEffect')}
+            value={t('statistics:consumption.peakEffectAmount', {
+              amount: data.peakEffectValue.value,
+              unit: data.unit,
+            })}
+            description={data.peakEffectValue.timestamp}
+          />
         ) : null}
       </div>
     )

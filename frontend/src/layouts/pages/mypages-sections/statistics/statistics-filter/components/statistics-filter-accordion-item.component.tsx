@@ -19,7 +19,7 @@ export const StatisticsFilterAccordionItem = ({
     <Accordion.Item.Header>
       <Accordion.Item.Title>
         <div className="flex flex-col gap-6 text-left">
-          <label className="text-h4-sm">{label}</label>
+          <label className="text-label-medium">{label}</label>
           {subtitle && <span className="text-small text-dark-secondary font-normal">{subtitle}</span>}
         </div>
       </Accordion.Item.Title>
