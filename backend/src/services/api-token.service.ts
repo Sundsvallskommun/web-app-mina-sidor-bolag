@@ -14,14 +14,20 @@ export interface Token {
 // NOTE: save token in memory only for now
 let c_access_token = '';
 let c_token_expires = 0;
+let c_token_request: Promise<string> | undefined;
 
 class ApiTokenService {
   public async getToken(): Promise<string> {
-    if (Date.now() >= c_token_expires) {
-      logger.info('Getting oauth API token');
-      await this.fetchToken();
+    if (Date.now() < c_token_expires) {
+      return c_access_token;
     }
-    return c_access_token;
+    if (!c_token_request) {
+      logger.info('Getting oauth API token');
+      c_token_request = this.fetchToken().finally(() => {
+        c_token_request = undefined;
+      });
+    }
+    return c_token_request;
   }
 
   public async setToken(token: Token) {
@@ -66,7 +72,7 @@ class ApiTokenService {
       if (!token) throw new HttpException(502, 'Bad Gateway');
       this.setToken(token);
 
-      return this.getToken();
+      return c_access_token;
     } catch (error) {
       logTiming(axios.isAxiosError(error) ? (error.response?.status ?? error.code ?? 'error') : 'error');
       logger.error(`Failed to fetch JWT access token: ${JSON.stringify(error)}`);
