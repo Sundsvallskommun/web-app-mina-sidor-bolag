@@ -10,7 +10,7 @@ import { User } from '@interfaces/user';
 import { useApi } from '@services/api-service';
 import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
 
-export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode }> = ({ children }) => {
+export const LoginGuard: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { representingMode } = useAppContext();
