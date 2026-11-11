@@ -1,4 +1,4 @@
-import writeXlsxFile, { Column, Sheet, getSheetData } from 'write-excel-file/browser';
+import type { Column, Sheet } from 'write-excel-file/browser';
 import dayjs, { OpUnitType } from 'dayjs';
 import { MeasurementPoints, StatisticsMeasurementData, Aggregation, Data } from '@interfaces/measurement-data';
 import { statisticsMeasurementDataHandler, translateAggregateOn } from '@services/measurement-data-service';
@@ -68,9 +68,11 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   params.append('aggregateOn', aggregation);
 
   let data: Data | undefined;
+  let xlsx: typeof import('write-excel-file/browser');
   try {
     const response = await apiService.get<ApiResponse<Data>>(`/measurementdata?${params}`);
     data = response.data.data;
+    xlsx = await import('write-excel-file/browser');
   } catch {
     return false;
   }
@@ -158,10 +160,10 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
     sheets.push({
       sheet: facility.facilityId.slice(0, excelMaxSheetName),
       data: [
-        ...getSheetData([exportInformation], exportInformationColumns),
+        ...xlsx.getSheetData([exportInformation], exportInformationColumns),
         [],
         [],
-        ...getSheetData(exportData, exportDataColumns),
+        ...xlsx.getSheetData(exportData, exportDataColumns),
       ],
     });
   }
@@ -169,7 +171,7 @@ export const exportStatisticsToExcel = async ({ modalData, t }: ExportStatistics
   if (sheets.length > 0) {
     const categoryLabel = t('statistics:exportModal.category.' + modalData.category);
     const filename = 'Export-' + categoryLabel + '-' + dayjs().format('YYYY-MM-DD') + '.xlsx';
-    await writeXlsxFile(sheets).toFile(filename);
+    await xlsx.default(sheets).toFile(filename);
     return true;
   }
 
