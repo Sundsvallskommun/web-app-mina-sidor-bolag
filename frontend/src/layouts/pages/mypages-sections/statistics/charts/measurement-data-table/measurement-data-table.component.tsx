@@ -13,7 +13,7 @@ import {
   findTemperature,
   translateAggregateOn,
 } from '@services/measurement-data-service';
-import { useFormContext } from 'react-hook-form';
+import { useStatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import dayjs from 'dayjs';
 import { toFixedNumber } from '@utils/to-fixed-number';
 import { useTranslation } from 'react-i18next';
@@ -26,10 +26,9 @@ export interface MeasurementDataTableProps {
 
 export const MeasurementDataTable = (props: MeasurementDataTableProps) => {
   const { data, showTemperature: showTemperatureProp = false } = props;
-  const { getValues } = useFormContext();
   const { t } = useTranslation('statistics');
 
-  const year = getValues().year;
+  const year = useStatisticsFilter((state) => state.compareYear);
   const showComparisonColumn = !!year;
   const showTemperature = showTemperatureProp && canShowTemperature(data);
   const showPreviousTemperature = showTemperature && showComparisonColumn && !isNormalYear(year);

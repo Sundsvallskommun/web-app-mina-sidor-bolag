@@ -3,7 +3,11 @@
 import { Download } from 'lucide-react';
 import { Button, useSnackbar } from '@sk-web-gui/react';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData, Category } from '@interfaces/measurement-data';
-import { useFormContext } from 'react-hook-form';
+import {
+  useStatisticsCategory,
+  useStatisticsFilter,
+  useStatisticsPeriod,
+} from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import { useTranslation } from 'react-i18next';
 import { EventResponse } from '@data-contracts/backend/data-contracts';
 import { queryClient, useApi } from '@services/api-service';
@@ -18,7 +22,9 @@ export interface ExportStatisticsButtonProps {
 export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
   const [showModal, setShowModal] = useState(false);
   const { data, isFetching } = props;
-  const { getValues } = useFormContext();
+  const category = useStatisticsCategory();
+  const firstFacilityId = useStatisticsFilter((state) => state.facilityIds[0]);
+  const { fromDate, toDate } = useStatisticsPeriod();
   const { t } = useTranslation(['statistics', 'event']);
   const toastMessage = useSnackbar();
 
@@ -72,11 +78,11 @@ export const ExportStatisticsButton = (props: ExportStatisticsButtonProps) => {
         show={showModal}
         onClose={() => setShowModal(false)}
         onExport={exportStatistics}
-        initialCategory={(getValues().category as Category) || undefined}
-        initialFromDate={getValues().fromDate}
-        initialToDate={getValues().toDate}
+        initialCategory={(category as Category) || undefined}
+        initialFromDate={fromDate}
+        initialToDate={toDate}
         initialTimeResolution={data?.aggregatedOn?.toLowerCase()}
-        initialFacilityId={getValues().facilityIds?.[0]}
+        initialFacilityId={firstFacilityId}
       />
     </div>
   );
