@@ -27,9 +27,8 @@ export const Consumption = () => {
     error: agreementsError,
   } = usePagedAgreements(200);
 
-  const [address, setAddress] = useState<string>();
+  const [selectedAddress, setAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
-  const [hasInitialAddress, setHasInitialAddress] = useState(false);
   const { t } = useTranslation(['common', 'overview']);
   const addressesWithAgreements = useMemo(() => {
     const result: string[] = [];
@@ -41,12 +40,8 @@ export const Consumption = () => {
     return result;
   }, [agreements]);
 
-  useEffect(() => {
-    if (!hasInitialAddress && addressesWithAgreements.length > 0) {
-      setAddress(addressesWithAgreements[0]);
-      setHasInitialAddress(true);
-    }
-  }, [addressesWithAgreements, hasInitialAddress]);
+  const address =
+    selectedAddress && addressesWithAgreements.includes(selectedAddress) ? selectedAddress : addressesWithAgreements[0];
 
   useEffect(() => {
     if (user && address && agreements?.[address]) {
