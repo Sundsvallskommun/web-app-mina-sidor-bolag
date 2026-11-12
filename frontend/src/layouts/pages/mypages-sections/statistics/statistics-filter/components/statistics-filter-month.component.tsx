@@ -1,30 +1,18 @@
 'use client';
 
-import { StatisticsForm } from '@layouts/pages/mypages-sections/statistics.component';
 import { cx, FormLabel, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
-import { ChangeEvent, useMemo } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useMemo } from 'react';
 import { generateSelectableMonths } from '../generateDateLists';
+import { useStatisticsFilter, useStatisticsPeriod } from '../statistics-filter.store';
 
 export const StatisticsFilterMonth: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
   const selectableMonths = useMemo(() => {
     return generateSelectableMonths(dayjs().format('YYYY-MM-DD'));
   }, []);
 
-  const { setValue, watch } = useFormContext<StatisticsForm>();
-  const { selectedYear, selectedMonth } = watch();
-
-  const date =
-    selectedYear && selectedMonth
-      ? `${selectedYear}-${selectedMonth}-01`
-      : dayjs().subtract(1, 'day').startOf('month').format('YYYY-MM-DD');
-
-  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const newDate = dayjs(event.target.value);
-    setValue('selectedYear', newDate.format('YYYY'));
-    setValue('selectedMonth', newDate.format('MM'));
-  };
+  const setDate = useStatisticsFilter((state) => state.setDate);
+  const { date } = useStatisticsPeriod();
 
   return (
     <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
@@ -32,9 +20,9 @@ export const StatisticsFilterMonth: React.FC<{ size?: 'sm' | 'md' }> = ({ size =
       <Select
         size={size}
         className="w-full"
-        value={date}
+        value={dayjs(date).startOf('month').format('YYYY-MM-DD')}
         name="month"
-        onChange={handleChange}
+        onChange={(event) => setDate(event.target.value, 'month')}
         data-cy="month-select"
       >
         {selectableMonths.map((dateObj) => (
