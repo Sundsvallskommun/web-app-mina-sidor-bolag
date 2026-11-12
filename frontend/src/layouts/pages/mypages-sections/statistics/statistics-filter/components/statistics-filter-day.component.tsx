@@ -1,26 +1,12 @@
 'use client';
 
-import { StatisticsForm } from '@layouts/pages/mypages-sections/statistics.component';
 import { cx, DatePicker, FormLabel } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
-import { ChangeEvent } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useStatisticsFilter, useStatisticsPeriod } from '../statistics-filter.store';
 
 export const StatisticsFilterDay: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
-  const { setValue, watch } = useFormContext<StatisticsForm>();
-  const { selectedYear, selectedMonth, selectedDay } = watch();
-
-  const date =
-    selectedYear && selectedMonth && selectedDay
-      ? `${selectedYear}-${selectedMonth}-${selectedDay}`
-      : dayjs().subtract(1, 'day').format('YYYY-MM-DD');
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newDate = dayjs(event.target.value);
-    setValue('selectedYear', newDate.format('YYYY'));
-    setValue('selectedMonth', newDate.format('MM'));
-    setValue('selectedDay', newDate.format('DD'));
-  };
+  const setDate = useStatisticsFilter((state) => state.setDate);
+  const { date } = useStatisticsPeriod();
 
   return (
     <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
@@ -33,7 +19,9 @@ export const StatisticsFilterDay: React.FC<{ size?: 'sm' | 'md' }> = ({ size = '
         min={dayjs().startOf('year').subtract(3, 'year').format('YYYY-MM-DD')}
         max={dayjs().format('YYYY-MM-DD')}
         name="day"
-        onChange={handleChange}
+        onChange={(event) => {
+          if (dayjs(event.target.value).isValid()) setDate(event.target.value, 'day');
+        }}
         data-cy="day-select"
       />
     </div>
