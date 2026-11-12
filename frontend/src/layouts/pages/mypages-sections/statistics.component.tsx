@@ -1,51 +1,24 @@
 'use client';
 
-import { FormProvider, useForm } from 'react-hook-form';
 import { StatisticsFilterMobile } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter-mobile.component';
-import { StatisticsFilterMode } from '@layouts/pages/mypages-sections/statistics/statistics-filter/use-statistics-filter';
-import { FacilityType } from '@utils/facility';
+import { StatisticsFilterProvider } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import { Faq } from '@layouts/pages/mypages-sections/statistics/faq/faq.component';
 import Charts from '@layouts/pages/mypages-sections/statistics/charts/charts.component';
-import { useState } from 'react';
 import { useApi } from '@services/api-service';
 import { User } from '@interfaces/user';
-import { Button, Icon, Modal, Spinner, Tabs } from '@sk-web-gui/react';
+import { Spinner, Tabs } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
-import { ListFilter } from 'lucide-react';
 import { usePagedAgreements } from '@utils/use-paged-agreements.hook';
+import { useSearchParams } from 'next/navigation';
 
-export interface StatisticsForm {
-  category: string;
-  facilityType?: FacilityType;
-  facilityIds?: string[];
-  addresses?: string[];
-  fromDate: string;
-  toDate: string;
-  /** four digit string */
-  selectedYear?: string;
-  /** two digit string */
-  selectedMonth?: string;
-  /** two digit string */
-  selectedDay?: string;
-  year?: string;
-  isHourQuarter?: boolean;
-  mode: StatisticsFilterMode;
-}
+const NO_FACILITIES: User['facilities'] = [];
 
 export default function Statistics() {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const { t } = useTranslation('statistics');
+  const searchParams = useSearchParams();
+  const linkedFacilityId = searchParams?.get('installation');
 
-  const context = useForm<StatisticsForm>({
-    mode: 'onChange',
-    defaultValues: {
-      category: '',
-      isHourQuarter: false,
-      mode: 'day',
-    },
-  });
-
-  const { isFetching } = useApi<User>({
+  const { data: user, isLoading } = useApi<User>({
     method: 'get',
     url: '/me',
     queryKey: ['user'],
@@ -53,61 +26,30 @@ export default function Statistics() {
 
   const { agreements: allAgreements, isDone, currentPage, totalPages } = usePagedAgreements(200, true);
 
-  const openHandler = () => {
-    setIsOpen(true);
-  };
-
-  const closeHandler = () => {
-    setIsOpen(false);
-  };
-
   return (
     <div>
-      <FormProvider {...context}>
-        <h1 className="mb-44 sm:mb-56 text-h1-sm sm:text-h1-lg">{t('statistics:title')}</h1>
+      <h1 className="mb-44 sm:mb-56 text-h1-sm sm:text-h1-lg">{t('statistics:title')}</h1>
+      {user ? (
+        <StatisticsFilterProvider facilities={user.facilities ?? NO_FACILITIES} linkedFacilityId={linkedFacilityId}>
+          <Tabs color="tertiary" size="lg" underline={false} data-cy="statistics-tabs">
+            <Tabs.Item>
+              <Tabs.Button>{t('statistics:tabs.overview')}</Tabs.Button>
+              <Tabs.Content>
+                <StatisticsFilterMobile />
 
-        <Tabs color="tertiary" size="lg" underline={false} data-cy="statistics-tabs">
-          <Tabs.Item>
-            <Tabs.Button>{t('statistics:tabs.overview')}</Tabs.Button>
-            <Tabs.Content>
-              <Button
-                size="md"
-                variant="secondary"
-                className="sm:hidden w-full mt-24"
-                onClick={openHandler}
-                leftIcon={<Icon icon={<ListFilter />} />}
-              >
-                {t('statistics:filter')}
-              </Button>
-
-              <form>
-                {isFetching ? (
-                  <Spinner className="mx-auto" />
-                ) : (
-                  <Charts
-                    allAgreements={allAgreements}
-                    isAllAgreementsDone={isDone}
-                    allAgreementsCurrentPage={currentPage}
-                    allAgreementsTotalPages={totalPages}
-                  />
-                )}
-              </form>
-            </Tabs.Content>
-          </Tabs.Item>
-        </Tabs>
-
-        <Modal
-          className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95vh]"
-          disableCloseOutside={true}
-          show={isOpen}
-          onClose={closeHandler}
-          label={t('statistics:toFilter')}
-        >
-          <Modal.Content className="overflow-y-auto">
-            <StatisticsFilterMobile closeHandler={closeHandler} />
-          </Modal.Content>
-        </Modal>
-      </FormProvider>
+                <Charts
+                  allAgreements={allAgreements}
+                  isAllAgreementsDone={isDone}
+                  allAgreementsCurrentPage={currentPage}
+                  allAgreementsTotalPages={totalPages}
+                />
+              </Tabs.Content>
+            </Tabs.Item>
+          </Tabs>
+        </StatisticsFilterProvider>
+      ) : (
+        isLoading && <Spinner className="mx-auto" />
+      )}
 
       <Faq />
     </div>

@@ -27,7 +27,7 @@ interface CustomTooltipProps {
   payload?: PayloadItem[];
   label?: keyof typeof Months;
   fromDate: string;
-  year?: number;
+  year?: string;
   isConsumption: boolean;
   aggregatedOn?: Aggregation;
   isDarkMode?: boolean;
@@ -167,15 +167,15 @@ interface StandardTooltipProps {
   aggregatedOn?: Aggregation;
   payload: PayloadItem[];
   unit: string;
-  year?: number;
+  year?: string;
 }
 
 const StandardTooltip: React.FC<StandardTooltipProps> = ({ fromDate, label, aggregatedOn, payload, unit, year }) => {
   const { t } = useTranslation('statistics');
-  const normalYear = isNormalYear(year?.toString());
+  const normalYear = isNormalYear(year);
 
   const currentLabel = normalYear ? t('statistics:consumption.totalConsumption') : dayjs(fromDate).format('YYYY');
-  const comparisonLabel = normalYear ? t('statistics:consumption.correctedConsumption') : (year?.toString() ?? null);
+  const comparisonLabel = normalYear ? t('statistics:consumption.correctedConsumption') : (year ?? null);
 
   const currentValueItem = payload.find((p) => p.name === PAYLOAD_NAMES.CURRENT);
   const previousValueItem = payload.find((p) => p.name === PAYLOAD_NAMES.PREVIOUS);
