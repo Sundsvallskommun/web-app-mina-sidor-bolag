@@ -27,7 +27,7 @@ export const Consumption = () => {
     error: agreementsError,
   } = usePagedAgreements(200);
 
-  const [selectedAddress, setAddress] = useState<string>();
+  const [selectedAddress, setSelectedAddress] = useState<string>();
   const [facilities, setFacilities] = useState<InstalledBaseItem[]>();
   const { t } = useTranslation(['common', 'overview']);
   const addressesWithAgreements = useMemo(() => {
@@ -79,7 +79,7 @@ export const Consumption = () => {
       {addressesWithAgreements.length > 1 && (
         <div className="sm:flex sm:flex-row flex-nowrap items-center pb-24 gap-16 block">
           <strong>{t('common:address')}</strong>
-          <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setAddress(e.target.value)} size="sm">
+          <Select className="sm:w-auto sm:mt-0 mt-8 w-full" onChange={(e) => setSelectedAddress(e.target.value)} size="sm">
             {addressesWithAgreements.map((addr) => (
               <Select.Option key={addr}>{addr || t('common:unknownAddress')}</Select.Option>
             ))}
