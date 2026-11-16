@@ -75,14 +75,6 @@ redigera `.env.development.local` för behov. URLer, nycklar och cert behöver f
 - `SAML_IDP_PUBLIC_CERT` ska stämma överens med IDPens cert
 - `SAML_PRIVATE_KEY` och `SAML_PUBLIC_KEY` behöver bara fyllas i korrekt om man kör mot en riktig IDP
 
-5. Initiera eventuell databas för backend
-
-```
-cd backend
-yarn prisma:generate
-yarn prisma:migrate
-```
-
 ### Hantera organisationer
 
 För att lägga till en organisation måste du ange dess id i listan i `frontend/src/utils/app-organizations.ts`.  

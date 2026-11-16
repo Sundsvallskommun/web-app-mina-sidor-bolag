@@ -3,10 +3,6 @@ import { ApiResponse, apiService } from './api-service';
 
 const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
   name: res.data.name,
-  userSettings: {
-    feedbackLifespan: res.data.userSettings.feedbackLifespan,
-    readNotificationsClearedDate: res.data.userSettings.readNotificationsClearedDate,
-  },
   relations: {
     customerNumber: res.data.relations.customerNumber,
     customerRelations: res.data.relations.customerRelations,
