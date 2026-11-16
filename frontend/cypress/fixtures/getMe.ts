@@ -1,13 +1,9 @@
-import { FeedbackLifespan, User } from '@interfaces/user';
+import { User } from '@interfaces/user';
 import { ApiResponse } from '@services/api-service';
 
 export const getMe: ApiResponse<User> = {
   data: {
     name: 'Förnamn Efternamn',
-    userSettings: {
-      feedbackLifespan: FeedbackLifespan.oneMonth,
-      readNotificationsClearedDate: '2025-01-01',
-    },
     relations: {
       customerNumber: '1',
       customerRelations: [
@@ -336,10 +332,6 @@ export const getMe: ApiResponse<User> = {
 export const getMeOnlyTrade: ApiResponse<User> = {
   data: {
     name: 'Förnamn Efternamn',
-    userSettings: {
-      feedbackLifespan: FeedbackLifespan.oneMonth,
-      readNotificationsClearedDate: '2025-01-01',
-    },
     relations: {
       customerNumber: '1',
       customerRelations: [
@@ -407,10 +399,6 @@ export const getMeOnlyTrade: ApiResponse<User> = {
 export const getMeEmptyUserExtendedView: ApiResponse<User> = {
   data: {
     name: 'Förnamn Efternamn',
-    userSettings: {
-      feedbackLifespan: FeedbackLifespan.oneMonth,
-      readNotificationsClearedDate: '2025-01-01',
-    },
     relations: {
       customerNumber: '',
       customerRelations: [],
@@ -426,10 +414,6 @@ export const getMeEmptyUserExtendedView: ApiResponse<User> = {
 export const getMeEmptyUser: ApiResponse<User> = {
   data: {
     name: 'Förnamn Efternamn',
-    userSettings: {
-      feedbackLifespan: FeedbackLifespan.oneMonth,
-      readNotificationsClearedDate: '2025-01-01',
-    },
     relations: {
       customerNumber: '',
       customerRelations: [],

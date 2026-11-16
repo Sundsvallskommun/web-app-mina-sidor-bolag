@@ -1,7 +1,6 @@
 import { MUNICIPALITY_ID } from '@config';
 import { VerifiedCallback } from '@node-saml/passport-saml';
 import { logger } from '@utils/logger';
-import prisma from '@utils/prisma';
 import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
@@ -58,16 +57,6 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
       permissions: defaultPermissions(),
     };
 
-    const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
-    if (!userSettings) {
-      await prisma.userSettings.create({
-        data: {
-          userId: findUser.partyId,
-          feedbackLifespan: 'oneMonth',
-          readNotificationsClearedDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-      });
-    }
     done(null, findUser);
   } catch (err) {
     if (err instanceof HttpException && err?.status === 404) {
