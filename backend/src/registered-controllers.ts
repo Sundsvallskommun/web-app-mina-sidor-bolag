@@ -14,20 +14,18 @@ import { LegalEntityController } from '@controllers/legal-entity.controller';
 import { MandateController } from '@controllers/mandate.controller';
 import { MeasurementDataController } from '@controllers/measurement-data.controller';
 import { NetOwnerController } from '@controllers/netowner.controller';
-import { NotificationsController } from '@controllers/notifications.controller';
 import { RepresentingController } from '@controllers/representing.controller';
 import { SelfServiceAiController } from '@controllers/self-service-ai.controller';
 import { SelfServiceController } from '@controllers/self-service.controller';
 import { SignController } from '@controllers/sign.controller';
 import { UserController } from '@controllers/user.controller';
-import { AnnouncementsController } from './controllers/announcements.controller';
+import { AnnouncementsController } from '@controllers/announcements.controller';
 
 export const registeredControllers = [
   IndexController,
   LegalEntityController,
   RepresentingController,
   UserController,
-  NotificationsController,
   InvoicesController,
   HealthController,
   ContactSettingsController,
