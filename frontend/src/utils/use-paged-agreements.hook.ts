@@ -1,64 +1,64 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { useAppContext } from '@contexts/app.context';
 import { AgreementData, PagedAgreementsResponse } from '@interfaces/agreement';
 import { handlePagedAgreementsResponse } from '@services/agreement-service';
-import { apiService, ApiResponse } from '@services/api-service';
+import { apiService, ApiResponse, handleError, useApiService } from '@services/api-service';
+
+const mergeAgreements = (pages: PagedAgreementsResponse[]): AgreementData => {
+  const merged: AgreementData = {};
+  for (const page of pages) {
+    const refined = handlePagedAgreementsResponse(page.agreements);
+    for (const address in refined) {
+      merged[address] = [...(merged[address] ?? []), ...refined[address]];
+    }
+  }
+  return merged;
+};
 
 export function usePagedAgreements(pageLimit: number, includeInactive: boolean = false) {
-  const [agreements, setAgreements] = useState<AgreementData>({});
-  const [isFetching, setIsFetching] = useState(true);
-  const [isDone, setIsDone] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useApiService((s) => s.queryClient);
+  const { representingMode } = useAppContext();
+  const path = includeInactive ? '/paged/all-agreements' : '/paged/agreements';
 
-  const mergeAgreements = useCallback((incoming: AgreementData, prev: AgreementData): AgreementData => {
-    const merged = { ...prev };
-    for (const address in incoming) {
-      merged[address] = [...(merged[address] ?? []), ...incoming[address]];
-    }
-    return merged;
-  }, []);
+  const { data, error, isFetching, hasNextPage, fetchNextPage } = useInfiniteQuery(
+    {
+      queryKey: ['paged-agreements', representingMode, path, pageLimit],
+      queryFn: async ({ pageParam, signal }) => {
+        const res = await apiService.get<ApiResponse<PagedAgreementsResponse>>(
+          `${path}?page=${pageParam}&limit=${pageLimit}`,
+          { signal }
+        );
+        return res.data.data;
+      },
+      initialPageParam: 1,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length < (lastPage._meta?.totalPages ?? 1) ? pages.length + 1 : undefined,
+      throwOnError: (e) => {
+        handleError(e as AxiosError);
+        return false;
+      },
+    },
+    queryClient
+  );
 
   useEffect(() => {
-    let cancelled = false;
-    const path = includeInactive ? '/paged/all-agreements' : '/paged/agreements';
+    if (hasNextPage && !isFetching && !error) {
+      void fetchNextPage();
+    }
+  }, [hasNextPage, isFetching, error, fetchNextPage]);
 
-    const fetchPages = async () => {
-      let totalPages = 1;
+  const pages = data?.pages;
+  const agreements = useMemo(() => mergeAgreements(pages ?? []), [pages]);
+  const isDone = !isFetching && (!hasNextPage || !!error);
 
-      try {
-        for (let page = 1; page <= totalPages && !cancelled; page++) {
-          const res = await apiService.get<ApiResponse<PagedAgreementsResponse>>(
-            `${path}?page=${page}&limit=${pageLimit}`
-          );
-
-          const pageData = res.data.data;
-          const refined = handlePagedAgreementsResponse(pageData.agreements);
-
-          setAgreements((prev) => mergeAgreements(refined, prev));
-          setCurrentPage(page);
-
-          totalPages = pageData._meta?.totalPages ?? 1;
-          setTotalPages(totalPages);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e : new Error('Failed to fetch agreements page'));
-        }
-      }
-
-      if (!cancelled) {
-        setIsFetching(false);
-        setIsDone(true);
-      }
-    };
-
-    fetchPages();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [mergeAgreements, pageLimit, includeInactive]);
-
-  return { agreements, isFetching, isDone, currentPage, totalPages, error };
+  return {
+    agreements,
+    isFetching: !isDone,
+    isDone,
+    currentPage: pages?.length ?? 0,
+    totalPages: pages?.[pages.length - 1]?._meta?.totalPages ?? 0,
+    error: error ?? null,
+  };
 }
