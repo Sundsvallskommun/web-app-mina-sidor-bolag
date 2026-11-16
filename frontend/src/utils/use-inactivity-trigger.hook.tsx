@@ -21,14 +21,14 @@ export const useInactivityTrigger = ({
     };
 
     ACTIVITY_EVENTS.forEach((event) => {
-      document.addEventListener(event, resetTimer, { passive: true });
+      document.addEventListener(event, resetTimer, { passive: true, capture: true });
     });
     resetTimer();
 
     return () => {
       clearTimeout(timer);
       ACTIVITY_EVENTS.forEach((event) => {
-        document.removeEventListener(event, resetTimer);
+        document.removeEventListener(event, resetTimer, { capture: true });
       });
     };
   }, [onInactive, timeout, enabled]);

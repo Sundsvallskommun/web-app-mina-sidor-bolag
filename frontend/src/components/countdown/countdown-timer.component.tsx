@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface CountdownTimerProps {
   timeout: number; // timeout in milliseconds
@@ -9,21 +9,25 @@ interface CountdownTimerProps {
 export const CountdownTimer: React.FC<CountdownTimerProps> = ({ timeout, onChangeTime, className }) => {
   const [deadline] = useState(() => Date.now() + timeout);
   const [timeLeft, setTimeLeft] = useState<number>(timeout);
+  const onChangeTimeRef = useRef(onChangeTime);
+  useEffect(() => {
+    onChangeTimeRef.current = onChangeTime;
+  }, [onChangeTime]);
 
   useEffect(() => {
-    if (deadline <= Date.now()) return;
-
+    // Remaining time is always derived from the fixed deadline, so a throttled or
+    // suspended interval catches up on the next tick, and 0 is always reported once.
     const timerId = setInterval(() => {
       const newTime = Math.max(deadline - Date.now(), 0);
       setTimeLeft(newTime);
-      onChangeTime?.(newTime);
+      onChangeTimeRef.current?.(newTime);
       if (newTime === 0) {
         clearInterval(timerId);
       }
     }, 1000);
 
     return () => clearInterval(timerId);
-  }, [deadline, onChangeTime]);
+  }, [deadline]);
 
   const formatTime = (milliseconds: number): string => {
     const totalSeconds = Math.ceil(milliseconds / 1000);

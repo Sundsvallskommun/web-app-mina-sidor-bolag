@@ -1,7 +1,7 @@
 import CountdownTimer from '@components/countdown/countdown-timer.component';
 import { useInactivityTrigger } from '@utils/use-inactivity-trigger.hook';
 import { Button, Dialog } from '@sk-web-gui/react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 const WARNING_TIMEOUT = process.env.NEXT_PUBLIC_INACTIVITY_WARNING_TIMEOUT
@@ -19,28 +19,30 @@ interface InactivityAlertProps {
 export const InactivityAlert: React.FC<InactivityAlertProps> = ({ onLogout, enabled }) => {
   const { t } = useTranslation(['common']);
   const [showWarning, setShowWarning] = useState(false);
-  const countdownTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
   const handleLogout = useCallback(() => {
-    clearTimeout(countdownTimerRef.current);
     setShowWarning(false);
     onLogout();
   }, [onLogout]);
 
   const handleInactive = useCallback(() => {
     setShowWarning(true);
-    countdownTimerRef.current = setTimeout(handleLogout, COUNTDOWN_TIMEOUT);
-  }, [handleLogout]);
+  }, []);
+
+  const handleCountdownChange = useCallback(
+    (timeLeft: number) => {
+      if (timeLeft === 0) {
+        handleLogout();
+      }
+    },
+    [handleLogout]
+  );
 
   // Activity while the dialog is open must not count; the user has to answer it.
   useInactivityTrigger({ onInactive: handleInactive, timeout: WARNING_TIMEOUT, enabled: enabled && !showWarning });
 
   const handleStay = () => {
-    clearTimeout(countdownTimerRef.current);
     setShowWarning(false);
   };
-
-  useEffect(() => () => clearTimeout(countdownTimerRef.current), []);
 
   return (
     <Dialog show={showWarning} aria-label={t('common:inactivity.title')} hideLabel onClose={handleStay}>
@@ -50,7 +52,10 @@ export const InactivityAlert: React.FC<InactivityAlertProps> = ({ onLogout, enab
           {showWarning && (
             <Trans
               i18nKey="common:inactivity.description"
-              components={{ strong: <strong />, countdown: <CountdownTimer timeout={COUNTDOWN_TIMEOUT} /> }}
+              components={{
+                strong: <strong />,
+                countdown: <CountdownTimer timeout={COUNTDOWN_TIMEOUT} onChangeTime={handleCountdownChange} />,
+              }}
             />
           )}
         </p>

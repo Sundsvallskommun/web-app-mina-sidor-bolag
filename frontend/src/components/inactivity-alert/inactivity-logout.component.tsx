@@ -9,7 +9,7 @@ import { InactivityAlert } from './inactivity-alert.component';
 export const InactivityLogout: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { error: userError, isFetching: userIsFetching } = useApi<User>({
+  const { data: user } = useApi<User>({
     url: '/me',
     method: 'get',
     queryKey: ['user'],
@@ -20,6 +20,6 @@ export const InactivityLogout: React.FC = () => {
   }, [router]);
 
   return (
-    <InactivityAlert onLogout={handleLogout} enabled={!userIsFetching && !userError && !pathname?.includes('logout')} />
+    <InactivityAlert onLogout={handleLogout} enabled={!!user && !pathname?.includes('logout')} />
   );
 };
