@@ -138,10 +138,6 @@ export const handleStatisticsMeasurementDataResponse: (data: Data) => Statistics
 
 export const statisticsMeasurementDataHandler = (data: Data) => handleStatisticsMeasurementDataResponse(data);
 
-export const getAreaFromFacility = (facilities: InstalledBaseItem[] | undefined, facilityId: string): string => {
-  return facilities?.find((facility) => facility?.facilityId === facilityId)?.address?.city?.toLowerCase() ?? '';
-};
-
 export const getAddressesFromFacilities = (
   facilities: InstalledBaseItem[] | undefined,
   facilityIds: string[] | undefined

@@ -1,8 +1,6 @@
 'use client';
 
 import { FormLabel, ProgressBar, Select } from '@sk-web-gui/react';
-import { useFormContext } from 'react-hook-form';
-import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
@@ -10,9 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { CompareYearSelect } from './components/compare-year-select.component';
 import { FacilityCombobox } from './components/facility-combobox.component';
 import { ModeSelect } from './components/mode-select.component';
-import { useStatisticsFilter } from './use-statistics-filter';
-import { Category } from '@interfaces/measurement-data';
 import { FacilityType } from '@utils/facility';
+import { useFacilityOptions, useStatisticsFilter } from './statistics-filter.store';
 
 export interface StatisticsFilterProps {
   allAgreements: {
@@ -25,13 +22,14 @@ export interface StatisticsFilterProps {
 export const StatisticsFilter = (props: StatisticsFilterProps) => {
   const { t } = useTranslation(['common', 'statistics']);
   const { allAgreements } = props;
-  const { watch, setValue } = useFormContext<StatisticsForm>();
-  const mode = watch('mode');
-  const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
-  const facilityType = watch('facilityType');
 
-  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities, hasOneFacility } =
-    useStatisticsFilter();
+  const mode = useStatisticsFilter((state) => state.mode);
+  const facilityType = useStatisticsFilter((state) => state.facilityType);
+  const facilityIds = useStatisticsFilter((state) => state.facilityIds);
+  const isHourQuarter = useStatisticsFilter((state) => state.isHourQuarter);
+  const setFacilityType = useStatisticsFilter((state) => state.setFacilityType);
+  const setFacilityIds = useStatisticsFilter((state) => state.setFacilityIds);
+  const { availableFacilityTypes, groups, optionsKey, hasOneFacility } = useFacilityOptions();
 
   return (
     <div className="flex flex-col gap-40" data-cy="statistics-filter">
@@ -47,7 +45,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
                     className="w-full"
                     data-cy={`facility-type-${facilityType}`}
                     value={facilityType ?? ''}
-                    onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
+                    onChange={(e) => setFacilityType(e.target.value as FacilityType)}
                   >
                     {availableFacilityTypes.map((type) => (
                       <Select.Option key={type}>{type}</Select.Option>
@@ -58,10 +56,10 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
               <div className="relative flex flex-col justify-start md:flex-1 gap-8">
                 <FormLabel className="text-label-small">{t('statistics:facility')}</FormLabel>
                 <FacilityCombobox
-                  groups={addresses.groups}
-                  optionsKey={addresses.optionsKey}
-                  value={facilities.checked}
-                  onChange={facilities.setSelected}
+                  groups={groups}
+                  optionsKey={optionsKey}
+                  value={facilityIds}
+                  onChange={setFacilityIds}
                   size="sm"
                   dataCy="facility-select"
                 />
@@ -96,15 +94,7 @@ export const StatisticsFilter = (props: StatisticsFilterProps) => {
             {!isHourQuarter && (
               <div className="flex flex-col gap-8 w-full lg:w-[115px] lg:pt-0 lg:flex-shrink-0">
                 <FormLabel className="text-label-small">{t('statistics:compareYear')}</FormLabel>
-                <CompareYearSelect
-                  fromDate={fromDate}
-                  mode={mode}
-                  isDistrictHeating={isDistrictHeating}
-                  isAggregating={facilities.checked.length > 1}
-                  size="sm"
-                  className="w-full"
-                  dataCy="compare-year-select"
-                />
+                <CompareYearSelect size="sm" className="w-full" dataCy="compare-year-select" />
               </div>
             )}
           </div>

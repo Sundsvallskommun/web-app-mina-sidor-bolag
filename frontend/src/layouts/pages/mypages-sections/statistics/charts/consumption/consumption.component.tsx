@@ -5,9 +5,12 @@ import { YearsLegend } from '@layouts/pages/mypages-sections/statistics/charts/c
 import ConsumptionInformation from '@layouts/pages/mypages-sections/statistics/charts/consumption/consumption-information.component';
 import { MeasurementDataTable } from '@layouts/pages/mypages-sections/statistics/charts/measurement-data-table/measurement-data-table.component';
 import { Checkbox, Spinner } from '@sk-web-gui/react';
-import { ReactNode, useEffect, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  useStatisticsFilter,
+  useStatisticsPeriod,
+} from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import { ChartStyleSelector } from '../chart-style-selector.component';
 import { TimeIntervalSelector } from '../time-interval-selector.component';
 import dayjs from 'dayjs';
@@ -27,7 +30,6 @@ export interface ElectricityConsumptionProps {
   addresses: string[];
   isFetching: boolean;
   isPreviousFetching: boolean;
-  updateIsHourQuarter?: (isHourQuarter: boolean) => void;
 }
 
 interface ConsumptionControlsProps {
@@ -99,43 +101,32 @@ function ConsumptionView(props: Readonly<ConsumptionViewProps>) {
 }
 
 export default function Consumption(props: ElectricityConsumptionProps) {
-  const { setValue, getValues, watch } = useFormContext();
-  const { data, addresses, isFetching, isPreviousFetching, updateIsHourQuarter } = props;
+  const { data, addresses, isFetching, isPreviousFetching } = props;
   const [viewMode, setViewMode] = useState<EnumViewMode>(EnumViewMode.graph);
-  const [timeInterval, setTimeInterval] = useState<EnumTimeInterval>(EnumTimeInterval.hour);
   const [showTemperature, setShowTemperature] = useState(false);
   const { t } = useTranslation('statistics');
 
-  const showTimeInterval =
-    dayjs(getValues().toDate).diff(getValues().fromDate, 'days') < 2 && data?.category === 'ELECTRICITY';
+  const facilityType = useStatisticsFilter((state) => state.facilityType);
+  const compareYear = useStatisticsFilter((state) => state.compareYear);
+  const isHourQuarter = useStatisticsFilter((state) => state.isHourQuarter);
+  const setIsHourQuarter = useStatisticsFilter((state) => state.setIsHourQuarter);
+  const { fromDate, toDate } = useStatisticsPeriod();
 
-  const isHourQuarter = watch('isHourQuarter');
+  const timeInterval = isHourQuarter ? EnumTimeInterval.quarter : EnumTimeInterval.hour;
+  const showTimeInterval = dayjs(toDate).diff(fromDate, 'days') < 2 && data?.category === 'ELECTRICITY';
 
-  const showYearsLegend = !!getValues().year && viewMode === EnumViewMode.graph && !getValues().isHourQuarter;
+  const showYearsLegend = !!compareYear && viewMode === EnumViewMode.graph && !isHourQuarter;
   const yearsLegend = showYearsLegend && (
     <div className="content-center">
       <YearsLegend data={data} showTemperature={showTemperature && canShowTemperature(data)} />
     </div>
   );
 
-  useEffect(() => {
-    const expected = isHourQuarter ? EnumTimeInterval.quarter : EnumTimeInterval.hour;
-    if (timeInterval !== expected) {
-      setTimeInterval(expected);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHourQuarter]);
-
-  useEffect(() => {
-    updateIsHourQuarter?.(timeInterval === EnumTimeInterval.quarter);
-    setValue('isHourQuarter', timeInterval === EnumTimeInterval.quarter);
-  }, [timeInterval, updateIsHourQuarter, setValue]);
-
   return (
     <div>
       <h4 className="sm:block hidden">
-        {getValues().facilityType} {data?.formattedDate}
-        {getValues().year && !isNormalYear(getValues().year) && !isFetching ? <> och {getValues().year}</> : ''}
+        {facilityType} {data?.formattedDate}
+        {compareYear && !isNormalYear(compareYear) && !isFetching ? <> och {compareYear}</> : ''}
       </h4>
       <p className="sm:block hidden" data-cy="address">
         {addresses.join(', ')}
@@ -149,7 +140,7 @@ export default function Consumption(props: ElectricityConsumptionProps) {
           <ConsumptionControls
             showTimeInterval={showTimeInterval}
             timeInterval={timeInterval}
-            onTimeIntervalChange={setTimeInterval}
+            onTimeIntervalChange={(interval) => setIsHourQuarter(interval === EnumTimeInterval.quarter)}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             yearsLegend={yearsLegend}

@@ -1,10 +1,10 @@
 'use client';
 
-import { Accordion, Button, Select } from '@sk-web-gui/react';
+import { Accordion, Button, Icon, Modal, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
-import { useFormContext } from 'react-hook-form';
+import { ListFilter } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterAccordionItem } from './components/statistics-filter-accordion-item.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
@@ -12,30 +12,57 @@ import { StatisticsFilterYear } from './components/statistics-filter-year.compon
 import { CompareYearSelect } from './components/compare-year-select.component';
 import { FacilityCombobox } from './components/facility-combobox.component';
 import { ModeSelect } from './components/mode-select.component';
-import { useStatisticsFilter } from './use-statistics-filter';
-import { Category } from '@interfaces/measurement-data';
 import { isNormalYear } from '@utils/normal-year';
 import { FacilityType } from '@utils/facility';
+import { useFacilityOptions, useStatisticsFilter, useStatisticsPeriod } from './statistics-filter.store';
 
-export interface StatisticsFilterMobileProps {
-  closeHandler: () => void;
-}
-
-export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileProps) => {
+export const StatisticsFilterMobile = () => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { watch, setValue } = useFormContext<StatisticsForm>();
-  const compareYearValue = watch('year');
-  const mode = watch('mode');
-  const facilityType = watch('facilityType');
-  const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
+  const [isOpen, setIsOpen] = useState(false);
 
-  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities, hasOneFacility } =
-    useStatisticsFilter();
+  const closeHandler = () => setIsOpen(false);
 
-  const totalFacilities = addresses.groups.reduce((sum, group) => sum + group.facilities.length, 0);
+  return (
+    <>
+      <Button
+        size="md"
+        variant="secondary"
+        className="sm:hidden w-full mt-24"
+        onClick={() => setIsOpen(true)}
+        leftIcon={<Icon icon={<ListFilter />} />}
+      >
+        {t('statistics:filter')}
+      </Button>
+
+      <Modal
+        className="sm:hidden block w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95vh]"
+        disableCloseOutside={true}
+        show={isOpen}
+        onClose={closeHandler}
+        label={t('statistics:toFilter')}
+      >
+        <Modal.Content className="overflow-y-auto">
+          <StatisticsFilterMobileContent closeHandler={closeHandler} />
+        </Modal.Content>
+      </Modal>
+    </>
+  );
+};
+
+const StatisticsFilterMobileContent = ({ closeHandler }: { closeHandler: () => void }) => {
+  const { t } = useTranslation(['common', 'statistics']);
+
+  const mode = useStatisticsFilter((state) => state.mode);
+  const facilityType = useStatisticsFilter((state) => state.facilityType);
+  const facilityIds = useStatisticsFilter((state) => state.facilityIds);
+  const compareYear = useStatisticsFilter((state) => state.compareYear);
+  const isHourQuarter = useStatisticsFilter((state) => state.isHourQuarter);
+  const setFacilityType = useStatisticsFilter((state) => state.setFacilityType);
+  const setFacilityIds = useStatisticsFilter((state) => state.setFacilityIds);
+  const { availableFacilityTypes, groups, optionsKey, totalFacilities, hasOneFacility } = useFacilityOptions();
+  const { fromDate } = useStatisticsPeriod();
 
   const periodSubtitle = (() => {
-    if (!fromDate) return '';
     const d = dayjs(fromDate);
     if (mode === 'year') return d.format('YYYY');
     if (mode === 'month') return d.format('MMMM YYYY');
@@ -43,9 +70,9 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   })();
 
   const compareYearSubtitle = (() => {
-    if (!compareYearValue) return t('statistics:compareYearNone');
-    if (isNormalYear(compareYearValue)) return t('statistics:normalYear');
-    return dayjs(compareYearValue).format('YYYY');
+    if (!compareYear) return t('statistics:compareYearNone');
+    if (isNormalYear(compareYear)) return t('statistics:normalYear');
+    return compareYear;
   })();
 
   return (
@@ -58,7 +85,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
                 className="w-full"
                 data-cy={`facility-type-mobile-${facilityType}`}
                 value={facilityType ?? ''}
-                onChange={(e) => setValue('facilityType', e.target.value as FacilityType)}
+                onChange={(e) => setFacilityType(e.target.value as FacilityType)}
               >
                 {availableFacilityTypes.map((type) => (
                   <Select.Option key={type}>{type}</Select.Option>
@@ -71,14 +98,14 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
         {!hasOneFacility && (
           <StatisticsFilterAccordionItem
             label={t('statistics:facility')}
-            subtitle={t('statistics:selection', { count: facilities.checked.length, total: totalFacilities })}
+            subtitle={t('statistics:selection', { count: facilityIds.length, total: totalFacilities })}
           >
             <div className="flex flex-col gap-12 pl-6">
               <FacilityCombobox
-                groups={addresses.groups}
-                optionsKey={addresses.optionsKey}
-                value={facilities.checked}
-                onChange={facilities.setSelected}
+                groups={groups}
+                optionsKey={optionsKey}
+                value={facilityIds}
+                onChange={setFacilityIds}
                 dataCy="facility-select-mobile"
               />
             </div>
@@ -97,14 +124,7 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
         {!isHourQuarter && (
           <StatisticsFilterAccordionItem label={t('statistics:compareYear')} subtitle={compareYearSubtitle}>
             <div className="pl-6">
-              <CompareYearSelect
-                fromDate={fromDate}
-                mode={mode}
-                isDistrictHeating={isDistrictHeating}
-                isAggregating={facilities.checked.length > 1}
-                className="w-full"
-                dataCy="compare-year-select-mobile"
-              />
+              <CompareYearSelect className="w-full" dataCy="compare-year-select-mobile" />
             </div>
           </StatisticsFilterAccordionItem>
         )}

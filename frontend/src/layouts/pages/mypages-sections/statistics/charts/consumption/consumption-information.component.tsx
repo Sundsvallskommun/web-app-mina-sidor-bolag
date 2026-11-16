@@ -5,7 +5,7 @@ import { StatisticsMeasurementData } from '@interfaces/measurement-data';
 import { calculateTotalConsumption, translateAggregateOn } from '@services/measurement-data-service';
 import { FacilityTypeName } from '@utils/facility';
 import { isNormalYear } from '@utils/normal-year';
-import { useFormContext } from 'react-hook-form';
+import { useStatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import { useTranslation } from 'react-i18next';
 
 export interface ConsumptionInformationProps {
@@ -40,10 +40,11 @@ function InformationCard(props: Readonly<InformationCardProps>) {
 
 export default function ConsumptionInformation(props: Readonly<ConsumptionInformationProps>) {
   const { data } = props;
-  const { getValues } = useFormContext();
+  const compareYear = useStatisticsFilter((state) => state.compareYear);
+  const facilityType = useStatisticsFilter((state) => state.facilityType);
   const { t } = useTranslation('statistics');
 
-  if (data && isNormalYear(getValues().year)) {
+  if (data && isNormalYear(compareYear)) {
     return (
       <div className="flex flex-col lg:flex-row gap-24 pt-56">
         <InformationCard
@@ -71,7 +72,7 @@ export default function ConsumptionInformation(props: Readonly<ConsumptionInform
   }
 
   const label =
-    getValues().facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
+    facilityType === FacilityTypeName.ELECTRICITY_PRODUCTION
       ? t('statistics:consumption.production')
       : t('statistics:consumption.consumption');
 

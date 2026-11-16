@@ -1,45 +1,42 @@
 'use client';
 
-import { StatisticsForm } from '@layouts/pages/mypages-sections/statistics.component';
 import { Select } from '@sk-web-gui/react';
-import dayjs from 'dayjs';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { NORMAL_YEAR } from '@utils/normal-year';
-import { generateComparableYears } from '../generateDateLists';
-import { StatisticsFilterMode } from '../use-statistics-filter';
+import { canCompareWithNormalYear } from '../statistics-filter.rules';
+import { useComparableYears, useStatisticsFilter } from '../statistics-filter.store';
 
 export interface CompareYearSelectProps {
-  fromDate: string;
-  mode: StatisticsFilterMode;
-  isDistrictHeating: boolean;
-  isAggregating: boolean;
   className?: string;
   dataCy?: string;
   size?: 'sm' | 'md';
 }
 
-export const CompareYearSelect = ({
-  fromDate,
-  mode,
-  isDistrictHeating,
-  isAggregating,
-  className,
-  dataCy,
-  size = 'md',
-}: CompareYearSelectProps) => {
+export const CompareYearSelect = ({ className, dataCy, size = 'md' }: CompareYearSelectProps) => {
   const { t } = useTranslation(['statistics']);
-  const { register } = useFormContext<StatisticsForm>();
+  const compareYear = useStatisticsFilter((state) => state.compareYear);
+  const setCompareYear = useStatisticsFilter((state) => state.setCompareYear);
+  const showNormalYear = useStatisticsFilter(canCompareWithNormalYear);
+  const comparableYears = useComparableYears();
 
   return (
-    <Select {...register('year')} size={size} className={className} data-cy={dataCy}>
+    <Select
+      name="compareYear"
+      value={compareYear}
+      onChange={(e) => setCompareYear(e.target.value)}
+      size={size}
+      className={className}
+      data-cy={dataCy}
+    >
       <Select.Option key={0} value="">
         {t('statistics:chooseYear')}
       </Select.Option>
-      {generateComparableYears(fromDate).map((y) => (
-        <Select.Option key={`compareTo-${y}`}>{dayjs(y).format('YYYY')}</Select.Option>
+      {comparableYears.map((year) => (
+        <Select.Option key={`compareTo-${year}`} value={year}>
+          {year}
+        </Select.Option>
       ))}
-      {isDistrictHeating && mode === 'year' && !isAggregating && (
+      {showNormalYear && (
         <>
           <hr />
           <Select.Option key="compareTo-normalYear" value={NORMAL_YEAR}>

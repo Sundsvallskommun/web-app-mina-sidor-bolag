@@ -13,7 +13,10 @@ import {
   BarShapeProps,
 } from 'recharts';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
-import { useFormContext } from 'react-hook-form';
+import {
+  useStatisticsFilter,
+  useStatisticsPeriod,
+} from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 import { chartColors } from '@utils/chart-colors.const';
@@ -183,7 +186,8 @@ const BarCursor = ({ dataLength, points, top = 0, width = 0, height = 0 }: BarCu
 
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const isLargeDevice = useMediaQuery('(min-width: 480px)');
-  const { getValues } = useFormContext();
+  const compareYear = useStatisticsFilter((state) => state.compareYear);
+  const { fromDate } = useStatisticsPeriod();
   const { isDarkMode } = useDarkMode();
   const { t } = useTranslation();
   const { data, showTemperature = false } = props;
@@ -192,9 +196,9 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
     return null;
   }
 
-  const showPreviousYear = Boolean(getValues().year);
+  const showPreviousYear = Boolean(compareYear);
   const temperatureVisible = showTemperature && canShowTemperature(data);
-  const previousTemperatureVisible = temperatureVisible && showPreviousYear && !isNormalYear(getValues().year);
+  const previousTemperatureVisible = temperatureVisible && showPreviousYear && !isNormalYear(compareYear);
   const temperatureColor = isDarkMode ? chartColors.temperature.dark : chartColors.temperature.light;
   const chartData = temperatureVisible
     ? addTemperatureToMeasurementPoints(data)
@@ -244,8 +248,8 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             cursor={<BarCursor dataLength={chartData?.length ?? 0} />}
             content={
               <CustomTooltip
-                fromDate={getValues().fromDate}
-                year={getValues().year}
+                fromDate={fromDate}
+                year={compareYear}
                 isConsumption={true}
                 aggregatedOn={data?.aggregatedOn}
                 active={undefined}

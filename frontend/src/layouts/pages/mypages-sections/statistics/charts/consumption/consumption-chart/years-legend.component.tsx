@@ -2,7 +2,7 @@ import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@int
 import { chartColors } from '@utils/chart-colors.const';
 import { isNormalYear } from '@utils/normal-year';
 import dayjs from 'dayjs';
-import { useFormContext } from 'react-hook-form';
+import { useStatisticsFilter } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
 import { useTranslation } from 'react-i18next';
 import { useDarkMode } from 'usehooks-ts';
 
@@ -35,11 +35,10 @@ const TemperatureLegendItem = ({ label, color, dashed }: TemperatureLegendItemPr
 );
 
 export function YearsLegend({ data, showTemperature = false }: YearsLegendProps) {
-  const { getValues } = useFormContext();
   const { isDarkMode } = useDarkMode();
   const { t } = useTranslation('statistics');
 
-  const year = getValues().year;
+  const year = useStatisticsFilter((state) => state.compareYear);
   if (!year) return null;
 
   const normalYear = isNormalYear(year);

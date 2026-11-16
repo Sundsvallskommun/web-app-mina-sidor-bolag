@@ -1,10 +1,9 @@
 'use client';
 
-import { StatisticsForm } from '@layouts/pages/mypages-sections/statistics.component';
 import { Select } from '@sk-web-gui/react';
-import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { StatisticsFilterMode } from '../use-statistics-filter';
+import { StatisticsFilterMode } from '../statistics-filter.rules';
+import { useStatisticsFilter } from '../statistics-filter.store';
 
 export interface ModeSelectProps {
   dataCy?: string;
@@ -13,8 +12,8 @@ export interface ModeSelectProps {
 
 export const ModeSelect = ({ dataCy, size = 'md' }: Readonly<ModeSelectProps>) => {
   const { t } = useTranslation(['statistics']);
-  const { watch, setValue } = useFormContext<StatisticsForm>();
-  const mode = watch('mode');
+  const mode = useStatisticsFilter((state) => state.mode);
+  const setMode = useStatisticsFilter((state) => state.setMode);
 
   const modeOptions: { value: StatisticsFilterMode; label: string }[] = [
     { value: 'year', label: t('statistics:year') },
@@ -27,8 +26,8 @@ export const ModeSelect = ({ dataCy, size = 'md' }: Readonly<ModeSelectProps>) =
       size={size}
       className="w-full"
       data-cy={dataCy}
-      value={mode ?? ''}
-      onChange={(e) => setValue('mode', e.target.value as StatisticsFilterMode)}
+      value={mode}
+      onChange={(e) => setMode(e.target.value as StatisticsFilterMode)}
     >
       {modeOptions.map((item) => (
         <Select.Option key={item.value} value={item.value}>
