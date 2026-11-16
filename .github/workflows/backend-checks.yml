@@ -26,11 +26,6 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile --silent --network-timeout 1000000
 
-      # The Prisma client is imported by code the tests load, and it does not
-      # exist until it has been generated from the schema.
-      - name: Generate Prisma client
-        run: yarn prisma:generate
-
       - name: Lint
         run: yarn lint
 

@@ -1,10 +1,7 @@
-import { Controller, Body, Req, Get, UseBefore, Res, Patch, OnUndefined } from 'routing-controllers';
+import { Controller, Req, Get, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
-import prisma from '@utils/prisma';
-import { IsIn } from 'class-validator';
-import { validationMiddleware } from '@/middlewares/validation.middleware';
 import { getApiBase } from '@/config/api-config';
 import { MUNICIPALITY_ID } from '@/config';
 import ApiService from '@/services/api.service';
@@ -24,18 +21,12 @@ import { getSessionMarker } from '@utils/request-context';
 
 interface UserData {
   name: string;
-  userSettings: any;
   relations?: { customerNumber: string[]; customerRelations: CustomerRelation[] };
   addresses?: FacilityAddress[];
   facilities?: InstalledBaseItem[];
   delegations?: Delegation[];
   extendedView: boolean;
   isExtendingView: boolean;
-}
-
-export class PatchUserSettingsDto {
-  @IsIn(['untilRemoved', 'oneMonth', 'twoWeeks'])
-  feedbackLifespan: string;
 }
 
 function facilityActiveLastThreeYears(installation: InstalledBaseItem): boolean {
@@ -75,27 +66,6 @@ export class UserController {
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
-    }
-
-    let userSettings = await prisma.userSettings.findFirst({
-      where: {
-        userId: req.user.partyId,
-      },
-    });
-
-    if (!userSettings) {
-      userSettings = await prisma.userSettings.create({
-        data: {
-          userId: req.user.partyId,
-          feedbackLifespan: 'oneMonth',
-          readNotificationsClearedDate: new Date().toISOString(),
-        },
-      });
-    }
-
-    if (userSettings) {
-      delete userSettings.id;
-      delete userSettings.userId;
     }
 
     req.session.cache ??= {};
@@ -244,7 +214,6 @@ export class UserController {
     const addresses = [...(req.session.cache.addresses ?? [])].sort((a, b) => a.address.localeCompare(b.address));
 
     const userData: UserData = {
-      userSettings,
       name,
       relations,
       addresses,
@@ -273,25 +242,5 @@ export class UserController {
     const relations = req.session.cache.relations.customerRelations;
 
     return response.send({ data: relations, message: 'success' });
-  }
-
-  @Patch('/settings')
-  @OnUndefined(204)
-  @OpenAPI({ summary: 'Patch user settings' })
-  @UseBefore(validationMiddleware(PatchUserSettingsDto, 'body'))
-  async patchSettings(@Req() req: RequestWithUser, @Body() userData: PatchUserSettingsDto): Promise<void> {
-    const { partyId } = req.user;
-
-    const newSettings = await prisma.userSettings.update({
-      where: {
-        userId: partyId,
-      },
-      data: userData,
-    });
-
-    if (newSettings) {
-      delete newSettings.id;
-      delete newSettings.userId;
-    }
   }
 }
