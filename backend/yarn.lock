@@ -1246,6 +1246,33 @@
   resolved "https://registry.yarnpkg.com/@pkgr/core/-/core-0.3.6.tgz#3569708bd4be4d8870ba32bf1c456dac81600d97"
   integrity sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==
 
+"@redis/bloom@5.12.3":
+  version "5.12.3"
+  resolved "https://registry.yarnpkg.com/@redis/bloom/-/bloom-5.12.3.tgz#9eb30abae7106cce7a0e2cedfb29dd3df8835fc4"
+  integrity sha512-XgEX64JuoNsEeH3mZurmX/cfqrbJZBZeYDiUybzd1uPK/XfisqX2WnsgjR3qRlPZN995oi5EMT4vKkvLKwzlNQ==
+
+"@redis/client@5.12.3":
+  version "5.12.3"
+  resolved "https://registry.yarnpkg.com/@redis/client/-/client-5.12.3.tgz#f03205ea0aa7e3500e51bd00d792d9b77e885b0c"
+  integrity sha512-EFw4mJ5wgqtWRUhdxEiRsZ6StZi12PG1MMcRLXUZ2j4N2ymIOupLiL2tA22CobMyrfKlGOiwwzK+U+gGvgVruA==
+  dependencies:
+    cluster-key-slot "1.1.2"
+
+"@redis/json@5.12.3":
+  version "5.12.3"
+  resolved "https://registry.yarnpkg.com/@redis/json/-/json-5.12.3.tgz#1ce000de9fbb5ab1a5e84ed961cb94ec047727a5"
+  integrity sha512-HjKbazxaB4K2FcVewLE8DAmfyxlCpEaRdfj7CYuEK/hJb8oAWIA/ZnK98r5xp6E3P2yW2s/Payjhp7BSpFr+MA==
+
+"@redis/search@5.12.3":
+  version "5.12.3"
+  resolved "https://registry.yarnpkg.com/@redis/search/-/search-5.12.3.tgz#0499730d5e82c679d0e4c5ea926c85266b5aa615"
+  integrity sha512-NRHipjwbFRLTUWkRSjDI7DQhn8I+goOpConP7RN6GTcVh2xg1eP6BrKiCJKdfUpM9VjctFBYDrnfivA8VJgSsg==
+
+"@redis/time-series@5.12.3":
+  version "5.12.3"
+  resolved "https://registry.yarnpkg.com/@redis/time-series/-/time-series-5.12.3.tgz#cf075f68804e40be9a195d821c13354bb7d855cd"
+  integrity sha512-V7M6Axcbiinzo7ZriL7/TC9wWaY22wJyVhUiWLHoegAo5eZLNxCQTKEl+0e/Q5sTU20FTAP1MJleGZGBMRP38w==
+
 "@scarf/scarf@=1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@scarf/scarf/-/scarf-1.4.0.tgz#3bbb984085dbd6d982494538b523be1ce6562972"
@@ -2674,6 +2701,11 @@ clsx@^2.1.1:
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
   integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
 
+cluster-key-slot@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/cluster-key-slot/-/cluster-key-slot-1.1.2.tgz#88ddaa46906e303b5de30d3153b7d9fe0a0c19ac"
+  integrity sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==
+
 co-body@^6.0.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/co-body/-/co-body-6.2.0.tgz#afd776d60e5659f4eee862df83499698eb1aea1b"
@@ -2796,6 +2828,11 @@ confbox@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/confbox/-/confbox-0.3.1.tgz#79aa91893791a202fb349fb367e7320423f7c76e"
   integrity sha512-cKUSoKa8YxFZZSmraVi7onONx3amu77ngK3kGpsYHDH7drPwCRkQE1RYMPlLRrMtnciRj274XNRxcHxnKmDSnA==
+
+connect-redis@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/connect-redis/-/connect-redis-9.0.0.tgz#d3c68451a466d007c4be9fae8b652e0f60d9b769"
+  integrity sha512-QwzyvUePTMvEzG1hy45gZYw3X3YHrjmEdSkayURlcZft7hqadQ3X39wYkmCqblK2rGlw+XItELYt6GnyG6DEIQ==
 
 consola@^3.4.2:
   version "3.4.2"
@@ -5848,6 +5885,17 @@ readdirp@~3.6.0:
   integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
   dependencies:
     picomatch "^2.2.1"
+
+redis@^5.12.1:
+  version "5.12.3"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-5.12.3.tgz#dc043f0f389b1ba0847984f3cc661e0e79f00f6a"
+  integrity sha512-dL9GfnhQrfu49ugu7guMQshMLGWfXXgSKwFtxDoWvW52tynUolB6V/NopEppZiBavaz62+AJrLDywmdEPJg98w==
+  dependencies:
+    "@redis/bloom" "5.12.3"
+    "@redis/client" "5.12.3"
+    "@redis/json" "5.12.3"
+    "@redis/search" "5.12.3"
+    "@redis/time-series" "5.12.3"
 
 reflect-metadata@^0.1.13:
   version "0.1.14"
