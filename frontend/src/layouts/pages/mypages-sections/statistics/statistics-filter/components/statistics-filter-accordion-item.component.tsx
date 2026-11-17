@@ -27,6 +27,8 @@ export const StatisticsFilterAccordionItem = ({
         {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
       </Accordion.Item.Button>
     </Accordion.Item.Header>
-    <Accordion.Item.Content>{children}</Accordion.Item.Content>
+    <Accordion.Item.Content>
+      <div className="pt-12">{children}</div>
+    </Accordion.Item.Content>
   </Accordion.Item>
 );

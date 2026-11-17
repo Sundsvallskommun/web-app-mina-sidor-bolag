@@ -2,7 +2,7 @@
 
 import { getAddressesFromFacilities } from '@services/measurement-data-service';
 import { FacilityType } from '@utils/facility';
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { createStore, StoreApi, useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import {
@@ -30,20 +30,22 @@ interface StatisticsFilterActions {
   setIsHourQuarter: (isHourQuarter: boolean) => void;
   /** Keeps the store in sync if the user's facilities are refetched */
   setFacilities: (facilities: StatisticsFacility[]) => void;
+  /** Applies several filter values at once, e.g. from a draft */
+  setFilter: (filter: Partial<StatisticsFilterState>) => void;
 }
 
 export type StatisticsFilterStore = StatisticsFilterState & {
   facilities: StatisticsFacility[];
 } & StatisticsFilterActions;
 
-const createStatisticsFilterStore = (facilities: StatisticsFacility[], linkedFacilityId?: string | null) =>
+const createStatisticsFilterStore = (initialState: StatisticsFilterState, facilities: StatisticsFacility[]) =>
   createStore<StatisticsFilterStore>()((set) => {
     /** Every update goes through the rules, so the state is always valid after a single render */
     const update = (patch: (state: StatisticsFilterStore) => Partial<StatisticsFilterState>) =>
       set((state) => normalizeFilterState({ ...state, ...patch(state) }, state.facilities));
 
     return {
-      ...createInitialFilterState(facilities, linkedFacilityId),
+      ...initialState,
       facilities,
 
       setFacilityType: (facilityType) =>
@@ -67,10 +69,31 @@ const createStatisticsFilterStore = (facilities: StatisticsFacility[], linkedFac
       setIsHourQuarter: (isHourQuarter) => update(() => ({ isHourQuarter })),
       setFacilities: (nextFacilities) =>
         set((state) => ({ ...normalizeFilterState(state, nextFacilities), facilities: nextFacilities })),
+      setFilter: (filter) => update(() => filter),
     };
   });
 
+/** The values the filter UI edits. isHourQuarter is left out since it is toggled outside the filter. */
+const pickEditableFilter = (state: StatisticsFilterStore): Omit<StatisticsFilterState, 'isHourQuarter'> => ({
+  facilityType: state.facilityType,
+  facilityIds: state.facilityIds,
+  mode: state.mode,
+  selectedYear: state.selectedYear,
+  selectedMonth: state.selectedMonth,
+  selectedDay: state.selectedDay,
+  compareYear: state.compareYear,
+});
+
 const StatisticsFilterContext = createContext<StoreApi<StatisticsFilterStore> | null>(null);
+const ApplyDraftContext = createContext<(() => void) | null>(null);
+
+const useStatisticsFilterStoreApi = () => {
+  const store = useContext(StatisticsFilterContext);
+  if (!store) {
+    throw new Error('useStatisticsFilter must be used within a StatisticsFilterProvider');
+  }
+  return store;
+};
 
 export interface StatisticsFilterProviderProps {
   facilities: StatisticsFacility[];
@@ -79,7 +102,9 @@ export interface StatisticsFilterProviderProps {
 }
 
 export const StatisticsFilterProvider = ({ facilities, linkedFacilityId, children }: StatisticsFilterProviderProps) => {
-  const [store] = useState(() => createStatisticsFilterStore(facilities, linkedFacilityId));
+  const [store] = useState(() =>
+    createStatisticsFilterStore(createInitialFilterState(facilities, linkedFacilityId), facilities)
+  );
 
   useEffect(() => {
     if (store.getState().facilities !== facilities) {
@@ -90,12 +115,48 @@ export const StatisticsFilterProvider = ({ facilities, linkedFacilityId, childre
   return <StatisticsFilterContext.Provider value={store}>{children}</StatisticsFilterContext.Provider>;
 };
 
-export function useStatisticsFilter<T>(selector: (state: StatisticsFilterStore) => T): T {
-  const store = useContext(StatisticsFilterContext);
-  if (!store) {
-    throw new Error('useStatisticsFilter must be used within a StatisticsFilterProvider');
+/**
+ * Gives its children a copy of the filter store. Changes stay in the copy (no refetching)
+ * until useApplyStatisticsFilterDraft() is called. The copy is taken on mount, so remount
+ * it (e.g. with a key) to start a new draft.
+ */
+export const StatisticsFilterDraftProvider = ({ children }: { children: ReactNode }) => {
+  const store = useStatisticsFilterStoreApi();
+  const facilities = useStore(store, (state) => state.facilities);
+  const [draft] = useState(() => {
+    const state = store.getState();
+    return createStatisticsFilterStore(
+      { ...pickEditableFilter(state), isHourQuarter: state.isHourQuarter },
+      state.facilities
+    );
+  });
+
+  // Facilities can still be loading (paged agreements) while the draft is open
+  useEffect(() => {
+    if (draft.getState().facilities !== facilities) {
+      draft.getState().setFacilities(facilities);
+    }
+  }, [draft, facilities]);
+
+  const apply = useCallback(() => store.getState().setFilter(pickEditableFilter(draft.getState())), [store, draft]);
+
+  return (
+    <ApplyDraftContext.Provider value={apply}>
+      <StatisticsFilterContext.Provider value={draft}>{children}</StatisticsFilterContext.Provider>
+    </ApplyDraftContext.Provider>
+  );
+};
+
+export const useApplyStatisticsFilterDraft = () => {
+  const apply = useContext(ApplyDraftContext);
+  if (!apply) {
+    throw new Error('useApplyStatisticsFilterDraft must be used within a StatisticsFilterDraftProvider');
   }
-  return useStore(store, selector);
+  return apply;
+};
+
+export function useStatisticsFilter<T>(selector: (state: StatisticsFilterStore) => T): T {
+  return useStore(useStatisticsFilterStoreApi(), selector);
 }
 
 export const useStatisticsPeriod = () => {
