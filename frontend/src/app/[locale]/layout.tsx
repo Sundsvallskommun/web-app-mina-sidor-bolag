@@ -1,4 +1,5 @@
 import initLocalization from '@app/i18n';
+import { InactivityLogout } from '@components/inactivity-alert/inactivity-logout.component';
 import LocalizationProvider from '@components/localization-provider/localization-provider';
 import { appName } from '@utils/app-name';
 import { headers } from 'next/headers';
@@ -40,7 +41,12 @@ const LocalizationLayout = async (props: LocalizationLayoutProps) => {
   const { locale } = await params;
   const { resources } = await initLocalization(locale, namespaces);
 
-  return <LocalizationProvider {...{ locale, resources, namespaces }}>{children}</LocalizationProvider>;
+  return (
+    <LocalizationProvider {...{ locale, resources, namespaces }}>
+      {children}
+      <InactivityLogout />
+    </LocalizationProvider>
+  );
 };
 
 export const generateMetadata = async ({ params }: LocalizationLayoutProps) => {

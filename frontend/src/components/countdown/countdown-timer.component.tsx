@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface CountdownTimerProps {
   timeout: number; // timeout in milliseconds
@@ -7,35 +7,30 @@ interface CountdownTimerProps {
 }
 
 export const CountdownTimer: React.FC<CountdownTimerProps> = ({ timeout, onChangeTime, className }) => {
+  const [deadline] = useState(() => Date.now() + timeout);
   const [timeLeft, setTimeLeft] = useState<number>(timeout);
-  const timerIdRef = useRef<NodeJS.Timeout | null>(null);
-
+  const onChangeTimeRef = useRef(onChangeTime);
   useEffect(() => {
-    const tick = () => {
-      setTimeLeft((prevTime) => {
-        const newTime = prevTime - 1000;
-        onChangeTime?.(newTime);
-        return newTime;
-      });
-    };
-
-    timerIdRef.current = setInterval(tick, 1000);
-
-    return () => {
-      if (timerIdRef.current) {
-        clearInterval(timerIdRef.current);
-      }
-    };
+    onChangeTimeRef.current = onChangeTime;
   }, [onChangeTime]);
 
   useEffect(() => {
-    if (timeLeft <= 0 && timerIdRef.current) {
-      clearInterval(timerIdRef.current);
-    }
-  }, [timeLeft]);
+    // Remaining time is always derived from the fixed deadline, so a throttled or
+    // suspended interval catches up on the next tick, and 0 is always reported once.
+    const timerId = setInterval(() => {
+      const newTime = Math.max(deadline - Date.now(), 0);
+      setTimeLeft(newTime);
+      onChangeTimeRef.current?.(newTime);
+      if (newTime === 0) {
+        clearInterval(timerId);
+      }
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [deadline]);
 
   const formatTime = (milliseconds: number): string => {
-    const totalSeconds = Math.max(Math.floor(milliseconds / 1000), 0);
+    const totalSeconds = Math.ceil(milliseconds / 1000);
     const minutes = Math.floor(totalSeconds / 60)
       .toString()
       .padStart(2, '0');
