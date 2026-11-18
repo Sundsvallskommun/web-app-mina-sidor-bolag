@@ -17,7 +17,7 @@ import {
   useStatisticsFilter,
   useStatisticsPeriod,
 } from '@layouts/pages/mypages-sections/statistics/statistics-filter/statistics-filter.store';
-import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
+import { MergedStatisticsMeasurementData, StatisticsMeasurementData, Aggregation } from '@interfaces/measurement-data';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 import { chartColors } from '@utils/chart-colors.const';
 import {
@@ -25,7 +25,6 @@ import {
   canShowTemperature,
   fillChartPeriod,
 } from '@services/measurement-data-service';
-import { Aggregation } from '@interfaces/measurement-data';
 import { isNormalYear } from '@utils/normal-year';
 import { makeMask } from '../../mask.component';
 import { useTranslation } from 'react-i18next';
