@@ -1,15 +1,12 @@
 import CountdownTimer from '@components/countdown/countdown-timer.component';
 import { useInactivityTrigger } from '@utils/use-inactivity-trigger.hook';
+import { envPositiveInt } from '@utils/runtime-env';
 import { Button, Dialog } from '@sk-web-gui/react';
 import React, { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-const WARNING_TIMEOUT = process.env.NEXT_PUBLIC_INACTIVITY_WARNING_TIMEOUT
-  ? Number.parseInt(process.env.NEXT_PUBLIC_INACTIVITY_WARNING_TIMEOUT, 10)
-  : 10 * 60 * 1000;
-const COUNTDOWN_TIMEOUT = process.env.NEXT_PUBLIC_INACTIVITY_COUNTDOWN_TIMEOUT
-  ? Number.parseInt(process.env.NEXT_PUBLIC_INACTIVITY_COUNTDOWN_TIMEOUT, 10)
-  : 5 * 60 * 1000;
+const WARNING_TIMEOUT = envPositiveInt(process.env.NEXT_PUBLIC_INACTIVITY_WARNING_TIMEOUT, 10 * 60 * 1000);
+const COUNTDOWN_TIMEOUT = envPositiveInt(process.env.NEXT_PUBLIC_INACTIVITY_COUNTDOWN_TIMEOUT, 5 * 60 * 1000);
 
 interface InactivityAlertProps {
   onLogout: () => void;

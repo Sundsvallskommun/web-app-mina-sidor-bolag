@@ -4,6 +4,7 @@ import React, { ChangeEvent, useState } from 'react';
 import { FormLabel, Select } from '@sk-web-gui/react';
 import { useTranslation } from 'react-i18next';
 import DisturbancesList from '@components/disturbances-list/disturbances-list.component';
+import { isEnvEnabled } from '@utils/runtime-env';
 
 export default function Disturbances() {
   const { t } = useTranslation();
@@ -13,7 +14,7 @@ export default function Disturbances() {
     setStatus(e.currentTarget.value);
   };
 
-  return process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES ? (
+  return isEnvEnabled(process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES) ? (
     <div data-cy="overview-disturbances">
       <h1>{t('disturbances:title')}</h1>
       <p>{t('disturbances:description')}</p>

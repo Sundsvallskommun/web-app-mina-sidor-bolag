@@ -33,7 +33,20 @@ services:
       LOG_FORMAT: ${LOG_FORMAT-dev}
       LOG_DIR: ${LOG_DIR-../../data/logs}
       CREDENTIALS: ${CREDENTIALS-true}
+      # Redis is required for multi-instance deployments. Leave REDIS_HOST empty
+      # only for single-instance local development.
+      REDIS_HOST: ${REDIS_HOST-}
+      # Must be unique per application when Redis is shared (defaults to web-app-mina-sidor-bolag).
+      REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX-}
+      # The application defaults to 6379 when REDIS_HOST is set.
+      REDIS_PORT: ${REDIS_PORT-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD-}
   frontend:
     environment:
       # URL to backend
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?err}
+      # Server-only backend address used by the /api/health/up proxy. Must be reachable from the
+      # frontend container: with network_mode bridge, service names do not resolve, so this is not
+      # the browser-facing localhost URL either (e.g. http://host.docker.internal:3001/api).
+      INTERNAL_API_URL: ${INTERNAL_API_URL:?err}
+      HEALTH_REQUEST_TIMEOUT_MS: ${HEALTH_REQUEST_TIMEOUT_MS-3000}
