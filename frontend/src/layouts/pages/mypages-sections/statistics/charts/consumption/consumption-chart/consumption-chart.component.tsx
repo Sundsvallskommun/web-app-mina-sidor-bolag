@@ -20,7 +20,12 @@ import {
 import { MergedStatisticsMeasurementData, StatisticsMeasurementData } from '@interfaces/measurement-data';
 import { useDarkMode, useMediaQuery } from 'usehooks-ts';
 import { chartColors } from '@utils/chart-colors.const';
-import { addTemperatureToMeasurementPoints, canShowTemperature } from '@services/measurement-data-service';
+import {
+  addTemperatureToMeasurementPoints,
+  canShowTemperature,
+  fillChartPeriod,
+} from '@services/measurement-data-service';
+import { Aggregation } from '@interfaces/measurement-data';
 import { isNormalYear } from '@utils/normal-year';
 import { makeMask } from '../../mask.component';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +48,22 @@ const calculateYAxisDomain = (dataMax: number) => {
     return (Math.floor(dataMax / 100) + 1) * 100;
   }
   return (Math.floor(dataMax / 1000) + 1) * 1000;
+};
+
+const mobileTickFormatter = (aggregatedOn?: string) => (value: string, index: number) => {
+  switch (aggregatedOn) {
+    case Aggregation.DAY: {
+      const day = Number.parseInt(value, 10);
+      return day === 1 || (day % 5 === 0 && day <= 30) ? value : '';
+    }
+    case Aggregation.HOUR:
+    case Aggregation.QUARTER:
+      return Number.parseInt(value, 10) % 2 === 0 ? value : '';
+    case Aggregation.MONTH:
+      return index % 2 === 0 ? value : '';
+    default:
+      return value;
+  }
 };
 
 interface SingleBarProps {
@@ -200,9 +221,10 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const temperatureVisible = showTemperature && canShowTemperature(data);
   const previousTemperatureVisible = temperatureVisible && showPreviousYear && !isNormalYear(compareYear);
   const temperatureColor = isDarkMode ? chartColors.temperature.dark : chartColors.temperature.light;
+  const filledData = fillChartPeriod(data, fromDate);
   const chartData = temperatureVisible
-    ? addTemperatureToMeasurementPoints(data)
-    : data.measurementData[0]?.measurementPoints;
+    ? addTemperatureToMeasurementPoints(filledData)
+    : filledData.measurementData?.[0]?.measurementPoints;
 
   return (
     <div className="relative" style={{ maxWidth: 1000, height: 300 }} data-cy="consumption-chart">
@@ -221,18 +243,19 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
           data={chartData}
           margin={{
             top: 0,
-            right: 0,
+            right: 2,
             left: 4,
             bottom: 4,
           }}
           barCategoryGap={5}
         >
           <XAxis
-            interval="preserveStartEnd"
+            interval={0}
             axisLine={false}
             tickLine={false}
             dataKey="chartTimestamp"
-            tick={{ fill: isDarkMode ? chartColors.xAxis.dark : chartColors.xAxis.light }}
+            tickFormatter={isLargeDevice ? undefined : mobileTickFormatter(data.aggregatedOn)}
+            tick={{ fill: isDarkMode ? chartColors.xAxis.dark : chartColors.xAxis.light, fontSize: 14 }}
           />
           {isLargeDevice && (
             <YAxis
