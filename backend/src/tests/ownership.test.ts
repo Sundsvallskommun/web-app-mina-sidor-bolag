@@ -25,6 +25,7 @@ import {
   assertOwnsContactSetting,
   assertOwnsDelegate,
   assertOwnsFacility,
+  assertOwnsOwnFacilities,
   assertOwnsFacilityDelegation,
   assertOwnsInvoice,
   assertInvoiceAccess,
@@ -290,6 +291,65 @@ describe('assertOwnsFacility', () => {
   it('needs no upstream call', () => {
     assertOwnsFacility(sessionWithFacilities(['fac-1']), 'fac-1');
     expect(apiGet).not.toHaveBeenCalled();
+  });
+});
+
+describe('assertOwnsOwnFacilities', () => {
+  function sessionWithFacilities(facilities: any[], cachePartyId = ME): any {
+    const req = privateSession();
+    req.session.cache = {
+      partyId: cachePartyId,
+      facilities: facilities.map(facility => (typeof facility === 'string' ? { facilityId: facility } : facility)),
+      delegations: [],
+    };
+    return req;
+  }
+
+  const delegatedFacility = { facilityId: 'fac-del', isDelegated: true, facilityOwnerPartyId: SOMEONE_ELSE };
+
+  it('allows facilities the session holds itself', () => {
+    expect(() => assertOwnsOwnFacilities(sessionWithFacilities(['fac-1', 'fac-2']), [{ id: 'fac-2' }])).not.toThrow();
+  });
+
+  it('refuses a facility delegated to the session', () => {
+    const req = sessionWithFacilities(['fac-1', delegatedFacility]);
+    expect(() => assertOwnsOwnFacilities(req, [{ id: 'fac-1' }, { id: 'fac-del' }])).toThrow(
+      expect.objectContaining({ status: 403 }),
+    );
+  });
+
+  it('refuses a facility flagged as delegated even without an owner', () => {
+    const req = sessionWithFacilities(['fac-1', { facilityId: 'fac-del', isDelegated: true }]);
+    expect(() => assertOwnsOwnFacilities(req, [{ id: 'fac-del' }])).toThrow(expect.objectContaining({ status: 403 }));
+  });
+
+  it('refuses a facility owned by another party', () => {
+    const req = sessionWithFacilities(['fac-1', { facilityId: 'fac-other', facilityOwnerPartyId: SOMEONE_ELSE }]);
+    expect(() => assertOwnsOwnFacilities(req, [{ id: 'fac-other' }])).toThrow(expect.objectContaining({ status: 403 }));
+  });
+
+  it('refuses when the facility cache belongs to another party', () => {
+    const req = sessionWithFacilities(['fac-1'], SOMEONE_ELSE);
+    expect(() => assertOwnsOwnFacilities(req, [{ id: 'fac-1' }])).toThrow(/MISSING_FACILITY_CONTEXT/);
+  });
+
+  it('refuses when the facility cache has no party', () => {
+    const req = sessionWithFacilities(['fac-1']);
+    delete req.session.cache.partyId;
+    expect(() => assertOwnsOwnFacilities(req, [{ id: 'fac-1' }])).toThrow(/MISSING_FACILITY_CONTEXT/);
+  });
+
+  it('refuses an unrelated facility', () => {
+    expect(() => assertOwnsOwnFacilities(sessionWithFacilities(['fac-1']), [{ id: 'fac-victim' }])).toThrow(
+      expect.objectContaining({ status: 403 }),
+    );
+  });
+
+  it('refuses an empty or malformed list', () => {
+    const req = sessionWithFacilities(['fac-1']);
+    expect(() => assertOwnsOwnFacilities(req, [])).toThrow(expect.objectContaining({ status: 400 }));
+    expect(() => assertOwnsOwnFacilities(req, undefined)).toThrow(expect.objectContaining({ status: 400 }));
+    expect(() => assertOwnsOwnFacilities(req, [{}])).toThrow(expect.objectContaining({ status: 400 }));
   });
 });
 

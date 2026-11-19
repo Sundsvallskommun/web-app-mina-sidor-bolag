@@ -10,7 +10,7 @@ const emptysigncache = {
 type SignCacheType = keyof RequestWithUser['session']['signs'];
 
 export const handleSignCache = (req: RequestWithUser) => {
-  req.session.signs ??= emptysigncache;
+  req.session.signs ??= structuredClone(emptysigncache);
   const set = <T = any>(type: SignCacheType, transactionId: string, data: T) => {
     req.session.signs[type] = { ...req.session.signs[type], [transactionId]: data as any };
   };

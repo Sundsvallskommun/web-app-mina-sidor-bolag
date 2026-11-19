@@ -40,6 +40,9 @@ const buildRequestConfig = (config: AxiosRequestConfig, user: Sender, requestId:
   httpsAgent: agent,
 });
 
+const isRelativeLocation = (location: unknown): location is string =>
+  typeof location === 'string' && location.startsWith('/') && !location.startsWith('//') && !location.includes('\\');
+
 const isClassifiedFailure = (error: unknown): error is AxiosError =>
   axios.isAxiosError(error) &&
   (error.response?.status === 404 || error.response?.status === 409 || Boolean(error.response?.data));
@@ -48,7 +51,6 @@ const logRequestFailure = (error: AxiosError): void => {
   logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
   logger.error(`Error details: ${JSON.stringify(error.response?.data)}`);
   logger.error(`Error url: ${toLoggableUrl(error.response?.config.baseURL, error.response?.config.url)}`);
-  logger.error(`Error data: ${error.response?.config.data}`);
   logger.error(`Error method: ${error.response?.config.method}`);
 };
 
@@ -100,7 +102,7 @@ class ApiService {
           'Content-Type': 'application/json',
           'X-Request-Id': uuidv4(),
         };
-        if (response.headers.location && !response.config.url.includes('messaging')) {
+        if (isRelativeLocation(response.headers.location) && !response.config.url.includes('messaging')) {
           logger.info(`Response contained location header: ${response.headers.location}`);
           logger.info(`Base URL was: ${response.config.baseURL}`);
           return axios

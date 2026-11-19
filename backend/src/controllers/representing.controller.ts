@@ -175,6 +175,9 @@ export class RepresentingController {
       );
 
       clearRelations();
+      req.session.cache.facilities = undefined;
+      req.session.cache.addresses = undefined;
+      req.session.cache.partyId = undefined;
     }
 
     return res.send({ data: this.getRepresentingToSend(newRepresenting), message: 'success' });

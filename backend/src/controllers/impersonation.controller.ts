@@ -1,4 +1,5 @@
 import { MUNICIPALITY_ID, NAMESPACE } from '@/config';
+import { parsePersonNumber } from '@utils/sanitizePersonNumber';
 import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -31,7 +32,7 @@ export class ImpersonationController {
     @Req() req: RequestWithUser,
     @Body() body: { personNumber: string },
   ): Promise<ApiResponse<UserEngagement>> {
-    const { personNumber } = body;
+    const personNumber = parsePersonNumber(body?.personNumber);
 
     const userEngagements: UserEngagement = {
       userPersonNumber: '',
@@ -99,7 +100,8 @@ export class ImpersonationController {
       accessReason: string;
     },
   ): Promise<boolean> {
-    const { toImpersonatePersonNumber, toImpersonatePartyId, toImpersonateName, accessReason } = body;
+    const { toImpersonatePartyId, toImpersonateName, accessReason } = body;
+    const toImpersonatePersonNumber = parsePersonNumber(body.toImpersonatePersonNumber);
     const session = req.session ?? undefined;
 
     if (!toImpersonatePersonNumber || !toImpersonateName || !toImpersonatePartyId || !accessReason) {
