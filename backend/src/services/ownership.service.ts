@@ -303,6 +303,46 @@ export function assertOwnsFacility(req: RequestWithUser, facilityId: string): vo
   }
 }
 
+export function getOwnFacilityIds(req: RequestWithUser): Set<string> {
+  const actingPartyId = getActingPartyId(req);
+  const cache = req.session?.cache;
+
+  if (cache?.partyId !== actingPartyId) {
+    logger.warn(`Ownership denied: facility cache does not belong to party '${actingPartyId}'`);
+    throw new HttpException(403, 'MISSING_FACILITY_CONTEXT');
+  }
+
+  const own = new Set<string>();
+  for (const facility of cache.facilities ?? []) {
+    if (!facility.facilityId || facility.isDelegated) continue;
+    if (facility.facilityOwnerPartyId && facility.facilityOwnerPartyId !== actingPartyId) continue;
+    own.add(facility.facilityId);
+  }
+
+  return own;
+}
+
+export function assertOwnsOwnFacilities(req: RequestWithUser, facilities: { id?: string }[] | undefined): void {
+  const actingPartyId = getActingPartyId(req);
+
+  if (!Array.isArray(facilities) || !facilities.length || facilities.some(facility => !facility?.id)) {
+    throw new HttpException(400, 'Bad Request');
+  }
+
+  const own = getOwnFacilityIds(req);
+
+  if (!own.size) {
+    logger.warn(`Ownership denied: no own facilities cached for party '${actingPartyId}'`);
+    throw new HttpException(403, 'MISSING_FACILITY_CONTEXT');
+  }
+
+  for (const { id } of facilities) {
+    if (!id || !own.has(id)) {
+      deny('own facility', String(id), actingPartyId);
+    }
+  }
+}
+
 export async function assertOwnsInvoice(
   req: RequestWithUser,
   organizationNumber: string,

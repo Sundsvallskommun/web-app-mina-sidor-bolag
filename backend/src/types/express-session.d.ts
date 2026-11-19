@@ -26,7 +26,7 @@ declare module 'express-session' {
       };
       relations?: { customerNumber: string[]; customerRelations: CustomerRelation[] };
       addresses?: FacilityAddress[];
-      facilities?: (InstalledBaseItem & { facilityOwnerPartyId?: string })[];
+      facilities?: (InstalledBaseItem & { facilityOwnerPartyId?: string; isDelegated?: boolean })[];
       delegations?: Delegation[];
       /** Invoice number -> issuer, for invoices already listed to this session. */
       listedInvoices?: Record<string, string>;

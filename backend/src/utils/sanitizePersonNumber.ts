@@ -1,4 +1,5 @@
 import { logger } from './logger';
+import { luhnCheck } from './util';
 
 export const sanitizePersonNumber = (input: string | undefined | null): string => {
   if (!input) return '';
@@ -31,4 +32,12 @@ export const sanitizePersonNumber = (input: string | undefined | null): string =
   }
 
   return digits;
+};
+
+export const parsePersonNumber = (input: unknown): string | undefined => {
+  if (typeof input !== 'string' || !/^\s*(\d{6}|\d{8})[-+]?\d{4}\s*$/.test(input)) return undefined;
+
+  const normalized = sanitizePersonNumber(input);
+
+  return /^\d{12}$/.test(normalized) && luhnCheck(normalized) ? normalized : undefined;
 };

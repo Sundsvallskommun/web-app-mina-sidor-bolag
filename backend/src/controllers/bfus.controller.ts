@@ -63,8 +63,7 @@ export class BFUSController {
       logger.error(`Error processing consent (${operation})`, error);
       if (axios.isAxiosError(error) && error.response) {
         console.error('Status:', error.response?.status);
-        console.error('Data:', JSON.stringify(error.response?.data, null, 2));
-        console.error('Request:', error.config);
+        console.error('Request:', error.config?.method, error.config?.url);
         throw new HttpException(error.response.status, error.response.statusText);
       }
       throw new HttpException(500, 'Internal server error');

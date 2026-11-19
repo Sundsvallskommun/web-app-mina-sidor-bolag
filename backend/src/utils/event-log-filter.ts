@@ -5,6 +5,7 @@ import {
   IMPERSONATION_SOURCE_TYPE,
   LOGIN_SOURCE_TYPE,
 } from '@/constants/event-log';
+import { HttpException } from '@exceptions/HttpException';
 
 export const getActivitySourceTypes = (sourceTypeFilter: unknown): readonly string[] => {
   const value = typeof sourceTypeFilter === 'string' ? sourceTypeFilter.toLowerCase() : '';
@@ -26,17 +27,29 @@ interface ActivityFilterParams {
   to?: string;
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})?)?$/;
+
+const toFilterDate = (value: unknown): string | undefined => {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || !ISO_DATE.test(value) || Number.isNaN(Date.parse(value))) {
+    throw new HttpException(400, 'Bad Request');
+  }
+  return value;
+};
+
 export const buildActivityFilter = ({ namespace, sourceTypeFilter, from, to }: ActivityFilterParams): string => {
   const sourceTypes = getActivitySourceTypes(sourceTypeFilter);
   const sourceTypeClause = sourceTypes.map(sourceType => `sourceType:'${sourceType}'`).join(' or ');
 
+  const fromDate = toFilterDate(from);
+  const toDate = toFilterDate(to);
   const parts = [`owner:'${namespace}'`, sourceTypes.length > 1 ? `(${sourceTypeClause})` : sourceTypeClause];
 
-  if (from) {
-    parts.push(`created >= '${from}'`);
+  if (fromDate) {
+    parts.push(`created >= '${fromDate}'`);
   }
-  if (to) {
-    parts.push(`created <= '${to}'`);
+  if (toDate) {
+    parts.push(`created <= '${toDate}'`);
   }
 
   return parts.join(' and ');

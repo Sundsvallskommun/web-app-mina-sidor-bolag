@@ -1,4 +1,4 @@
-import { sanitizePersonNumber } from '@utils/sanitizePersonNumber';
+import { parsePersonNumber, sanitizePersonNumber } from '@utils/sanitizePersonNumber';
 
 describe('sanitizePersonNumber', () => {
   // [description, input, expected 12-digit output]
@@ -20,4 +20,21 @@ describe('sanitizePersonNumber', () => {
   it.each(cases)('%s', (_description, input, expected) => {
     expect(sanitizePersonNumber(input)).toBe(expected);
   });
+});
+
+describe('parsePersonNumber', () => {
+  it.each([
+    ['199001011239', '199001011239'],
+    ['19900101-1239', '199001011239'],
+    ['900101-1239', '199001011239'],
+  ])('accepts %s', (input, expected) => {
+    expect(parsePersonNumber(input)).toBe(expected);
+  });
+
+  it.each([['199001011234'], ['12345'], [''], [undefined], [123], ['../199001011239/x'], ['1990010112391']])(
+    'rejects %p',
+    input => {
+      expect(parsePersonNumber(input)).toBeUndefined();
+    },
+  );
 });

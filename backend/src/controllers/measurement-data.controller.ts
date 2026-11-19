@@ -6,6 +6,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { RepresentingEntity } from '@/interfaces/representing.interface';
 import ApiService from '@/services/api.service';
+import { assertOwnsFacility } from '@/services/ownership.service';
 import { Controller, Get, Req } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { ApiResponse } from '@interfaces/service';
@@ -23,6 +24,12 @@ export class MeasurementDataController {
     const delegations = req.session?.cache?.delegations ?? [];
     const { category, facilityIds, fromDate, toDate, aggregateOn, display } = req.query;
     const facilityIdList = [facilityIds ?? []].flat() as string[];
+
+    if (facilityIdList.some(id => typeof id !== 'string')) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    facilityIdList.forEach(facilityId => assertOwnsFacility(req, facilityId));
 
     const resolvePartyId = (
       representing: RepresentingEntity,

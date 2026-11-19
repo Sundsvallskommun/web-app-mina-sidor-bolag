@@ -1,4 +1,5 @@
 import { ENVIRONMENT, MOCK_ORGANIZATION_NAME, MOCK_ORGANIZATION_NUMBER, MUNICIPALITY_ID, NAMESPACE } from '@/config';
+import { parsePersonNumber } from '@utils/sanitizePersonNumber';
 import { getApiBase } from '@/config/api-config';
 import { LegalEntity2, PersonEngagement } from '@/data-contracts/legalentity/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
@@ -28,12 +29,13 @@ const prioritizeEngagements = (engagements: PersonEngagement[]): PersonEngagemen
 };
 
 export const getPersonEngagements = async (user: User): Promise<PersonEngagement[]> => {
-  if (!user.personNumber) {
+  const personNumber = parsePersonNumber(user.personNumber);
+  if (!personNumber) {
     throw new Error('Bad Request: personalNumber is required');
   }
   const apiBase = getApiBase('legalentity');
   const apiService = new ApiService();
-  const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/person/${user.personNumber}`;
+  const url = `${apiBase}/${MUNICIPALITY_ID}/engagements/person/${personNumber}`;
 
   let res: { data: PersonEngagement[] };
   if ((ENVIRONMENT === 'TEST' || ENVIRONMENT === 'LOCAL') && MOCK_ORGANIZATION_NAME && MOCK_ORGANIZATION_NUMBER) {
