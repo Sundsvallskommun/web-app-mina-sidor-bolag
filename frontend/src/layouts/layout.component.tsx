@@ -10,6 +10,7 @@ import React, { useEffect, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { CornerAssistant } from '@components/corner-assistant/corner-assistant.component';
 import { User } from '@interfaces/user';
+import { isEnvEnabled } from '@utils/runtime-env';
 
 export function Layout({ title, children }: { title: string; children: React.ReactNode }) {
   const { set: setMatomo } = useLocalStorageValue('matomoIsActive');
@@ -241,7 +242,7 @@ export function Layout({ title, children }: { title: string; children: React.Rea
         resetConsentOnInit={false}
         onConsent={cookieConsentHandler}
       />
-      {ownsFacilities && process.env.NEXT_PUBLIC_FEATURE_AI_ASSISTANT === 'true' ? <CornerAssistant /> : null}
+      {ownsFacilities && isEnvEnabled(process.env.NEXT_PUBLIC_FEATURE_AI_ASSISTANT) ? <CornerAssistant /> : null}
     </>
   );
 }
