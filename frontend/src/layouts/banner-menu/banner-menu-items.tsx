@@ -4,6 +4,7 @@ import { getRepresentingModeRoute } from '../../utils/representingModeRoute';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
 import { useThemeQueries } from '@sk-web-gui/react';
+import { isEnvEnabled } from '@utils/runtime-env';
 
 export const useBannerMenuItems = () => {
   const { representingMode } = useAppContext();
@@ -65,7 +66,7 @@ export const useBannerMenuItems = () => {
     >
       {capitalize(t('common:consents'))}
     </NextLink>,
-    ...(process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES === 'true'
+    ...(isEnvEnabled(process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES)
       ? [
           <NextLink
             key={`banner-menu-item-7`}

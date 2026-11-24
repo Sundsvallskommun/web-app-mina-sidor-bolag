@@ -8,6 +8,7 @@ import { RepresentingMode } from '@interfaces/app';
 import { titleCase } from '@utils/title-caser';
 import { useAppContext } from '@contexts/app.context';
 import { getRepresentingModeRoute } from '@utils/representingModeRoute';
+import { isEnvEnabled } from '@utils/runtime-env';
 
 export const UserMenu = () => {
   const { t } = useTranslation('common');
@@ -64,7 +65,7 @@ export const UserMenu = () => {
                   <Icon icon={<ArrowRight />} />
                 </Button>
               </PopupMenu.Item>
-              {process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES === 'true' && (
+              {isEnvEnabled(process.env.NEXT_PUBLIC_FEATURE_DISTURBANCES) && (
                 <PopupMenu.Item>
                   <Button
                     className="!justify-between"
