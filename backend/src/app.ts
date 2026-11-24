@@ -58,6 +58,7 @@ import { join } from 'path';
 import { getMetadataArgsStorage, useExpressServer } from 'routing-controllers';
 import { routingControllersToSpec } from 'routing-controllers-openapi';
 import { createLocalSessionStore } from '@utils/session-store';
+import { livenessHandler } from '@/routes/liveness.route';
 import swaggerUi from 'swagger-ui-express';
 import { registerSamlFlow, SamlIdpConfig } from './auth/saml.factory';
 import { adminVerify, adminLoginSuccess } from './auth/verify.admin';
@@ -123,6 +124,7 @@ class App {
 
     this.initializeDataFolders();
 
+    this.initializeLivenessRoute();
     this.initializeMiddlewares();
     this.initializeRoutes(Controllers);
     if (this.swaggerEnabled) {
@@ -142,6 +144,15 @@ class App {
 
   public getServer() {
     return this.app;
+  }
+
+  /**
+   * Registers the liveness probe outside the routing-controllers prefix, so the path stays
+   * `/health` whatever BASE_URL_PREFIX is set to, and ahead of the shared middleware chain,
+   * so probe traffic is never rate limited, session-loaded or written to the request log.
+   */
+  private initializeLivenessRoute() {
+    this.app.get('/health', livenessHandler);
   }
 
   private initializeMiddlewares() {

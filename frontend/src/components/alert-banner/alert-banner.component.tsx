@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { useLocalStorageValue } from '@react-hookz/web';
 import { Button, Icon, cx } from '@sk-web-gui/react';
+import { envEquals } from '@utils/runtime-env';
 
 export const AlertBanner: React.FC = () => {
   const message = process.env.NEXT_PUBLIC_ALERT_BANNER_MESSAGE;
@@ -16,9 +17,10 @@ export const AlertBanner: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message, setVisible]);
 
-  const bgColor = severity === 'warning' ? 'bg-warning-surface-accent' : 'bg-vattjom-surface-accent';
+  const isWarning = envEquals(severity, 'warning');
+  const bgColor = isWarning ? 'bg-warning-surface-accent' : 'bg-vattjom-surface-accent';
 
-  const iconColor = severity === 'warning' ? 'warning' : 'vattjom';
+  const iconColor = isWarning ? 'warning' : 'vattjom';
 
   return visible ? (
     <div className={cx('w-full text-primary', bgColor)}>
