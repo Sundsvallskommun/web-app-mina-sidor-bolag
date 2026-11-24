@@ -19,7 +19,7 @@ export const StatisticsFilterAccordionItem = ({
     <Accordion.Item.Header>
       <Accordion.Item.Title>
         <div className="flex flex-col gap-6 text-left">
-          <label className="text-h4-sm">{label}</label>
+          <label className="text-label-medium">{label}</label>
           {subtitle && <span className="text-small text-dark-secondary font-normal">{subtitle}</span>}
         </div>
       </Accordion.Item.Title>
@@ -27,6 +27,8 @@ export const StatisticsFilterAccordionItem = ({
         {(open: boolean) => <Icon icon={open ? <ChevronUp /> : <ChevronDown />} />}
       </Accordion.Item.Button>
     </Accordion.Item.Header>
-    <Accordion.Item.Content>{children}</Accordion.Item.Content>
+    <Accordion.Item.Content>
+      <div className="pt-12">{children}</div>
+    </Accordion.Item.Content>
   </Accordion.Item>
 );

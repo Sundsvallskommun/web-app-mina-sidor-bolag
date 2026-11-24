@@ -9,6 +9,7 @@ import {
   NODE_ENV,
   ORIGIN,
   PORT,
+  REDIS_CONFIG,
   SAML_ADMIN_CALLBACK_URL,
   SAML_ADMIN_ENTRY_SSO,
   SAML_ADMIN_FAILURE_REDIRECT,
@@ -50,13 +51,13 @@ import session from 'express-session';
 import { existsSync, mkdirSync } from 'fs';
 import helmet from 'helmet';
 import hpp from 'hpp';
-import createMemoryStore from 'memorystore';
 import morgan from 'morgan';
 import passport from 'passport';
+import type { Server } from 'node:http';
 import { join } from 'path';
 import { getMetadataArgsStorage, useExpressServer } from 'routing-controllers';
 import { routingControllersToSpec } from 'routing-controllers-openapi';
-import createFileStore from 'session-file-store';
+import { createLocalSessionStore } from '@utils/session-store';
 import swaggerUi from 'swagger-ui-express';
 import { registerSamlFlow, SamlIdpConfig } from './auth/saml.factory';
 import { adminVerify, adminLoginSuccess } from './auth/verify.admin';
@@ -64,12 +65,6 @@ import { customerLoginSuccess, customerVerify, noopLogoutVerify } from './auth/v
 import { deleteAISession } from '@services/selfserviceai.service';
 import { additionalConverters } from '@utils/custom-validation-classes';
 
-const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
-const sessionTTL = 12 * 60 * 60;
-// NOTE: memory uses ms while file uses seconds
-const sessionStore = new SessionStoreCreate(
-  SESSION_MEMORY ? { ttl: sessionTTL * 1000, checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
-);
 const apiService = new ApiService();
 
 passport.serializeUser(function (user, done) {
@@ -113,7 +108,14 @@ class App {
   public port: string | number;
   public swaggerEnabled: boolean;
 
-  constructor(Controllers) {
+  /**
+   * In production the store comes from `createSessionStore()` in server.ts (Redis when
+   * REDIS_HOST is set). The local default keeps tests and single-instance use simple.
+   */
+  constructor(
+    Controllers,
+    private readonly sessionStore: session.Store = createLocalSessionStore(),
+  ) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
@@ -129,8 +131,8 @@ class App {
     this.initializeErrorHandling();
   }
 
-  public listen() {
-    this.app.listen(this.port, () => {
+  public listen(): Server {
+    return this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 App listening on the port ${this.port}`);
@@ -162,7 +164,7 @@ class App {
         secret: SECRET_KEY,
         resave: false,
         saveUninitialized: false,
-        store: sessionStore,
+        store: this.sessionStore,
         cookie: {
           httpOnly: true,
           sameSite: 'lax',
@@ -266,17 +268,16 @@ class App {
   }
 
   private initializeDataFolders() {
-    const databaseDir: string = join(__dirname, '../data/database');
-    if (!existsSync(databaseDir)) {
-      mkdirSync(databaseDir, { recursive: true });
-    }
     const logsDir: string = join(__dirname, '../data/logs');
     if (!existsSync(logsDir)) {
       mkdirSync(logsDir, { recursive: true });
     }
-    const sessionsDir: string = join(__dirname, '../data/sessions');
-    if (!existsSync(sessionsDir)) {
-      mkdirSync(sessionsDir, { recursive: true });
+    // Only the file session store needs local disk. Redis and memory keep the pod stateless.
+    if (!REDIS_CONFIG.enabled && !SESSION_MEMORY) {
+      const sessionsDir: string = join(__dirname, '../data/sessions');
+      if (!existsSync(sessionsDir)) {
+        mkdirSync(sessionsDir, { recursive: true });
+      }
     }
   }
 }

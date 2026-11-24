@@ -5,13 +5,12 @@ import { RepresentingMode } from '@interfaces/app';
 import { getRepresentingModeRoute } from '@utils/representingModeRoute';
 import { usePathname, useRouter } from 'next/navigation';
 import axios from 'axios';
-import { useEffect } from 'react';
-import { User } from '../../interfaces/user';
-import { useApi } from '../../services/api-service';
-import { useInactivityAlert } from '../../utils/use-inactivity-trigger.hook';
+import React, { useEffect } from 'react';
+import { User } from '@interfaces/user';
+import { useApi } from '@services/api-service';
 import { RepresentingEntity } from '@data-contracts/backend/data-contracts';
 
-export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode }> = ({ children }) => {
+export const LoginGuard: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { representingMode } = useAppContext();
@@ -27,15 +26,6 @@ export const LoginGuard: React.FC<{ tabKey?: string; children?: React.ReactNode 
   } = useApi<RepresentingEntity>({
     url: '/representing',
     method: 'get',
-  });
-
-  const handleLogout = () => {
-    router.push('/logout');
-  };
-
-  useInactivityAlert({
-    logoutCallback: handleLogout,
-    inactivityCondition: !userIsFetching && !userError && !pathname?.includes('login'),
   });
 
   useEffect(() => {

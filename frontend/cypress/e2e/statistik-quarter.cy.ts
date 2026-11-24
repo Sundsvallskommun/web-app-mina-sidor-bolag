@@ -46,10 +46,10 @@ describe('Statistik - QUARTER Aggregation', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('contain.text', 'Din statistik');
 
-    cy.get('[data-cy="facility-type-Elförbrukning"]').should('exist').click({ force: true });
+    cy.get('[data-cy="statistics-filter"] select[data-cy^="facility-type-"]').select('Elförbrukning');
 
     // Switch to day view
-    cy.get('[data-cy="date-toggle-day-button"]').click();
+    cy.get('[data-cy="statistics-filter"] select[data-cy="date-toggle"]').select('day');
 
     cy.wait('@hourData');
 

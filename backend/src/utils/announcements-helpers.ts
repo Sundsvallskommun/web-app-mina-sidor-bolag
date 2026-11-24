@@ -29,6 +29,7 @@ interface RawRssItem {
   enclosure?: Enclosure;
   pubDate: string;
   link: string;
+  overrideLink?: string;
   channel: string;
   category: string;
   guid: string;

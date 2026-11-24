@@ -1,41 +1,105 @@
 'use client';
 
-import { Accordion, Button, Checkbox, NavigationBar, RadioButton } from '@sk-web-gui/react';
+import { Accordion, Button, Icon, Modal } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
-import { useFormContext } from 'react-hook-form';
+import { ListFilter } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StatisticsForm } from '../../statistics.component';
 import { StatisticsFilterAccordionItem } from './components/statistics-filter-accordion-item.component';
 import { StatisticsFilterDay } from './components/statistics-filter-day.component';
 import { StatisticsFilterMonth } from './components/statistics-filter-month.component';
 import { StatisticsFilterYear } from './components/statistics-filter-year.component';
-import { CompareYearSelect } from './components/compare-year-select.component';
-import { StatisticsFilterMode, useStatisticsFilter } from './use-statistics-filter';
-import { Category } from '@interfaces/measurement-data';
-import { isNormalYear } from '@utils/normal-year';
+import { FacilityCheckboxGroup } from './components/mobile/facility-checkbox-group.component';
+import { FilterRadioGroup, FilterRadioOption } from './components/mobile/filter-radio-group.component';
+import { isNormalYear, NORMAL_YEAR } from '@utils/normal-year';
+import { FacilityType } from '@utils/facility';
+import { canCompareWithNormalYear, StatisticsFilterMode } from './statistics-filter.rules';
+import {
+  StatisticsFilterDraftProvider,
+  useApplyStatisticsFilterDraft,
+  useComparableYears,
+  useFacilityOptions,
+  useStatisticsFilter,
+  useStatisticsPeriod,
+} from './statistics-filter.store';
 
-export interface StatisticsFilterMobileProps {
-  closeHandler: () => void;
-}
-
-export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileProps) => {
+export const StatisticsFilterMobile = () => {
   const { t } = useTranslation(['common', 'statistics']);
-  const { watch, setValue } = useFormContext<StatisticsForm>();
-  const compareYearValue = watch('year');
-  const mode = watch('mode');
-  const facilityType = watch('facilityType');
-  const isDistrictHeating = watch('category') === Category.DISTRICT_HEATING;
+  const [isOpen, setIsOpen] = useState(false);
+  const [draftKey, setDraftKey] = useState(0);
 
-  const { availableFacilityTypes, isHourQuarter, fromDate, addresses, facilities } = useStatisticsFilter();
+  const openHandler = () => {
+    setDraftKey((key) => key + 1);
+    setIsOpen(true);
+  };
+  const closeHandler = () => setIsOpen(false);
 
-  const modeOptions: { value: StatisticsFilterMode; label: string }[] = [
+  return (
+    <>
+      <Button
+        size="md"
+        variant="secondary"
+        className="sm:hidden w-full mt-24"
+        onClick={openHandler}
+        leftIcon={<Icon icon={<ListFilter />} />}
+      >
+        {t('statistics:filter')}
+      </Button>
+
+      <Modal
+        className="sm:hidden flex flex-col w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95dvh] pb-24"
+        disableCloseOutside={true}
+        style={{ zIndex: 60 }}
+        show={isOpen}
+        onClose={closeHandler}
+        label={t('statistics:toFilter')}
+      >
+        <Modal.Content className="overflow-y-auto min-h-0">
+          <StatisticsFilterDraftProvider key={draftKey}>
+            <StatisticsFilterMobileContent closeHandler={closeHandler} />
+          </StatisticsFilterDraftProvider>
+        </Modal.Content>
+      </Modal>
+    </>
+  );
+};
+
+const StatisticsFilterMobileContent = ({ closeHandler }: { closeHandler: () => void }) => {
+  const { t } = useTranslation(['common', 'statistics']);
+
+  const mode = useStatisticsFilter((state) => state.mode);
+  const facilityType = useStatisticsFilter((state) => state.facilityType);
+  const facilityIds = useStatisticsFilter((state) => state.facilityIds);
+  const compareYear = useStatisticsFilter((state) => state.compareYear);
+  const isHourQuarter = useStatisticsFilter((state) => state.isHourQuarter);
+  const showNormalYear = useStatisticsFilter(canCompareWithNormalYear);
+  const setFacilityType = useStatisticsFilter((state) => state.setFacilityType);
+  const setFacilityIds = useStatisticsFilter((state) => state.setFacilityIds);
+  const setMode = useStatisticsFilter((state) => state.setMode);
+  const setCompareYear = useStatisticsFilter((state) => state.setCompareYear);
+  const { availableFacilityTypes, groups, totalFacilities, hasOneFacility } = useFacilityOptions();
+  const comparableYears = useComparableYears();
+  const { fromDate } = useStatisticsPeriod();
+  const applyDraft = useApplyStatisticsFilterDraft();
+
+  const facilityTypeOptions: FilterRadioOption<FacilityType>[] = availableFacilityTypes.map((type) => ({
+    value: type,
+    label: type,
+  }));
+
+  const modeOptions: FilterRadioOption<StatisticsFilterMode>[] = [
     { value: 'year', label: t('statistics:year') },
     { value: 'month', label: t('statistics:month') },
     { value: 'day', label: t('statistics:day') },
   ];
 
+  const compareYearOptions: FilterRadioOption<string>[] = [
+    { value: '', label: t('statistics:compareYearNone') },
+    ...comparableYears.map((year) => ({ value: year, label: year })),
+    ...(showNormalYear ? [{ value: NORMAL_YEAR, label: t('statistics:normalYear') }] : []),
+  ];
+
   const periodSubtitle = (() => {
-    if (!fromDate) return '';
     const d = dayjs(fromDate);
     if (mode === 'year') return d.format('YYYY');
     if (mode === 'month') return d.format('MMMM YYYY');
@@ -43,108 +107,55 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
   })();
 
   const compareYearSubtitle = (() => {
-    if (!compareYearValue) return t('statistics:compareYearNone');
-    if (isNormalYear(compareYearValue)) return t('statistics:normalYear');
-    return dayjs(compareYearValue).format('YYYY');
+    if (!compareYear) return t('statistics:compareYearNone');
+    if (isNormalYear(compareYear)) return t('statistics:normalYear');
+    return compareYear;
   })();
 
   return (
-    <div className="flex flex-col gap-24 pb-24" data-cy="statistics-filter-mobile">
+    <div className="flex flex-col gap-24" data-cy="statistics-filter-mobile">
       <Accordion>
         {availableFacilityTypes.length > 1 && (
           <StatisticsFilterAccordionItem label={t('statistics:agreementType')} subtitle={facilityType ?? ''}>
-            <div className="flex flex-col gap-12">
-              {availableFacilityTypes.map((type) => (
-                <RadioButton
-                  key={type}
-                  value={type}
-                  name="facilityTypeMobile"
-                  checked={facilityType === type}
-                  onChange={() => setValue('facilityType', type)}
-                  data-cy={`facility-type-mobile-${type}`}
-                >
-                  {type}
-                </RadioButton>
-              ))}
+            <div className="pl-6">
+              <FilterRadioGroup
+                name="facilityType-mobile"
+                legend={t('statistics:agreementType')}
+                options={facilityTypeOptions}
+                value={facilityType ?? ('' as FacilityType)}
+                onChange={setFacilityType}
+                dataCy="facility-type-mobile"
+              />
             </div>
           </StatisticsFilterAccordionItem>
         )}
 
-        <StatisticsFilterAccordionItem
-          label={t('common:address')}
-          subtitle={t('statistics:selection', { count: addresses.selected.length, total: addresses.groups.length })}
-        >
-          <div className="flex flex-col gap-4">
-            <Checkbox
-              className="py-8 px-2"
-              checked={!addresses.noneChecked}
-              indeterminate={!addresses.allChecked && !addresses.noneChecked}
-              onChange={addresses.toggleAll}
-              data-cy="address-select-all-mobile"
-            >
-              {t('statistics:selectAll')}
-            </Checkbox>
-            <div className="pl-16 flex flex-col gap-4 max-h-[22vh] overflow-y-auto">
-              {addresses.groups.map((group) => (
-                <Checkbox
-                  className="py-8 px-2"
-                  key={group.address}
-                  checked={addresses.isChecked('addresses', group.address)}
-                  onChange={() => addresses.toggle('addresses', group.address)}
-                >
-                  {group.address || t('common:unknownAddress')}
-                </Checkbox>
-              ))}
+        {!hasOneFacility && (
+          <StatisticsFilterAccordionItem
+            label={t('statistics:facility')}
+            subtitle={t('statistics:selection', { count: facilityIds.length, total: totalFacilities })}
+          >
+            <div className="pl-6">
+              <FacilityCheckboxGroup
+                groups={groups}
+                value={facilityIds}
+                onChange={setFacilityIds}
+                dataCy="facility-select-mobile"
+              />
             </div>
-          </div>
-        </StatisticsFilterAccordionItem>
-
-        <StatisticsFilterAccordionItem
-          label={t('statistics:facilities')}
-          subtitle={t('statistics:selection', { count: facilities.checked.length, total: facilities.list.length })}
-        >
-          <div className="flex flex-col gap-4">
-            <Checkbox
-              className="py-8 px-2"
-              checked={!facilities.noneChecked}
-              indeterminate={!facilities.allChecked && !facilities.noneChecked}
-              onChange={facilities.toggleAll}
-              data-cy="facility-select-all-mobile"
-            >
-              {t('statistics:selectAll')}
-            </Checkbox>
-            <div className="pl-16 flex flex-col gap-4 max-h-[22vh] overflow-y-auto">
-              {facilities.list.map((facilityId) => (
-                <Checkbox
-                  className="py-8 px-2"
-                  key={facilityId}
-                  checked={facilities.isChecked('facilities', facilityId)}
-                  onChange={() => facilities.toggle('facilities', facilityId)}
-                >
-                  {facilityId}
-                </Checkbox>
-              ))}
-            </div>
-          </div>
-        </StatisticsFilterAccordionItem>
+          </StatisticsFilterAccordionItem>
+        )}
 
         <StatisticsFilterAccordionItem label={t('statistics:showBy')} subtitle={periodSubtitle}>
-          <div className="flex flex-col gap-16">
-            <NavigationBar className="bg-tertiary-surface flex justify-around" size="md" data-cy="date-toggle-mobile">
-              {modeOptions.map((item) => (
-                <NavigationBar.Item key={item.value} className="w-full !p-0 !m-0">
-                  <Button
-                    className="w-full !h-[12px] !py-0"
-                    size="sm"
-                    inverted={mode === item.value}
-                    onClick={() => setValue('mode', item.value)}
-                    data-cy={`date-toggle-mobile-${item.value}-button`}
-                  >
-                    {item.label}
-                  </Button>
-                </NavigationBar.Item>
-              ))}
-            </NavigationBar>
+          <div className="flex flex-col gap-16 pl-6">
+            <FilterRadioGroup
+              name="mode-mobile"
+              legend={t('statistics:showBy')}
+              options={modeOptions}
+              value={mode}
+              onChange={setMode}
+              dataCy="date-toggle-mobile"
+            />
             {mode === 'year' && <StatisticsFilterYear />}
             {mode === 'month' && <StatisticsFilterMonth />}
             {mode === 'day' && <StatisticsFilterDay />}
@@ -153,19 +164,29 @@ export const StatisticsFilterMobile = ({ closeHandler }: StatisticsFilterMobileP
 
         {!isHourQuarter && (
           <StatisticsFilterAccordionItem label={t('statistics:compareYear')} subtitle={compareYearSubtitle}>
-            <CompareYearSelect
-              fromDate={fromDate}
-              mode={mode}
-              isDistrictHeating={isDistrictHeating}
-              isAggregating={facilities.checked.length > 1}
-              className="w-full"
-              dataCy="compare-year-select-mobile"
-            />
+            <div className="pl-6">
+              <FilterRadioGroup
+                name="compareYear-mobile"
+                legend={t('statistics:compareYear')}
+                options={compareYearOptions}
+                value={compareYear}
+                onChange={setCompareYear}
+                dataCy="compare-year-select-mobile"
+              />
+            </div>
           </StatisticsFilterAccordionItem>
         )}
       </Accordion>
 
-      <Button onClick={closeHandler} size="lg" className="w-full" data-cy="statistics-filter-mobile-apply">
+      <Button
+        onClick={() => {
+          applyDraft();
+          closeHandler();
+        }}
+        size="lg"
+        className="w-full"
+        data-cy="statistics-filter-mobile-apply"
+      >
         {t('statistics:use')}
       </Button>
     </div>

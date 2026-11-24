@@ -39,26 +39,13 @@ describe('Statistik - Handle previous (inactive) facility', () => {
     cy.get('#content').should('exist');
     cy.get('h1').should('exist').should('contain.text', 'Din statistik');
 
-    // Default selection is Storgatan 1 + facility 111. Swap to Gamla Vägen 42 + facility 444.
-    cy.get('[data-cy="address-select"]').should('exist').click();
-    cy.get('[data-cy="address-select"]')
-      .contains('label', 'Gamla Vägen 42')
-      .find('input[type="checkbox"]')
+    cy.get('[data-cy="facility-select"] input.sk-form-combobox-select').click();
+    cy.get('[data-cy="facility-select"] input[role="option"][value="444"]')
       .check({ force: true })
       .should('be.checked');
-    cy.get('[data-cy="address-select"]')
-      .contains('label', 'Storgatan 1')
-      .find('input[type="checkbox"]')
+    cy.get('[data-cy="facility-select"] input[role="option"][value="111"]')
       .uncheck({ force: true })
       .should('not.be.checked');
-
-    // Adding an address does not auto-select its facilities — pick 444 manually.
-    cy.get('[data-cy="facility-select"]').should('exist').click();
-    cy.get('[data-cy="facility-select"]')
-      .contains('label', '444')
-      .find('input[type="checkbox"]')
-      .check({ force: true })
-      .should('be.checked');
   };
 
   it('should render chart for previous (inactive) facility instead of OnlyTrade', () => {

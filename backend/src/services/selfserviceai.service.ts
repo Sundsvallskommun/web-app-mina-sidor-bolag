@@ -12,13 +12,16 @@ const selfServiceAIApiBase = getApiBase('selfserviceai');
 const apiService = new ApiService();
 
 const aiSessions = new Map<string, { started: Promise<SessionResponse | undefined>; at: number }>();
+const eneoSessionIds = new Map<string, { started: Promise<string | undefined>; at: number }>();
 const AI_SESSION_MEMORY_MS = 12 * 60 * 60 * 1000;
 
 const forgetStaleAISessions = () => {
   const cutoff = Date.now() - AI_SESSION_MEMORY_MS;
-  aiSessions.forEach((entry, sessionID) => {
-    if (entry.at < cutoff) aiSessions.delete(sessionID);
-  });
+  [aiSessions, eneoSessionIds].forEach((sessions: Map<string, { at: number }>) =>
+    sessions.forEach((entry, id) => {
+      if (entry.at < cutoff) sessions.delete(id);
+    }),
+  );
 };
 
 export const ensureAISession = async (req: RequestWithUser): Promise<SessionResponse | undefined> => {
@@ -46,8 +49,37 @@ export const ensureAISession = async (req: RequestWithUser): Promise<SessionResp
   return ai;
 };
 
+export const ensureEneoSessionId = async (
+  req: RequestWithUser,
+  prime: (aiSessionId: string) => Promise<string | undefined>,
+): Promise<string | undefined> => {
+  const ai = req.session?.ai;
+  if (!ai?.sessionId) return undefined;
+  if (ai.eneoSessionId) return ai.eneoSessionId;
+
+  forgetStaleAISessions();
+  let entry = eneoSessionIds.get(ai.sessionId);
+  if (!entry) {
+    const aiSessionId = ai.sessionId;
+    const started = prime(aiSessionId);
+    entry = { started, at: Date.now() };
+    eneoSessionIds.set(aiSessionId, entry);
+    started.then(
+      eneoSessionId => {
+        if (!eneoSessionId) eneoSessionIds.delete(aiSessionId);
+      },
+      () => eneoSessionIds.delete(aiSessionId),
+    );
+  }
+
+  const eneoSessionId = await entry.started;
+  if (eneoSessionId) ai.eneoSessionId = eneoSessionId;
+  return eneoSessionId;
+};
+
 export const restartAISession = async (req: RequestWithUser): Promise<SessionResponse | undefined> => {
   aiSessions.delete(req.sessionID);
+  if (req.session.ai?.sessionId) eneoSessionIds.delete(req.session.ai.sessionId);
   delete req.session.ai;
   return ensureAISession(req);
 };
@@ -88,6 +120,7 @@ export const deleteAISession = async (req: RequestWithUser) => {
   const id = req.session?.ai?.sessionId;
 
   if (!id) return false;
+  eneoSessionIds.delete(id);
 
   const url = `${selfServiceAIApiBase}/${MUNICIPALITY_ID}/session/${id}`;
 

@@ -45,4 +45,10 @@ describe('Handle user with only trade agreement', () => {
         'Din förbrukning ser du hos ditt elnätsbolag. För denna anläggning ser vi att du har Sundsvall Elnät AB.'
       );
   });
+
+  it('hides facility and agreement type selects when user has one facility', () => {
+    cy.get('[data-cy="statistics-filter"] [data-cy="date-toggle"]').should('exist');
+    cy.get('[data-cy="facility-select"]').should('not.exist');
+    cy.get('[data-cy="statistics-filter"] select[data-cy^="facility-type-"]').should('not.exist');
+  });
 });

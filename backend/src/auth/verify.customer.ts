@@ -1,7 +1,6 @@
 import { MUNICIPALITY_ID } from '@config';
 import { VerifiedCallback } from '@node-saml/passport-saml';
 import { logger } from '@utils/logger';
-import prisma from '@utils/prisma';
 import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@exceptions/HttpException';
 import { RequestWithUser } from '@interfaces/auth.interface';
@@ -9,10 +8,8 @@ import { Profile } from '@interfaces/profile.interface';
 import { RepresentingMode } from '@interfaces/representing.interface';
 import { User } from '@interfaces/users.interface';
 import ApiService from '../services/api.service';
-import getDelegatedFacilities from '../services/delegation.service';
 import { populateRepresentingCache } from '@services/session-cache.service';
 import { defaultPermissions } from '@services/authorization.service';
-import { getPersonEngagements } from '@services/legal-entity.service';
 import { writeLoginEvent } from '@services/login-event.service';
 import { sanitizePersonNumber } from '@utils/sanitizePersonNumber';
 
@@ -60,16 +57,6 @@ export const customerVerify = (apiService: ApiService) => async (profile: Profil
       permissions: defaultPermissions(),
     };
 
-    const userSettings = await prisma.userSettings.findFirst({ where: { userId: findUser.partyId } });
-    if (!userSettings) {
-      await prisma.userSettings.create({
-        data: {
-          userId: findUser.partyId,
-          feedbackLifespan: 'oneMonth',
-          readNotificationsClearedDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
-        },
-      });
-    }
     done(null, findUser);
   } catch (err) {
     if (err instanceof HttpException && err?.status === 404) {
@@ -98,21 +85,6 @@ export const customerLoginSuccess = async (
     }
 
     await writeLoginEvent(req.session.representing, user);
-
-    await getPersonEngagements(user)
-      .then(engagements => {
-        req.session.representingBusinessChoices = engagements;
-      })
-      .catch(err => {
-        console.error('Error fetching business engagements:', err);
-        req.session.representingBusinessChoices = [];
-      });
-
-    req.session.cache ??= {};
-    req.session.cache.delegations = await getDelegatedFacilities(user.partyId).catch(err => {
-      console.error('Error fetching delegated facilities:', err);
-      return [];
-    });
     await populateRepresentingCache(req, user);
   } catch (error) {
     logger.error(error);

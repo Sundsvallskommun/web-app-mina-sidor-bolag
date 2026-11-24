@@ -31,6 +31,7 @@ export const useRepresentingSwitch = () => {
     try {
       const res = await representingMutation.mutateAsync(representingDto);
       if (!res.error) {
+        queryClient.removeQueries({ queryKey: ['paged-agreements'], type: 'inactive' });
         await invalidateQueries();
       } else {
         if (representingDto.mode === RepresentingMode.BUSINESS) {

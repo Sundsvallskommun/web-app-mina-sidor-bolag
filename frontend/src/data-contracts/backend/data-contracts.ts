@@ -484,10 +484,6 @@ export interface CreateMandateDto {
   transactionId: string;
 }
 
-export interface CreateReadNotificationsDto {
-  caseId: string;
-}
-
 export interface ContactSettingChannel {
   contactMethod: string;
   destination: string;
@@ -713,8 +709,4 @@ export interface SignApiResponse {
 export interface SignCollectApiResponse {
   data: SignCollect;
   message: string;
-}
-
-export interface PatchUserSettingsDto {
-  feedbackLifespan: "untilRemoved" | "oneMonth" | "twoWeeks";
 }

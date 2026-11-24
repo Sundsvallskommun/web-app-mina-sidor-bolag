@@ -27,6 +27,15 @@ export const DisturbanceListItem = ({ disturbance }: DisturbanceListItemProps) =
     );
   };
 
+  const renderTitle = () => {
+    const status = t(`disturbances:cardTitleParts.status.${disturbance.status}`);
+    const category = disturbance.category
+      ? t(`disturbances:cardTitleParts.category.${disturbance.category}`, { defaultValue: '' })
+      : '';
+
+    return t('disturbances:cardTitle', { status, category }).trim();
+  };
+
   const renderEndDetails = (status: string) => {
     const isClosed = status === 'CLOSED';
     const endLabel = isClosed ? t('disturbances:endedAt') : t('disturbances:plannedEnd');
@@ -50,7 +59,7 @@ export const DisturbanceListItem = ({ disturbance }: DisturbanceListItemProps) =
       <Disclosure.Header>
         <Disclosure.Title className="sm:flex sm:justify-between block gap-16">
           <div className="flex flex-col gap-8">
-            <h3 className="text-large">{disturbance.title}</h3>
+            <h3 className="text-large">{renderTitle()}</h3>
             <div className="text-base font-normal m-0 text-secondary sm:flex block">
               <p className="pr-4">{t('disturbances:start')}</p>
               <p>{dayjs(disturbance.plannedStartDate).format('DD MMMM YYYY, kl HH.mm').toLowerCase()}</p>

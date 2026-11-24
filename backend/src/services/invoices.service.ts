@@ -6,12 +6,27 @@ import { getApiBase } from '@/config/api-config';
 import { DwrCustomerInvoicesResponse, fromDwrInvoice, toDwrInvoiceStatus } from '@utils/invoice-dwr-mappers';
 import dayjs from 'dayjs';
 
+export const INVOICE_YEARS_BACK = 4;
+
+const yearPeriodFrom = (year: number): string =>
+  dayjs()
+    .year(year - 1)
+    .endOf('year')
+    .format('YYYY-MM-DD');
+const yearPeriodTo = (year: number): string => dayjs().year(year).endOf('year').format('YYYY-MM-DD');
+
 /**
  * How far back invoices are listed. Shared so the ownership check looks in the
  * same window the list endpoint returns - a narrower window there would reject
  * downloads of invoices the user can see.
  */
-export const getInvoicePeriodFrom = (): string => dayjs().startOf('year').subtract(4, 'years').format('YYYY-MM-DD');
+export const getInvoicePeriodFrom = (): string => yearPeriodFrom(dayjs().year() - INVOICE_YEARS_BACK);
+
+export const getInvoiceYearPeriod = (year: number): { periodFrom: string; periodTo: string } | undefined => {
+  const currentYear = dayjs().year();
+  if (!Number.isInteger(year) || year < currentYear - INVOICE_YEARS_BACK || year > currentYear) return undefined;
+  return { periodFrom: yearPeriodFrom(year), periodTo: yearPeriodTo(year) };
+};
 
 /**
  * DataWarehouseReader customer invoice list. Everything about invoices goes
@@ -26,6 +41,7 @@ type FetchParams = {
   organizationNumbers: string[];
   facilityIds: string[];
   periodFrom: string;
+  periodTo?: string;
   page: number;
   limit: number;
   invoiceStatus?: CustomerInvoiceInvoiceStatusEnum;
@@ -41,6 +57,7 @@ export default class InvoicesService {
       organizationNumbers,
       facilityIds,
       periodFrom,
+      periodTo,
       page,
       limit,
       invoiceStatus,
@@ -57,10 +74,12 @@ export default class InvoicesService {
           facilityIds: facilityIds,
           organizationNumber: organizationNumbers.toString(),
           periodFrom,
+          periodTo,
           status: toDwrInvoiceStatus(invoiceStatus),
           invoiceNumbers,
           page,
           limit,
+          sortBy: ['periodTo'],
           sortDirection: 'DESC',
         },
       },

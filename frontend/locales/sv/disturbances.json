@@ -14,5 +14,18 @@
   "endedAt": "Avslutat:",
   "status": "Status",
   "noDisturbances": "Just nu finns inga avbrott som påverkar dina anläggningar.",
-  "unknown": "Okänt"
+  "unknown": "Okänt",
+  "cardTitle": "{{status}} {{category}}",
+  "cardTitleParts": {
+    "status": { "PLANNED": "Planerat avbrott", "OPEN": "Pågående avbrott", "CLOSED": "Åtgärdat avbrott" },
+    "category": {
+      "COMMUNICATION": "Bredband",
+      "DISTRICT_COOLING": "Fjärrkyla",
+      "DISTRICT_HEATING": "Fjärrvärme",
+      "ELECTRICITY": "El",
+      "ELECTRICITY_TRADE": "Elhandel",
+      "WASTE_MANAGEMENT": "Avfall",
+      "WATER": "Vatten"
+    }
+  }
 }

@@ -2,24 +2,29 @@ import { setIntercepts } from '../support/e2e';
 import { RepresentingMode } from '@interfaces/app';
 import { getInvoices, getPendingInvoices } from '../fixtures/getInvoices';
 import { CustomerInvoice } from '@data-contracts/backend/data-contracts';
+import { getInvoiceYear } from '@services/invoice-service';
 
 const formatAmount = (value?: number) =>
   new Intl.NumberFormat('sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value ?? 0);
+
+const listedInvoices = (): CustomerInvoice[] => [
+  ...(getPendingInvoices().data.invoices ?? []),
+  ...(getInvoices(RepresentingMode.PRIVATE).data.invoices ?? []),
+];
+
+const allInvoicesResponse = () => ({
+  data: {
+    invoices: listedInvoices(),
+    _meta: { page: 1, limit: 100, totalRecords: 999, totalPages: 1, count: 999 },
+  },
+  message: 'success',
+});
 
 describe('Fakturor', () => {
   beforeEach(() => {
     cy.viewport('macbook-16');
     setIntercepts(RepresentingMode.PRIVATE);
-    cy.intercept('GET', '**/api/invoices?**', {
-      data: {
-        invoices: [
-          ...(getPendingInvoices().data.invoices ?? []),
-          ...(getInvoices(RepresentingMode.PRIVATE).data.invoices ?? []),
-        ],
-        _meta: { page: 1, limit: 100, totalRecords: 999, totalPages: 1, count: 999 },
-      },
-      message: 'success',
-    }).as('getInvoices');
+    cy.intercept('GET', '**/api/invoices?**', allInvoicesResponse()).as('getInvoices');
     cy.intercept('GET', '**/api/invoices/pending?**', getPendingInvoices()).as('getPendingInvoices');
     cy.visit('/privat/fakturor');
   });
@@ -57,6 +62,42 @@ describe('Fakturor', () => {
     cy.get('[data-cy="description"]').should('have.text', invoice.invoiceDescription);
     cy.get('[data-cy="invoice-status-label"]').should('have.text', 'Obetald');
     cy.get('[data-cy="administration"]').should('exist').should('have.text', 'Sundsvall Energi');
+  });
+
+  it('groups all invoices under a heading per year', () => {
+    cy.wait('@getInvoices');
+    const listed = listedInvoices();
+    const years = [...new Set(listed.map(getInvoiceYear))].sort().reverse();
+
+    cy.get('[data-cy="invoice-year-select"]').should('have.value', '');
+    cy.get('[data-cy="all-invoices"] h3').should('have.length', years.length);
+    years.forEach((year, index) => {
+      cy.get('[data-cy="all-invoices"] h3').eq(index).should('have.text', year);
+      cy.get(`[data-cy="invoices-year-${year}"] [data-cy^="invoice-list-item-"]`).should(
+        'have.length',
+        listed.filter((invoice) => getInvoiceYear(invoice) === year).length
+      );
+    });
+  });
+
+  it('filters all invoices by the selected year', () => {
+    cy.wait('@getInvoices');
+    const year = new Date().getFullYear().toString();
+
+    cy.intercept({ method: 'GET', pathname: '**/api/invoices', query: { year } }, allInvoicesResponse()).as(
+      'getInvoicesForYear'
+    );
+
+    cy.get('[data-cy="invoice-year-select"]').select(year);
+    cy.wait('@getInvoicesForYear');
+    cy.location('search').should('include', `year=${year}`);
+
+    cy.get('[data-cy="all-invoices"] h3').should('not.exist');
+    cy.get('[data-cy="all-invoices"] [data-cy^="invoice-list-item-"]').should('have.length', listedInvoices().length);
+
+    cy.get('[data-cy="invoice-year-select"]').select('Alla år');
+    cy.location('search').should('not.include', 'year=');
+    cy.get('[data-cy="all-invoices"] h3').should('exist');
   });
 
   it('shows an error state when the pending fetch fails', () => {
