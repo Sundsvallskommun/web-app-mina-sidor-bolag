@@ -353,7 +353,7 @@ export const mergeMeasurementDataSets = (
     return {
       ...rest,
       timestamp: currentDate,
-      chartTimestamp: (index + 1).toString(),
+      chartTimestamp: formatMeasurementDates(currentDate, aggregation),
       value: value ?? 0,
       previousValue: previousMeasurement?.value ?? 0,
     };
@@ -371,6 +371,46 @@ export const mergeMeasurementDataSets = (
       previousTemperatureData: previous.temperatureData,
     };
   }
+};
+
+export const fillChartPeriod = <T extends StatisticsMeasurementData | MergedStatisticsMeasurementData>(
+  data: T,
+  fromDate: string
+): T => {
+  const aggregation = data.aggregatedOn;
+  const series = data.measurementData?.[0];
+  if (!aggregation || !fromDate || !series) {
+    return data;
+  }
+
+  const slotAggregation = aggregation === Aggregation.QUARTER ? Aggregation.HOUR : aggregation;
+  const length = getDataLength(slotAggregation, fromDate);
+  if (!length) {
+    return data;
+  }
+
+  const format = getDateFindFormat(slotAggregation);
+  const points: Array<MeasurementPoints | MergedMeasurementPoints> = series.measurementPoints ?? [];
+  const existingSlots = new Set(points.map((point) => dayjs(point.timestamp).format(format)));
+
+  const missingPoints = Array.from({ length }, (_, index) => getCurrentDate(index, fromDate, slotAggregation))
+    .filter((timestamp) => !existingSlots.has(dayjs(timestamp).format(format)))
+    .map((timestamp) => ({
+      timestamp,
+      chartTimestamp: formatMeasurementDates(timestamp, aggregation),
+      value: 0,
+      ...(aggregation === Aggregation.QUARTER ? { values: new Array(4).fill(0) } : {}),
+    }));
+
+  if (!missingPoints.length) {
+    return data;
+  }
+
+  const measurementPoints = [...points, ...missingPoints].sort(
+    (a, b) => dayjs(a.timestamp).valueOf() - dayjs(b.timestamp).valueOf()
+  );
+
+  return { ...data, measurementData: [{ ...series, measurementPoints }] } as T;
 };
 
 export const mergeCorrectedUsageDataSets = (
