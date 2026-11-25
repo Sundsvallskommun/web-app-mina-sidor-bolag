@@ -11,6 +11,7 @@ import {
   YAxis,
   ZIndexLayer,
   BarShapeProps,
+  usePlotArea,
 } from 'recharts';
 import { useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
@@ -74,21 +75,18 @@ type AboveBarTooltipProps = ComponentProps<typeof CustomTooltip> & {
 
 const AboveBarTooltip = ({ coordinate, ...props }: AboveBarTooltipProps) => {
   const boxRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, chartWidth: 0 });
+  const [width, setWidth] = useState(0);
+  const plotArea = usePlotArea();
 
   useLayoutEffect(() => {
-    const box = boxRef.current;
-    setSize({
-      width: box?.offsetWidth ?? 0,
-      chartWidth: box?.closest('.recharts-wrapper')?.clientWidth ?? 0,
-    });
+    setWidth(boxRef.current?.offsetWidth ?? 0);
   }, [props.label, props.payload]);
 
-  if (!props.active || !props.payload?.length || !coordinate) {
+  if (!props.active || !props.payload?.length || !coordinate || !plotArea) {
     return null;
   }
 
-  const left = clamp(coordinate.x - size.width / 2, 0, size.chartWidth - size.width);
+  const left = clamp(coordinate.x - width / 2, plotArea.x, plotArea.x + plotArea.width - width);
 
   return (
     <div
@@ -97,7 +95,7 @@ const AboveBarTooltip = ({ coordinate, ...props }: AboveBarTooltipProps) => {
       style={{
         left,
         top: -4,
-        visibility: size.width ? 'visible' : 'hidden',
+        visibility: width ? 'visible' : 'hidden',
       }}
     >
       <CustomTooltip {...props} />
