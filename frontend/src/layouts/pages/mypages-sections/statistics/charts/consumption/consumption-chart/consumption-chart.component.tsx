@@ -11,7 +11,9 @@ import {
   YAxis,
   ZIndexLayer,
   BarShapeProps,
+  usePlotArea,
 } from 'recharts';
+import { useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
 import CustomTooltip from '@layouts/pages/mypages-sections/statistics/charts/custom-tooltip.component';
 import {
   useStatisticsFilter,
@@ -63,6 +65,42 @@ const mobileTickFormatter = (aggregatedOn?: string) => (value: string, index: nu
     default:
       return value;
   }
+};
+
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max));
+
+type AboveBarTooltipProps = ComponentProps<typeof CustomTooltip> & {
+  coordinate?: { x: number; y: number };
+};
+
+const AboveBarTooltip = ({ coordinate, ...props }: AboveBarTooltipProps) => {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  const plotArea = usePlotArea();
+
+  useLayoutEffect(() => {
+    setWidth(boxRef.current?.offsetWidth ?? 0);
+  }, [props.label, props.payload]);
+
+  if (!props.active || !props.payload?.length || !coordinate || !plotArea) {
+    return null;
+  }
+
+  const left = clamp(coordinate.x - width / 2, plotArea.x, plotArea.x + plotArea.width - width);
+
+  return (
+    <div
+      ref={boxRef}
+      className="absolute w-max -translate-y-full"
+      style={{
+        left,
+        top: -4,
+        visibility: width ? 'visible' : 'hidden',
+      }}
+    >
+      <CustomTooltip {...props} />
+    </div>
+  );
 };
 
 interface SingleBarProps {
@@ -267,9 +305,11 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             />
           )}
           <Tooltip
+            position={{ x: 0, y: 0 }}
+            wrapperStyle={{ zIndex: 10 }}
             cursor={<BarCursor dataLength={chartData?.length ?? 0} />}
             content={
-              <CustomTooltip
+              <AboveBarTooltip
                 fromDate={fromDate}
                 year={compareYear}
                 isConsumption={true}
