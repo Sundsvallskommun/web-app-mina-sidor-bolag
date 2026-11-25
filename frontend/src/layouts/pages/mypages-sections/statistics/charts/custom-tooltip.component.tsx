@@ -71,6 +71,8 @@ const formatDateLabel = (
 };
 
 interface QuarterTooltipProps {
+  fromDate: string;
+  label?: keyof typeof Months;
   payload: PayloadItem[];
   unit: string;
   isDarkMode: boolean;
@@ -112,7 +114,7 @@ const legendTeckShape = (props: { index: number; isDarkMode: boolean; maskId?: s
   );
 };
 
-const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit, isDarkMode }) => {
+const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ fromDate, label, payload, unit, isDarkMode }) => {
   const { t } = useTranslation('statistics');
   const temperatureItem = payload.find((p) => p.name === PAYLOAD_NAMES.TEMPERATURE);
 
@@ -121,10 +123,10 @@ const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit, isDarkMo
     .map((item, index) => {
       const fromMin = dayjs(item.payload.timestamp)
         .add(index * 15, 'minute')
-        .format('HH:mm');
+        .format('HH.mm');
       const toMin = dayjs(item.payload.timestamp)
         .add((index + 1) * 15, 'minute')
-        .format('HH:mm');
+        .format('HH.mm');
       return (
         <div key={'quarter-tooltip-item-' + index} className="flex flex-row items-center">
           <div className="h-18 m-0 flex items-center flex-row">
@@ -135,10 +137,12 @@ const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit, isDarkMo
             })}
           </div>
           <div className="h-18 ml-4 flex items-center">
-            {fromMin} – {toMin}
-            <b className={'ml-12'}>
+            <span>
+              <b>
+                {fromMin}–{toMin}:
+              </b>{' '}
               {formatNumber(item.value)} {unit}
-            </b>
+            </span>
           </div>
         </div>
       );
@@ -147,14 +151,14 @@ const QuarterTooltip: React.FC<QuarterTooltipProps> = ({ payload, unit, isDarkMo
   const reversedItems = [...items].reverse();
 
   return (
-    <div className="flex flex-col gap-8 justify-evenly shadow-100 rounded-8 p-8 bg-background-content">
+    <div className="flex flex-col gap-8 justify-evenly shadow-100 rounded-utility px-16 py-10 bg-background-content text-small">
+      {formatDateLabel(Aggregation.QUARTER, fromDate, label)}
       {reversedItems}
       {temperatureItem?.value !== undefined && (
         <div className="h-18 flex items-center">
-          {t('statistics:temperature.title')}
-          <b className={'ml-12'}>
-            {formatNumber(temperatureItem.value)} {UNIT_TEMPERATURE}
-          </b>
+          <span>
+            <b>{t('statistics:temperature.title')}:</b> {formatNumber(temperatureItem.value)} {UNIT_TEMPERATURE}
+          </span>
         </div>
       )}
     </div>
@@ -186,35 +190,37 @@ const StandardTooltip: React.FC<StandardTooltipProps> = ({ fromDate, label, aggr
   const currentTemperatureLabel = previousTemperatureItem ? `${temperatureTitle} ${currentLabel}` : temperatureTitle;
 
   return (
-    <div className="shadow-100 rounded-cards px-24 py-14 bg-background-content">
+    <div className="shadow-100 rounded-utility px-16 py-10 bg-background-content text-small">
       {formatDateLabel(aggregatedOn, fromDate, label)}
 
-      {currentValueItem && (
-        <p>
-          <strong>{currentLabel}:</strong> {formatNumber(currentValueItem.value)} {unit}
-        </p>
-      )}
+      <div className="[&>p]:my-2">
+        {currentValueItem && (
+          <p>
+            <strong>{currentLabel}:</strong> {formatNumber(currentValueItem.value)} {unit}
+          </p>
+        )}
 
-      {comparisonLabel && previousValueItem && (
-        <p>
-          <strong>{comparisonLabel}:</strong> {formatNumber(previousValueItem.payload.previousValue ?? 0)} {unit}
-        </p>
-      )}
+        {comparisonLabel && previousValueItem && (
+          <p>
+            <strong>{comparisonLabel}:</strong> {formatNumber(previousValueItem.payload.previousValue ?? 0)} {unit}
+          </p>
+        )}
 
-      {temperatureItem?.value !== undefined && (
-        <p>
-          <strong>{currentTemperatureLabel}:</strong> {formatNumber(temperatureItem.value)} {UNIT_TEMPERATURE}
-        </p>
-      )}
+        {temperatureItem?.value !== undefined && (
+          <p>
+            <strong>{currentTemperatureLabel}:</strong> {formatNumber(temperatureItem.value)} {UNIT_TEMPERATURE}
+          </p>
+        )}
 
-      {previousTemperatureItem?.value !== undefined && (
-        <p>
-          <strong>
-            {temperatureTitle} {comparisonLabel}:
-          </strong>{' '}
-          {formatNumber(previousTemperatureItem.value)} {UNIT_TEMPERATURE}
-        </p>
-      )}
+        {previousTemperatureItem?.value !== undefined && (
+          <p>
+            <strong>
+              {temperatureTitle} {comparisonLabel}:
+            </strong>{' '}
+            {formatNumber(previousTemperatureItem.value)} {UNIT_TEMPERATURE}
+          </p>
+        )}
+      </div>
     </div>
   );
 };
@@ -238,7 +244,15 @@ export default function CustomTooltip({
   const toolTipUnit = getUnit(isConsumption, unit);
 
   if (aggregatedOn === Aggregation.QUARTER) {
-    return <QuarterTooltip payload={payload} unit={toolTipUnit} isDarkMode={isDarkMode ?? false} />;
+    return (
+      <QuarterTooltip
+        fromDate={fromDate}
+        label={label}
+        payload={payload}
+        unit={toolTipUnit}
+        isDarkMode={isDarkMode ?? false}
+      />
+    );
   }
 
   return (
