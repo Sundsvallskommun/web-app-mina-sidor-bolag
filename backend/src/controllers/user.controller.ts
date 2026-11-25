@@ -2,16 +2,13 @@ import { Controller, Req, Get, Res } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
-import { getApiBase } from '@/config/api-config';
-import { MUNICIPALITY_ID } from '@/config';
-import ApiService from '@/services/api.service';
 import { CustomerRelation } from '@/data-contracts/customer/data-contracts';
 import {
   Delegation,
   InstalledBaseItem,
   InstalledBaseItemMetaData,
-  InstalledBaseResponse,
 } from '@/data-contracts/installedbase/data-contracts';
+import { fetchInstalledBase, uniqueFacilities } from '@/services/installed-base.service';
 import { FacilityAddress } from '@/interfaces/facility-address.interface';
 import { getRepresentingPartyId, hasRepresentingContext } from '@utils/getRepresentingPartyId';
 import dayjs from 'dayjs';
@@ -43,21 +40,17 @@ function relevantType(installation: InstalledBaseItem): boolean {
   return relevantTypes.includes(installation.type);
 }
 
-function itemsDelegatedBy(delegation: Delegation, installedBaseRes: InstalledBaseResponse): InstalledBaseItem[] {
-  const customer = installedBaseRes.installedBaseCustomers[0];
+function itemsDelegatedBy(delegation: Delegation, ownerItems: InstalledBaseItem[]): InstalledBaseItem[] {
   const delegatedFacilityIds = new Set(delegation.facilities.map(f => f.id));
 
-  return customer.items
+  return ownerItems
     .filter(facilityActiveLastThreeYears)
     .filter(i => delegatedFacilityIds.has(i.facilityId))
-    .map(item => ({ ...item, isDelegated: true, facilityOwnerPartyId: customer.partyId }));
+    .map(item => ({ ...item, isDelegated: true, facilityOwnerPartyId: delegation.owner }));
 }
 
 @Controller()
 export class UserController {
-  private readonly apiService = new ApiService();
-  private readonly installedBaseApiBase = getApiBase('installedbase');
-
   @Get('/me')
   @OpenAPI({ summary: 'Return current user' })
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<UserData> {
@@ -82,103 +75,56 @@ export class UserController {
     ) {
       req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations?.customerRelations ?? [];
-      const facilities: InstalledBaseItem[] = [];
       const addressDictionary: { [key: string]: string[] } = {};
-      let customerItems: InstalledBaseItem[] = [];
-      const installedBasePromises = [];
-      const delegatedInstalledBasePromises = [];
-      let delegatedItems: InstalledBaseItem[] = [];
 
-      for (const { organizationNumber } of relations) {
-        try {
-          const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${organizationNumber}`;
-          const installedBaseParams = {
-            partyId: getRepresentingPartyId(representing),
-          };
-          const thisPromise = this.apiService
-            .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
-            .then(res => {
-              const installedBaseRes: InstalledBaseResponse = res.data;
-              const customer = installedBaseRes.installedBaseCustomers[0];
-              return customer.items.filter(facilityActiveLastThreeYears).filter(relevantType);
-            });
-          installedBasePromises.push(thisPromise);
-        } catch (error) {
-          // Handle 404 as empty
-          if (error.status === 404) {
-            installedBasePromises.push(Promise.resolve([]));
-          } else {
-            throw new HttpException(500, 'Could not fetch installedbases');
-          }
-        }
-      }
-      await Promise.allSettled(installedBasePromises)
-        .then(results => {
-          customerItems = results
-            .filter(r => r.status === 'fulfilled')
-            .map((r: PromiseFulfilledResult<any>) => r.value)
-            .flat();
-        })
-        .catch(() => {
-          customerItems = [];
+      // Own facilities: one request for the represented party across all related organizations
+      const customerItemsPromise = fetchInstalledBase(
+        getRepresentingPartyId(representing),
+        relations.map(r => r.organizationNumber).filter(Boolean),
+        req.user,
+      )
+        .then(items => items.filter(facilityActiveLastThreeYears).filter(relevantType))
+        .catch(error => {
+          logger.error('Could not fetch installed base', error);
+          return [] as InstalledBaseItem[];
         });
 
-      // Fetch complete facility information for delegated facilities
-      const delegations = req.session.cache.delegations;
-      const installedBaseByPair = new Map<string, Promise<InstalledBaseResponse>>();
+      // Delegated facilities: one request per delegation owner across the organizations delegated from them
+      const delegations = req.session.cache.delegations ?? [];
+      const orgIdsByOwner = new Map<string, Set<string>>();
       let delegatedFacilityCount = 0;
       delegations.forEach(delegation => {
-        const pairsInDelegation = new Set<string>();
+        if (!orgIdsByOwner.has(delegation.owner)) orgIdsByOwner.set(delegation.owner, new Set());
         delegation.facilities.forEach(facility => {
           delegatedFacilityCount += 1;
-          const pair = `${facility.businessEngagementOrgId}|${delegation.owner}`;
-          if (!installedBaseByPair.has(pair)) {
-            const installedBaseUrl = `${this.installedBaseApiBase}/${MUNICIPALITY_ID}/installedbase/${facility.businessEngagementOrgId}`;
-            const installedBaseParams = {
-              partyId: delegation.owner,
-            };
-            installedBaseByPair.set(
-              pair,
-              this.apiService
-                .get<InstalledBaseResponse>({ url: installedBaseUrl, params: installedBaseParams }, req.user)
-                .then(res => res.data),
-            );
-          }
-          pairsInDelegation.add(pair);
-        });
-        pairsInDelegation.forEach(pair => {
-          delegatedInstalledBasePromises.push(
-            installedBaseByPair.get(pair).then(installedBaseRes => itemsDelegatedBy(delegation, installedBaseRes)),
-          );
+          orgIdsByOwner.get(delegation.owner).add(facility.businessEngagementOrgId);
         });
       });
+      const itemsByOwner = new Map<string, Promise<InstalledBaseItem[]>>();
+      orgIdsByOwner.forEach((orgIds, owner) => {
+        itemsByOwner.set(owner, fetchInstalledBase(owner, Array.from(orgIds), req.user));
+      });
       logger.info(
-        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_pairs=${installedBaseByPair.size}`,
+        `ME_FANOUT sid=${getSessionMarker()} relations=${relations.length} delegated_facilities=${delegatedFacilityCount} delegated_unique_owners=${itemsByOwner.size}`,
       );
-      await Promise.allSettled(delegatedInstalledBasePromises)
-        .then(results => {
-          delegatedItems = results
-            .filter(r => r.status === 'fulfilled')
-            .map((r: PromiseFulfilledResult<any>) => r.value)
-            .flat();
-        })
-        .catch(error => {
-          console.log('Error in delegated installed base promises', error);
-          delegatedItems = [];
-        });
 
-      const uniqueFacilities: InstalledBaseItem[] = delegatedItems.reduce((accumulator, current) => {
-        if (
-          !accumulator.some(
-            (item: InstalledBaseItem) => item.facilityId === current.facilityId && item.type === current.type,
-          )
-        ) {
-          accumulator.push(current);
-        }
-        return accumulator;
-      }, []);
+      const delegatedResults = await Promise.allSettled(
+        delegations.map(delegation =>
+          itemsByOwner.get(delegation.owner).then(ownerItems => itemsDelegatedBy(delegation, ownerItems)),
+        ),
+      );
+      delegatedResults
+        .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+        .forEach(r => logger.error('Could not fetch delegated installed base', r.reason));
+      const delegatedItems = delegatedResults
+        .filter((r): r is PromiseFulfilledResult<InstalledBaseItem[]> => r.status === 'fulfilled')
+        .flatMap(r => r.value);
 
-      facilities.push(...customerItems, ...uniqueFacilities);
+      // Each group is deduplicated on its own, as before: a facility both owned and delegated is listed in both
+      const facilities: InstalledBaseItem[] = [
+        ...uniqueFacilities(await customerItemsPromise),
+        ...uniqueFacilities(delegatedItems),
+      ];
 
       for (const installation of facilities) {
         const {
@@ -186,7 +132,7 @@ export class UserController {
           facilityId,
         } = installation;
         if (
-          installation.metaData.some(
+          installation.metaData?.some(
             (data: InstalledBaseItemMetaData) =>
               (data.key.includes('isproduction') || data.key.includes('issmallproduction')) &&
               data.value.includes('true'),
