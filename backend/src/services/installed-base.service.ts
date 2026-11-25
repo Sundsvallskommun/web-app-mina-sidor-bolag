@@ -54,7 +54,6 @@ export const fetchInstalledBase = async (
     const totalPages = res.data?._meta?.totalPages ?? 1;
     if (pageItems.length === 0 || page >= totalPages) break;
   }
-  console.log('DWR IB items ', items);
 
   return items.map(fromDwrInstalledBaseItem);
 };
