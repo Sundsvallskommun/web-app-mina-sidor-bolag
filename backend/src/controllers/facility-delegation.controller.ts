@@ -2,10 +2,11 @@ import { getApiBase } from '@/config/api-config';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@/services/api.service';
-import { logIdentityLookup } from '@/middlewares/identity-lookup.middleware';
-import { assertOwnsFacilityDelegation } from '@/services/ownership.service';
+import { identityLookupLimiter, logIdentityLookup } from '@/middlewares/identity-lookup.middleware';
+import { assertOwnsFacilityDelegation, assertOwnsOwnFacilities } from '@/services/ownership.service';
+import { parsePersonNumber } from '@/utils/sanitizePersonNumber';
 import { apiURL } from '@/utils/util';
-import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req } from 'routing-controllers';
+import { Body, Controller, Delete, Get, OnUndefined, Param, Patch, Post, Req, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { MUNICIPALITY_ID } from '@config';
 import { ApiResponse, ResponseData } from '@interfaces/service';
@@ -84,7 +85,13 @@ export class FacilityDelegationController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    await assertOwnsFacilityDelegation(req, delegationId);
+    const existing = await assertOwnsFacilityDelegation(req, delegationId);
+
+    if (delegateFacilityData.delegatedTo !== existing.delegatedTo) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    assertOwnsOwnFacilities(req, delegateFacilityData.facilities);
 
     const baseURL = apiURL(this.apiBase);
     const url = `${MUNICIPALITY_ID}/delegations/${delegationId}`;
@@ -124,7 +131,7 @@ export class FacilityDelegationController {
     logIdentityLookup(req, personNumber);
 
     try {
-      const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${personNumber}/guid`;
+      const url = `${this.citizenApiBase}/${MUNICIPALITY_ID}/${encodeURIComponent(personNumber)}/guid`;
       const res = await this.apiService.get<string>({ url }, req.user);
 
       return { data: res.data, message: 'success' };
@@ -137,6 +144,7 @@ export class FacilityDelegationController {
   }
 
   @Post('/delegations')
+  @UseBefore(identityLookupLimiter)
   @OnUndefined(204)
   @OpenAPI({ summary: 'Create facility delegation' })
   async createDelegate(
@@ -151,10 +159,18 @@ export class FacilityDelegationController {
       throw new HttpException(400, 'Bad Request');
     }
 
+    const personNumber = parsePersonNumber(facilityDelegationData.delegatedTo);
+
+    if (!personNumber) {
+      throw new HttpException(400, 'Bad Request');
+    }
+
+    assertOwnsOwnFacilities(req, facilityDelegationData.facilities);
+
     let personId: ResponseData<string>;
 
     try {
-      await this.getPersonIdByPersonNumber(req, facilityDelegationData.delegatedTo).then(res => {
+      await this.getPersonIdByPersonNumber(req, personNumber).then(res => {
         if (res.data === partyId) {
           throw new HttpException(409, 'PERSONID_EQUALS_USER_PARTY_ID');
         } else {

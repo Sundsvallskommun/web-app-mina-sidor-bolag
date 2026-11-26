@@ -1,4 +1,5 @@
 import { MUNICIPALITY_ID } from '@/config';
+import { parsePersonNumber } from '@utils/sanitizePersonNumber';
 import { getApiBase } from '@/config/api-config';
 import { CitizenExtended } from '@/data-contracts/citizen/data-contracts';
 import { HttpException } from '@/exceptions/HttpException';
@@ -38,10 +39,15 @@ export class CitizenController {
     @Res() res: Response<CitizenApiResponse>,
   ): Promise<Response<CitizenApiResponse>> {
     const { user } = req;
+    const personNumber = parsePersonNumber(body.personnumber);
 
-    logIdentityLookup(req, body.personnumber);
+    if (!personNumber) {
+      throw new HttpException(400, 'Bad Request');
+    }
 
-    const guidUrl = `${this.baseUrl}/${body.personnumber}/guid`;
+    logIdentityLookup(req, personNumber);
+
+    const guidUrl = `${this.baseUrl}/${personNumber}/guid`;
     try {
       const guid = await this.apiService.get<string>({ url: guidUrl }, user);
       if (!guid) {

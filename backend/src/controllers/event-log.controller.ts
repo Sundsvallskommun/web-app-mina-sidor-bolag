@@ -80,6 +80,12 @@ class EventLogController {
     }
 
     const url = `${this.apiBase}/${MUNICIPALITY_ID}/${partyId}`;
+    const filter = buildActivityFilter({
+      namespace: NAMESPACE,
+      sourceTypeFilter,
+      from: from as string,
+      to: to as string,
+    });
 
     try {
       const params = {
@@ -87,7 +93,7 @@ class EventLogController {
         size,
         page,
         sort: sort ?? 'created,desc',
-        filter: buildActivityFilter({ namespace: NAMESPACE, sourceTypeFilter, from: from as string, to: to as string }),
+        filter,
       };
 
       const res = await this.apiService.get<PageEvent>({ url, params }, req.user);
