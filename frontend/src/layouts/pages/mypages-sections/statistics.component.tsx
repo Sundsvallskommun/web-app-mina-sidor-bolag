@@ -27,8 +27,8 @@ export default function Statistics() {
   const { agreements: allAgreements, isDone, currentPage, totalPages } = usePagedAgreements(200, true);
 
   return (
-    <div>
-      <h1 className="mb-44 sm:mb-56 text-h1-sm sm:text-h1-lg">{t('statistics:title')}</h1>
+    <div data-page="statistics">
+      <h1 className="mb-44 stats:mb-56 text-h1-sm stats:text-h1-lg">{t('statistics:title')}</h1>
       {user ? (
         <StatisticsFilterProvider facilities={user.facilities ?? NO_FACILITIES} linkedFacilityId={linkedFacilityId}>
           <Tabs color="tertiary" size="lg" underline={false} data-cy="statistics-tabs">

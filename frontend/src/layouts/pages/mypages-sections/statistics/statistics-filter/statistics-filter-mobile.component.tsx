@@ -39,7 +39,7 @@ export const StatisticsFilterMobile = () => {
       <Button
         size="md"
         variant="secondary"
-        className="sm:hidden w-full mt-24"
+        className="stats:hidden w-full mt-24"
         onClick={openHandler}
         leftIcon={<Icon icon={<ListFilter />} />}
       >
@@ -47,7 +47,7 @@ export const StatisticsFilterMobile = () => {
       </Button>
 
       <Modal
-        className="sm:hidden flex flex-col w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95dvh] pb-24"
+        className="stats:hidden flex flex-col w-full left-0 bottom-0 fixed rounded-0 rounded-t-cards max-h-[95dvh] pb-24"
         disableCloseOutside={true}
         style={{ zIndex: 60 }}
         show={isOpen}

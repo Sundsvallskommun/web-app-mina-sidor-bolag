@@ -16,6 +16,10 @@ module.exports = {
   darkMode: 'selector', // or 'media' or 'class'
   theme: {
     extend: {
+      screens: {
+        // Statistics page mobile <-> desktop switch. Keep in sync with useMediaQuery in consumption-chart.component.tsx.
+        stats: '600px',
+      },
       maxWidth: {
         content: '128rem', // default in core is based on screens
         'main-content': '106.2rem',

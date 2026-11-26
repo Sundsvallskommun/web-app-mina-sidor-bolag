@@ -2,11 +2,13 @@
 
 import { cx, FormLabel, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { generateSelectableYears } from '../generateDateLists';
 import { useStatisticsFilter, useStatisticsPeriod } from '../statistics-filter.store';
 
 export const StatisticsFilterYear: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
+  const { t } = useTranslation('statistics');
   const selectableYears = useMemo(() => {
     return generateSelectableYears(dayjs().format('YYYY-MM-DD'));
   }, []);
@@ -16,7 +18,7 @@ export const StatisticsFilterYear: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 
 
   return (
     <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
-      <FormLabel className="text-label-medium sm:text-label-small">År</FormLabel>
+      <FormLabel className="text-label-medium stats:text-label-small">{t('statistics:year')}</FormLabel>
       <Select
         size={size}
         value={dayjs(date).startOf('year').format('YYYY-MM-DD')}
