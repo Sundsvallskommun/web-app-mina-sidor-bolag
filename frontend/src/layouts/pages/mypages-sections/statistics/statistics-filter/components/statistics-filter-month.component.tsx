@@ -2,11 +2,13 @@
 
 import { cx, FormLabel, Select } from '@sk-web-gui/react';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 import { generateSelectableMonths } from '../generateDateLists';
 import { useStatisticsFilter, useStatisticsPeriod } from '../statistics-filter.store';
 
 export const StatisticsFilterMonth: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
+  const { t } = useTranslation('statistics');
   const selectableMonths = useMemo(() => {
     return generateSelectableMonths(dayjs().format('YYYY-MM-DD'));
   }, []);
@@ -16,7 +18,7 @@ export const StatisticsFilterMonth: React.FC<{ size?: 'sm' | 'md' }> = ({ size =
 
   return (
     <div className={cx(`flex flex-col gap-8 w-full lg:pt-0`)}>
-      <FormLabel className="text-label-medium sm:text-label-small">Månad</FormLabel>
+      <FormLabel className="text-label-medium stats:text-label-small">{t('statistics:month')}</FormLabel>
       <Select
         size={size}
         className="w-full"

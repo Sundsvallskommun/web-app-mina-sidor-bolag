@@ -59,14 +59,16 @@ body {
   flex-direction: column;
 }
 
-@media (max-width: 500px) {
-  .recharts-cartesian-axis-ticks {
-    @apply text-xs !important;
-  }
-}
-
 .root-container {
   @apply flex flex-col items-center bg-background-100;
+}
+
+// Statistics page uses the content background on mobile for chart contrast.
+// 599px = just below the `stats` screen in tailwind.config.js.
+@media (max-width: 599px) {
+  .root-container:has([data-page='statistics']) {
+    @apply bg-background-content;
+  }
 }
 
 @layer components {
