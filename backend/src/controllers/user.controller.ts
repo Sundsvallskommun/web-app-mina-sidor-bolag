@@ -73,9 +73,9 @@ export class UserController {
       getRepresentingPartyId(representing) &&
       (req.session.cache?.partyId !== getRepresentingPartyId(representing) || !req.session.cache.addresses)
     ) {
-      req.session.cache.partyId = getRepresentingPartyId(representing);
       const relations = req.session.cache?.relations?.customerRelations ?? [];
       const addressDictionary: { [key: string]: string[] } = {};
+      let fetchFailed = false;
 
       // Own facilities: one request for the represented party across all related organizations
       const customerItemsPromise = fetchInstalledBase(
@@ -86,6 +86,7 @@ export class UserController {
         .then(items => items.filter(facilityActiveLastThreeYears).filter(relevantType))
         .catch(error => {
           logger.error('Could not fetch installed base', error);
+          fetchFailed = true;
           return [] as InstalledBaseItem[];
         });
 
@@ -115,7 +116,10 @@ export class UserController {
       );
       delegatedResults
         .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-        .forEach(r => logger.error('Could not fetch delegated installed base', r.reason));
+        .forEach(r => {
+          logger.error('Could not fetch delegated installed base', r.reason);
+          fetchFailed = true;
+        });
       const delegatedItems = delegatedResults
         .filter((r): r is PromiseFulfilledResult<InstalledBaseItem[]> => r.status === 'fulfilled')
         .flatMap(r => r.value);
@@ -149,8 +153,16 @@ export class UserController {
 
         if (!addressDictionary[addressKey].includes(facilityId)) addressDictionary[addressKey].push(facilityId);
       }
+      // Always store what was fetched: it belongs to this party, so ownership checks keep working
       req.session.cache.addresses = Object.entries(addressDictionary).map(([k, v]) => ({ address: k, facilityIds: v }));
       req.session.cache.facilities = facilities;
+
+      if (fetchFailed) {
+        // Incomplete result: leave partyId unset so the next /me fetches again
+        delete req.session.cache.partyId;
+      } else {
+        req.session.cache.partyId = getRepresentingPartyId(representing);
+      }
     }
 
     const relations = req.session.cache.relations;
