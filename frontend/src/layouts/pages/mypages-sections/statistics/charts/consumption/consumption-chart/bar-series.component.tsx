@@ -15,17 +15,17 @@ interface ChartBarShapeStyle {
 
 // Shared shape for every bar series. Dims the bar when another slot is active in the tooltip.
 const ChartBarShape = ({
-  x,
-  y,
-  width,
-  height,
+  x = 0,
+  y = 0,
+  width = 0,
+  height = 0,
   payload,
   fill,
   stroke,
   radius,
   maskId,
   stackGap,
-}: BarShapeProps & ChartBarShapeStyle) => {
+}: Partial<BarShapeProps> & ChartBarShapeStyle) => {
   const isTooltipActive = useIsTooltipActive();
   const activeLabel = useActiveTooltipLabel();
   const isDimmed =
@@ -57,12 +57,7 @@ interface SingleBarProps {
 
 const SingleBar = ({ isDarkMode }: SingleBarProps) => {
   const colors = isDarkMode ? chartColors.singleBar.dark : chartColors.singleBar.light;
-  return (
-    <Bar
-      dataKey="value"
-      shape={(props) => <ChartBarShape {...props} fill={colors.fill} stroke={colors.stroke} radius={2} />}
-    />
-  );
+  return <Bar dataKey="value" shape={<ChartBarShape fill={colors.fill} stroke={colors.stroke} radius={2} />} />;
 };
 
 interface QuarterlyBarsProps {
@@ -81,16 +76,15 @@ const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => {
           dataKey={`values[${idx}]`}
           maxBarSize={14}
           stackId="a"
-          shape={(props) => (
+          shape={
             <ChartBarShape
-              {...props}
               fill={fills[idx]}
               stroke={strokes[idx]}
               radius={2}
               maskId={idx === 1 ? 'mask-stripe' : undefined}
               stackGap={4}
             />
-          )}
+          }
         />
       ))}
     </>
@@ -106,7 +100,7 @@ const PreviousValueBar = ({ isDarkMode }: PreviousValueBarProps) => {
   return (
     <Bar
       dataKey="previousValue"
-      shape={(props) => <ChartBarShape {...props} fill={colors.fill} stroke={colors.stroke} radius={[4, 4, 0, 0]} />}
+      shape={<ChartBarShape fill={colors.fill} stroke={colors.stroke} radius={[4, 4, 0, 0]} />}
     />
   );
 };
