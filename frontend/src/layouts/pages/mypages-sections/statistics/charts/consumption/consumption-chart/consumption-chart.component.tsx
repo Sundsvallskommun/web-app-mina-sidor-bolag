@@ -39,16 +39,57 @@ export interface ConsumptionChartProps {
 const TEMPERATURE_AXIS_ID = 'temperature';
 
 const calculateYAxisDomain = (dataMax: number) => {
-  if (dataMax > 0 && dataMax < 10) {
+  if (dataMax < 10) {
     return Math.floor(dataMax) + 2;
   }
-  if (dataMax > 10 && dataMax < 100) {
+  if (dataMax < 100) {
     return (Math.floor(dataMax / 10) + 1) * 10;
   }
-  if (dataMax > 100 && dataMax < 1000) {
+  if (dataMax < 1000) {
     return (Math.floor(dataMax / 100) + 1) * 100;
   }
   return (Math.floor(dataMax / 1000) + 1) * 1000;
+};
+
+interface BarValuePoint {
+  value?: number;
+  previousValue?: number;
+  values?: number[];
+}
+
+const getMaxBarValue = (points: BarValuePoint[] = []) =>
+  Math.max(
+    0,
+    ...points.map((point) =>
+      Math.max(
+        point.value ?? 0,
+        point.previousValue ?? 0,
+        (point.values ?? []).reduce((sum, v) => sum + (v ?? 0), 0)
+      )
+    )
+  );
+
+// Smallest allowed tick size. Digits are roughly 0.6em wide, so the char width follows from it.
+const AXIS_FONT_SIZE = 14;
+const Y_AXIS_CHAR_WIDTH = 9;
+const Y_AXIS_LABEL_GAP = 8;
+// Recharts places tick text tickSize (6) + tickMargin (2) from the axis line.
+const Y_AXIS_TICK_OFFSET = 8;
+// Fits labels like "-20" and "25".
+const TEMPERATURE_AXIS_WIDTH = 3 * Y_AXIS_CHAR_WIDTH + Y_AXIS_LABEL_GAP;
+
+const getYAxisWidth = (dataMax: number) => {
+  const top = calculateYAxisDomain(dataMax);
+  // Small domains get decimal ticks such as "4.5".
+  const chars = top < 10 ? 3 : String(top).length;
+  return chars * Y_AXIS_CHAR_WIDTH + Y_AXIS_LABEL_GAP;
+};
+
+// Recharts applies barCategoryGap on both sides of every slot, so a fixed px gap eats narrow slots
+// (31 days at 600px left <1px compare bars). Percentages scale with the slot.
+const getBarCategoryGap = (aggregatedOn: string | undefined, isLargeDevice: boolean) => {
+  if (!isLargeDevice) return '20%';
+  return aggregatedOn === Aggregation.QUARTER ? '15%' : '18%';
 };
 
 const mobileTickFormatter = (aggregatedOn?: string) => (value: string, index: number) => {
@@ -167,7 +208,7 @@ const QuarterlyBars = ({ isDarkMode }: QuarterlyBarsProps) => {
           <Bar
             key={`bar-${b}`}
             dataKey={`values[${idx}]`}
-            barSize={14}
+            maxBarSize={14}
             stackId="a"
             shape={(props) =>
               barShape({
@@ -243,7 +284,7 @@ const BarCursor = ({ dataLength, points, top = 0, width = 0, height = 0 }: BarCu
 };
 
 export const ConsumptionChart = (props: ConsumptionChartProps) => {
-  const isLargeDevice = useMediaQuery('(min-width: 480px)');
+  const isLargeDevice = useMediaQuery('(min-width: 600px)');
   const compareYear = useStatisticsFilter((state) => state.compareYear);
   const { fromDate } = useStatisticsPeriod();
   const { isDarkMode } = useDarkMode();
@@ -262,14 +303,19 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
   const chartData = temperatureVisible
     ? addTemperatureToMeasurementPoints(filledData)
     : filledData.measurementData?.[0]?.measurementPoints;
+  const yAxisWidth = getYAxisWidth(getMaxBarValue(chartData));
 
   return (
-    <div className="relative" style={{ maxWidth: 1000, height: 300 }} data-cy="consumption-chart">
-      <span className="absolute bottom-[100%] left-0 hidden sm:block">
+    <div
+      className="relative -mx-12 h-[240px] stats:mx-0 stats:h-[300px]"
+      style={{ maxWidth: 1000 }}
+      data-cy="consumption-chart"
+    >
+      <span className="absolute bottom-[100%] left-0">
         <strong>{data.unit}</strong>
       </span>
       {temperatureVisible && (
-        <span className="absolute bottom-[100%] right-0 hidden sm:block">
+        <span className="absolute bottom-[100%] right-0 hidden stats:block">
           <strong>{t('statistics:temperature.unit')}</strong>
         </span>
       )}
@@ -284,26 +330,30 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
             left: 4,
             bottom: 4,
           }}
-          barCategoryGap={5}
+          barCategoryGap={getBarCategoryGap(data.aggregatedOn, isLargeDevice)}
+          barGap={isLargeDevice ? 2 : 1}
         >
           <XAxis
             interval={0}
-            axisLine={false}
+            axisLine={{ stroke: isDarkMode ? chartColors.xAxis.dark : chartColors.xAxis.light, strokeWidth: 0.5 }}
             tickLine={false}
             dataKey="chartTimestamp"
             tickFormatter={isLargeDevice ? undefined : mobileTickFormatter(data.aggregatedOn)}
-            tick={{ fill: isDarkMode ? chartColors.xAxis.dark : chartColors.xAxis.light, fontSize: 14 }}
+            tick={{ fill: isDarkMode ? chartColors.xAxis.dark : chartColors.xAxis.light, fontSize: AXIS_FONT_SIZE }}
           />
-          {isLargeDevice && (
-            <YAxis
-              dx={-50}
-              textAnchor="start"
-              axisLine={false}
-              tickLine={false}
-              domain={[0, calculateYAxisDomain]}
-              tick={{ fill: isDarkMode ? chartColors.yAxis.dark : chartColors.yAxis.light }}
-            />
-          )}
+          <YAxis
+            width={yAxisWidth}
+            // Left-align labels at the axis' left edge.
+            dx={-(yAxisWidth - Y_AXIS_TICK_OFFSET)}
+            textAnchor="start"
+            axisLine={false}
+            tickLine={false}
+            domain={[0, calculateYAxisDomain]}
+            tick={{
+              fill: isDarkMode ? chartColors.yAxis.dark : chartColors.yAxis.light,
+              fontSize: AXIS_FONT_SIZE,
+            }}
+          />
           <Tooltip
             position={{ x: 0, y: 0 }}
             wrapperStyle={{ zIndex: 10 }}
@@ -329,11 +379,17 @@ export const ConsumptionChart = (props: ConsumptionChartProps) => {
                 yAxisId={TEMPERATURE_AXIS_ID}
                 orientation="right"
                 hide={!isLargeDevice}
-                width={40}
+                width={TEMPERATURE_AXIS_WIDTH}
+                // Right-align labels at the axis' right edge.
+                dx={TEMPERATURE_AXIS_WIDTH - Y_AXIS_TICK_OFFSET}
+                textAnchor="end"
                 domain={['auto', 'auto']}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: isDarkMode ? chartColors.yAxis.dark : chartColors.yAxis.light }}
+                tick={{
+                  fill: isDarkMode ? chartColors.yAxis.dark : chartColors.yAxis.light,
+                  fontSize: AXIS_FONT_SIZE,
+                }}
               />
               <Line
                 yAxisId={TEMPERATURE_AXIS_ID}

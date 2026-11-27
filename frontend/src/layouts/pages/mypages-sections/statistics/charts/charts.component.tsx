@@ -177,15 +177,15 @@ export default function Charts({
 
   return (
     <>
-      <div className="sm:bg-background-content sm:rounded-cards sm:shadow-50 mt-24 sm:py-40 sm:px-20 lg:px-32">
-        <h2 className="text-h4-md sm:hidden">
+      <div className="mt-24 stats:bg-background-content stats:rounded-cards stats:shadow-50 stats:py-40 stats:px-20 lg:px-32">
+        <h2 className="text-h4-md stats:hidden">
           {t('statistics:overview.titleWithType', { facilityType: facilityType?.toLowerCase() ?? '' })}
         </h2>
-        <h2 className="text-h4-lg hidden sm:block mb-32">{t('statistics:overview.title')}</h2>
+        <h2 className="text-h4-lg hidden stats:block mb-32">{t('statistics:overview.title')}</h2>
 
-        <p className="sm:hidden first-letter:uppercase">{periodAndAddress}</p>
+        <p className="stats:hidden first-letter:uppercase">{periodAndAddress}</p>
 
-        <div className="sm:block hidden">
+        <div className="stats:block hidden">
           <StatisticsFilter
             allAgreements={{
               isDone: isAllAgreementsDone,

@@ -124,11 +124,11 @@ export default function Consumption(props: ElectricityConsumptionProps) {
 
   return (
     <div>
-      <h4 className="sm:block hidden">
+      <h4 className="stats:block hidden">
         {facilityType} {data?.formattedDate}
         {compareYear && !isNormalYear(compareYear) && !isFetching ? <> och {compareYear}</> : ''}
       </h4>
-      <p className="sm:block hidden" data-cy="address">
+      <p className="stats:block hidden" data-cy="address">
         {addresses.join(', ')}
       </p>
       {isFetching || isPreviousFetching ? (
